@@ -1,0 +1,563 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario de Laptops{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header: Título y Botones -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Inventario de Laptops
+                </h1>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">
+                    Gestiona tu inventario de manera eficiente
+                </p>
+            </div>
+
+            <div class="flex space-x-3">
+                <!-- Botón para crear factura con laptops seleccionadas -->
+                <button id="create-invoice-btn"
+                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Crear Factura (<span id="selected-count">0</span>)
+                </button>
+
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('inventory.laptop_add') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Agregar Laptop
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Estadísticas Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Laptops -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total SKUs</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats.total }}</p>
+                    </div>
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Valor Total Inventario -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Valor Total Inventario</p>
+                        <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">${{ "{:,.2f}".format(stats.total_value) }}</p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Bajo -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Stock Bajo</p>
+                        <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{{ stats.low_stock }}</p>
+                    </div>
+                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Publicadas -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicadas</p>
+                        <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{{ stats.published if stats.published is defined else '—' }}</p>
+                    </div>
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros Avanzados -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                Filtros de Búsqueda
+            </h3>
+
+            <form method="GET" action="{{ url_for('inventory.laptops_list') }}" class="space-y-4">
+                <!-- ... (código existente de filtros, sin cambios) ... -->
+                <!-- Fila 1: Tienda, Marca, Categoría -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Tienda -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Tienda
+                        </label>
+                        <select name="store" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">Todas las tiendas</option>
+                            {% for store in filter_form.store_id.choices[1:] %}
+                                <option value="{{ store[0] }}" {% if request.args.get('store', '0')|int == store[0] %}selected{% endif %}>{{ store[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Marca -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Marca
+                        </label>
+                        <select name="brand" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">Todas las marcas</option>
+                            {% for brand in filter_form.brand_id.choices[1:] %}
+                                <option value="{{ brand[0] }}" {% if request.args.get('brand', '0')|int == brand[0] %}selected{% endif %}>{{ brand[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            📂 Categoría
+                        </label>
+                        <select name="category" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Todas</option>
+                            <option value="laptop" {% if request.args.get('category') == 'laptop' %}selected{% endif %}>💻 Laptop</option>
+                            <option value="workstation" {% if request.args.get('category') == 'workstation' %}selected{% endif %}>Workstation</option>
+                            <option value="gaming" {% if request.args.get('category') == 'gaming' %}selected{% endif %}>Gaming</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fila 2: Procesador, GPU, Pantalla -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Procesador -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Procesador
+                        </label>
+                        <select name="processor" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">Todos los procesadores</option>
+                            {% for processor in filter_form.processor_id.choices[1:] %}
+                                <option value="{{ processor[0] }}" {% if request.args.get('processor', '0')|int == processor[0] %}selected{% endif %}>{{ processor[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Tarjeta Gráfica -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            🎮 Tarjeta Gráfica
+                        </label>
+                        <select name="gpu" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">Todas las GPUs</option>
+                            {% for gpu in filter_form.graphics_card_id.choices[1:] %}
+                                <option value="{{ gpu[0] }}" {% if request.args.get('gpu', '0')|int == gpu[0] %}selected{% endif %}>{{ gpu[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Pantalla -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Pantalla
+                        </label>
+                        <select name="screen" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">Todas las pantallas</option>
+                            {% for screen in filter_form.screen_id.choices[1:] %}
+                                <option value="{{ screen[0] }}" {% if request.args.get('screen', '0')|int == screen[0] %}selected{% endif %}>{{ screen[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fila 3: Condición y Rango de Precio -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Condición -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            📋 Condición
+                        </label>
+                        <select name="condition" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Todas</option>
+                            <option value="new" {% if request.args.get('condition') == 'new' %}selected{% endif %}>Nuevo</option>
+                            <option value="used" {% if request.args.get('condition') == 'used' %}selected{% endif %}>Usado</option>
+                            <option value="refurbished" {% if request.args.get('condition') == 'refurbished' %}selected{% endif %}>Refurbished</option>
+                        </select>
+                    </div>
+
+                    <!-- Rango de Precio con Slider -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Rango de Precio
+                        </label>
+                        <div class="px-2">
+                            <!-- Slider Container -->
+                            <div id="price-slider" class="mb-4"></div>
+
+                            <!-- Display Values -->
+                            <div class="flex justify-between items-center text-sm">
+                                <div class="text-gray-600 dark:text-gray-400">
+                                    Mín: <span id="price-min-display" class="font-semibold text-indigo-600 dark:text-indigo-400">$0</span>
+                                </div>
+                                <div class="text-gray-600 dark:text-gray-400">
+                                    Máx: <span id="price-max-display" class="font-semibold text-indigo-600 dark:text-indigo-400">$0</span>
+                                </div>
+                            </div>
+
+                            <!-- Hidden inputs para enviar con el form -->
+                            <input type="hidden" name="min_price" id="min_price_input" value="{{ request.args.get('min_price', min_db_price) }}">
+                            <input type="hidden" name="max_price" id="max_price_input" value="{{ request.args.get('max_price', max_db_price) }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex space-x-3">
+                    <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        Aplicar Filtros
+                    </button>
+                    <a href="{{ url_for('inventory.laptops_list') }}" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Laptops -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" colspan="2">Laptop</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% if laptops %}
+                            {% for laptop in laptops %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <!-- Checkbox de selección -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox"
+                                           name="selected_laptop"
+                                           value="{{ laptop.id }}"
+                                           data-laptop-id="{{ laptop.id }}"
+                                           data-laptop-name="{{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}"
+                                           data-laptop-price="{{ laptop.sale_price }}"
+                                           data-laptop-description="CPU: {{ laptop.processor.name if laptop.processor else 'N/A' }} | GPU: {{ laptop.graphics_card.name if laptop.graphics_card else 'N/A' }} | RAM: {{ laptop.ram.name if laptop.ram else 'N/A' }} | SSD: {{ laptop.storage.name if laptop.storage else 'N/A' }}"
+                                           class="laptop-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                </td>
+
+                                <!-- Laptop Info con Imagen -->
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <!-- Imagen de portada o placeholder -->
+                                        <div class="flex-shrink-0 h-20 w-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 shadow-sm">
+                                            {% set cover_image = none %}
+                                            {% for image in laptop.images if image.is_cover %}
+                                                {% set cover_image = image %}
+                                            {% endfor %}
+                                            {% if not cover_image and laptop.images %}
+                                                {% set cover_image = laptop.images[0] %}
+                                            {% endif %}
+
+                                            {% if cover_image %}
+                                                <img
+                                                    src="{{ url_for('static', filename=cover_image.image_path) }}"
+                                                    alt="{{ cover_image.alt_text or laptop.display_name or (laptop.brand.name ~ ' ' ~ laptop.model.name) }}"
+                                                    class="h-full w-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
+                                                    onclick="window.location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'"
+                                                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-10 h-10 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';"
+                                                >
+                                            {% else %}
+                                                <!-- Placeholder cuando no hay imagen -->
+                                                <div class="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                                                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Informacion de la laptop -->
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                                    {{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}
+                                                </h3>
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                                                <div class="flex flex-col gap-1 mt-1">
+                                                    <div class="truncate">CPU: {{ laptop.processor.name[:25] if laptop.processor else 'N/A' }}</div>
+                                                    <div class="truncate">GPU: {{ laptop.graphics_card.name[:25] if laptop.graphics_card else 'N/A' }}</div>
+                                                    <div class="truncate">RAM: {{ laptop.ram.name[:20] if laptop.ram else 'N/A' }}</div>
+                                                    <div class="truncate">SSD: {{ laptop.storage.name[:20] if laptop.storage else 'N/A' }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Espacio adicional para mantener el colspan=2 -->
+                                <td class="hidden md:table-cell"></td>
+
+                                <!-- Categoría -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if laptop.category == 'gaming' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                                            Gaming
+                                        </span>
+                                    {% elif laptop.category == 'workstation' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                            Workstation
+                                        </span>
+                                    {% else %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                            💻 Laptop
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Precio -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 dark:text-white font-semibold">${{ "%.2f"|format(laptop.sale_price) }}</div>
+                                    {% if laptop.discount_price %}
+                                    <div class="text-xs text-green-600 dark:text-green-400">Descuento: ${{ "%.2f"|format(laptop.discount_price) }}</div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Stock -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if laptop.quantity <= 0 %}
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                            Sin stock
+                                        </span>
+                                    {% elif laptop.quantity <= laptop.min_alert %}
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                                            {{ laptop.quantity }} unidades
+                                        </span>
+                                    {% else %}
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                            {{ laptop.quantity }} unidades
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Estado (Publicado/Destacado) -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex flex-col space-y-1">
+                                        {% if laptop.is_published %}
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Publicado
+                                            </span>
+                                        {% else %}
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                Borrador
+                                            </span>
+                                        {% endif %}
+                                        {% if laptop.is_featured %}
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                                                Destacado
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3" title="Ver detalle">
+                                        <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                    {% if current_user.is_admin %}
+                                    <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Editar">
+                                        <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="px-6 py-12 text-center">
+                                    <div class="text-gray-400">
+                                        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                        </svg>
+                                        <p class="text-lg font-medium">No hay laptops en el inventario</p>
+                                        <p class="mt-1 text-sm">Agrega la primera laptop para comenzar</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if pagination.pages > 1 %}
+            <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        Mostrando <span class="font-medium">{{ pagination.per_page * (pagination.page - 1) + 1 }}</span> a
+                        <span class="font-medium">{{ [pagination.per_page * pagination.page, pagination.total]|min }}</span> de
+                        <span class="font-medium">{{ pagination.total }}</span> resultados
+                    </div>
+                    <div class="flex space-x-2">
+                        {% if pagination.has_prev %}
+                        <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                            Anterior
+                        </a>
+                        {% endif %}
+                        {% if pagination.has_next %}
+                        <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Siguiente
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/price-slider.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/inventory/price-slider.js') }}"></script>
+<script>
+// Inicializar el slider de precios cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    new PriceSlider({
+        dbMinPrice: {{ min_db_price }},
+        dbMaxPrice: {{ max_db_price }},
+        currentMinPrice: {{ request.args.get('min_price', min_db_price) }},
+        currentMaxPrice: {{ request.args.get('max_price', max_db_price) }}
+    });
+
+    // Variables para la selección de laptops
+    const selectAllCheckbox = document.getElementById('select-all');
+    const laptopCheckboxes = document.querySelectorAll('.laptop-checkbox');
+    const createInvoiceBtn = document.getElementById('create-invoice-btn');
+    const selectedCountSpan = document.getElementById('selected-count');
+
+    // Función para actualizar el contador y estado del botón
+    function updateSelection() {
+        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
+        const count = selectedCheckboxes.length;
+
+        // Actualizar contador
+        selectedCountSpan.textContent = count;
+
+        // Habilitar/deshabilitar botón
+        createInvoiceBtn.disabled = count === 0;
+
+        // Actualizar el checkbox "Seleccionar todos"
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count > 0 && count === laptopCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < laptopCheckboxes.length;
+        }
+
+        return selectedCheckboxes;
+    }
+
+    // Función para obtener los datos de las laptops seleccionadas
+    function getSelectedLaptops() {
+        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
+        const selectedLaptops = [];
+
+        selectedCheckboxes.forEach(checkbox => {
+            selectedLaptops.push({
+                id: checkbox.dataset.laptopId,
+                name: checkbox.dataset.laptopName,
+                price: parseFloat(checkbox.dataset.laptopPrice),
+                description: checkbox.dataset.laptopDescription
+            });
+        });
+
+        return selectedLaptops;
+    }
+
+    // Función para redirigir al formulario de factura
+    function goToInvoiceForm() {
+        const selectedLaptops = getSelectedLaptops();
+
+        if (selectedLaptops.length === 0) {
+            alert('Por favor, selecciona al menos una laptop');
+            return;
+        }
+
+        // Guardar en localStorage para usar en el formulario de factura
+        localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+
+        // Redirigir al formulario de factura
+        window.location.href = "{{ url_for('invoices.invoice_new') }}";
+    }
+
+    // Event listeners
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            laptopCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateSelection();
+        });
+    }
+
+    laptopCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+    });
+
+    if (createInvoiceBtn) {
+        createInvoiceBtn.addEventListener('click', goToInvoiceForm);
+    }
+
+    // Inicializar el estado de selección
+    updateSelection();
+});
+</script>
+{% endblock %}

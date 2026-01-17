@@ -1,0 +1,440 @@
+# ============================================
+# RUTAS DE CLIENTES
+# ============================================
+
+import logging
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
+from flask_login import login_required, current_user
+from app import db
+from app.models.customer import Customer
+from app.forms.customer_forms import CustomerForm, QuickSearchForm, FilterForm
+from app.utils.decorators import admin_required
+from app.services.dgii_service import DGIIService  # ===== NUEVA IMPORTACIÓN =====
+from sqlalchemy import or_
+import re
+
+# Configurar logging
+logger = logging.getLogger(__name__)
+
+# Crear Blueprint
+customers_bp = Blueprint('customers', __name__, url_prefix='/customers')
+
+
+# ===== UTILIDADES =====
+
+def clean_id_number(id_number):
+    """Limpia un número de identificación (quita guiones y espacios)"""
+    return re.sub(r'[-\s]', '', str(id_number)) if id_number else ''
+
+
+# ===== RUTA PRINCIPAL: LISTADO DE CLIENTES =====
+
+@customers_bp.route('/')
+@login_required
+def customers_list():
+    """
+    Muestra el listado principal de clientes con filtros y búsqueda
+    """
+    # Obtener parámetros de filtros
+    customer_type_filter = request.args.get('customer_type', '')
+    province_filter = request.args.get('province', '')
+    is_active_filter = request.args.get('is_active', '')
+    search_query = request.args.get('q', '').strip()
+
+    # Paginación
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+
+    # Query base
+    query = Customer.query
+
+    # Búsqueda por texto
+    if search_query:
+        # Limpiar búsqueda para cédula/RNC
+        clean_search = clean_id_number(search_query)
+
+        search_pattern = f'%{search_query}%'
+        query = query.filter(
+            or_(
+                Customer.first_name.ilike(search_pattern),
+                Customer.last_name.ilike(search_pattern),
+                Customer.company_name.ilike(search_pattern),
+                Customer.email.ilike(search_pattern),
+                Customer.id_number.like(f'%{clean_search}%'),
+                Customer.phone_primary.like(search_pattern)
+            )
+        )
+
+    # Aplicar filtros
+    if customer_type_filter:
+        query = query.filter(Customer.customer_type == customer_type_filter)
+
+    if province_filter:
+        query = query.filter(Customer.province == province_filter)
+
+    if is_active_filter:
+        query = query.filter(Customer.is_active == (is_active_filter == '1'))
+
+    # Ordenar por nombre
+    query = query.order_by(Customer.created_at.desc())
+
+    # Paginar
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    customers = pagination.items
+
+    # Estadísticas
+    total_customers = Customer.query.count()
+    active_customers = Customer.query.filter_by(is_active=True).count()
+    person_customers = Customer.query.filter_by(customer_type='person').count()
+    company_customers = Customer.query.filter_by(customer_type='company').count()
+
+    stats = {
+        'total': total_customers,
+        'active': active_customers,
+        'persons': person_customers,
+        'companies': company_customers
+    }
+
+    # Formularios
+    filter_form = FilterForm()
+    search_form = QuickSearchForm()
+
+    return render_template(
+        'customers/customers_list.html',
+        customers=customers,
+        pagination=pagination,
+        stats=stats,
+        filter_form=filter_form,
+        search_form=search_form,
+        search_query=search_query
+    )
+
+
+# ===== AGREGAR NUEVO CLIENTE =====
+
+@customers_bp.route('/add', methods=['GET', 'POST'])
+@login_required
+def customer_add():
+    """
+    Muestra el formulario y procesa la creación de un nuevo cliente
+    """
+    form = CustomerForm()
+
+    if form.validate_on_submit():
+        try:
+            # Limpiar número de identificación
+            clean_id = clean_id_number(form.id_number.data)
+
+            # Crear nuevo cliente
+            customer = Customer(
+                customer_type=form.customer_type.data,
+                first_name=form.first_name.data if form.customer_type.data == 'person' else None,
+                last_name=form.last_name.data if form.customer_type.data == 'person' else None,
+                company_name=form.company_name.data if form.customer_type.data == 'company' else None,
+                id_number=clean_id,
+                id_type=form.id_type.data,
+                email=form.email.data,
+                phone_primary=form.phone_primary.data,
+                phone_secondary=form.phone_secondary.data,
+                whatsapp=form.whatsapp.data,
+                address_line1=form.address_line1.data,
+                address_line2=form.address_line2.data,
+                city=form.city.data,
+                province=form.province.data,
+                postal_code=form.postal_code.data,
+                credit_limit=form.credit_limit.data if form.credit_limit.data else 0,
+                notes=form.notes.data,
+                is_active=form.is_active.data,
+                created_by_id=current_user.id
+            )
+
+            # Guardar en base de datos
+            db.session.add(customer)
+            db.session.commit()
+
+            # Si es solicitud AJAX (desde modal), retornar JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': True,
+                    'message': f'✅ Cliente {customer.display_name} agregado exitosamente',
+                    'customer_id': customer.id,
+                    'customer_name': customer.display_name,
+                    'customer_type': customer.customer_type,
+                    'id_number': customer.formatted_id
+                })
+
+            flash(f'✅ Cliente {customer.display_name} agregado exitosamente', 'success')
+            return redirect(url_for('customers.customer_detail', id=customer.id))
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'Error al agregar cliente: {str(e)}', exc_info=True)
+
+            # Si es solicitud AJAX, retornar error en JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': False,
+                    'message': f'❌ Error al agregar cliente: {str(e)}'
+                }), 400
+
+            flash(f'❌ Error al agregar cliente: {str(e)}', 'error')
+
+    # Si hay errores en el formulario
+    if form.errors:
+        error_messages = {}
+        for field, errors in form.errors.items():
+            error_messages[field] = errors[0]
+            if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                flash(f'Error en {field}: {errors[0]}', 'error')
+
+        # Si es AJAX, retornar errores
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                'success': False,
+                'errors': error_messages
+            }), 400
+
+    # Si es solicitud AJAX para obtener formulario
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        form_html = render_template('customers/customer_form_modal.html', form=form, mode='add')
+        return jsonify({'form_html': form_html})
+
+    # Para GET normal (si alguien accede directamente a la URL)
+    return render_template('customers/customer_form.html', form=form, mode='add')
+
+
+# ===== NUEVA RUTA: CONSULTAR DGII =====
+
+@customers_bp.route('/check-dgii', methods=['POST'])
+@login_required
+def check_dgii():
+    """
+    Endpoint para consultar datos del cliente en DGII
+
+    Recibe JSON con:
+    {
+        "id_number": "12345678901" (sin guiones),
+        "id_type": "cedula" o "rnc"
+    }
+    """
+    try:
+        # Verificar que es una solicitud JSON
+        if not request.is_json:
+            return jsonify({
+                'success': False,
+                'error': 'Se requiere aplicación JSON'
+            }), 400
+
+        data = request.get_json()
+
+        # Validar datos recibidos
+        id_number = data.get('id_number', '').strip()
+        id_type = data.get('id_type', '').strip().lower()
+
+        if not id_number:
+            return jsonify({
+                'success': False,
+                'error': 'Número de identificación requerido'
+            }), 400
+
+        if not id_type:
+            return jsonify({
+                'success': False,
+                'error': 'Tipo de identificación requerido'
+            }), 400
+
+        # Validar tipo de identificación
+        if id_type not in ['cedula', 'rnc']:
+            return jsonify({
+                'success': False,
+                'error': 'Tipo de identificación inválido. Debe ser "cedula" o "rnc"'
+            }), 400
+
+        logger.info(f"Consultando DGII para {id_type}: {id_number}")
+
+        # Usar el servicio DGII
+        result = DGIIService.validate_and_get_info(id_number, id_type)
+
+        # Si es éxito y tenemos datos de DGII, retornarlos
+        if result.get('success'):
+            validation_mode = result.get('validation_mode', 'unknown')
+
+            if validation_mode in ['dgii', 'dgii_new']:
+                # Datos obtenidos de DGII
+                response_data = {
+                    'success': True,
+                    'message': 'Datos obtenidos de DGII',
+                    'data': {
+                        'id_number': result.get('id_number'),
+                        'id_type': result.get('id_type'),
+                        'first_name': result.get('first_name', ''),
+                        'last_name': result.get('last_name', ''),
+                        'full_name': result.get('full_name', ''),
+                        'company_name': result.get('company_name', ''),
+                        'status': result.get('status', '')
+                    },
+                    'validation_mode': validation_mode
+                }
+                return jsonify(response_data)
+            elif validation_mode == 'local':
+                # Solo validación local exitosa
+                return jsonify({
+                    'success': True,
+                    'message': 'Formato válido - Complete datos manualmente',
+                    'validation_mode': 'local'
+                })
+
+        # Si llegamos aquí, hubo algún error
+        return jsonify({
+            'success': False,
+            'error': result.get('error', 'Error desconocido al consultar DGII')
+        })
+
+    except Exception as e:
+        logger.error(f"Error en check_dgii: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': f'Error interno del servidor: {str(e)}'
+        }), 500
+
+
+# ===== VER DETALLE DE CLIENTE =====
+
+@customers_bp.route('/<int:id>')
+@login_required
+def customer_detail(id):
+    """
+    Muestra el detalle completo de un cliente
+    """
+    customer = Customer.query.get_or_404(id)
+
+    return render_template(
+        'customers/customer_detail.html',
+        customer=customer
+    )
+
+
+# ===== EDITAR CLIENTE =====
+
+@customers_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def customer_edit(id):
+    """
+    Edita un cliente existente
+    """
+    customer = Customer.query.get_or_404(id)
+    form = CustomerForm(obj=customer)
+
+    # Pasar ID para validación de unicidad
+    form.customer_id = customer.id
+
+    if form.validate_on_submit():
+        try:
+            # Limpiar número de identificación
+            clean_id = clean_id_number(form.id_number.data)
+
+            # Actualizar campos
+            customer.customer_type = form.customer_type.data
+            customer.first_name = form.first_name.data if form.customer_type.data == 'person' else None
+            customer.last_name = form.last_name.data if form.customer_type.data == 'person' else None
+            customer.company_name = form.company_name.data if form.customer_type.data == 'company' else None
+            customer.id_number = clean_id
+            customer.id_type = form.id_type.data
+            customer.email = form.email.data
+            customer.phone_primary = form.phone_primary.data
+            customer.phone_secondary = form.phone_secondary.data
+            customer.whatsapp = form.whatsapp.data
+            customer.address_line1 = form.address_line1.data
+            customer.address_line2 = form.address_line2.data
+            customer.city = form.city.data
+            customer.province = form.province.data
+            customer.postal_code = form.postal_code.data
+            customer.credit_limit = form.credit_limit.data if form.credit_limit.data else 0
+            customer.notes = form.notes.data
+            customer.is_active = form.is_active.data
+
+            db.session.commit()
+
+            flash(f'✅ Cliente {customer.display_name} actualizado exitosamente', 'success')
+            return redirect(url_for('customers.customer_detail', id=customer.id))
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f'Error al actualizar cliente {customer.id}: {str(e)}', exc_info=True)
+            flash(f'❌ Error al actualizar cliente: {str(e)}', 'error')
+
+    # Si hay errores en el formulario
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'Error en {field}: {error}', 'error')
+
+    return render_template('customers/customer_form.html', form=form, mode='edit', customer=customer)
+
+
+# ===== DESACTIVAR CLIENTE =====
+
+@customers_bp.route('/<int:id>/toggle-status', methods=['POST'])
+@login_required
+@admin_required
+def customer_toggle_status(id):
+    """
+    Activa/Desactiva un cliente (soft delete)
+    """
+    customer = Customer.query.get_or_404(id)
+
+    try:
+        customer.is_active = not customer.is_active
+        db.session.commit()
+
+        status = 'activado' if customer.is_active else 'desactivado'
+        flash(f'✅ Cliente {customer.display_name} {status} exitosamente', 'success')
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error al cambiar estado del cliente {customer.id}: {str(e)}', exc_info=True)
+        flash(f'❌ Error al cambiar estado: {str(e)}', 'error')
+
+    return redirect(url_for('customers.customer_detail', id=id))
+
+
+# ===== API: BÚSQUEDA RÁPIDA (AJAX) =====
+
+@customers_bp.route('/api/search')
+@login_required
+def api_search():
+    """
+    Búsqueda rápida de clientes para autocompletado
+    """
+    query = request.args.get('q', '').strip()
+    limit = request.args.get('limit', 10, type=int)
+
+    if not query or len(query) < 2:
+        return jsonify({'results': []})
+
+    # Limpiar búsqueda
+    clean_search = clean_id_number(query)
+    search_pattern = f'%{query}%'
+
+    customers = Customer.query.filter(
+        Customer.is_active == True,
+        or_(
+            Customer.first_name.ilike(search_pattern),
+            Customer.last_name.ilike(search_pattern),
+            Customer.company_name.ilike(search_pattern),
+            Customer.id_number.like(f'%{clean_search}%')
+        )
+    ).limit(limit).all()
+
+    results = [
+        {
+            'id': c.id,
+            'text': c.display_name,
+            'id_number': c.formatted_id,
+            'customer_type': c.customer_type
+        }
+        for c in customers
+    ]
+
+    return jsonify({'results': results})

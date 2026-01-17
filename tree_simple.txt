@@ -1,0 +1,189 @@
+Directorio: C:\Users\felix\PycharmProjects\Luxera
+==================================================
+
+.
+├── app/
+│   ├── forms/
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── customer_forms.py
+│   │   └── laptop_forms.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── customer.py
+│   │   ├── expense.py
+│   │   ├── invoice.py
+│   │   ├── laptop.py
+│   │   ├── mixins.py
+│   │   └── user.py
+│   ├── routes/
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── catalog_api.py
+│   │   │   └── customers.py
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── dashboard.py
+│   │   ├── expenses.py
+│   │   ├── inventory.py
+│   │   ├── invoices.py
+│   │   ├── main.py
+│   │   └── public.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── ai_service.py
+│   │   ├── catalog_service.py
+│   │   ├── dgii_service.py
+│   │   ├── financial_service.py
+│   │   ├── inventory_service.py
+│   │   ├── invoice_inventory_service.py
+│   │   └── sku_service.py
+│   ├── static/
+│   │   ├── css/
+│   │   │   ├── custom.css
+│   │   │   ├── laptop_form.css
+│   │   │   └── price-slider.css
+│   │   ├── img/
+│   │   │   └── favicon.ico
+│   │   ├── js/
+│   │   │   ├── inventory/
+│   │   │   │   └── price-slider.js
+│   │   │   ├── expenses-api.js
+│   │   │   ├── laptop_form.js
+│   │   │   ├── laptop_form_submit.js
+│   │   │   ├── laptop_gallery.js
+│   │   │   ├── theme.js
+│   │   │   └── zoho-expenses.js
+│   │   ├── logos/
+│   │   │   └── logo_20260111_154916.png
+│   │   └── uploads/
+│   │       └── laptops/
+│   │           ├── 27/
+│   │           │   ├── LX-20260108-0027_1_20260108_142226.jpg
+│   │           │   ├── LX-20260108-0027_2_20260108_142226.webp
+│   │           │   ├── LX-20260108-0027_3_20260108_142226.webp
+│   │           │   ├── LX-20260108-0027_4_20260108_142226.webp
+│   │           │   └── LX-20260108-0027_5_20260108_142226.webp
+│   │           ├── 31/
+│   │           │   ├── LX-20260102-0031_1_20260102_170206.webp
+│   │           │   ├── LX-20260102-0031_2_20260102_170206.webp
+│   │           │   ├── LX-20260102-0031_3_20260102_170206.webp
+│   │           │   └── LX-20260102-0031_4_20260102_170206.webp
+│   │           ├── 43/
+│   │           │   ├── LX-20260102-0043_1_20260102_103409.webp
+│   │           │   ├── LX-20260102-0043_2_20260102_103409.webp
+│   │           │   ├── LX-20260102-0043_3_20260102_103409.webp
+│   │           │   ├── LX-20260102-0043_4_20260102_103409.webp
+│   │           │   └── LX-20260102-0043_5_20260102_103409.webp
+│   │           ├── 44/
+│   │           │   ├── LX-20260108-0044_1_20260108_063616.jpg
+│   │           │   ├── LX-20260108-0044_2_20260108_063616.webp
+│   │           │   ├── LX-20260108-0044_3_20260108_063616.webp
+│   │           │   ├── LX-20260108-0044_4_20260108_063616.webp
+│   │           │   └── LX-20260108-0044_5_20260108_063616.webp
+│   │           ├── 45/
+│   │           ├── 48/
+│   │           │   ├── LX-20260108-0048_2_20260108_165330.jpg
+│   │           │   ├── LX-20260108-0048_3_20260108_165330.jpg
+│   │           │   ├── LX-20260108-0048_4_20260108_165330.jpg
+│   │           │   ├── LX-20260108-0048_5_20260108_165330.jpg
+│   │           │   ├── LX-20260108-0048_6_20260108_165330.jpg
+│   │           │   ├── LX-20260108-0048_7_20260108_165330.jpg
+│   │           │   └── LX-20260108-0048_7_20260108_165444.jpg
+│   │           ├── 49/
+│   │           │   ├── LX-20260112-0001_1_20260111_202848.webp
+│   │           │   ├── LX-20260112-0001_2_20260111_202848.webp
+│   │           │   ├── LX-20260112-0001_3_20260111_202848.webp
+│   │           │   ├── LX-20260112-0001_4_20260111_202848.webp
+│   │           │   ├── LX-20260112-0001_5_20260111_202848.webp
+│   │           │   └── LX-20260112-0001_6_20260111_202848.webp
+│   │           ├── 51/
+│   │           │   ├── LX-20251231-0051_1_20260101_092055_1082155881.jpg
+│   │           │   ├── LX-20251231-0051_1_20260101_092215_1082155881.jpg
+│   │           │   ├── LX-20251231-0051_1_20260101_092645_1082155881.jpg
+│   │           │   ├── LX-20251231-0051_2_20260101_092055_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg
+│   │           │   ├── LX-20251231-0051_2_20260101_094540_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg
+│   │           │   ├── LX-20251231-0051_3_20260101_092055_s-l1600_2.webp
+│   │           │   ├── LX-20251231-0051_3_20260101_094540_s-l1600_1.webp
+│   │           │   ├── LX-20251231-0051_4_20260101_094540_s-l1600_2.webp
+│   │           │   ├── LX-20251231-0051_5_20260101_094541_s-l1600.webp
+│   │           │   ├── LX-20260103-0051_1_20260102_220249.jpg
+│   │           │   ├── LX-20260107-0001_1_20260107_103349.webp
+│   │           │   ├── LX-20260107-0001_2_20260107_103349.webp
+│   │           │   ├── LX-20260107-0001_3_20260107_103349.webp
+│   │           │   └── LX-20260107-0001_4_20260107_103349.webp
+│   │           ├── 55/
+│   │           │   ├── LX-20260101-0001_3_20260101_232546_s-l1600_1.webp
+│   │           │   ├── LX-20260101-0001_4_20260101_232546_s-l1600_2.webp
+│   │           │   ├── LX-20260101-0001_5_20260101_232546_s-l1600.webp
+│   │           │   └── LX-20260101-0001_5_20260102_075906.webp
+│   │           ├── 56/
+│   │           │   ├── LX-20260101-0002_1_20260101_165406_1082155881.jpg
+│   │           │   ├── LX-20260101-0002_1_20260101_235004_s-l1600.webp
+│   │           │   ├── LX-20260101-0002_2_20260101_165406_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg
+│   │           │   ├── LX-20260101-0002_3_20260101_165406_s-l1600_1.webp
+│   │           │   ├── LX-20260101-0002_4_20260101_165406_s-l1600_2.webp
+│   │           │   └── LX-20260101-0002_5_20260101_165406_s-l1600.webp
+│   │           └── 67/
+│   │               ├── LX-20260108-0049_1_20260108_165840.jpg
+│   │               ├── LX-20260108-0049_2_20260108_165840.jpg
+│   │               └── LX-20260108-0049_3_20260108_165840.jpg
+│   ├── templates/
+│   │   ├── admin/
+│   │   │   ├── panel.html
+│   │   │   └── users.html
+│   │   ├── auth/
+│   │   │   ├── login.html
+│   │   │   └── register.html
+│   │   ├── customers/
+│   │   │   ├── customer_detail.html
+│   │   │   ├── customer_form.html
+│   │   │   ├── customer_form_modal.html
+│   │   │   └── customers_list.html
+│   │   ├── errors/
+│   │   │   ├── 403.html
+│   │   │   ├── 404.html
+│   │   │   └── 500.html
+│   │   ├── Expenses/
+│   │   │   └── expenses_list.html
+│   │   ├── inventory/
+│   │   │   ├── laptop_detail.html
+│   │   │   ├── laptop_form.html
+│   │   │   └── laptops_list.html
+│   │   ├── invoices/
+│   │   │   ├── invoice_detail.html
+│   │   │   ├── invoice_form.html
+│   │   │   ├── invoices_list.html
+│   │   │   └── settings.html
+│   │   ├── landing/
+│   │   │   ├── base_landing.html
+│   │   │   ├── catalog.html
+│   │   │   ├── home.html
+│   │   │   └── product_datail.html
+│   │   ├── about.html
+│   │   ├── base.html
+│   │   ├── contact.html
+│   │   ├── dashboard.html
+│   │   ├── expenses_list.html
+│   │   └── index.html
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── decorators.py
+│   │   ├── dominican_validators.py
+│   │   └── validators.py
+│   └── __init__.py
+├── logs/
+│   └── luxera.log
+├── migrations/
+│   ├── versions/
+│   │   └── e006d822bd38_inicio_limpio.py
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── README
+│   └── script.py.mako
+├── config.py
+├── generate_tree.bat
+├── generate_tree.py
+├── requirements.txt
+├── run.py
+└── tree_simple.txt
