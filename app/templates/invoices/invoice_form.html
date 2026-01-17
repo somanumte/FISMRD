@@ -633,25 +633,6 @@
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Totales</h2>
-
-                        <div class="space-y-3">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                                <span id="subtotal_display" class="font-medium text-gray-900 dark:text-white">RD$ {% if invoice and invoice.subtotal %}{{ "%.2f"|format(invoice.subtotal) }}{% else %}0.00{% endif %}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400">ITBIS (18%):</span>
-                                <span id="tax_display" class="font-medium text-gray-900 dark:text-white">RD$ {% if invoice and invoice.tax_amount %}{{ "%.2f"|format(invoice.tax_amount) }}{% else %}0.00{% endif %}</span>
-                            </div>
-                            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between items-end">
-                                <span class="text-base font-semibold text-gray-900 dark:text-white">Total:</span>
-                                <span id="total_display" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">RD$ {% if invoice and invoice.total %}{{ "%.2f"|format(invoice.total) }}{% else %}0.00{% endif %}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 cursor-pointer flex items-center justify-between" onclick="toggleAdditionalInfo()">
                             Información Adicional
                             <svg id="additionalInfoIcon" class="w-5 h-5 transition-transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1360,11 +1341,193 @@ function setupLaptopSearch(itemId) {
 }
 
 // ==========================================
+// FUNCIONES PARA EL MODAL DE CLIENTE EN FACTURA
+// ==========================================
+
+function loadCustomerFormForInvoice() {
+    const modalContent = document.getElementById('modal-content-invoice');
+    modalContent.innerHTML = `
+        <div class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Cargando formulario...</p>
+        </div>`;
+
+    fetch('/customers/add', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.form_html) {
+            modalContent.innerHTML = data.form_html;
+            initializeCustomerFormForInvoice();
+        } else if (data.errors) {
+            showNotification('Error al cargar el formulario', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading form:', error);
+        modalContent.innerHTML = `
+            <div class="text-center py-8 text-red-600">
+                <p>Error al cargar el formulario. Por favor, intenta de nuevo.</p>
+                <button onclick="loadCustomerFormForInvoice()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg">
+                    Reintentar
+                </button>
+            </div>`;
+    });
+}
+
+function initializeCustomerFormForInvoice() {
+    const customerForm = document.getElementById('customer-form');
+    if (!customerForm) return;
+
+    // Modificar el comportamiento del formulario para que funcione en el contexto de factura
+    const submitBtn = customerForm.querySelector('button[type="submit"]');
+    const originalSubmitText = submitBtn.textContent;
+
+    customerForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Validar formulario (usar la validación existente del formulario)
+        const idNumberInput = document.getElementById('id_number');
+        const firstNameInput = document.getElementById('first_name');
+        const lastNameInput = document.getElementById('last_name');
+        const companyNameInput = document.getElementById('company_name');
+        const emailInput = document.getElementById('email');
+        const phonePrimaryInput = document.getElementById('phone_primary');
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Validar número de identificación
+        const idDigits = idNumberInput.value.replace(/\D/g, '');
+        if (idDigits.length === 0) {
+            isValid = false;
+            errorMessage = 'El número de identificación es requerido.';
+        } else if (idDigits.length !== 11 && idDigits.length !== 9) {
+            isValid = false;
+            errorMessage = 'Debe tener 9 (RNC) u 11 (Cédula) dígitos.';
+        }
+
+        // Validar campos según tipo de cliente
+        const customerType = document.getElementById('customer_type').value;
+        if (customerType === 'person') {
+            if (!firstNameInput.value.trim()) {
+                isValid = false;
+                errorMessage = 'El nombre es requerido para personas.';
+            } else if (!lastNameInput.value.trim()) {
+                isValid = false;
+                errorMessage = 'El apellido es requerido para personas.';
+            }
+        } else if (customerType === 'company') {
+            if (!companyNameInput.value.trim()) {
+                isValid = false;
+                errorMessage = 'El nombre de la empresa es requerido.';
+            }
+        }
+
+        // Validar email
+        if (!emailInput.value.trim()) {
+            isValid = false;
+            errorMessage = 'El correo electrónico es requerido.';
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput.value.trim())) {
+                isValid = false;
+                errorMessage = 'Por favor ingrese un correo electrónico válido.';
+            }
+        }
+
+        // Validar teléfono
+        if (!phonePrimaryInput.value.trim()) {
+            isValid = false;
+            errorMessage = 'El teléfono principal es requerido.';
+        }
+
+        if (!isValid) {
+            showNotification(errorMessage, 'error');
+            return;
+        }
+
+        // Mostrar loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Guardando...
+            </div>
+        `;
+
+        // Enviar formulario
+        const formData = new FormData(customerForm);
+
+        fetch('/customers/add', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+
+                // Cerrar modal después de 1.5 segundos
+                setTimeout(() => {
+                    const modal = document.getElementById('customer-modal-invoice');
+                    if (modal) modal.classList.remove('active');
+
+                    // Recargar la página para actualizar la lista de clientes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }, 1500);
+            } else {
+                // Mostrar errores
+                if (data.errors) {
+                    for (const [field, error] of Object.entries(data.errors)) {
+                        showNotification(error, 'error');
+                    }
+                } else if (data.message) {
+                    showNotification(data.message, 'error');
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalSubmitText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al guardar el cliente', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalSubmitText;
+        });
+    });
+
+    // Agregar botón de cancelar específico para el modal
+    const formButtons = customerForm.querySelector('.flex.items-center.justify-between');
+    if (formButtons) {
+        const cancelBtn = formButtons.querySelector('a[href*="customers_list"]');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modal = document.getElementById('customer-modal-invoice');
+                if (modal) modal.classList.remove('active');
+            });
+            // Cambiar el href para que no redirija
+            cancelBtn.href = '#';
+        }
+    }
+}
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal de cliente
+    // Modal de cliente en factura
     const modal = document.getElementById('customer-modal-invoice');
     const openModalBtn = document.getElementById('open-customer-modal-invoice');
     const closeModalBtn = document.getElementById('close-customer-modal-invoice');
@@ -1372,6 +1535,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (openModalBtn) {
         openModalBtn.addEventListener('click', function() {
             modal.classList.add('active');
+            loadCustomerFormForInvoice();
         });
     }
 
