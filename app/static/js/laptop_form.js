@@ -43,6 +43,32 @@ $(document).ready(function() {
                 };
             }
         });
+
+        // Creación inmediata al seleccionar una opción "new:"
+        $(selector).on('select2:select', function(e) {
+            var data = e.params.data;
+            if (data.id && data.id.toString().startsWith('new:')) {
+                var newName = data.id.substring(4);
+                var postData = { name: newName };
+
+                $.ajax({
+                    url: endpoint,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(postData),
+                    success: function(response) {
+                        if (response && response.id) {
+                            $(selector).val(response.id).trigger('change');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error creando item:', error);
+                        alert('Error al crear: ' + newName + '. Intente de nuevo.');
+                        $(selector).val(null).trigger('change');
+                    }
+                });
+            }
+        });
     }
 
     // ===== INICIALIZAR CAMPOS SELECT2 =====
@@ -89,6 +115,36 @@ $(document).ready(function() {
         }
     });
 
+    // Creación inmediata para modelos
+    $('#model_id').on('select2:select', function(e) {
+        var data = e.params.data;
+        if (data.id && data.id.toString().startsWith('new:')) {
+            var newName = data.id.substring(4);
+            var postData = { name: newName };
+            var brandId = $('#brand_id').val();
+            if (brandId && !brandId.toString().startsWith('new:')) {
+                postData.brand_id = brandId;
+            }
+
+            $.ajax({
+                url: '/api/catalog/models',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(postData),
+                success: function(response) {
+                    if (response && response.id) {
+                        $('#model_id').val(response.id).trigger('change');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error creando modelo:', error);
+                    alert('Error al crear modelo: ' + newName + '. Intente de nuevo.');
+                    $('#model_id').val(null).trigger('change');
+                }
+            });
+        }
+    });
+
     // Cuando cambia la marca, limpiar el modelo
     $('#brand_id').on('change', function() {
         var brandVal = $(this).val();
@@ -109,7 +165,79 @@ $(document).ready(function() {
     initSelect2WithTags('#storage_id', '/api/catalog/storage', 'Selecciona o crea almacenamiento...');
     initSelect2WithTags('#ram_id', '/api/catalog/ram', 'Selecciona o crea RAM...');
     initSelect2WithTags('#store_id', '/api/catalog/stores', 'Selecciona o crea una tienda...');
-    initSelect2WithTags('#location_id', '/api/catalog/locations', 'Selecciona o crea una ubicacion...');
+
+    // Ubicación necesita manejo especial por store_id
+    $('#location_id').select2({
+        tags: true,
+        placeholder: 'Selecciona o crea una ubicación...',
+        allowClear: true,
+        width: '100%',
+        ajax: {
+            url: '/api/catalog/locations',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                var storeId = $('#store_id').val();
+                return {
+                    q: params.term || '',
+                    page: params.page || 1,
+                    store_id: storeId && !storeId.toString().startsWith('new:') ? storeId : ''
+                };
+            },
+            processResults: function(data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination && data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        createTag: function(params) {
+            var term = $.trim(params.term);
+            if (term === '') {
+                return null;
+            }
+            return {
+                id: 'new:' + term,
+                text: '+ Crear: "' + term + '"',
+                newTag: true
+            };
+        }
+    });
+
+    // Creación inmediata para ubicaciones
+    $('#location_id').on('select2:select', function(e) {
+        var data = e.params.data;
+        if (data.id && data.id.toString().startsWith('new:')) {
+            var newName = data.id.substring(4);
+            var postData = { name: newName };
+            var storeId = $('#store_id').val();
+            if (storeId && !storeId.toString().startsWith('new:')) {
+                postData.store_id = storeId;
+            }
+
+            $.ajax({
+                url: '/api/catalog/locations',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(postData),
+                success: function(response) {
+                    if (response && response.id) {
+                        $('#location_id').val(response.id).trigger('change');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error creando ubicación:', error);
+                    alert('Error al crear ubicación: ' + newName + '. Intente de nuevo.');
+                    $('#location_id').val(null).trigger('change');
+                }
+            });
+        }
+    });
+
     initSelect2WithTags('#supplier_id', '/api/catalog/suppliers', 'Selecciona o crea un proveedor...');
 
     // ===== GENERAR DISPLAY_NAME AUTOMATICAMENTE =====
