@@ -768,18 +768,7 @@
 
             <!-- Columna Izquierda: Información -->
             <div class="space-y-6 flex flex-col justify-center h-full">
-                
-                <!-- Badge -->
-                <div class="flex items-center">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/50 border border-purple-100 text-purple-700 rounded-full text-xs font-bold tracking-wide uppercase backdrop-blur-sm">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                          <span id="badge-dot" class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-                        </span>
-                        <span id="model-brand">Nuevo Lanzamiento</span>
-                    </div>
-                </div>
-                
+
                 <!-- Título con efecto Skew Wrapper -->
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.15]">
                     <span class="skew-wrapper">
@@ -795,14 +784,14 @@
                     <span class="skew-wrapper">
                         <span id="product-suffix" class="skew-text skew-visible" style="background: linear-gradient(to right, #7c3aed, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                             {% if featured_laptops and featured_laptops|length > 0 %}
-                                {{ featured_laptops[0].display_name[:20] }}
+                                {{ featured_laptops[0].model.name[:20] if featured_laptops[0].model else 'Laptop Pro' }}
                             {% else %}
                                 Laptop Pro
                             {% endif %}
                         </span>
                     </span>
                 </h1>
-                
+
                 <!-- Descripción con Fade -->
                 <p id="product-desc" class="text-lg text-gray-600 leading-relaxed min-h-[3.5rem] fade-content transition-opacity duration-300">
                     {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].description %}
@@ -821,14 +810,14 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CPU</p>
                             <p id="spec-cpu" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].processor %}
-                                    {{ featured_laptops[0].processor.name[:15] }}
+                                    {{ featured_laptops[0].processor.name[:25] }}
                                 {% else %}
                                     Intel Core Ultra
                                 {% endif %}
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- GPU -->
                     <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
                         <i class="fa-solid fa-gamepad text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
@@ -836,14 +825,14 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GPU</p>
                             <p id="spec-gpu" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].graphics_card %}
-                                    {{ featured_laptops[0].graphics_card.name[:15] }}
+                                    {{ featured_laptops[0].graphics_card.name[:25] }}
                                 {% else %}
                                     RTX 5090
                                 {% endif %}
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- RAM -->
                     <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
                         <i class="fa-solid fa-memory text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
@@ -858,7 +847,7 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Almacenamiento -->
                     <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
                         <i class="fa-solid fa-hard-drive text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
@@ -873,7 +862,7 @@
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Pantalla -->
                     <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 col-span-2 md:col-span-2 transition-all cursor-default">
                         <i class="fa-solid fa-display text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
@@ -881,9 +870,9 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Pantalla</p>
                             <p id="spec-screen" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].display %}
-                                    {{ featured_laptops[0].display.name[:20] }}
+                                    {{ featured_laptops[0].display.name[:30]|replace('"', ' pulgadas') }}
                                 {% else %}
-                                    16" OLED 4K
+                                    16 pulgadas OLED 4K
                                 {% endif %}
                             </p>
                         </div>
@@ -1099,56 +1088,48 @@
         <div class="text-center mb-16 fade-in-up">
             <span class="text-accent-primary font-bold uppercase tracking-widest text-sm mb-2 block">Beneficios</span>
             <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6">
-                ¿Por Qué <span class="text-gradient">Elegirnos?</span>
+                ¿Por qué <span class="text-gradient">Elegirnos</span>?
             </h2>
             <p class="text-xl text-secondary max-w-2xl mx-auto">
-                Ofrecemos más que solo productos. Te brindamos una experiencia completa de compra con garantías y soporte de primer nivel.
+                Experiencia inigualable y servicio de primera clase en cada paso del camino.
             </p>
         </div>
 
         <div class="features-grid">
-            <!-- Feature 1: Garantía Oficial -->
+            <!-- Feature 1 -->
             <div class="feature-card fade-in-up delay-100">
                 <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Garantía Oficial</h3>
-                <p class="text-secondary">
-                    Todos nuestros productos incluyen garantía de fábrica de 1 año con cobertura completa.
-                </p>
+                <h3 class="text-xl font-bold mb-2">Garantía Total</h3>
+                <p class="text-muted">Respaldo completo en todos nuestros productos con cobertura nacional.</p>
             </div>
 
-            <!-- Feature 2: Envío Rápido -->
+            <!-- Feature 2 -->
             <div class="feature-card fade-in-up delay-200">
                 <div class="feature-icon">
-                    <i class="fas fa-shipping-fast"></i>
+                    <i class="fa-solid fa-truck-fast"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Envío Gratis</h3>
-                <p class="text-secondary">
-                    Entrega rápida y segura en toda República Dominicana sin costo adicional.
-                </p>
+                <h3 class="text-xl font-bold mb-2">Envío Express</h3>
+                <p class="text-muted">Entrega rápida y segura a toda la República Dominicana.</p>
             </div>
 
-            <!-- Feature 3: Soporte Técnico -->
+            <!-- Feature 3 -->
             <div class="feature-card fade-in-up delay-300">
                 <div class="feature-icon">
-                    <i class="fas fa-headset"></i>
+                    <i class="fa-solid fa-headset"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Soporte 24/7</h3>
-                <p class="text-secondary">
-                    Equipo técnico especializado disponible para ayudarte en cualquier momento.
-                </p>
+                <h3 class="text-xl font-bold mb-2">Soporte 24/7</h3>
+                <p class="text-muted">Equipo de expertos disponible para resolver cualquier consulta.</p>
             </div>
 
-            <!-- Feature 4: Precios Competitivos -->
+            <!-- Feature 4 -->
             <div class="feature-card fade-in-up delay-400">
                 <div class="feature-icon">
-                    <i class="fas fa-tags"></i>
+                    <i class="fa-solid fa-credit-card"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Mejores Precios</h3>
-                <p class="text-secondary">
-                    Precios competitivos con opciones de financiamiento flexibles para todos.
-                </p>
+                <h3 class="text-xl font-bold mb-2">Financiamiento</h3>
+                <p class="text-muted">Planes de pago flexibles adaptados a tus necesidades.</p>
             </div>
         </div>
     </div>
@@ -1167,13 +1148,13 @@
             {
                 id: {{ laptop.id }},
                 brand: "{{ laptop.brand.name if laptop.brand else 'Premium' }}",
-                name: "{{ laptop.display_name[:30] }}",
+                name: "{{ laptop.model.name[:20] if laptop.model else 'Laptop Pro' }}",
                 desc: "{{ laptop.description[:150] if laptop.description else 'Potencia y rendimiento excepcional para profesionales exigentes.' }}",
-                cpu: "{{ laptop.processor.name[:15] if laptop.processor else 'Intel Core' }}",
-                gpu: "{{ laptop.graphics_card.name[:15] if laptop.graphics_card else 'GPU Integrada' }}",
+                cpu: "{{ laptop.processor.name[:25] if laptop.processor else 'Intel Core' }}",
+                gpu: "{{ laptop.graphics_card.name[:25] if laptop.graphics_card else 'GPU Integrada' }}",
                 ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
                 ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: "{{ laptop.display.name[:20] if laptop.display else '15.6\" FHD' }}",
+                screen: "{{ laptop.display.name[:30]|replace('"', ' pulgadas') if laptop.display else '15.6 pulgadas FHD' }}",
                 {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
                 priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
                 priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
@@ -1198,25 +1179,25 @@
                 url: "{{ url_for('public.product_detail', id=laptop.id) }}",
                 colors: {
                     {% if loop.index == 1 %}
-                    textGrad: "linear-gradient(to right, #7c3aed, #2563eb)",
+                    textGrad: "linear-gradient(to right, #7c3aed, #a855f7)",
                     dot: "bg-purple-600",
                     btnHover: "hover:bg-purple-700"
                     {% elif loop.index == 2 %}
-                    textGrad: "linear-gradient(to right, #ea580c, #facc15)",
-                    dot: "bg-orange-600",
-                    btnHover: "hover:bg-orange-600"
+                    textGrad: "linear-gradient(to right, #8b5cf6, #c084fc)",
+                    dot: "bg-violet-500",
+                    btnHover: "hover:bg-violet-600"
                     {% elif loop.index == 3 %}
-                    textGrad: "linear-gradient(to right, #10b981, #0f766e)",
-                    dot: "bg-emerald-600",
-                    btnHover: "hover:bg-emerald-700"
+                    textGrad: "linear-gradient(to right, #a855f7, #d946ef)",
+                    dot: "bg-fuchsia-500",
+                    btnHover: "hover:bg-fuchsia-600"
                     {% elif loop.index == 4 %}
-                    textGrad: "linear-gradient(to right, #0ea5e9, #a855f7)",
-                    dot: "bg-sky-500",
-                    btnHover: "hover:bg-sky-600"
+                    textGrad: "linear-gradient(to right, #9333ea, #7c3aed)",
+                    dot: "bg-purple-700",
+                    btnHover: "hover:bg-purple-800"
                     {% else %}
-                    textGrad: "linear-gradient(to right, #ec4899, #eab308)",
-                    dot: "bg-pink-500",
-                    btnHover: "hover:bg-pink-600"
+                    textGrad: "linear-gradient(to right, #c084fc, #a855f7)",
+                    dot: "bg-purple-400",
+                    btnHover: "hover:bg-purple-500"
                     {% endif %}
                 }
             }{% if not loop.last %},{% endif %}
@@ -1235,9 +1216,9 @@
     function initIndicators() {
         const container = document.getElementById('indicators-container');
         container.innerHTML = '';
-        
+
         if (laptopsData.length === 0) return;
-        
+
         laptopsData.forEach((_, index) => {
             const dot = document.createElement('div');
             dot.className = `indicator-dot w-2 ${index === 0 ? 'active w-8 ' + laptopsData[0].colors.dot : 'w-2'}`;
@@ -1254,10 +1235,10 @@
 
     function updateIndicators() {
         if (laptopsData.length === 0) return;
-        
+
         const dots = document.querySelectorAll('.indicator-dot');
         const laptop = laptopsData[currentSlide];
-        
+
         dots.forEach((dot, index) => {
             dot.className = 'indicator-dot w-2';
             if (index === currentSlide) {
@@ -1271,14 +1252,14 @@
         isAnimating = true;
 
         const laptop = laptopsData[currentSlide];
-        
+
         // 1. Text Exit Animation (Skew Up Out)
         const nameEl = document.getElementById('product-name');
         const suffixEl = document.getElementById('product-suffix');
-        
+
         nameEl.classList.remove('skew-visible', 'skew-enter-active');
         nameEl.classList.add('skew-exit-active');
-        
+
         suffixEl.classList.remove('skew-visible', 'skew-enter-active');
         suffixEl.classList.add('skew-exit-active');
 
@@ -1286,7 +1267,7 @@
         const descEl = document.getElementById('product-desc');
         const specsContainer = document.getElementById('specs-container');
         const imageContainer = document.getElementById('laptop-image-container');
-        
+
         descEl.style.opacity = '0';
         specsContainer.style.opacity = '0';
         imageContainer.style.opacity = '0';
@@ -1298,19 +1279,16 @@
             suffixEl.style.background = laptop.colors.textGrad;
             suffixEl.style.webkitBackgroundClip = 'text';
             suffixEl.style.webkitTextFillColor = 'transparent';
-            
+
             descEl.textContent = laptop.desc;
-            
-            // Brand Badge
-            document.getElementById('model-brand').textContent = laptop.brand;
-            
+
             // Specs Updates
             document.getElementById('spec-cpu').textContent = laptop.cpu;
             document.getElementById('spec-gpu').textContent = laptop.gpu;
             document.getElementById('spec-ram').textContent = laptop.ram;
             document.getElementById('spec-ssd').textContent = laptop.ssd;
             document.getElementById('spec-screen').textContent = laptop.screen;
-            
+
             // Price
             const priceOldEl = document.getElementById('price-old');
             if (laptop.hasDiscount) {
@@ -1335,11 +1313,6 @@
                 imageEl.src = laptop.image;
                 imageEl.alt = laptop.name;
             }
-
-            // Badge Dot Color
-            const badgeDot = document.getElementById('badge-dot');
-            badgeDot.className = badgeDot.className.split(' ').filter(c => !c.startsWith('bg-')).join(' ');
-            badgeDot.className += ' ' + laptop.colors.dot;
 
             // Update Indicators
             updateIndicators();
