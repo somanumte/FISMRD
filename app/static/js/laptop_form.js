@@ -7,7 +7,7 @@ $(document).ready(function() {
     function initSelect2WithTags(selector, endpoint, placeholder) {
         $(selector).select2({
             tags: true,
-            placeholder: placeholder || 'Busca o escribe para crear un nuevo elemento...',
+            placeholder: placeholder || 'Buscar o escribir para crear...',
             allowClear: true,
             width: '100%',
             ajax: {
@@ -41,6 +41,24 @@ $(document).ready(function() {
                     text: '+ Crear: "' + term + '"',
                     newTag: true
                 };
+            },
+            templateResult: function(data) {
+                // Formato para mostrar en dropdown (similar a Zoho)
+                if (data.loading) {
+                    return data.text;
+                }
+
+                if (data.newTag) {
+                    // Opción para crear nuevo
+                    return $('<div class="text-green-600 font-semibold">' + data.text + '</div>');
+                }
+
+                // Opción normal
+                return $('<div>' + data.text + '</div>');
+            },
+            templateSelection: function(data) {
+                // Formato cuando está seleccionado
+                return data.text;
             }
         });
 
@@ -73,11 +91,11 @@ $(document).ready(function() {
     }
 
     // ===== INICIALIZAR CAMPOS SELECT2 =====
-    initSelect2WithTags('#brand_id', '/api/catalog/brands', 'Selecciona o crea una marca...');
+    initSelect2WithTags('#brand_id', '/api/catalog/brands', 'Buscar o crear marca...');
 
     $('#model_id').select2({
         tags: true,
-        placeholder: 'Busca o escribe para crear un modelo... (primero selecciona marca)',
+        placeholder: 'Buscar modelo... (primero selecciona marca)',
         allowClear: true,
         width: '100%',
         ajax: {
@@ -113,6 +131,20 @@ $(document).ready(function() {
                 text: '+ Crear: "' + term + '"',
                 newTag: true
             };
+        },
+        templateResult: function(data) {
+            if (data.loading) {
+                return data.text;
+            }
+
+            if (data.newTag) {
+                return $('<div class="text-green-600 font-semibold">' + data.text + '</div>');
+            }
+
+            return $('<div>' + data.text + '</div>');
+        },
+        templateSelection: function(data) {
+            return data.text;
         }
     });
 
@@ -153,25 +185,25 @@ $(document).ready(function() {
         $('#model_id').val(null).trigger('change');
 
         if (brandVal && !brandVal.toString().startsWith('new:')) {
-            $('#model_id').data('select2').options.options.placeholder = 'Busca o escribe para crear un modelo...';
+            $('#model_id').data('select2').options.options.placeholder = 'Buscar modelo...';
         } else {
-            $('#model_id').data('select2').options.options.placeholder = 'Busca o escribe para crear un modelo... (primero selecciona marca)';
+            $('#model_id').data('select2').options.options.placeholder = 'Buscar modelo... (primero selecciona marca)';
         }
     });
 
     // Otros campos de catalogo
-    initSelect2WithTags('#processor_id', '/api/catalog/processors', 'Selecciona o crea un procesador...');
-    initSelect2WithTags('#os_id', '/api/catalog/operating-systems', 'Selecciona o crea un SO...');
-    initSelect2WithTags('#screen_id', '/api/catalog/screens', 'Selecciona o crea una pantalla...');
-    initSelect2WithTags('#graphics_card_id', '/api/catalog/graphics-cards', 'Selecciona o crea una GPU...');
-    initSelect2WithTags('#storage_id', '/api/catalog/storage', 'Selecciona o crea almacenamiento...');
-    initSelect2WithTags('#ram_id', '/api/catalog/ram', 'Selecciona o crea RAM...');
-    initSelect2WithTags('#store_id', '/api/catalog/stores', 'Selecciona o crea una tienda...');
+    initSelect2WithTags('#processor_id', '/api/catalog/processors', 'Buscar o crear procesador...');
+    initSelect2WithTags('#os_id', '/api/catalog/operating-systems', 'Buscar o crear SO...');
+    initSelect2WithTags('#screen_id', '/api/catalog/screens', 'Buscar o crear pantalla...');
+    initSelect2WithTags('#graphics_card_id', '/api/catalog/graphics-cards', 'Buscar o crear GPU...');
+    initSelect2WithTags('#storage_id', '/api/catalog/storage', 'Buscar o crear almacenamiento...');
+    initSelect2WithTags('#ram_id', '/api/catalog/ram', 'Buscar o crear RAM...');
+    initSelect2WithTags('#store_id', '/api/catalog/stores', 'Buscar o crear tienda...');
 
     // Ubicación necesita manejo especial por store_id
     $('#location_id').select2({
         tags: true,
-        placeholder: 'Selecciona o crea una ubicación...',
+        placeholder: 'Buscar o crear ubicación...',
         allowClear: true,
         width: '100%',
         ajax: {
@@ -207,6 +239,20 @@ $(document).ready(function() {
                 text: '+ Crear: "' + term + '"',
                 newTag: true
             };
+        },
+        templateResult: function(data) {
+            if (data.loading) {
+                return data.text;
+            }
+
+            if (data.newTag) {
+                return $('<div class="text-green-600 font-semibold">' + data.text + '</div>');
+            }
+
+            return $('<div>' + data.text + '</div>');
+        },
+        templateSelection: function(data) {
+            return data.text;
         }
     });
 
@@ -241,7 +287,7 @@ $(document).ready(function() {
         }
     });
 
-    initSelect2WithTags('#supplier_id', '/api/catalog/suppliers', 'Selecciona o crea un proveedor...');
+    initSelect2WithTags('#supplier_id', '/api/catalog/suppliers', 'Buscar o crear proveedor...');
 
     // ===== GENERAR DISPLAY_NAME AUTOMATICAMENTE =====
     function generateDisplayName() {
