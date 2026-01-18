@@ -746,7 +746,7 @@
 </button>
 
 <!-- ============================================
-     HERO SECTION - NUEVO DISEÑO ESTÁTICO CON DATOS REALES
+     HERO SECTION - DISEÑO ESTÁTICO CON ESPECIFICACIONES COMPLETAS
      ============================================ -->
 <section class="hero-section">
     <!-- Canvas para el fondo interactivo -->
@@ -756,7 +756,7 @@
 
     <!-- Contenido Principal (Hero) -->
     <main class="relative z-10 container-xl flex justify-center items-center min-h-[80vh]">
-        <div id="tilt-card" class="glass-panel rounded-[2.5rem] p-8 md:p-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center transform-gpu">
+        <div id="tilt-card" class="glass-panel rounded-[2.5rem] p-8 md:p-12 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
             <!-- Columna Izquierda: Información -->
             <div class="space-y-8 relative">
@@ -797,7 +797,7 @@
                     {% endif %}
                 </p>
 
-                <!-- Grid de Especificaciones -->
+                <!-- Grid de Especificaciones COMPLETO (5 especificaciones) -->
                 <div class="fade-in-up delay-300 grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
                     <!-- Spec Item: Procesador -->
                     <div class="group flex flex-col p-4 bg-white/60 hover:bg-white rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
@@ -837,6 +837,32 @@
                             {% endif %}
                         </span>
                     </div>
+
+                    <!-- NUEVO: Spec Item: Almacenamiento -->
+                    <div class="group flex flex-col p-4 bg-white/60 hover:bg-white rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <i class="fa-solid fa-hard-drive text-3xl text-emerald-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Almacenamiento</span>
+                        <span class="text-sm font-bold text-slate-800">
+                            {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].storage %}
+                                {{ featured_laptops[0].storage.name }}
+                            {% else %}
+                                4TB NVMe Gen5
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- NUEVO: Spec Item: Pantalla -->
+                    <div class="group flex flex-col p-4 bg-white/60 hover:bg-white rounded-2xl border border-slate-100 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                        <i class="fa-solid fa-display text-3xl text-amber-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Pantalla</span>
+                        <span class="text-sm font-bold text-slate-800">
+                            {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].display %}
+                                {{ featured_laptops[0].display.name|truncate(15) }}
+                            {% else %}
+                                16" 4K OLED
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Precio y Botones -->
@@ -869,89 +895,52 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Imagen del Producto -->
-            <div class="relative laptop-float flex justify-center z-10">
-                <!-- Glow effects -->
-                <div class="absolute inset-0 bg-gradient-to-tr from-purple-500/30 to-blue-500/30 rounded-full blur-[60px] transform scale-90 -z-10 animate-pulse"></div>
+            <!-- Columna Derecha: Imagen del Producto (FONDO BLANCO PURO) -->
+            <div class="relative flex justify-center items-center z-10">
+                <!-- Contenedor con fondo blanco puro y sin sombras -->
+                <div class="bg-white rounded-[1.5rem] w-full max-w-xl flex items-center justify-center p-8">
+                    <!-- Imagen real del producto -->
+                    <div class="w-full flex items-center justify-center">
+                        {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].images %}
+                            {% if featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
+                                {% set cover = featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|first %}
+                                <img src="{{ url_for('static', filename=cover.image_path) }}"
+                                     alt="{{ featured_laptops[0].display_name }}"
+                                     class="w-full h-auto object-contain max-h-[400px]">
+                            {% elif featured_laptops[0].images|length > 0 %}
+                                <img src="{{ url_for('static', filename=featured_laptops[0].images[0].image_path) }}"
+                                     alt="{{ featured_laptops[0].display_name }}"
+                                     class="w-full h-auto object-contain max-h-[400px]">
+                            {% else %}
+                                <!-- SVG placeholder si no hay imagen -->
+                                <div class="w-full max-w-sm">
+                                    <svg width="100%" height="auto" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- Laptop minimalista sin efectos -->
+                                        <rect x="100" y="50" width="400" height="250" rx="10" fill="#f1f5f9"/>
+                                        <rect x="105" y="55" width="390" height="240" rx="5" fill="#ffffff"/>
+                                        <rect x="110" y="60" width="380" height="230" rx="3" fill="#0f172a"/>
 
-                <!-- Imagen real del producto -->
-                <div class="w-full max-w-xl drop-shadow-2xl transform transition-transform duration-500 hover:scale-105 flex items-center justify-center">
-                    {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].images %}
-                        {% if featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                            {% set cover = featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|first %}
-                            <img src="{{ url_for('static', filename=cover.image_path) }}"
-                                 alt="{{ featured_laptops[0].display_name }}"
-                                 class="w-full h-auto object-contain max-h-[400px] rounded-2xl">
-                        {% elif featured_laptops[0].images|length > 0 %}
-                            <img src="{{ url_for('static', filename=featured_laptops[0].images[0].image_path) }}"
-                                 alt="{{ featured_laptops[0].display_name }}"
-                                 class="w-full h-auto object-contain max-h-[400px] rounded-2xl">
+                                        <!-- Base de laptop -->
+                                        <rect x="150" y="310" width="300" height="30" rx="3" fill="#cbd5e1"/>
+                                        <rect x="140" y="320" width="320" height="15" rx="2" fill="#94a3b8"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
                         {% else %}
-                            <!-- SVG placeholder si no hay imagen -->
-                            <svg width="100%" height="auto" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Shadow -->
-                                <ellipse cx="300" cy="390" rx="220" ry="25" fill="black" fill-opacity="0.25" filter="blur(8px)"/>
+                            <!-- SVG placeholder si no hay productos -->
+                            <div class="w-full max-w-sm">
+                                <svg width="100%" height="auto" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="100" y="50" width="400" height="250" rx="10" fill="#f1f5f9"/>
+                                    <rect x="105" y="55" width="390" height="240" rx="5" fill="#ffffff"/>
+                                    <rect x="110" y="60" width="380" height="230" rx="3" fill="#0f172a"/>
 
-                                <!-- Screen Body -->
-                                <rect x="70" y="40" width="460" height="290" rx="14" fill="#0f172a"/>
-                                <rect x="75" y="45" width="450" height="280" rx="6" fill="black"/>
-
-                                <!-- Screen Display Content -->
-                                <defs>
-                                    <linearGradient id="wallpaper" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" stop-color="#2e1065"/>
-                                        <stop offset="50%" stop-color="#7c3aed"/>
-                                        <stop offset="100%" stop-color="#3b82f6"/>
-                                    </linearGradient>
-                                    <clipPath id="screenClip">
-                                         <rect x="80" y="50" width="440" height="270" rx="2"/>
-                                    </clipPath>
-                                </defs>
-                                <g clip-path="url(#screenClip)">
-                                    <rect x="80" y="50" width="440" height="270" fill="url(#wallpaper)"/>
-                                    <circle cx="150" cy="150" r="80" fill="white" fill-opacity="0.1"/>
-                                    <circle cx="400" cy="250" r="120" fill="blue" fill-opacity="0.1"/>
-                                    <path d="M0 250 L600 100" stroke="white" stroke-opacity="0.2" stroke-width="2"/>
-                                </g>
-
-                                <path d="M80 50 L200 320 H440 V50 H80 Z" fill="white" fill-opacity="0.03"/>
-                                <path d="M15 330H585L560 350H40L15 330Z" fill="#334155"/>
-                                <path d="M15 330H585L595 340H5L15 330Z" fill="#475569"/>
-                                <path d="M5 340H595V358C595 365.732 588.732 372 581 372H19C11.268 372 5 365.732 5 358V340Z" fill="#1e293b"/>
-                                <rect x="240" y="348" width="120" height="12" rx="2" fill="#334155"/>
-                                <path d="M295 315 L305 315" stroke="white" stroke-opacity="0.5" stroke-width="2"/>
-                            </svg>
+                                    <!-- Base de laptop -->
+                                    <rect x="150" y="310" width="300" height="30" rx="3" fill="#cbd5e1"/>
+                                    <rect x="140" y="320" width="320" height="15" rx="2" fill="#94a3b8"/>
+                                </svg>
+                            </div>
                         {% endif %}
-                    {% else %}
-                        <!-- SVG placeholder si no hay productos -->
-                        <svg width="100%" height="auto" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <ellipse cx="300" cy="390" rx="220" ry="25" fill="black" fill-opacity="0.25" filter="blur(8px)"/>
-                            <rect x="70" y="40" width="460" height="290" rx="14" fill="#0f172a"/>
-                            <rect x="75" y="45" width="450" height="280" rx="6" fill="black"/>
-                            <defs>
-                                <linearGradient id="wallpaper" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
-                                    <stop offset="0%" stop-color="#2e1065"/>
-                                    <stop offset="50%" stop-color="#7c3aed"/>
-                                    <stop offset="100%" stop-color="#3b82f6"/>
-                                </linearGradient>
-                                <clipPath id="screenClip">
-                                     <rect x="80" y="50" width="440" height="270" rx="2"/>
-                                </clipPath>
-                            </defs>
-                            <g clip-path="url(#screenClip)">
-                                <rect x="80" y="50" width="440" height="270" fill="url(#wallpaper)"/>
-                                <circle cx="150" cy="150" r="80" fill="white" fill-opacity="0.1"/>
-                                <circle cx="400" cy="250" r="120" fill="blue" fill-opacity="0.1"/>
-                                <path d="M0 250 L600 100" stroke="white" stroke-opacity="0.2" stroke-width="2"/>
-                            </g>
-                            <path d="M80 50 L200 320 H440 V50 H80 Z" fill="white" fill-opacity="0.03"/>
-                            <path d="M15 330H585L560 350H40L15 330Z" fill="#334155"/>
-                            <path d="M15 330H585L595 340H5L15 330Z" fill="#475569"/>
-                            <path d="M5 340H595V358C595 365.732 588.732 372 581 372H19C11.268 372 5 365.732 5 358V340Z" fill="#1e293b"/>
-                            <rect x="240" y="348" width="120" height="12" rx="2" fill="#334155"/>
-                            <path d="M295 315 L305 315" stroke="white" stroke-opacity="0.5" stroke-width="2"/>
-                        </svg>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -1187,7 +1176,7 @@
         }
     }
 
-    // --- 2. SETUP DEL CANVAS Y EFECTO TILT ---
+    // --- 2. SETUP DEL CANVAS (SIN TILT) ---
     document.addEventListener('DOMContentLoaded', () => {
         // Cargar tema guardado
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -1204,11 +1193,11 @@
             icon.classList.add('fa-sun');
         }
 
-        // Inicializar canvas y efecto tilt
-        initCanvasAndTilt();
+        // Inicializar canvas
+        initCanvas();
     });
 
-    function initCanvasAndTilt() {
+    function initCanvas() {
         const canvas = document.getElementById('heroCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -1227,7 +1216,7 @@
         resize();
 
         /**
-         * LÓGICA DE PARTÍCULAS
+         * LÓGICA DE PARTÍCULAS (sin tilt)
          */
         let particlesArray = [];
         const mouse = { x: null, y: null, radius: 200 };
@@ -1235,33 +1224,12 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.x;
             mouse.y = e.y;
-
-            // Lógica de Tilt 3D para la tarjeta
-            handleTilt(e);
         });
 
         window.addEventListener('mouseout', () => {
             mouse.x = undefined;
             mouse.y = undefined;
-
-            // Reset Tilt
-            resetTilt();
         });
-
-        // Función para el efecto 3D de la tarjeta
-        const card = document.getElementById('tilt-card');
-        function handleTilt(e) {
-            if(window.innerWidth < 768) return; // Deshabilitar en móviles
-
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 40; // Ajusta el divisor para la sensibilidad
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
-
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        }
-
-        function resetTilt() {
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-        }
 
         class Particle {
             constructor() {
@@ -1269,9 +1237,9 @@
                 this.y = Math.random() * height;
                 this.baseX = this.x;
                 this.baseY = this.y;
-                this.size = Math.random() * 2 + 1; // Un poco más pequeñas por defecto
+                this.size = Math.random() * 2 + 1;
                 this.density = (Math.random() * 30) + 1;
-                this.color = '#cbd5e1'; // Slate 300
+                this.color = '#cbd5e1';
             }
 
             draw() {
@@ -1283,7 +1251,7 @@
             }
 
             update() {
-                // FÍSICA DE GRAVEDAD
+                // FÍSICA DE GRAVEDAD (sin tilt)
                 let dx = mouse.x - this.x;
                 let dy = mouse.y - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
@@ -1292,7 +1260,7 @@
                 let forceDirectionY = dy / distance;
                 let maxDistance = mouse.radius;
 
-                // Fuerza de atracción (Gravedad)
+                // Fuerza de atracción
                 let force = (maxDistance - distance) / maxDistance;
                 let directionX = forceDirectionX * force * this.density;
                 let directionY = forceDirectionY * force * this.density;
@@ -1300,8 +1268,8 @@
                 if (distance < mouse.radius && mouse.x !== undefined) {
                     this.x += directionX;
                     this.y += directionY;
-                    this.color = '#9333ea'; // Purple 600
-                    if (this.size < 5) this.size += 0.2; // Crecer
+                    this.color = '#9333ea';
+                    if (this.size < 5) this.size += 0.2;
                 } else {
                     // Retorno elástico a posición original
                     if (this.x !== this.baseX) {
@@ -1312,8 +1280,8 @@
                         let dyMove = this.y - this.baseY;
                         this.y -= dyMove / 15;
                     }
-                    this.color = '#cbd5e1'; // Vuelta al gris
-                    if (this.size > 2) this.size -= 0.1; // Encoger
+                    this.color = '#cbd5e1';
+                    if (this.size > 2) this.size -= 0.1;
                 }
                 this.draw();
             }
@@ -1321,7 +1289,7 @@
 
         function initParticles() {
             particlesArray = [];
-            let numberOfParticles = (width * height) / 6000; // Menos densidad para limpiar la vista
+            let numberOfParticles = (width * height) / 6000;
             for (let i = 0; i < numberOfParticles; i++) {
                 particlesArray.push(new Particle());
             }
@@ -1335,19 +1303,18 @@
                     let dy = particlesArray[a].y - particlesArray[b].y;
                     let distance = dx * dx + dy * dy;
 
-                    if (distance < 3600) { // Distancia máxima de conexión (60px)
+                    if (distance < 3600) {
                         opacityValue = 1 - (distance / 3600);
 
-                        // Si están cerca del mouse, la línea es purpura, si no, gris muy tenue
                         let mouseDx = mouse.x - particlesArray[a].x;
                         let mouseDy = mouse.y - particlesArray[a].y;
                         let mouseDist = Math.sqrt(mouseDx*mouseDx + mouseDy*mouseDy);
 
                         if (mouseDist < mouse.radius) {
-                            ctx.strokeStyle = 'rgba(147, 51, 234,' + opacityValue + ')'; // Purple
+                            ctx.strokeStyle = 'rgba(147, 51, 234,' + opacityValue + ')';
                             ctx.lineWidth = 1;
                         } else {
-                            ctx.strokeStyle = 'rgba(203, 213, 225,' + (opacityValue * 0.2) + ')'; // Slate muy suave
+                            ctx.strokeStyle = 'rgba(203, 213, 225,' + (opacityValue * 0.2) + ')';
                             ctx.lineWidth = 0.5;
                         }
 
