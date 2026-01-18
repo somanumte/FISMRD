@@ -297,9 +297,9 @@
                                            name="selected_laptop"
                                            value="{{ laptop.id }}"
                                            data-laptop-id="{{ laptop.id }}"
-                                           data-laptop-name="{{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}"
+                                           data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
                                            data-laptop-price="{{ laptop.sale_price }}"
-                                           data-laptop-description="CPU: {{ laptop.processor.name if laptop.processor else 'N/A' }} | GPU: {{ laptop.graphics_card.name if laptop.graphics_card else 'N/A' }} | RAM: {{ laptop.ram.name if laptop.ram else 'N/A' }} | SSD: {{ laptop.storage.name if laptop.storage else 'N/A' }}"
+                                           data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
                                            class="laptop-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                 </td>
 

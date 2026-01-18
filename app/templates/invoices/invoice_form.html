@@ -376,17 +376,11 @@
                                     <div class="flex items-center" id="ncf_status_{{ ncf_type.code }}">
                                         {% if ncf_sequences and ncf_type.code in ncf_sequences %}
                                             {% if ncf_sequences[ncf_type.code].is_valid %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                                Activo
-                                            </span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Activo</span>
                                             {% elif ncf_sequences[ncf_type.code].is_expired %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                                Vencido
-                                            </span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Vencido</span>
                                             {% elif ncf_sequences[ncf_type.code].is_exhausted %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-                                                Agotado
-                                            </span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Agotado</span>
                                             {% endif %}
                                         {% endif %}
                                     </div>
@@ -441,9 +435,7 @@
                                             NCF Manual
                                         </label>
                                         <div class="flex gap-2">
-                                            <span class="inline-flex items-center px-3 py-2 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-mono" id="manual_ncf_prefix">
-                                                B02
-                                            </span>
+                                            <span class="inline-flex items-center px-3 py-2 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-mono" id="manual_ncf_prefix">B02</span>
                                             <input type="text"
                                                    id="manual_ncf_sequence"
                                                    maxlength="8"
@@ -1022,22 +1014,7 @@ function selectCustomer(customer) {
     // ===== NUEVO: Sugerir tipo de NCF basado en el cliente =====
     suggestNcfTypeForCustomer(customer);
 }
-// ===== NUEVO: Cargar laptops seleccionadas desde el localStorage =====
-    if (!isEdit) {
-        const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
-        selectedLaptops.forEach(laptop => {
-        // Buscar la laptop en la lista global por id
-        const foundLaptop = laptops.find(l => l.id == laptop.id);
-        if (foundLaptop) {
-            addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
-        } else {
-            // Si no se encuentra, agregar con los datos del localStorage
-            addLaptopItem(null, laptop.description, 1, laptop.price);
-        }
-    });
-    // Limpiar localStorage después de cargar
-    localStorage.removeItem('selectedLaptopsForInvoice');
-}
+
 // ==========================================
 // FUNCIONES DE UI
 // ==========================================
@@ -1166,7 +1143,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     let hasLaptop = false;
 
     if (laptopId && laptopId !== 'null' && laptopId !== '') {
-        currentLaptop = laptops.find(l => l.id == laptopId);
+        currentLaptop = laptops.find(l => l.id === Number(laptopId));
         if (currentLaptop) {
             laptopIdValue = laptopId;
             hasLaptop = true;
@@ -1174,6 +1151,12 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
                 `${currentLaptop.brand} ${currentLaptop.model}` :
                 currentLaptop.brand || currentLaptop.model || 'Laptop';
         }
+    }
+
+    // Si no se encontró la laptop, usar la descripción como nombre para la búsqueda
+    let searchName = laptopName;
+    if (!hasLaptop && description.trim() !== '') {
+        searchName = description;
     }
 
     const itemDiv = document.createElement('div');
@@ -1201,7 +1184,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
                 <div class="mb-4">
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Buscar Laptop</label>
                     <div class="relative">
-                        <input type="text" id="laptop_search_${itemId}" value="${hasLaptop ? laptopName : ''}" placeholder="Busca por marca, modelo..." autocomplete="off" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <input type="text" id="laptop_search_${itemId}" value="${searchName}" placeholder="Busca por marca, modelo..." autocomplete="off" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                         <div id="laptop_results_${itemId}" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             <div id="laptop_results_list_${itemId}" class="py-1"></div>
                         </div>
@@ -1228,6 +1211,8 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     container.appendChild(itemDiv);
     setupLaptopSearch(itemId);
     calculateTotals();
+
+    return itemId; // CORRECCIÓN: Se agregó el return del itemId
 }
 
 function filterLaptops(searchTerm) {
@@ -1624,6 +1609,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+
+    // ===== NUEVO: Cargar laptops seleccionadas desde el localStorage =====
+    if (!isEdit) {
+        const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
+        selectedLaptops.forEach(laptop => {
+            // Buscar la laptop en la lista global por id
+            const laptopIdNum = Number(laptop.id);
+            const foundLaptop = laptops.find(l => l.id === laptopIdNum);
+            if (foundLaptop) {
+                addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
+            } else {
+                // Si no se encuentra, agregar con los datos del localStorage
+                const itemId = addLaptopItem(null, laptop.name, 1, laptop.price);
+                // Mostrar el contenedor de descripción y establecer la descripción técnica
+                const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
+                const descTextarea = document.getElementById(`laptop_description_${itemId}`);
+                if (descContainer && descTextarea) {
+                    descContainer.classList.remove('hidden');
+                    descTextarea.value = laptop.description;
+                }
+            }
+        });
+        // Limpiar localStorage después de cargar
+        localStorage.removeItem('selectedLaptopsForInvoice');
     }
 
     // Cargar items existentes en modo edición
