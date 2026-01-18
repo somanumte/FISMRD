@@ -1548,115 +1548,96 @@
         animate();
     }
 
-    // ============================================
-    // ONDAS SENOIDALES INTERACTIVAS PARA SECCIÓN DESTACADA
-    // ============================================
-    function initWaves() {
-        const canvas = document.getElementById('waveCanvas');
-        const ctx = canvas.getContext('2d');
-        const container = document.getElementById('wave-container');
+// ============================================
+// ONDAS SENOIDALES INTERACTIVAS PARA SECCIÓN DESTACADA
+// ============================================
+function initWaves() {
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('wave-container');
 
-        let width = container.clientWidth;
-        let height = container.clientHeight;
+    let width = container.clientWidth;
+    let height = container.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    let increment = 0;
+    const waves = [
+        { amplitude: 40, frequency: 0.005, speed: 0.008, color: 'rgba(59, 130, 246, 0.05)' },
+        { amplitude: 50, frequency: 0.005, speed: 0.008, color: 'rgba(139, 92, 246, 0.05)' },
+        { amplitude: 60, frequency: 0.005, speed: 0.008, color: 'rgba(14, 165, 233, 0.05)' }
+    ];
+
+    const mouse = { x: -500, y: -500, radius: 300 };
+
+    function resize() {
+        width = container.clientWidth;
+        height = container.clientHeight;
         canvas.width = width;
         canvas.height = height;
-
-        let time = 0;
-        const waves = [
-            { amplitude: 25, frequency: 0.008, speed: 0.02, color: 'rgba(124, 58, 237, 0.08)' },
-            { amplitude: 20, frequency: 0.01, speed: 0.03, color: 'rgba(124, 58, 237, 0.05)' },
-            { amplitude: 15, frequency: 0.015, speed: 0.04, color: 'rgba(124, 58, 237, 0.03)' }
-        ];
-
-        const mouse = { x: width / 2, y: height / 2, radius: 150 };
-
-        function resize() {
-            width = container.clientWidth;
-            height = container.clientHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-
-        window.addEventListener('resize', resize);
-
-        // Seguimiento del mouse solo dentro de la sección destacada
-        const featuredSection = document.getElementById('featured');
-        featuredSection.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
-        });
-
-        featuredSection.addEventListener('mouseleave', () => {
-            mouse.x = width / 2;
-            mouse.y = height / 2;
-        });
-
-        function drawWave(wave, timeOffset = 0) {
-            ctx.beginPath();
-
-            for (let x = 0; x <= width; x += 2) {
-                // Distancia al cursor
-                const dx = mouse.x - x;
-                const dy = mouse.y - (height / 2);
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                // Efecto de interacción con el cursor
-                let amplitudeEffect = 1;
-                let frequencyEffect = 1;
-
-                if (distance < mouse.radius) {
-                    const force = 1 - (distance / mouse.radius);
-                    amplitudeEffect = 1 + force * 2; // Aumenta la amplitud cerca del cursor
-                    frequencyEffect = 1 + force * 0.5; // Aumenta la frecuencia cerca del cursor
-                }
-
-                // Cálculo de la onda con efecto del cursor
-                const waveX = x + (distance < mouse.radius ? Math.sin(x * 0.01 + time) * 10 * (1 - distance / mouse.radius) : 0);
-                const waveY = height / 2 +
-                    wave.amplitude * amplitudeEffect *
-                    Math.sin(waveX * wave.frequency * frequencyEffect + time * wave.speed + timeOffset) +
-                    Math.sin(waveX * 0.005 + time * 0.5) * 5; // Ondulación adicional
-
-                if (x === 0) {
-                    ctx.moveTo(waveX, waveY);
-                } else {
-                    ctx.lineTo(waveX, waveY);
-                }
-            }
-
-            ctx.strokeStyle = wave.color;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Relleno degradado
-            ctx.lineTo(width, height);
-            ctx.lineTo(0, height);
-            ctx.closePath();
-
-            const gradient = ctx.createLinearGradient(0, height / 2, 0, height);
-            gradient.addColorStop(0, wave.color.replace('0.08', '0.05').replace('0.05', '0.03').replace('0.03', '0.02'));
-            gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
-
-            ctx.fillStyle = gradient;
-            ctx.fill();
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-
-            // Dibujar ondas desde la más lejana a la más cercana
-            waves.forEach((wave, index) => {
-                drawWave(wave, index * Math.PI / 2);
-            });
-
-            time += 0.02;
-            requestAnimationFrame(animate);
-        }
-
-        animate();
     }
 
+    window.addEventListener('resize', resize);
+
+    // Seguimiento del mouse solo dentro de la sección destacada
+    const featuredSection = document.getElementById('featured');
+    featuredSection.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    });
+
+    featuredSection.addEventListener('mouseleave', () => {
+        mouse.x = -500;
+        mouse.y = -500;
+    });
+
+    function drawWave(wave, index) {
+        ctx.beginPath();
+        ctx.moveTo(0, height); // Empezar abajo izquierda
+
+        for(let x = 0; x <= width; x += 2) {
+            // Efecto mouse: Levanta la onda suavemente cerca del cursor
+            let distMouse = Math.abs(x - mouse.x);
+            let mouseEffect = Math.max(0, (mouse.radius - distMouse) / mouse.radius) * 30;
+
+            let y = height / 2
+                    + Math.sin(x * wave.frequency + increment + index) * (wave.amplitude + (index * 10))
+                    + Math.cos(x * 0.002 + increment) * 20
+                    + (index * 30) // Separación entre capas
+                    - mouseEffect; // Interacción
+
+            ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(width, height); // Abajo derecha
+        ctx.lineTo(0, height); // Cerrar path abajo izquierda
+        ctx.closePath();
+
+        // Relleno
+        ctx.fillStyle = wave.color;
+        ctx.fill();
+
+        // Borde superior sutil
+        ctx.strokeStyle = wave.color.replace('0.05', '0.15');
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Dibujar ondas desde la más lejana a la más cercana
+        waves.forEach((wave, index) => {
+            drawWave(wave, index);
+        });
+
+        increment += 0.008; // Velocidad relajada
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
     // ============================================
     // INITIALIZATION
     // ============================================
