@@ -365,6 +365,7 @@ def laptops_list():
     min_price = request.args.get('min_price', type=float, default=0)
     max_price = request.args.get('max_price', type=float, default=0)
     search_query = request.args.get('q', '').strip()
+    sort_by = request.args.get('sort_by', 'entry_date_desc')
 
     # Paginacion
     page = request.args.get('page', 1, type=int)
@@ -425,8 +426,26 @@ def laptops_list():
     if max_price > 0:
         query = query.filter(Laptop.sale_price <= max_price)
 
-    # Ordenar por fecha de ingreso (mas recientes primero)
-    query = query.order_by(Laptop.entry_date.desc())
+    # Ordenar según el filtro seleccionado
+    if sort_by == 'entry_date_desc':
+        query = query.order_by(Laptop.entry_date.desc())
+    elif sort_by == 'entry_date_asc':
+        query = query.order_by(Laptop.entry_date.asc())
+    elif sort_by == 'sale_price_asc':
+        query = query.order_by(Laptop.sale_price.asc())
+    elif sort_by == 'sale_price_desc':
+        query = query.order_by(Laptop.sale_price.desc())
+    elif sort_by == 'name_asc':
+        query = query.order_by(Laptop.display_name.asc())
+    elif sort_by == 'name_desc':
+        query = query.order_by(Laptop.display_name.desc())
+    elif sort_by == 'quantity_desc':
+        query = query.order_by(Laptop.quantity.desc())
+    elif sort_by == 'quantity_asc':
+        query = query.order_by(Laptop.quantity.asc())
+    else:
+        # Orden por defecto
+        query = query.order_by(Laptop.entry_date.desc())
 
     # Paginar
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -477,7 +496,8 @@ def laptops_list():
         filter_form=filter_form,
         min_db_price=min_db_price,
         max_db_price=max_db_price,
-        search_query=search_query
+        search_query=search_query,
+        sort_by=sort_by
     )
 
 
