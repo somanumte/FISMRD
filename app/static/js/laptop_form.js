@@ -7,7 +7,7 @@ $(document).ready(function() {
     function initSelect2WithTags(selector, endpoint, placeholder) {
         $(selector).select2({
             tags: true,
-            placeholder: placeholder || 'Selecciona o escribe para crear...',
+            placeholder: placeholder || 'Busca o escribe para crear un nuevo elemento...',
             allowClear: true,
             width: '100%',
             ajax: {
@@ -58,7 +58,8 @@ $(document).ready(function() {
                     data: JSON.stringify(postData),
                     success: function(response) {
                         if (response && response.id) {
-                            $(selector).val(response.id).trigger('change');
+                            var newOption = new Option(newName, response.id, true, true);
+                            $(selector).append(newOption).trigger('change');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -76,7 +77,7 @@ $(document).ready(function() {
 
     $('#model_id').select2({
         tags: true,
-        placeholder: 'Primero selecciona una marca...',
+        placeholder: 'Busca o escribe para crear un modelo... (primero selecciona marca)',
         allowClear: true,
         width: '100%',
         ajax: {
@@ -133,7 +134,8 @@ $(document).ready(function() {
                 data: JSON.stringify(postData),
                 success: function(response) {
                     if (response && response.id) {
-                        $('#model_id').val(response.id).trigger('change');
+                        var newOption = new Option(newName, response.id, true, true);
+                        $('#model_id').append(newOption).trigger('change');
                     }
                 },
                 error: function(xhr, status, error) {
@@ -151,9 +153,9 @@ $(document).ready(function() {
         $('#model_id').val(null).trigger('change');
 
         if (brandVal && !brandVal.toString().startsWith('new:')) {
-            $('#model_id').data('select2').options.options.placeholder = 'Selecciona o crea un modelo...';
+            $('#model_id').data('select2').options.options.placeholder = 'Busca o escribe para crear un modelo...';
         } else {
-            $('#model_id').data('select2').options.options.placeholder = 'Primero selecciona una marca...';
+            $('#model_id').data('select2').options.options.placeholder = 'Busca o escribe para crear un modelo... (primero selecciona marca)';
         }
     });
 
@@ -226,7 +228,8 @@ $(document).ready(function() {
                 data: JSON.stringify(postData),
                 success: function(response) {
                     if (response && response.id) {
-                        $('#location_id').val(response.id).trigger('change');
+                        var newOption = new Option(newName, response.id, true, true);
+                        $('#location_id').append(newOption).trigger('change');
                     }
                 },
                 error: function(xhr, status, error) {
