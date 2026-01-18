@@ -196,7 +196,7 @@ def process_laptop_images(laptop, form):
         try:
             file = request.files.get(f'image_{i}')
             alt_text = request.form.get(f'image_{i}_alt', '')
-            image_path = request.form.get(f'image_{i}', '')
+            image_path = request.form.get(f'image_{i}_path', '')  # CAMBIO AQUÍ: Leer de _path en lugar del campo directo
 
             # CASO A: Archivo nuevo subido
             if file and file.filename and allowed_image_file(file.filename):

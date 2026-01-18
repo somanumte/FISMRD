@@ -289,49 +289,55 @@
                            class="hidden">
                 </div>
 
-                <!-- ===== INPUTS ORIGINALES DEL FORMULARIO ===== -->
-                <!-- Estos inputs son manipulados por el componente JavaScript -->
-                <div class="hidden" id="original-form-fields">
-                    {% for i in range(1, 9) %}
+                    <!-- ===== INPUTS ORIGINALES DEL FORMULARIO ===== -->
+                    <!-- Estos inputs son manipulados por el componente JavaScript -->
+                    <div class="hidden" id="original-form-fields">
+                        {% for i in range(1, 9) %}
                     <div class="image-slot-original" data-slot="{{ i }}">
-                        {% if mode == 'edit' %}
-                            {% set img = images_by_position.get(i) %}
-                        {% else %}
-                            {% set img = None %}
-                        {% endif %}
+        {% if mode == 'edit' %}
+            {% set img = images_by_position.get(i) %}
+        {% else %}
+            {% set img = None %}
+        {% endif %}
 
-                        <!-- Input file -->
-                        <input type="file"
-                               id="image_{{ i }}"
-                               name="image_{{ i }}"
-                               class="hidden original-image-input"
-                               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-                               {% if img %}
-                               data-image-id="{{ img.id }}"
-                               data-image-url="{{ url_for('static', filename=img.image_path) }}"
-                               data-is-cover="{{ 'true' if img.is_cover else 'false' }}"
-                               value="{{ img.image_path }}"
-                               {% endif %}>
+        <!-- Input file -->
+        <input type="file"
+               id="image_{{ i }}"
+               name="image_{{ i }}"
+               class="hidden original-image-input"
+               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+               {% if img %}
+               data-image-id="{{ img.id }}"
+               data-image-url="{{ url_for('static', filename=img.image_path) }}"
+               data-is-cover="{{ 'true' if img.is_cover else 'false' }}"
+               value="{{ img.image_path }}"
+               {% endif %}>
 
-                        <!-- Input alt text -->
-                        <input type="text"
-                               id="image_{{ i }}_alt"
-                               name="image_{{ i }}_alt"
-                               class="hidden original-alt-input"
-                               {% if img %}
-                               value="{{ img.alt_text or '' }}"
-                               {% endif %}>
-                    </div>
-                    {% endfor %}
+        <!-- Input alt text -->
+        <input type="text"
+               id="image_{{ i }}_alt"
+               name="image_{{ i }}_alt"
+               class="hidden original-alt-input"
+               {% if img %}
+               value="{{ img.alt_text or '' }}"
+               {% endif %}>
 
-                    <!-- Input oculto para IDs de imágenes a eliminar -->
-                    <input type="hidden"
-                           id="images_to_delete"
-                           name="images_to_delete"
-                           value="[]">
-                </div>
-            </div>
+        <!-- Input path para imágenes existentes -->
+        <input type="hidden"
+               id="image_{{ i }}_path"
+               name="image_{{ i }}_path"
+               {% if img %}
+               value="{{ img.image_path }}"
+               {% endif %}>
+    </div>
+    {% endfor %}
 
+    <!-- Input oculto para IDs de imágenes a eliminar -->
+    <input type="hidden"
+           id="images_to_delete"
+           name="images_to_delete"
+           value="[]">
+</div>
             <!-- Overlay de arrastre -->
             <div id="drag-overlay-premium" class="drag-overlay-premium">
                 <div class="drag-message-premium">

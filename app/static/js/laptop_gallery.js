@@ -223,11 +223,23 @@ const LaptopGalleryHybrid = {
     setAsCover: function(index) {
         if (index < 0 || index >= this.images.length) return;
 
+        // Obtener la imagen seleccionada
+        const selectedImage = this.images[index];
+
         // Remover cover de todas
         this.images.forEach(img => img.isCover = false);
 
-        // Marcar la seleccionada
-        this.images[index].isCover = true;
+        // Marcar la seleccionada como cover
+        selectedImage.isCover = true;
+
+        // Mover la imagen seleccionada al principio del array
+        this.images.splice(index, 1); // Eliminar del índice actual
+        this.images.unshift(selectedImage); // Agregar al principio
+
+        // Actualizar los slots de TODAS las imágenes para reflejar el nuevo orden
+        this.images.forEach((img, idx) => {
+            img.slot = idx + 1; // Los slots deben ser 1-indexed
+        });
 
         this.render();
         this.showNotification('Portada actualizada', 'success');
@@ -399,6 +411,7 @@ const LaptopGalleryHybrid = {
         for (let i = 1; i <= this.imageConfig.maxImages; i++) {
             const input = document.getElementById(`image_${i}`);
             const altInput = document.getElementById(`image_${i}_alt`);
+            const pathInput = document.getElementById(`image_${i}_path`);
 
             if (input) {
                 // No limpiar el value de inputs existentes, solo actualizar los nuevos
@@ -407,6 +420,7 @@ const LaptopGalleryHybrid = {
                 }
             }
             if (altInput) altInput.value = '';
+            if (pathInput) pathInput.value = '';
         }
 
         // Sincronizar cada imagen con su slot correspondiente
@@ -414,10 +428,11 @@ const LaptopGalleryHybrid = {
             const slot = index + 1;
             const input = document.getElementById(`image_${slot}`);
             const altInput = document.getElementById(`image_${slot}_alt`);
+            const pathInput = document.getElementById(`image_${slot}_path`);
 
             if (!input) return;
 
-            // Actualizar slot
+            // Actualizar slot (ya está actualizado en setAsCover, pero por si acaso)
             imageData.slot = slot;
 
             // Para imágenes nuevas, actualizar el input file
@@ -426,9 +441,12 @@ const LaptopGalleryHybrid = {
                 dataTransfer.items.add(imageData.source);
                 input.files = dataTransfer.files;
             }
-            // Para imágenes existentes, mantener el value/data attributes
-            else if (imageData.type === 'existing') {
-                // NO establecer input.value porque es tipo file
+
+            // IMPORTANTE: Actualizar el atributo data-is-cover en el input
+            input.setAttribute('data-is-cover', imageData.isCover);
+
+            // Para imágenes existentes, también actualizar data-is-cover
+            if (imageData.type === 'existing') {
                 input.setAttribute('data-image-id', imageData.id);
                 input.setAttribute('data-image-url', imageData.url);
                 input.setAttribute('data-is-cover', imageData.isCover);
@@ -438,9 +456,14 @@ const LaptopGalleryHybrid = {
             if (altInput) {
                 altInput.value = imageData.alt;
             }
+
+            // Actualizar path input para imágenes existentes
+            if (pathInput && imageData.type === 'existing') {
+                pathInput.value = imageData.url.replace('/static/', '');
+            }
         });
 
-        // Agregar campo oculto con IDs a eliminar
+        // Agregar campo oculto con IDs de imágenes a eliminar
         this.syncDeletedImages();
     },
 
@@ -522,6 +545,11 @@ const LaptopGalleryHybrid = {
             // Reordenar el array
             const [movedImage] = this.images.splice(this.draggedIndex, 1);
             this.images.splice(targetIndex, 0, movedImage);
+
+            // Actualizar slots después del reordenamiento
+            this.images.forEach((img, idx) => {
+                img.slot = idx + 1;
+            });
 
             this.render();
             this.showNotification('Imágenes reordenadas', 'success');
