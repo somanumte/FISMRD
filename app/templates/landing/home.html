@@ -735,6 +735,8 @@
     .grid { display: grid; }
     .relative { position: relative; }
     .z-10 { z-index: 10; }
+    .z-0 { z-index: 0; }
+    .z-1 { z-index: 1; }
 </style>
 {% endblock %}
 
@@ -937,8 +939,13 @@
 <!-- ============================================
      PRODUCTOS DESTACADOS
      ============================================ -->
-<section id="featured" class="section-padding bg-surface">
-    <div class="container-xl">
+<section id="featured" class="section-padding bg-surface relative overflow-hidden">
+    <!-- Canvas para ondas interactivas -->
+    <div id="wave-container" class="absolute inset-0 z-0">
+        <canvas id="waveCanvas"></canvas>
+    </div>
+
+    <div class="container-xl relative z-1">
         <div class="text-center mb-16 fade-in-up">
             <span class="text-accent-primary font-bold uppercase tracking-widest text-sm mb-2 block">Selección Premium</span>
             <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6">
@@ -1400,7 +1407,7 @@
     }
 
     // ============================================
-    // CANVAS INTERACTIVO
+    // CANVAS INTERACTIVO PARA HERO
     // ============================================
     function initCanvas() {
         const canvas = document.getElementById('heroCanvas');
@@ -1542,6 +1549,115 @@
     }
 
     // ============================================
+    // ONDAS SENOIDALES INTERACTIVAS PARA SECCIÓN DESTACADA
+    // ============================================
+    function initWaves() {
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('wave-container');
+
+        let width = container.clientWidth;
+        let height = container.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        let time = 0;
+        const waves = [
+            { amplitude: 25, frequency: 0.008, speed: 0.02, color: 'rgba(124, 58, 237, 0.08)' },
+            { amplitude: 20, frequency: 0.01, speed: 0.03, color: 'rgba(124, 58, 237, 0.05)' },
+            { amplitude: 15, frequency: 0.015, speed: 0.04, color: 'rgba(124, 58, 237, 0.03)' }
+        ];
+
+        const mouse = { x: width / 2, y: height / 2, radius: 150 };
+
+        function resize() {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+
+        // Seguimiento del mouse solo dentro de la sección destacada
+        const featuredSection = document.getElementById('featured');
+        featuredSection.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+
+        featuredSection.addEventListener('mouseleave', () => {
+            mouse.x = width / 2;
+            mouse.y = height / 2;
+        });
+
+        function drawWave(wave, timeOffset = 0) {
+            ctx.beginPath();
+
+            for (let x = 0; x <= width; x += 2) {
+                // Distancia al cursor
+                const dx = mouse.x - x;
+                const dy = mouse.y - (height / 2);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Efecto de interacción con el cursor
+                let amplitudeEffect = 1;
+                let frequencyEffect = 1;
+
+                if (distance < mouse.radius) {
+                    const force = 1 - (distance / mouse.radius);
+                    amplitudeEffect = 1 + force * 2; // Aumenta la amplitud cerca del cursor
+                    frequencyEffect = 1 + force * 0.5; // Aumenta la frecuencia cerca del cursor
+                }
+
+                // Cálculo de la onda con efecto del cursor
+                const waveX = x + (distance < mouse.radius ? Math.sin(x * 0.01 + time) * 10 * (1 - distance / mouse.radius) : 0);
+                const waveY = height / 2 +
+                    wave.amplitude * amplitudeEffect *
+                    Math.sin(waveX * wave.frequency * frequencyEffect + time * wave.speed + timeOffset) +
+                    Math.sin(waveX * 0.005 + time * 0.5) * 5; // Ondulación adicional
+
+                if (x === 0) {
+                    ctx.moveTo(waveX, waveY);
+                } else {
+                    ctx.lineTo(waveX, waveY);
+                }
+            }
+
+            ctx.strokeStyle = wave.color;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Relleno degradado
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+
+            const gradient = ctx.createLinearGradient(0, height / 2, 0, height);
+            gradient.addColorStop(0, wave.color.replace('0.08', '0.05').replace('0.05', '0.03').replace('0.03', '0.02'));
+            gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Dibujar ondas desde la más lejana a la más cercana
+            waves.forEach((wave, index) => {
+                drawWave(wave, index * Math.PI / 2);
+            });
+
+            time += 0.02;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    // ============================================
     // INITIALIZATION
     // ============================================
     document.addEventListener('DOMContentLoaded', () => {
@@ -1557,8 +1673,11 @@
             icon.classList.add('fa-moon');
         }
 
-        // Inicializar canvas
+        // Inicializar canvas del hero
         initCanvas();
+
+        // Inicializar ondas interactivas
+        initWaves();
 
         // Inicializar carrusel
         if (laptopsData.length > 0) {
