@@ -936,9 +936,9 @@
                         {% if featured_laptops[0].images %}
                             {% if featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
                                 {% set cover = featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|first %}
-                                <img id="laptop-image" src="{{ url_for('static', filename=cover.image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px] drop-shadow-2xl">
+                                <img id="laptop-image" src="{{ url_for('static', filename=cover.image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px]">
                             {% elif featured_laptops[0].images|length > 0 %}
-                                <img id="laptop-image" src="{{ url_for('static', filename=featured_laptops[0].images[0].image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px] drop-shadow-2xl">
+                                <img id="laptop-image" src="{{ url_for('static', filename=featured_laptops[0].images[0].image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px]">
                             {% endif %}
                         {% endif %}
                     {% endif %}
