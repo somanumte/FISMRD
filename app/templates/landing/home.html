@@ -1159,7 +1159,7 @@
                 gpu: "{{ laptop.graphics_card.name if laptop.graphics_card else 'GPU Integrada' }}",
                 ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
                 ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: "{{ laptop.display.name if laptop.display else '' }}",
+                screen: "{{ laptop.screen.name if laptop.screen else '' }}",
                 {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
                 priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
                 priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
