@@ -1022,7 +1022,22 @@ function selectCustomer(customer) {
     // ===== NUEVO: Sugerir tipo de NCF basado en el cliente =====
     suggestNcfTypeForCustomer(customer);
 }
-
+// ===== NUEVO: Cargar laptops seleccionadas desde el localStorage =====
+    if (!isEdit) {
+        const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
+        selectedLaptops.forEach(laptop => {
+        // Buscar la laptop en la lista global por id
+        const foundLaptop = laptops.find(l => l.id == laptop.id);
+        if (foundLaptop) {
+            addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
+        } else {
+            // Si no se encuentra, agregar con los datos del localStorage
+            addLaptopItem(null, laptop.description, 1, laptop.price);
+        }
+    });
+    // Limpiar localStorage después de cargar
+    localStorage.removeItem('selectedLaptopsForInvoice');
+}
 // ==========================================
 // FUNCIONES DE UI
 // ==========================================
