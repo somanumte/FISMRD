@@ -829,7 +829,6 @@
                                 {% else %}
                                     RTX 5090
                                 {% endif %}
-                            </p>
                         </div>
                     </div>
 
@@ -869,10 +868,8 @@
                         <div>
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Pantalla</p>
                             <p id="spec-screen" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].display %}
-                                    {{ featured_laptops[0].display.name }}
-                                {% else %}
-                                    16" OLED 4K
+                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].screen %}
+                                    {{ featured_laptops[0].screen.name }}
                                 {% endif %}
                             </p>
                         </div>
@@ -1022,10 +1019,10 @@
                             </div>
                             {% endif %}
 
-                            {% if laptop.display %}
+                            {% if laptop.screen %}
                             <div class="spec-item">
                                 <div class="spec-icon-wrapper"><i class="fa-solid fa-display"></i></div>
-                                <span class="spec-text">{{ laptop.display.name[:25] }}{% if laptop.display.name|length > 25 %}...{% endif %}</span>
+                                <span class="spec-text">{{ laptop.screen.name[:25] }}{% if laptop.screen.name|length > 25 %}...{% endif %}</span>
                             </div>
                             {% endif %}
 
@@ -1162,7 +1159,7 @@
                 gpu: "{{ laptop.graphics_card.name if laptop.graphics_card else 'GPU Integrada' }}",
                 ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
                 ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: "{{ laptop.display.name if laptop.display else '15.6\" FHD' }}",
+                screen: "{{ laptop.display.name if laptop.display else '' }}",
                 {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
                 priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
                 priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
@@ -1329,10 +1326,10 @@
             requestAnimationFrame(() => {
                 nameEl.classList.remove('skew-exit-active');
                 nameEl.classList.add('skew-enter-active');
-                
+
                 suffixEl.classList.remove('skew-exit-active');
                 suffixEl.classList.add('skew-enter-active');
-                
+
                 void nameEl.offsetWidth;
 
                 nameEl.classList.remove('skew-enter-active');
@@ -1347,7 +1344,7 @@
                 descEl.style.opacity = '1';
                 specsContainer.style.opacity = '1';
                 imageContainer.style.opacity = '1';
-                
+
                 setTimeout(() => { isAnimating = false; }, 800);
             });
 
@@ -1417,7 +1414,7 @@
             canvas.width = width;
             canvas.height = height;
         }
-        
+
         window.addEventListener('resize', () => {
             resize();
             initParticles();
@@ -1562,7 +1559,7 @@
 
         // Inicializar canvas
         initCanvas();
-        
+
         // Inicializar carrusel
         if (laptopsData.length > 0) {
             initIndicators();
