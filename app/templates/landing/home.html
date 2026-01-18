@@ -784,7 +784,7 @@
                     <span class="skew-wrapper">
                         <span id="product-suffix" class="skew-text skew-visible" style="background: linear-gradient(to right, #7c3aed, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                             {% if featured_laptops and featured_laptops|length > 0 %}
-                                {{ featured_laptops[0].model.name[:20] if featured_laptops[0].model else 'Laptop Pro' }}
+                                {{ featured_laptops[0].model.name[:20] }}
                             {% else %}
                                 Laptop Pro
                             {% endif %}
@@ -810,7 +810,7 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CPU</p>
                             <p id="spec-cpu" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].processor %}
-                                    {{ featured_laptops[0].processor.name[:25] }}
+                                    {{ featured_laptops[0].processor.name }}
                                 {% else %}
                                     Intel Core Ultra
                                 {% endif %}
@@ -825,7 +825,7 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GPU</p>
                             <p id="spec-gpu" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].graphics_card %}
-                                    {{ featured_laptops[0].graphics_card.name[:25] }}
+                                    {{ featured_laptops[0].graphics_card.name }}
                                 {% else %}
                                     RTX 5090
                                 {% endif %}
@@ -870,9 +870,9 @@
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Pantalla</p>
                             <p id="spec-screen" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].display %}
-                                    {{ featured_laptops[0].display.name[:30]|replace('"', ' pulgadas') }}
+                                    {{ featured_laptops[0].display.name }}
                                 {% else %}
-                                    16 pulgadas OLED 4K
+                                    16" OLED 4K
                                 {% endif %}
                             </p>
                         </div>
@@ -1088,48 +1088,56 @@
         <div class="text-center mb-16 fade-in-up">
             <span class="text-accent-primary font-bold uppercase tracking-widest text-sm mb-2 block">Beneficios</span>
             <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6">
-                ¿Por qué <span class="text-gradient">Elegirnos</span>?
+                ¿Por Qué <span class="text-gradient">Elegirnos?</span>
             </h2>
             <p class="text-xl text-secondary max-w-2xl mx-auto">
-                Experiencia inigualable y servicio de primera clase en cada paso del camino.
+                Ofrecemos más que solo productos. Te brindamos una experiencia completa de compra con garantías y soporte de primer nivel.
             </p>
         </div>
 
         <div class="features-grid">
-            <!-- Feature 1 -->
+            <!-- Feature 1: Garantía Oficial -->
             <div class="feature-card fade-in-up delay-100">
                 <div class="feature-icon">
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Garantía Total</h3>
-                <p class="text-muted">Respaldo completo en todos nuestros productos con cobertura nacional.</p>
+                <h3 class="text-xl font-semibold font-heading mb-3">Garantía Oficial</h3>
+                <p class="text-secondary">
+                    Todos nuestros productos incluyen garantía de fábrica de 1 año con cobertura completa.
+                </p>
             </div>
 
-            <!-- Feature 2 -->
+            <!-- Feature 2: Envío Rápido -->
             <div class="feature-card fade-in-up delay-200">
                 <div class="feature-icon">
-                    <i class="fa-solid fa-truck-fast"></i>
+                    <i class="fas fa-shipping-fast"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Envío Express</h3>
-                <p class="text-muted">Entrega rápida y segura a toda la República Dominicana.</p>
+                <h3 class="text-xl font-semibold font-heading mb-3">Envío Gratis</h3>
+                <p class="text-secondary">
+                    Entrega rápida y segura en toda República Dominicana sin costo adicional.
+                </p>
             </div>
 
-            <!-- Feature 3 -->
+            <!-- Feature 3: Soporte Técnico -->
             <div class="feature-card fade-in-up delay-300">
                 <div class="feature-icon">
-                    <i class="fa-solid fa-headset"></i>
+                    <i class="fas fa-headset"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Soporte 24/7</h3>
-                <p class="text-muted">Equipo de expertos disponible para resolver cualquier consulta.</p>
+                <h3 class="text-xl font-semibold font-heading mb-3">Soporte 24/7</h3>
+                <p class="text-secondary">
+                    Equipo técnico especializado disponible para ayudarte en cualquier momento.
+                </p>
             </div>
 
-            <!-- Feature 4 -->
+            <!-- Feature 4: Precios Competitivos -->
             <div class="feature-card fade-in-up delay-400">
                 <div class="feature-icon">
-                    <i class="fa-solid fa-credit-card"></i>
+                    <i class="fas fa-tags"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Financiamiento</h3>
-                <p class="text-muted">Planes de pago flexibles adaptados a tus necesidades.</p>
+                <h3 class="text-xl font-semibold font-heading mb-3">Mejores Precios</h3>
+                <p class="text-secondary">
+                    Precios competitivos con opciones de financiamiento flexibles para todos.
+                </p>
             </div>
         </div>
     </div>
@@ -1148,13 +1156,13 @@
             {
                 id: {{ laptop.id }},
                 brand: "{{ laptop.brand.name if laptop.brand else 'Premium' }}",
-                name: "{{ laptop.model.name[:20] if laptop.model else 'Laptop Pro' }}",
+                name: "{{ laptop.model.name[:30] if laptop.model else laptop.display_name[:30] }}",
                 desc: "{{ laptop.description[:150] if laptop.description else 'Potencia y rendimiento excepcional para profesionales exigentes.' }}",
-                cpu: "{{ laptop.processor.name[:25] if laptop.processor else 'Intel Core' }}",
-                gpu: "{{ laptop.graphics_card.name[:25] if laptop.graphics_card else 'GPU Integrada' }}",
+                cpu: "{{ laptop.processor.name if laptop.processor else 'Intel Core' }}",
+                gpu: "{{ laptop.graphics_card.name if laptop.graphics_card else 'GPU Integrada' }}",
                 ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
                 ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: "{{ laptop.display.name[:30]|replace('"', ' pulgadas') if laptop.display else '15.6 pulgadas FHD' }}",
+                screen: "{{ laptop.display.name if laptop.display else '15.6\" FHD' }}",
                 {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
                 priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
                 priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
@@ -1179,25 +1187,25 @@
                 url: "{{ url_for('public.product_detail', id=laptop.id) }}",
                 colors: {
                     {% if loop.index == 1 %}
-                    textGrad: "linear-gradient(to right, #7c3aed, #a855f7)",
+                    textGrad: "linear-gradient(to right, #7c3aed, #2563eb)",
                     dot: "bg-purple-600",
                     btnHover: "hover:bg-purple-700"
                     {% elif loop.index == 2 %}
-                    textGrad: "linear-gradient(to right, #8b5cf6, #c084fc)",
-                    dot: "bg-violet-500",
-                    btnHover: "hover:bg-violet-600"
+                    textGrad: "linear-gradient(to right, #8b5cf6, #4f46e5)",
+                    dot: "bg-purple-500",
+                    btnHover: "hover:bg-purple-600"
                     {% elif loop.index == 3 %}
-                    textGrad: "linear-gradient(to right, #a855f7, #d946ef)",
-                    dot: "bg-fuchsia-500",
-                    btnHover: "hover:bg-fuchsia-600"
-                    {% elif loop.index == 4 %}
-                    textGrad: "linear-gradient(to right, #9333ea, #7c3aed)",
-                    dot: "bg-purple-700",
-                    btnHover: "hover:bg-purple-800"
-                    {% else %}
-                    textGrad: "linear-gradient(to right, #c084fc, #a855f7)",
+                    textGrad: "linear-gradient(to right, #a78bfa, #6366f1)",
                     dot: "bg-purple-400",
                     btnHover: "hover:bg-purple-500"
+                    {% elif loop.index == 4 %}
+                    textGrad: "linear-gradient(to right, #c4b5fd, #818cf8)",
+                    dot: "bg-purple-300",
+                    btnHover: "hover:bg-purple-400"
+                    {% else %}
+                    textGrad: "linear-gradient(to right, #ddd6fe, #a5b4fc)",
+                    dot: "bg-purple-200",
+                    btnHover: "hover:bg-purple-300"
                     {% endif %}
                 }
             }{% if not loop.last %},{% endif %}
