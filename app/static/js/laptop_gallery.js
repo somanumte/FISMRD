@@ -277,6 +277,11 @@ const LaptopGalleryHybrid = {
             this.images[0].isCover = true;
         }
 
+        // Actualizar los slots de las imágenes restantes
+        this.images.forEach((img, idx) => {
+            img.slot = idx + 1;
+        });
+
         this.render();
         this.showNotification('Imagen eliminada', 'success');
     },
@@ -379,27 +384,29 @@ const LaptopGalleryHybrid = {
             }
             throw new Error(`${file.name}: No se pudo cargar la imagen`);
         }
-
-        return true;
     },
 
     getImageDimensions: function(file) {
         return new Promise((resolve, reject) => {
-            const img = new Image();
             const url = URL.createObjectURL(file);
+            const img = new Image();
 
             img.onload = () => {
                 URL.revokeObjectURL(url);
-                resolve({ width: img.naturalWidth, height: img.naturalHeight });
+                resolve({ width: img.width, height: img.height });
             };
 
             img.onerror = () => {
                 URL.revokeObjectURL(url);
-                reject(new Error('Error cargando imagen'));
+                reject(new Error('No se pudo cargar la imagen'));
             };
 
             img.src = url;
         });
+    },
+
+    showEmptyState: function() {
+        // El estado vacío ya está en el HTML, solo asegurar que esté visible
     },
 
     // ===== SINCRONIZACIÓN CON FORMULARIO =====
@@ -412,15 +419,21 @@ const LaptopGalleryHybrid = {
             const input = document.getElementById(`image_${i}`);
             const altInput = document.getElementById(`image_${i}_alt`);
             const pathInput = document.getElementById(`image_${i}_path`);
+            const idInput = document.getElementById(`image_${i}_id`);  // CORRECCIÓN: Agregar referencia al input de ID
 
             if (input) {
                 // No limpiar el value de inputs existentes, solo actualizar los nuevos
                 if (!input.value || input.value === '') {
                     input.value = '';
                 }
+                // Limpiar los data attributes para evitar datos obsoletos
+                input.removeAttribute('data-image-id');
+                input.removeAttribute('data-image-url');
+                input.removeAttribute('data-is-cover');
             }
             if (altInput) altInput.value = '';
             if (pathInput) pathInput.value = '';
+            if (idInput) idInput.value = '';  // CORRECCIÓN: Limpiar el ID también
         }
 
         // Sincronizar cada imagen con su slot correspondiente
@@ -429,6 +442,7 @@ const LaptopGalleryHybrid = {
             const input = document.getElementById(`image_${slot}`);
             const altInput = document.getElementById(`image_${slot}_alt`);
             const pathInput = document.getElementById(`image_${slot}_path`);
+            const idInput = document.getElementById(`image_${slot}_id`);  // CORRECCIÓN: Obtener el input de ID
 
             if (!input) return;
 
@@ -445,11 +459,16 @@ const LaptopGalleryHybrid = {
             // IMPORTANTE: Actualizar el atributo data-is-cover en el input
             input.setAttribute('data-is-cover', imageData.isCover);
 
-            // Para imágenes existentes, también actualizar data-is-cover
+            // Para imágenes existentes, también actualizar data-is-cover y el ID
             if (imageData.type === 'existing') {
                 input.setAttribute('data-image-id', imageData.id);
                 input.setAttribute('data-image-url', imageData.url);
                 input.setAttribute('data-is-cover', imageData.isCover);
+
+                // CORRECCIÓN: Actualizar el input de ID con el ID correcto de la imagen
+                if (idInput) {
+                    idInput.value = imageData.id;
+                }
             }
 
             // Actualizar alt text

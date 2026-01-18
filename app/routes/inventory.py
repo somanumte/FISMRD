@@ -196,7 +196,8 @@ def process_laptop_images(laptop, form):
         try:
             file = request.files.get(f'image_{i}')
             alt_text = request.form.get(f'image_{i}_alt', '')
-            image_path = request.form.get(f'image_{i}_path', '')  # CAMBIO AQUÍ: Leer de _path en lugar del campo directo
+            image_path = request.form.get(f'image_{i}_path', '')
+            image_id = request.form.get(f'image_{i}_id', '')
 
             # CASO A: Archivo nuevo subido
             if file and file.filename and allowed_image_file(file.filename):
@@ -258,19 +259,34 @@ def process_laptop_images(laptop, form):
                 logger.info(f'   ✅ Registro creado: ID {image.id}')
 
             # CASO B: Imagen existente (mantener y actualizar)
-            elif image_path:
+            elif image_path or image_id:
                 logger.info(f"\n🔄 SLOT {i}: Verificando imagen existente")
-                logger.info(f"   Path: {image_path[:50]}...")
 
-                # Buscar imagen existente por path
+                # Buscar imagen existente por ID o por path
                 existing_img = None
-                for img in existing_images:
-                    if img.image_path == image_path or image_path.endswith(img.image_path):
-                        existing_img = img
-                        break
+
+                # Primero por ID (si existe)
+                if image_id:
+                    try:
+                        image_id_int = int(image_id)
+                        for img in existing_images:
+                            if img.id == image_id_int:
+                                existing_img = img
+                                logger.info(f"   ✅ Encontrada por ID: {image_id_int}")
+                                break
+                    except (ValueError, TypeError):
+                        logger.warning(f"   ⚠️  ID inválido: {image_id}")
+
+                # Si no se encontró por ID, buscar por path
+                if not existing_img and image_path:
+                    for img in existing_images:
+                        if img.image_path == image_path or image_path.endswith(img.image_path):
+                            existing_img = img
+                            logger.info(f"   ✅ Encontrada por path: {image_path[:50]}...")
+                            break
 
                 if existing_img:
-                    logger.info(f"   ✅ Encontrada: ID {existing_img.id}")
+                    logger.info(f"   ✅ Imagen ID {existing_img.id}")
 
                     # Actualizar metadata
                     existing_img.alt_text = alt_text or existing_img.alt_text
@@ -288,12 +304,32 @@ def process_laptop_images(laptop, form):
             error_messages.append(error_msg)
             logger.error(f'Laptop {laptop.sku}: {error_msg}', exc_info=True)
 
-    # ===== PASO 4: ASIGNAR PORTADA Y POSICIONES FINALES =====
+    # ===== PASO 4: ELIMINAR IMÁGENES EXISTENTES NO PROCESADAS =====
+    # Obtener IDs de las imágenes procesadas (existentes)
+    processed_existing_ids = [img.id for img in processed_images if hasattr(img, 'id') and img.id]
+
+    # Eliminar imágenes existentes que no estén en processed_images
+    for existing_img in existing_images:
+        if existing_img.id not in processed_existing_ids:
+            # Eliminar archivo físico
+            try:
+                filepath = os.path.join('app', 'static', existing_img.image_path)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    logger.info(f'   🗑️  Archivo eliminado (no procesado): {existing_img.image_path}')
+            except Exception as e:
+                logger.error(f'Error al eliminar archivo {existing_img.image_path}: {str(e)}')
+            # Eliminar de la base de datos
+            db.session.delete(existing_img)
+            logger.info(f'   🗑️  Registro eliminado (no procesado): imagen ID {existing_img.id}')
+
+    # ===== PASO 5: ASIGNAR PORTADA Y POSICIONES FINALES =====
     logger.info(f"\n👑 Asignando portada y posiciones finales")
     logger.info(f"   Total imágenes procesadas: {len(processed_images)}")
 
-    # La primera imagen procesada es la portada
+    # Asegurar que solo una imagen sea portada
     for idx, img in enumerate(processed_images):
+        # Solo la primera imagen es portada
         img.is_cover = (idx == 0)
         img.position = idx + 1
         img.ordering = idx + 1
@@ -306,8 +342,6 @@ def process_laptop_images(laptop, form):
     logger.info(f"{'=' * 60}\n")
 
     return success_count, error_messages
-
-
 # ===== RUTA PRINCIPAL: LISTADO DE LAPTOPS =====
 
 @inventory_bp.route('/')

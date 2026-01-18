@@ -329,6 +329,15 @@
                {% if img %}
                value="{{ img.image_path }}"
                {% endif %}>
+
+        <!-- Input ID para imágenes existentes -->
+        <input type="hidden"
+               id="image_{{ i }}_id"
+               name="image_{{ i }}_id"
+               {% if img %}
+               value="{{ img.id }}"
+               {% endif %}>
+
     </div>
     {% endfor %}
 
@@ -337,6 +346,14 @@
            id="images_to_delete"
            name="images_to_delete"
            value="[]">
+
+    <!-- Input oculto para ID de imagen de portada -->
+    <input type="hidden"
+           id="cover_image_id"
+           name="cover_image_id"
+           {% if laptop and laptop.cover_image_id %}
+           value="{{ laptop.cover_image_id }}"
+           {% endif %}>
 </div>
             <!-- Overlay de arrastre -->
             <div id="drag-overlay-premium" class="drag-overlay-premium">
@@ -590,6 +607,46 @@ $(document).ready(function() {
     $('.is-invalid').each(function() {
         $(this).addClass('border-red-500');
     });
+});
+
+// Sincronización de portada - actualizar campo cover_image_id cuando se cambie la portada
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para actualizar el campo de portada
+    function updateCoverImageId(imageId) {
+        const coverInput = document.getElementById('cover_image_id');
+        if (coverInput) {
+            coverInput.value = imageId || '';
+        }
+    }
+
+    // Inicializar con la primera imagen como portada (si existe)
+    const firstImageInput = document.getElementById('image_1');
+    if (firstImageInput && firstImageInput.dataset.imageId) {
+        updateCoverImageId(firstImageInput.dataset.imageId);
+    }
+
+    // Escuchar cambios en los inputs de imagen para actualizar la portada
+    for (let i = 1; i <= 8; i++) {
+        const imageInput = document.getElementById('image_' + i);
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                // Si esta es la primera imagen (posición 1), se convierte en portada
+                if (i === 1 && this.files && this.files[0]) {
+                    // Para nuevas imágenes, el backend asignará el ID después de guardar
+                    // Por ahora dejamos vacío, el backend deberá manejar esto
+                    updateCoverImageId('');
+                }
+            });
+        }
+    }
+
+    // Si el componente de galería JavaScript está presente, integrar con él
+    if (window.LaptopGallery) {
+        // Cuando la galería establezca una portada, actualizar el campo
+        window.LaptopGallery.onCoverChange = function(imageId) {
+            updateCoverImageId(imageId);
+        };
+    }
 });
 </script>
 {% endblock %}
