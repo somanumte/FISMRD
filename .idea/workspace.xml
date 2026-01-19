@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/landing/base_landing.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/landing/base_landing.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/landing/catalog.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/landing/catalog.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/landing/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/landing/home.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/landing/product_datail.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/landing/product_datail.html" afterDir="false" />
     </list>
@@ -97,7 +95,8 @@
       <option name="presentableId" value="Default" />
       <updated>1767133402766</updated>
       <workItem from="1768764876269" duration="19565000" />
-      <workItem from="1768820584203" duration="5315000" />
+      <workItem from="1768820584203" duration="6945000" />
+      <workItem from="1768834972968" duration="1880000" />
     </task>
     <task id="LOCAL-00001" summary="0">
       <option name="closed" value="true" />
@@ -299,7 +298,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768823052085</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="1">
+      <option name="closed" value="true" />
+      <created>1768826073256</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1768826073256</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -311,7 +318,7 @@
     <option name="LAST_COMMIT_MESSAGE" value="1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1768825923946" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1768837075797" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1768661564607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

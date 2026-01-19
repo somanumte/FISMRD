@@ -888,6 +888,8 @@
                             <p id="spec-screen" class="text-sm font-bold text-gray-800">
                                 {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].screen %}
                                     {{ featured_laptops[0].screen.name }}
+                                {% else %}
+                                    No especificada
                                 {% endif %}
                             </p>
                         </div>
@@ -1182,7 +1184,7 @@
                 gpu: "{{ laptop.graphics_card.name if laptop.graphics_card else 'GPU Integrada' }}",
                 ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
                 ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: "{{ laptop.screen.name if laptop.screen else '' }}",
+                screen: "{{ laptop.screen.name if laptop.screen else 'No especificada' }}",
                 {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
                 priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
                 priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
