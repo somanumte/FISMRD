@@ -635,7 +635,23 @@
     }
 
     /* =========================================
-       9. RESPONSIVE
+       9. COLORES PARA CARRUSEL
+       ========================================= */
+    .bg-purple-200 { background-color: #ddd6fe; }
+    .bg-purple-300 { background-color: #c4b5fd; }
+    .bg-purple-400 { background-color: #a78bfa; }
+    .bg-purple-500 { background-color: #8b5cf6; }
+    .bg-purple-600 { background-color: #7c3aed; }
+    .bg-purple-700 { background-color: #6d28d9; }
+    .bg-purple-800 { background-color: #5b21b6; }
+
+    /* Hover para botones (necesario para funcionalidad JS) */
+    .hover\:bg-purple-600:hover { background-color: #8b5cf6; }
+    .hover\:bg-purple-700:hover { background-color: #7c3aed; }
+    .hover\:bg-purple-800:hover { background-color: #6d28d9; }
+
+    /* =========================================
+       10. RESPONSIVE
        ========================================= */
     @media (max-width: 1200px) {
         .nav-prev { left: 10px; }
@@ -686,7 +702,7 @@
     }
 
     /* =========================================
-       10. UTILITY CLASSES
+       11. UTILITY CLASSES
        ========================================= */
     .flex { display: flex; }
     .flex-wrap { flex-wrap: wrap; }
@@ -784,7 +800,7 @@
                     </span>
                     <br class="hidden md:inline">
                     <span class="skew-wrapper">
-                        <span id="product-suffix" class="skew-text skew-visible" style="background: linear-gradient(to right, #7c3aed, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <span id="product-suffix" class="skew-text skew-visible" style="background: linear-gradient(to right, #7c3aed, #5b21b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                             {% if featured_laptops and featured_laptops|length > 0 %}
                                 {{ featured_laptops[0].model.name[:20] }}
                             {% else %}
@@ -1191,25 +1207,25 @@
                 url: "{{ url_for('public.product_detail', id=laptop.id) }}",
                 colors: {
                     {% if loop.index == 1 %}
-                    textGrad: "linear-gradient(to right, #7c3aed, #2563eb)",
+                    textGrad: "linear-gradient(to right, #7c3aed, #5b21b6)",
+                    dot: "bg-purple-700",
+                    btnHover: "hover:bg-purple-800"
+                    {% elif loop.index == 2 %}
+                    textGrad: "linear-gradient(to right, #8b5cf6, #6d28d9)",
                     dot: "bg-purple-600",
                     btnHover: "hover:bg-purple-700"
-                    {% elif loop.index == 2 %}
-                    textGrad: "linear-gradient(to right, #8b5cf6, #4f46e5)",
+                    {% elif loop.index == 3 %}
+                    textGrad: "linear-gradient(to right, #7c3aed, #6d28d9)",
+                    dot: "bg-purple-600",
+                    btnHover: "hover:bg-purple-700"
+                    {% elif loop.index == 4 %}
+                    textGrad: "linear-gradient(to right, #8b5cf6, #5b21b6)",
+                    dot: "bg-purple-700",
+                    btnHover: "hover:bg-purple-800"
+                    {% else %}
+                    textGrad: "linear-gradient(to right, #a78bfa, #7c3aed)",
                     dot: "bg-purple-500",
                     btnHover: "hover:bg-purple-600"
-                    {% elif loop.index == 3 %}
-                    textGrad: "linear-gradient(to right, #a78bfa, #6366f1)",
-                    dot: "bg-purple-400",
-                    btnHover: "hover:bg-purple-500"
-                    {% elif loop.index == 4 %}
-                    textGrad: "linear-gradient(to right, #c4b5fd, #818cf8)",
-                    dot: "bg-purple-300",
-                    btnHover: "hover:bg-purple-400"
-                    {% else %}
-                    textGrad: "linear-gradient(to right, #ddd6fe, #a5b4fc)",
-                    dot: "bg-purple-200",
-                    btnHover: "hover:bg-purple-300"
                     {% endif %}
                 }
             }{% if not loop.last %},{% endif %}
