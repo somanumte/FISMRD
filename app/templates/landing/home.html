@@ -1025,7 +1025,7 @@
                             {{ laptop.brand.name if laptop.brand else 'Marca' }}
                         </span>
                         <h3 class="product-title" title="{{ laptop.display_name }}">
-                            {{ laptop.display_name[:30] }}{% if laptop.display_name|length > 30 %}...{% endif %}
+                            {{ laptop.model.name[:30] }}{% if laptop.model.name|length > 30 %}...{% endif %}
                         </h3>
 
                         <!-- Tech Specs -->
