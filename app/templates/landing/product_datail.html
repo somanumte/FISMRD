@@ -9,13 +9,6 @@
 
 {% block extra_css %}
 <style>
-    body {
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        overflow-x: hidden;
-        background-color: #0f172a;
-    }
-
     #canvas-container {
         position: fixed;
         top: 0;
@@ -24,7 +17,11 @@
         height: 100%;
         z-index: 0;
         overflow: hidden;
-        background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+        background: linear-gradient(to bottom right, var(--bg-body), #e2e8f0);
+    }
+
+    [data-theme="dark"] #canvas-container {
+        background: linear-gradient(to bottom right, var(--bg-body), #1e293b);
     }
 
     .glass-panel {
@@ -33,6 +30,11 @@
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.6);
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] .glass-panel {
+        background: rgba(30, 30, 30, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     /* Animación suave flotante */
@@ -55,6 +57,11 @@
         height: 100%;
         background: white;
     }
+
+    [data-theme="dark"] .carousel-container {
+        background: var(--card-footer);
+    }
+
     .carousel-track {
         display: flex;
         height: 100%;
@@ -67,7 +74,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1rem; /* Reducido de 2rem a 1rem */
+        padding: 1rem;
     }
     .carousel-nav-btn {
         background: rgba(255, 255, 255, 0.8);
@@ -148,6 +155,12 @@
         background: white;
         flex-shrink: 0;
     }
+
+    [data-theme="dark"] .thumbnail-item {
+        border-color: var(--border-subtle);
+        background: var(--card-footer);
+    }
+
     .thumbnail-item:hover {
         border-color: #7c3aed;
     }
@@ -183,10 +196,26 @@
         max-width: 100%;
         max-height: 100%;
     }
-</style>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    /* Soporte para tema oscuro en textos */
+    [data-theme="dark"] .text-slate-800,
+    [data-theme="dark"] .text-slate-900 {
+        color: var(--text-main);
+    }
+
+    [data-theme="dark"] .text-gray-600,
+    [data-theme="dark"] .text-gray-700 {
+        color: var(--text-sub);
+    }
+
+    [data-theme="dark"] .bg-white\/60 {
+        background: rgba(30, 30, 30, 0.6);
+    }
+
+    [data-theme="dark"] .bg-gray-100\/50 {
+        background: rgba(50, 50, 50, 0.5);
+    }
+</style>
 
 <!-- Phosphor Icons -->
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -203,19 +232,19 @@
 <nav class="relative z-20 bg-white/80 backdrop-blur-sm border-b border-gray-200/60 py-4">
     <div class="container-custom">
         <div class="flex items-center text-sm text-gray-600">
-            <a href="{{ url_for('public.landing') }}" class="hover:text-apple-blue transition-colors">
+            <a href="{{ url_for('public.landing') }}" class="hover:text-purple-600 transition-colors">
                 <i class="ph ph-house mr-2"></i>Inicio
             </a>
             <i class="ph ph-caret-right mx-3 text-gray-400"></i>
-            <a href="{{ url_for('public.catalog') }}" class="hover:text-apple-blue transition-colors">
+            <a href="{{ url_for('public.catalog') }}" class="hover:text-purple-600 transition-colors">
                 Catálogo
             </a>
             <i class="ph ph-caret-right mx-3 text-gray-400"></i>
-            <a href="{{ url_for('public.catalog', category=laptop.category) }}" class="hover:text-apple-blue transition-colors">
+            <a href="{{ url_for('public.catalog', category=laptop.category) }}" class="hover:text-purple-600 transition-colors">
                 {{ laptop.category|capitalize if laptop.category else 'Laptops' }}
             </a>
             <i class="ph ph-caret-right mx-3 text-gray-400"></i>
-            <span class="text-slate-800 font-medium truncate">{{ laptop.display_name[:50] }}{% if laptop.display_name|length > 50 %}...{% endif %}</span>
+            <span class="text-[var(--text-main)] font-medium truncate">{{ laptop.display_name[:50] }}{% if laptop.display_name|length > 50 %}...{% endif %}</span>
         </div>
     </div>
 </nav>
@@ -306,14 +335,14 @@
                     {% endif %}
                 </div>
 
-                <h1 class="text-3xl md:text-5xl font-bold text-slate-800 leading-tight">
+                <h1 class="text-3xl md:text-5xl font-bold text-[var(--text-main)] leading-tight">
                     {{ laptop.brand.name if laptop.brand else '' }}
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
                         {{ laptop.model.name }}
                     </span>
                 </h1>
 
-                <p class="text-lg text-gray-600 mt-3">
+                <p class="text-lg text-[var(--text-sub)] mt-3">
                     {{ laptop.short_description or 'Diseño elegante y rendimiento excepcional' }}
                 </p>
             </div>
@@ -328,7 +357,7 @@
                         <i class="ph ph-cpu text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-gray-500 uppercase">Procesador</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">{{ laptop.processor.name }}</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">{{ laptop.processor.name }}</div>
                 </div>
                 {% endif %}
 
@@ -339,7 +368,7 @@
                         <i class="ph ph-graphics-card text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-gray-500 uppercase">Gráficos</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">{{ laptop.graphics_card.name }}</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">{{ laptop.graphics_card.name }}</div>
                 </div>
                 {% endif %}
 
@@ -350,7 +379,7 @@
                         <i class="ph ph-brain text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-purple-600 uppercase">NPU / AI</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">Intel AI Boost</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">Intel AI Boost</div>
                 </div>
                 {% endif %}
 
@@ -361,7 +390,7 @@
                         <i class="ph ph-memory text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-gray-500 uppercase">Memoria RAM</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">{{ laptop.ram.name }}</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">{{ laptop.ram.name }}</div>
                 </div>
                 {% endif %}
 
@@ -372,7 +401,7 @@
                         <i class="ph ph-hard-drives text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-gray-500 uppercase">Almacenamiento</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">{{ laptop.storage.name }}</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">{{ laptop.storage.name }}</div>
                 </div>
                 {% endif %}
 
@@ -383,7 +412,7 @@
                         <i class="ph ph-monitor text-purple-600 text-xl"></i>
                         <span class="text-xs font-semibold text-gray-500 uppercase">Pantalla</span>
                     </div>
-                    <div class="font-bold text-slate-800 text-sm md:text-base">{{ laptop.screen.name }}</div>
+                    <div class="font-bold text-[var(--text-main)] text-sm md:text-base">{{ laptop.screen.name }}</div>
                 </div>
                 {% endif %}
 
@@ -394,7 +423,7 @@
                         <i class="ph ph-windows-logo text-blue-600 text-2xl"></i>
                         <div>
                             <span class="text-xs font-semibold text-gray-500 uppercase block">Sistema Operativo</span>
-                            <span class="font-bold text-slate-800">{{ laptop.operating_system.name }}</span>
+                            <span class="font-bold text-[var(--text-main)]">{{ laptop.operating_system.name }}</span>
                         </div>
                     </div>
                     <div class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">Licencia Incluida</div>
@@ -411,10 +440,10 @@
                     <p class="text-gray-400 text-sm price-line-through">${{ "{:,.2f}".format(laptop.sale_price) }}</p>
                     {% endif %}
                     <div class="flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900" id="total-price">
+                        <span class="text-4xl font-bold text-[var(--text-main)]" id="total-price">
                             ${{ "{:,.2f}".format(laptop.discount_price or laptop.sale_price) }}
                         </span>
-                        <span class="text-lg text-slate-500">USD</span>
+                        <span class="text-lg text-[var(--text-sub)]">USD</span>
                     </div>
                     <p class="text-xs text-green-600 font-medium mt-1">
                         {% if laptop.quantity > 0 %}
@@ -433,7 +462,7 @@
                         <button onclick="decrementQty()" class="w-10 h-full flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 text-gray-600 transition-colors shadow-sm border border-gray-100">
                             <i class="ph ph-minus font-bold"></i>
                         </button>
-                        <span class="text-sm font-semibold text-gray-700">Cant: <span id="qty-value">1</span></span>
+                        <span class="text-sm font-semibold text-[var(--text-main)]">Cant: <span id="qty-value">1</span></span>
                         <button onclick="incrementQty()" class="w-10 h-full flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 text-gray-600 transition-colors shadow-sm border border-gray-100">
                             <i class="ph ph-plus font-bold"></i>
                         </button>
@@ -443,16 +472,16 @@
                     {% if laptop.quantity > 0 %}
                     <button
                         onclick="addToCart({{ laptop.id }}, '{{ laptop.display_name }}', {{ laptop.discount_price or laptop.sale_price }}, state.qty)"
-                        class="w-full h-12 bg-slate-900 hover:bg-purple-600 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-purple-500/30 flex items-center justify-center gap-2 group text-sm">
+                        class="w-full h-12 bg-[var(--text-main)] hover:bg-purple-600 text-[var(--bg-body)] rounded-xl font-semibold transition-all shadow-lg hover:shadow-purple-500/30 flex items-center justify-center gap-2 group text-sm">
                         <span>Añadir al Carrito</span>
                         <i class="ph ph-shopping-cart group-hover:translate-x-1 transition-transform text-lg"></i>
                     </button>
                     {% else %}
                     <div class="bg-gray-100/60 rounded-xl p-4 text-center">
-                        <p class="text-sm font-semibold text-gray-700 mb-2">Producto agotado</p>
+                        <p class="text-sm font-semibold text-[var(--text-main)] mb-2">Producto agotado</p>
                         <button
                             onclick="notifyWhenAvailable({{ laptop.id }})"
-                            class="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 transition-colors"
+                            class="px-4 py-2 bg-[var(--text-main)] text-[var(--bg-body)] text-sm rounded-lg hover:bg-purple-600 transition-colors"
                         >
                             Notificarme
                         </button>
@@ -482,7 +511,7 @@
 
             <!-- Redes Sociales -->
             <div class="mt-4 pt-4 border-t border-gray-200/40 flex items-center justify-center sm:justify-start gap-3">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Compartir:</span>
+                <span class="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider">Compartir:</span>
                 <div class="flex gap-2">
                     <!-- WhatsApp -->
                     <button onclick="shareTo('whatsapp')" class="w-8 h-8 rounded-full bg-white/50 border border-white hover:bg-[#25D366] hover:border-[#25D366] hover:text-white flex items-center justify-center transition-all shadow-sm group relative" title="Compartir en WhatsApp">
@@ -508,17 +537,17 @@
     <!-- SECCIÓN: Descripción y Especificaciones -->
     <div class="w-full max-w-7xl">
         <div class="glass-panel rounded-2xl p-6 md:p-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+            <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-main)] mb-6 flex items-center gap-3">
                 <i class="ph ph-info text-purple-600"></i>
                 Descripción y Especificaciones
             </h2>
 
             {% if laptop.long_description_html %}
-                <div class="prose max-w-none text-gray-700">
+                <div class="prose max-w-none text-[var(--text-sub)]">
                     {{ laptop.long_description_html|safe }}
                 </div>
             {% elif laptop.long_description %}
-                <p class="text-gray-700">{{ laptop.long_description|safe }}</p>
+                <p class="text-[var(--text-sub)]">{{ laptop.long_description|safe }}</p>
             {% else %}
                 <p class="text-gray-500 italic">Descripción detallada no disponible.</p>
             {% endif %}
@@ -527,19 +556,19 @@
             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% if laptop.connectivity_ports %}
                 <div>
-                    <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-[var(--text-main)] mb-3 flex items-center gap-2">
                         <i class="ph ph-plugs text-purple-600"></i>
                         Conectividad
                     </h3>
                     <div class="flex flex-wrap gap-2">
                         {% if laptop.connectivity_ports is mapping %}
                             {% for port, count in laptop.connectivity_ports.items() %}
-                            <span class="px-3 py-1.5 bg-white/60 text-gray-700 rounded-lg text-sm border border-white">
+                            <span class="px-3 py-1.5 bg-white/60 text-[var(--text-sub)] rounded-lg text-sm border border-white">
                                 {{ port }} {% if count > 1 %}×{{ count }}{% endif %}
                             </span>
                             {% endfor %}
                         {% elif laptop.connectivity_ports is string %}
-                            <span class="px-3 py-1.5 bg-white/60 text-gray-700 rounded-lg text-sm border border-white">
+                            <span class="px-3 py-1.5 bg-white/60 text-[var(--text-sub)] rounded-lg text-sm border border-white">
                                 {{ laptop.connectivity_ports }}
                             </span>
                         {% endif %}
@@ -548,18 +577,18 @@
                 {% endif %}
 
                 <div>
-                    <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-[var(--text-main)] mb-3 flex items-center gap-2">
                         <i class="ph ph-storefront text-purple-600"></i>
                         Disponibilidad
                     </h3>
                     <div class="bg-white/60 rounded-xl p-4">
                         <div class="flex items-center gap-3 mb-2">
                             <i class="ph ph-map-pin text-purple-600"></i>
-                            <p class="font-medium">
+                            <p class="font-medium text-[var(--text-main)]">
                                 {% if laptop.store %}{{ laptop.store.name }}{% else %}Tienda Principal{% endif %}
                             </p>
                         </div>
-                        <p class="text-sm text-gray-600">
+                        <p class="text-sm text-[var(--text-sub)]">
                             {% if laptop.quantity > 0 %}
                             <span class="text-green-600 font-medium">{{ laptop.quantity }} unidades disponibles</span>
                             {% else %}
@@ -575,7 +604,7 @@
     <!-- SECCIÓN: Productos Similares -->
     {% if similar_laptops %}
     <div class="w-full max-w-7xl">
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-6 pl-2 flex items-center gap-3">
+        <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-main)] mb-6 pl-2 flex items-center gap-3">
             <i class="ph ph-squares-four text-purple-600"></i>
             Modelos Similares
         </h2>
@@ -603,16 +632,16 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h3 class="font-bold text-slate-800 text-lg mb-1 group-hover:text-purple-600 transition-colors">
+                    <h3 class="font-bold text-[var(--text-main)] text-lg mb-1 group-hover:text-purple-600 transition-colors">
                         {{ similar.display_name }}
                     </h3>
-                    <p class="text-xs text-slate-500 mb-3">
+                    <p class="text-xs text-[var(--text-sub)] mb-3">
                         {{ similar.processor.name if similar.processor else '' }} •
                         {{ similar.ram.name if similar.ram else '' }} •
                         {{ similar.storage.name if similar.storage else '' }}
                     </p>
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-slate-900">
+                        <span class="font-bold text-[var(--text-main)]">
                             ${{ "{:,.2f}".format(similar.sale_price) }}
                         </span>
                         <button class="text-xs font-semibold text-purple-600 hover:bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 transition-colors">
@@ -631,7 +660,7 @@
 <div id="imageModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/80">
     <div class="modal-content bg-white rounded-2xl max-w-4xl w-full mx-4 relative">
         <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-slate-800" id="modalTitle"></h3>
+            <h3 class="text-lg font-semibold text-[var(--text-main)]" id="modalTitle"></h3>
             <button onclick="closeImageModal()" class="p-2 rounded-lg hover:bg-gray-100">
                 <i class="ph ph-x text-xl"></i>
             </button>
@@ -642,10 +671,10 @@
     </div>
 </div>
 
-<!-- Toast Notification -->
-<div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
+<!-- Toast Notification (este se usa localmente, diferente al del base) -->
+<div id="product-toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
     <i class="ph-fill ph-check-circle text-green-400"></i>
-    <span id="toast-message">Enlace copiado</span>
+    <span id="product-toast-message">Enlace copiado</span>
 </div>
 
 {% endblock %}
@@ -889,7 +918,7 @@
         } else {
             // Para Instagram y TikTok (copiar al portapapeles)
             copyToClipboard(url);
-            showToast(`Enlace copiado para ${platform.charAt(0).toUpperCase() + platform.slice(1)}`);
+            showProductToast(`Enlace copiado para ${platform.charAt(0).toUpperCase() + platform.slice(1)}`);
         }
     }
 
@@ -906,12 +935,14 @@
         document.body.removeChild(textArea);
     }
 
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        const msgEl = document.getElementById('toast-message');
+    function showProductToast(msg) {
+        const toast = document.getElementById('product-toast');
+        const msgEl = document.getElementById('product-toast-message');
         msgEl.innerText = msg;
         toast.classList.remove('opacity-0');
+        toast.classList.add('opacity-100');
         setTimeout(() => {
+            toast.classList.remove('opacity-100');
             toast.classList.add('opacity-0');
         }, 3000);
     }
@@ -937,7 +968,13 @@
 
         localStorage.setItem('luxerard_cart', JSON.stringify(cart));
         updateCartCount();
-        showToast('¡Producto agregado!', `${productName} se ha agregado a tu carrito`, 'success');
+
+        // Usar el toast del base si existe, sino usar el local
+        if (typeof showToast === 'function') {
+            showToast('¡Producto agregado!', `${productName} se ha agregado a tu carrito`, 'success');
+        } else {
+            showProductToast('¡Producto agregado al carrito!');
+        }
     }
 
     function addToWishlist(productId) {
@@ -946,9 +983,17 @@
         if (!wishlist.includes(productId)) {
             wishlist.push(productId);
             localStorage.setItem('luxerard_wishlist', JSON.stringify(wishlist));
-            showToast('¡Agregado a favoritos!', 'El producto se ha guardado en tu lista de deseos', 'success');
+            if (typeof showToast === 'function') {
+                showToast('¡Agregado a favoritos!', 'El producto se ha guardado en tu lista de deseos', 'success');
+            } else {
+                showProductToast('¡Agregado a favoritos!');
+            }
         } else {
-            showToast('Ya está en favoritos', 'Este producto ya está en tu lista de deseos', 'info');
+            if (typeof showToast === 'function') {
+                showToast('Ya está en favoritos', 'Este producto ya está en tu lista de deseos', 'info');
+            } else {
+                showProductToast('Ya está en favoritos');
+            }
         }
     }
 
@@ -958,9 +1003,17 @@
         if (!notifications.includes(productId)) {
             notifications.push(productId);
             localStorage.setItem('product_notifications', JSON.stringify(notifications));
-            showToast('¡Te notificaremos!', 'Te enviaremos un correo cuando este producto esté disponible', 'success');
+            if (typeof showToast === 'function') {
+                showToast('¡Te notificaremos!', 'Te enviaremos un correo cuando este producto esté disponible', 'success');
+            } else {
+                showProductToast('¡Te notificaremos cuando esté disponible!');
+            }
         } else {
-            showToast('Ya estás suscrito', 'Ya recibirás notificaciones sobre este producto', 'info');
+            if (typeof showToast === 'function') {
+                showToast('Ya estás suscrito', 'Ya recibirás notificaciones sobre este producto', 'info');
+            } else {
+                showProductToast('Ya estás suscrito');
+            }
         }
     }
 
