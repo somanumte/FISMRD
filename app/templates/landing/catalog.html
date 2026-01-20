@@ -480,7 +480,7 @@
                     <div class="hidden md:block h-6 w-px bg-[var(--border-subtle)]"></div>
 
                     <!-- Chips de Categoría -->
-                    <div class="flex items-center gap-1 overflow-x-auto no-scrollbar mask-gradient pr-2 w-full">
+                    <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pr-2 w-full">
                         <button @click="selectedCat = ''"
                                 :class="selectedCat === '' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
                                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent">
@@ -568,7 +568,7 @@
                             </div>
 
                             <h3 class="font-heading font-bold text-lg text-[var(--text-main)] leading-tight mb-3 group-hover:text-primary transition-colors">
-                                <a :href="'/product/' + product.id" class="line-clamp-2" x-text="product.name"></a>
+                                <a :href="'/product/' + product.id" class="line-clamp-2" x-text="product.model"></a>
                             </h3>
 
                             <!-- Mini Specs -->

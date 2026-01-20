@@ -85,7 +85,7 @@ def catalog():
         joinedload(Laptop.screen),
         joinedload(Laptop.graphics_card),
         joinedload(Laptop.operating_system),
-        joinedload(Laptop.model)
+        joinedload(Laptop.model)  # Esta relación YA está siendo cargada
     ).filter(
         Laptop.is_published == True,
         Laptop.quantity > 0
@@ -147,6 +147,16 @@ def catalog():
         storage_subquery, Storage.id == storage_subquery.c.storage_id
     ).order_by(Storage.name).all()
 
+    # Modelos únicos de productos publicados
+    model_subquery = db.session.query(Laptop.model_id).filter(
+        Laptop.is_published == True,
+        Laptop.quantity > 0,
+        Laptop.model_id.isnot(None)
+    ).distinct().subquery()
+    models = LaptopModel.query.join(
+        model_subquery, LaptopModel.id == model_subquery.c.model_id
+    ).order_by(LaptopModel.name).all()
+
     # Calcular rango de precios real de productos
     price_range = db.session.query(
         db.func.min(
@@ -191,6 +201,7 @@ def catalog():
         storages=storages,  # Para ssdList
         conditions=conditions,  # Para conditionList
         categories=categories,  # Para categories
+        models=models,  # Para modelList - NUEVO: agregar modelos disponibles
         min_price_available=int(min_price_available),
         max_price_available=int(max_price_available),
         total_products=len(laptops)
@@ -284,7 +295,8 @@ def api_laptops():
         joinedload(Laptop.screen),
         joinedload(Laptop.ram),
         joinedload(Laptop.storage),
-        joinedload(Laptop.operating_system)
+        joinedload(Laptop.operating_system),
+        joinedload(Laptop.model)  # NUEVO: incluir modelo en la API
     ).filter(
         Laptop.is_published == True,
         Laptop.quantity > 0
@@ -323,6 +335,7 @@ def api_laptops():
             'sku': laptop.sku,
             'name': laptop.display_name,
             'brand': laptop.brand.name if laptop.brand else 'Sin marca',
+            'model': laptop.model.name if laptop.model else 'Sin modelo',  # NUEVO: agregar campo modelo
             'category': laptop.category or 'laptop',
             'price': float(laptop.sale_price),
             'old_price': float(laptop.discount_price) if laptop.discount_price and float(laptop.discount_price) < float(
@@ -410,6 +423,17 @@ def api_filters():
         storage_subquery, Storage.id == storage_subquery.c.storage_id
     ).order_by(Storage.name).all()
 
+    # NUEVO: obtener modelos únicos de productos publicados
+    model_subquery = db.session.query(Laptop.model_id).filter(
+        Laptop.is_published == True,
+        Laptop.quantity > 0,
+        Laptop.model_id.isnot(None)
+    ).distinct().subquery()
+
+    models = LaptopModel.query.join(
+        model_subquery, LaptopModel.id == model_subquery.c.model_id
+    ).order_by(LaptopModel.name).all()
+
     filters_data = {
         'brands': [{'id': b.id, 'name': b.name} for b in brands],
         'processors': [{'id': p.id, 'name': p.name} for p in processors],
@@ -417,6 +441,7 @@ def api_filters():
         'screens': [{'id': s.id, 'name': s.name} for s in screens],
         'rams': [{'id': r.id, 'name': r.name} for r in rams],
         'storages': [{'id': s.id, 'name': s.name} for s in storages],
+        'models': [{'id': m.id, 'name': m.name} for m in models],  # NUEVO: agregar modelos a filtros
         'categories': [
             {'id': 'laptop', 'name': 'Laptop'},
             {'id': 'gaming', 'name': 'Gaming'},
@@ -472,6 +497,7 @@ def api_search():
             'id': laptop.id,
             'name': laptop.display_name,
             'brand': laptop.brand.name if laptop.brand else '',
+            'model': laptop.model.name if laptop.model else '',  # NUEVO: agregar modelo a sugerencias
             'price': float(laptop.discount_price or laptop.sale_price),
             'image': image_url,
             'url': f'/product/{laptop.id}',
