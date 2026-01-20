@@ -98,6 +98,8 @@
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
+        overflow: hidden;
+        border-radius: 9999px;
     }
 
     .range-slider-track {
@@ -471,7 +473,7 @@
 
                 <!-- Left: Categorías -->
                 <div class="flex items-center gap-4 flex-1 overflow-hidden w-full sm:w-auto">
-                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2 mr-6">
+                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2 mr-4">
                         <span class="text-[var(--text-main)] font-bold" x-text="filteredProducts.length"></span> Productos
                     </p>
 
@@ -483,6 +485,12 @@
                                 :class="selectedCat === '' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
                                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent">
                             Todo
+                        </button>
+                        <button @click="selectedCat = 'sale'"
+                                :class="selectedCat === 'sale' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent flex items-center gap-2">
+                            <i class="ph ph-flame-simple text-lg"></i>
+                            <span>Ofertas</span>
                         </button>
                         <template x-for="cat in categories" :key="cat.id">
                             <button @click="selectedCat = cat.id"
@@ -523,7 +531,7 @@
                 <template x-for="product in filteredProducts" :key="product.id">
                     <article class="product-card group flex flex-col h-full animate-fade-in">
                         <!-- Image Container -->
-                        <div class="relative h-56 w-full bg-white flex items-center justify-center p-6 overflow-hidden">
+                        <div class="relative h-56 w-full bg-transparent flex items-center justify-center p-6 overflow-hidden">
                             <img :src="product.image" :alt="product.name" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" loading="lazy">
 
                             <!-- Badges -->
@@ -945,7 +953,13 @@
                 if (!ignore.includes('price') && (product.price < this.minPrice || product.price > this.maxPrice)) return false;
 
                 // Filtro de categoría
-                if (!ignore.includes('category') && this.selectedCat && product.cat !== this.selectedCat) return false;
+                if (!ignore.includes('category') && this.selectedCat) {
+                    if (this.selectedCat === 'sale') {
+                        if (!product.sale) return false;
+                    } else if (product.cat !== this.selectedCat) {
+                        return false;
+                    }
+                }
 
                 // Filtro de marcas
                 if (!ignore.includes('brand') && this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
