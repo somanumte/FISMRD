@@ -1,364 +1,1131 @@
 {% extends "landing/base_landing.html" %}
 
-{% block title %}Catálogo de Productos | LuxeraRD{% endblock %}
+{% block title %}CatÃ¡logo | LuxeraRD - TecnologÃ­a Premium{% endblock %}
 
-{% block meta_description %}Explora nuestro catálogo completo de laptops y equipos de computación. Encuentra la laptop perfecta para ti con filtros avanzados y los mejores precios.{% endblock %}
+{% block extra_css %}
+<style>
+    /* Variables CSS (Sincronizadas con base_landing.html) */
+    :root {
+        --font-body: 'Outfit', sans-serif;
+        --font-heading: 'Space Grotesk', sans-serif;
+
+        --primary: #7c3aed;
+        --primary-dark: #6d28d9;
+        --primary-light: #a78bfa;
+
+        /* Light Theme Defaults */
+        --bg-body: #f8fafc;
+        --bg-nav: rgba(255, 255, 255, 0.9);
+        --bg-footer: #ffffff;
+        --text-main: #0f172a;
+        --text-sub: #64748b;
+        --border-subtle: #e2e8f0;
+        --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        --card-bg: #ffffff;
+        --surface: #f1f5f9; /* Slate 100 for secondary backgrounds */
+    }
+
+    [data-theme="dark"] {
+        --bg-body: #050505;
+        --bg-nav: rgba(20, 20, 20, 0.85);
+        --bg-footer: #0a0a0a;
+        --text-main: #f8fafc;
+        --text-sub: #94a3b8;
+        --border-subtle: #262626;
+        --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        --card-bg: #121212;
+        --surface: #1e1e1e;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
+
+    /* Product Cards */
+    .product-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.15);
+        border-color: var(--primary);
+    }
+
+    /* Botones Premium */
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border-radius: 9999px;
+        transition: all 0.3s;
+        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+    }
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Dual Range Slider Styles */
+    .range-slider-container {
+        position: relative;
+        width: 100%;
+        height: 24px;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .range-slider-track {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 9999px;
+        background-color: var(--border-subtle);
+        pointer-events: none;
+    }
+
+    .range-slider-progress {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--primary-light));
+        border-radius: 9999px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .range-input {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        height: 24px;
+        -webkit-appearance: none;
+        pointer-events: none;
+        background: none;
+        z-index: 2;
+        margin: 0;
+    }
+
+    .range-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        pointer-events: auto;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid var(--primary);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .range-input::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+    }
+
+    .range-input::-moz-range-thumb {
+        pointer-events: auto;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid var(--primary);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .range-input::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+    }
+
+    /* Checkbox Custom Style */
+    input[type="checkbox"].accent-primary {
+        accent-color: var(--primary);
+    }
+
+    /* Select Reset for Better Styling */
+    select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    /* Animations */
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @keyframes slide-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in { animation: fade-in 0.6s ease-out; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-slide-up { animation: slide-up 0.3s ease-out; }
+
+    /* Mask for gradient scroll fade */
+    .mask-gradient {
+        mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+
+    /* Line clamp utilities */
+    .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+    .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+</style>
+{% endblock %}
 
 {% block content %}
+<!-- MAIN CONTENT -->
+<main class="pt-28 pb-20 container mx-auto px-4 md:px-8 max-w-[1440px]" x-data="shopStore">
 
-<!-- ============================================
-     CATÁLOGO HEADER
-     ============================================ -->
-<section class="bg-gradient-to-br from-gray-50 to-white pt-32 pb-16">
-    <div class="container-custom">
-        <div class="text-center max-w-3xl mx-auto">
-            <h1 class="section-title text-[var(--text-main)] mb-4">
-                Catálogo de Productos
-            </h1>
-            <p class="subtitle">
-                Explora nuestra colección completa de {{ total_products }} laptops disponibles
-            </p>
-        </div>
-    </div>
-</section>
+    <!-- HERO SECTION -->
+    <header class="mb-16 relative rounded-[2.5rem] overflow-hidden bg-white dark:bg-zinc-900 border border-[var(--border-subtle)] shadow-xl animate-fade-in group min-h-[400px] flex items-center">
+        <!-- Decorative Gradient Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 opacity-80"></div>
 
-<!-- ============================================
-     FILTROS Y BÚSQUEDA
-     ============================================ -->
-<section class="bg-white border-y border-gray-200 sticky top-24 z-40">
-    <div class="container-custom py-6">
-        <form method="GET" action="{{ url_for('public.catalog') }}" class="space-y-4">
-            <!-- Búsqueda y Ordenamiento -->
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Búsqueda -->
-                <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input
-                        type="text"
-                        name="q"
-                        value="{{ search_query }}"
-                        placeholder="Buscar laptops, marcas, especificaciones..."
-                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                </div>
-
-                <!-- Ordenar por -->
-                <div class="md:w-64">
-                    <select
-                        name="sort"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white cursor-pointer"
-                        onchange="this.form.submit()"
-                    >
-                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Más Recientes</option>
-                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                        <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Más Populares</option>
-                    </select>
+        <div class="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10 p-8 md:p-16 items-center">
+            <!-- Text Content -->
+            <div class="space-y-6">
+                <span class="inline-block px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs font-bold tracking-wider text-primary uppercase">Explora Nuestro CatÃ¡logo</span>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading leading-[1.1] text-[var(--text-main)]">
+                    Encuentra <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">Tu Laptop Ideal</span>
+                </h1>
+                <p class="text-lg text-[var(--text-sub)] max-w-md">
+                    Descubre nuestra selecciÃ³n premium de laptops gaming, workstations y dispositivos profesionales. TecnologÃ­a de vanguardia al mejor precio.
+                </p>
+                <div class="flex gap-4 pt-2">
+                    <button @click="scrollToCatalog()" class="btn-primary px-8 py-3 text-sm font-bold flex items-center gap-2">
+                        Explorar CatÃ¡logo <i class="ph-bold ph-arrow-down"></i>
+                    </button>
+                    <a href="#catalog" class="px-8 py-3 rounded-full border border-[var(--border-subtle)] text-[var(--text-main)] font-bold hover:bg-[var(--border-subtle)] transition text-sm">
+                        Ver Todos
+                    </a>
                 </div>
             </div>
 
-            <!-- Filtros Avanzados (Collapsible en móvil) -->
-            <div id="filters-container">
-                <button
-                    type="button"
-                    id="toggle-filters"
-                    class="md:hidden w-full flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl text-[var(--text-main)] font-medium"
-                >
-                    <span><i class="fas fa-filter mr-2"></i>Filtros</span>
-                    <i class="fas fa-chevron-down"></i>
+            <!-- Hero Image -->
+            <div class="relative flex justify-center animate-float">
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-blue-500/20 blur-[80px] rounded-full"></div>
+                <img src="https://assets2.razerzone.com/images/pnx.assets/617c0b05786259079361e695d522f778/razer-blade-16-2023-black-hero-mobile.png"
+                     alt="Laptop Gaming Premium" class="relative z-10 w-full max-w-md object-contain drop-shadow-2xl">
+            </div>
+        </div>
+    </header>
+
+    <!-- CATALOG LAYOUT -->
+    <div id="catalog" class="flex flex-col lg:flex-row gap-8 items-start">
+
+        <!-- FILTERS SIDEBAR -->
+        <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border-subtle)] shadow-sm h-fit max-h-[85vh] overflow-y-auto no-scrollbar">
+
+            <div class="flex justify-between items-center pb-4 border-b border-[var(--border-subtle)]">
+                <h3 class="font-heading font-bold text-lg text-[var(--text-main)]">Filtros</h3>
+                <button @click="resetFilters()" class="text-xs font-bold text-primary hover:underline">Limpiar</button>
+            </div>
+
+            <!-- Loading State -->
+            <div x-show="isLoading" class="text-center py-4">
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <p class="text-sm text-[var(--text-sub)] mt-2">Cargando productos...</p>
+            </div>
+
+            <!-- Search -->
+            <div class="relative mb-2">
+                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)]"></i>
+                <input type="text" x-model="searchQuery" @input="debouncedSearch()" placeholder="Buscar laptops, marcas, especificaciones..."
+                       class="w-full bg-[var(--surface)] border-none rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 transition-all">
+            </div>
+
+            <!-- Price Range -->
+            <div x-data="{ expanded: true }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-currency-dollar text-primary"></i> Rango de Precio
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
 
-                <div id="filters-content" class="hidden md:flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
-                    <!-- Filtro por Marca -->
-                    <div class="flex-1">
-                        <select
-                            name="brand"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white cursor-pointer"
-                            onchange="this.form.submit()"
-                        >
-                            <option value="">Todas las Marcas</option>
-                            {% for brand in brands %}
-                            <option value="{{ brand.id }}" {% if selected_brand == brand.id %}selected{% endif %}>
-                                {{ brand.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Filtro de Precio -->
-                    <div class="flex-1">
-                        <div class="flex gap-2">
-                            <input
-                                type="number"
-                                name="min_price"
-                                value="{{ min_price if min_price else '' }}"
-                                placeholder="Precio Mín."
-                                min="{{ min_price_available }}"
-                                max="{{ max_price_available }}"
-                                class="w-1/2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            >
-                            <input
-                                type="number"
-                                name="max_price"
-                                value="{{ max_price if max_price else '' }}"
-                                placeholder="Precio Máx."
-                                min="{{ min_price_available }}"
-                                max="{{ max_price_available }}"
-                                class="w-1/2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            >
+                <div x-show="expanded" x-collapse>
+                    <div class="pt-2">
+                        <!-- Inputs NumÃ©ricos -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="relative w-[48%]">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-xs font-medium">min</span>
+                                <input type="number" x-model="minPrice" @change="updateMinPrice" class="w-full bg-[var(--surface)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                            </div>
+                            <span class="text-[var(--text-sub)] text-xs font-medium">a</span>
+                            <div class="relative w-[48%]">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-xs font-medium">max</span>
+                                <input type="number" x-model="maxPrice" @change="updateMaxPrice" class="w-full bg-[var(--surface)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Botones de Acción -->
-                    <div class="flex gap-2">
-                        <button
-                            type="submit"
-                            class="px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors whitespace-nowrap"
-                        >
-                            <i class="fas fa-search mr-2"></i>Buscar
-                        </button>
-                        <a
-                            href="{{ url_for('public.catalog') }}"
-                            class="px-6 py-3 bg-gray-200 text-[var(--text-main)] rounded-xl font-medium hover:bg-gray-300 transition-colors whitespace-nowrap"
-                        >
-                            <i class="fas fa-times mr-2"></i>Limpiar
-                        </a>
+                        <!-- Slider Visual -->
+                        <div class="range-slider-container px-1">
+                            <div class="range-slider-track"></div>
+                            <div class="range-slider-progress" :style="progressStyle"></div>
+                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max" step="100" x-model="minPrice" @input="updateMinPrice">
+                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max" step="100" x-model="maxPrice" @input="updateMaxPrice">
+                        </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
-</section>
 
-<!-- ============================================
-     RESULTADOS
-     ============================================ -->
-<section class="section-spacing bg-[var(--bg-body)]">
-    <div class="container-custom">
-        <!-- Contador de Resultados -->
-        <div class="flex items-center justify-between mb-8">
-            <p class="text-[var(--text-sub)]">
-                Mostrando <span class="font-semibold text-[var(--text-main)]">{{ laptops|length }}</span> de <span class="font-semibold text-[var(--text-main)]">{{ total_products }}</span> productos
-            </p>
+            <!-- Brands -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-tag text-primary"></i> Marca
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
 
-            {% if search_query or selected_brand or min_price or max_price %}
-            <a href="{{ url_for('public.catalog') }}" class="text-purple-600 hover:underline text-sm font-medium">
-                <i class="fas fa-times mr-1"></i>Limpiar filtros
-            </a>
-            {% endif %}
-        </div>
-
-        {% if laptops %}
-        <!-- Grid de Productos -->
-        <div class="products-grid">
-            {% for laptop in laptops %}
-            <article class="product-card group">
-                <!-- Imagen del Producto -->
-                <a href="{{ url_for('public.product_detail', id=laptop.id) }}" class="block aspect-[4/3] overflow-hidden bg-white relative">
-                    {% if laptop.images and laptop.images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                        {% set cover = laptop.images|selectattr('is_cover', 'equalto', True)|first %}
-                        <img
-                            src="{{ url_for('static', filename=cover.image_path) }}"
-                            alt="{{ laptop.display_name }}"
-                            class="product-image w-full h-full object-contain p-6"
-                            loading="lazy"
-                        >
-                    {% elif laptop.images and laptop.images|length > 0 %}
-                        <img
-                            src="{{ url_for('static', filename=laptop.images[0].image_path) }}"
-                            alt="{{ laptop.display_name }}"
-                            class="product-image w-full h-full object-contain p-6"
-                            loading="lazy"
-                        >
-                    {% else %}
-                        <img
-                            src="{{ url_for('static', filename='images/laptop-placeholder.png') }}"
-                            alt="{{ laptop.display_name }}"
-                            class="product-image w-full h-full object-contain p-6"
-                            loading="lazy"
-                        >
-                    {% endif %}
-
-                    <!-- Badges -->
-                    <div class="absolute top-4 left-4 flex flex-col gap-2">
-                        {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
-                        <span class="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                            -{{ (((laptop.sale_price - laptop.discount_price) / laptop.sale_price) * 100)|int }}%
-                        </span>
-                        {% endif %}
-
-                        {% if laptop.quantity <= 5 and laptop.quantity > 0 %}
-                        <span class="bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                            ¡Solo {{ laptop.quantity }} unidades!
-                        </span>
-                        {% endif %}
+                <div x-show="expanded" x-collapse>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <template x-for="brand in brandsList" :key="brand">
+                            <button @click="toggleFilter('selectedBrands', brand)"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border"
+                                    :class="selectedBrands.includes(brand) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                <span x-text="brand"></span>
+                            </button>
+                        </template>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Overlay on Hover -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                        <span class="w-full btn-primary text-center">
-                            Ver Detalles
-                        </span>
+            <!-- CPU -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-cpu text-primary"></i> Procesador
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                        <template x-for="cpu in cpuList" :key="cpu">
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
+                                <input type="checkbox" :value="cpu" x-model="selectedCPUs" class="accent-primary rounded">
+                                <span class="text-xs text-[var(--text-sub)] truncate" x-text="cpu" :title="cpu"></span>
+                            </label>
+                        </template>
                     </div>
-                </a>
+                </div>
+            </div>
 
-                <!-- Info del Producto -->
-                <div class="p-6">
-                    <!-- Marca -->
-                    <p class="text-sm text-[var(--text-sub)] mb-2 font-medium">
-                        {{ laptop.brand.name if laptop.brand else 'Marca' }}
+            <!-- GPU -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-graphics-card text-primary"></i> GrÃ¡fica
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                        <template x-for="gpu in gpuList" :key="gpu">
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
+                                <input type="checkbox" :value="gpu" x-model="selectedGPUs" class="accent-primary rounded">
+                                <span class="text-xs text-[var(--text-sub)] truncate" x-text="gpu" :title="gpu"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pantalla -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-monitor text-primary"></i> Pantalla
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                        <template x-for="screen in screenList" :key="screen">
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
+                                <input type="checkbox" :value="screen" x-model="selectedScreens" class="accent-primary rounded">
+                                <span class="text-xs text-[var(--text-sub)] truncate" x-text="screen" :title="screen"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAM -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-memory text-primary"></i> RAM
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <template x-for="ram in ramList" :key="ram">
+                            <button @click="toggleFilter('selectedRAMs', ram)"
+                                    class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
+                                    :class="selectedRAMs.includes(ram) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                <span x-text="ram"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SSD -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-hard-drives text-primary"></i> SSD
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        <template x-for="ssd in ssdList" :key="ssd">
+                            <button @click="toggleFilter('selectedSSDs', ssd)"
+                                    class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
+                                    :class="selectedSSDs.includes(ssd) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                <span x-text="ssd"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONDICIÃ“N -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
+                        <i class="ph-fill ph-sparkle text-primary"></i> CondiciÃ³n
+                    </span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                </button>
+
+                <div x-show="expanded" x-collapse>
+                    <div class="space-y-1 pt-2">
+                        <template x-for="cond in conditionList" :key="cond">
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                                <input type="checkbox" :value="cond" x-model="selectedConditions" class="accent-primary rounded">
+                                <span class="text-xs text-[var(--text-sub)]"
+                                      x-text="cond === 'new' ? 'Nuevo' : cond === 'used' ? 'Usado' : 'Reacondicionado'"></span>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- PRODUCT GRID -->
+        <div class="flex-1 w-full">
+            <!-- Toolbar -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-[var(--card-bg)] p-2 rounded-2xl border border-[var(--border-subtle)] shadow-sm">
+
+                <!-- Left: CategorÃ­as -->
+                <div class="flex items-center gap-4 flex-1 overflow-hidden w-full sm:w-auto">
+                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2">
+                        <span class="text-[var(--text-main)] font-bold" x-text="filteredProducts.length"></span> Productos
                     </p>
 
-                    <!-- Nombre -->
-                    <h3 class="text-lg font-semibold text-[var(--text-main)] mb-3 line-clamp-2 group-hover:text-purple-600 transition-colors">
-                        <a href="{{ url_for('public.product_detail', id=laptop.id) }}">
-                            {{ laptop.display_name }}
-                        </a>
-                    </h3>
+                    <div class="hidden md:block h-6 w-px bg-[var(--border-subtle)]"></div>
 
-                    <!-- Especificaciones Clave -->
-                    <div class="space-y-2 mb-4 text-sm text-[var(--text-sub)]">
-                        {% if laptop.processor %}
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-microchip w-4 text-gray-400"></i>
-                            <span class="truncate">{{ laptop.processor.name[:35] }}{% if laptop.processor.name|length > 35 %}...{% endif %}</span>
-                        </div>
-                        {% endif %}
-
-                        <div class="flex items-center gap-4">
-                            {% if laptop.ram %}
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-memory w-4 text-gray-400"></i>
-                                <span>{{ laptop.ram.name }}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if laptop.storage %}
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-hdd w-4 text-gray-400"></i>
-                                <span>{{ laptop.storage.name }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Precio y Acción -->
-                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                        <div>
-                            {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
-                            <p class="text-sm text-gray-400 line-through">
-                                ${{ "{:,.2f}".format(laptop.sale_price) }}
-                            </p>
-                            <p class="text-2xl font-bold text-[var(--text-main)]">
-                                ${{ "{:,.2f}".format(laptop.discount_price) }}
-                            </p>
-                            {% else %}
-                            <p class="text-2xl font-bold text-[var(--text-main)]">
-                                ${{ "{:,.2f}".format(laptop.sale_price) }}
-                            </p>
-                            {% endif %}
-                        </div>
-
-                        <a href="{{ url_for('public.product_detail', id=laptop.id) }}"
-                           class="p-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
-                           aria-label="Ver detalles de {{ laptop.display_name }}">
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <!-- Chips de CategorÃ­a -->
+                    <div class="flex items-center gap-1 overflow-x-auto no-scrollbar mask-gradient pr-2 w-full">
+                        <button @click="selectedCat = ''"
+                                :class="selectedCat === '' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent">
+                            Todo
+                        </button>
+                        <template x-for="cat in categories" :key="cat.id">
+                            <button @click="selectedCat = cat.id"
+                                    :class="selectedCat === cat.id ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
+                                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent flex items-center gap-2">
+                                <i :class="['ph', cat.icon]" class="text-lg"></i>
+                                <span x-text="cat.name"></span>
+                            </button>
+                        </template>
                     </div>
                 </div>
-            </article>
-            {% endfor %}
-        </div>
 
-        <!-- ============================================
-             PAGINACIÓN
-             ============================================ -->
-        {% if pagination.pages > 1 %}
-        <div class="flex justify-center mt-16">
-            <nav class="flex items-center gap-2">
-                <!-- Primera página -->
-                {% if pagination.has_prev %}
-                <a href="{{ url_for('public.catalog', page=1, q=search_query, brand=selected_brand, min_price=min_price, max_price=max_price, sort=sort_by) }}"
-                   class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-                <a href="{{ url_for('public.catalog', page=pagination.prev_num, q=search_query, brand=selected_brand, min_price=min_price, max_price=max_price, sort=sort_by) }}"
-                   class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-                {% endif %}
-
-                <!-- Páginas -->
-                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                    {% if page_num %}
-                        <a href="{{ url_for('public.catalog', page=page_num, q=search_query, brand=selected_brand, min_price=min_price, max_price=max_price, sort=sort_by) }}"
-                           class="px-4 py-2 rounded-lg {% if page_num == pagination.page %}bg-purple-600 text-white{% else %}border border-gray-300 hover:bg-gray-50{% endif %} transition-colors">
-                            {{ page_num }}
-                        </a>
-                    {% else %}
-                        <span class="px-2">...</span>
-                    {% endif %}
-                {% endfor %}
-
-                <!-- Última página -->
-                {% if pagination.has_next %}
-                <a href="{{ url_for('public.catalog', page=pagination.next_num, q=search_query, brand=selected_brand, min_price=min_price, max_price=max_price, sort=sort_by) }}"
-                   class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-angle-right"></i>
-                </a>
-                <a href="{{ url_for('public.catalog', page=pagination.pages, q=search_query, brand=selected_brand, min_price=min_price, max_price=max_price, sort=sort_by) }}"
-                   class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-                {% endif %}
-            </nav>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <!-- Sin Resultados -->
-        <div class="text-center py-16">
-            <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-search text-4xl text-gray-400"></i>
+                <!-- Right: Ordenamiento -->
+                <div class="flex items-center gap-3 pl-4 border-l border-[var(--border-subtle)] sm:border-l-0">
+                    <div class="relative group">
+                        <select x-model="sortBy" @change="applySorting()" class="appearance-none bg-[var(--surface)] hover:bg-[var(--border-subtle)] transition-colors border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] cursor-pointer focus:ring-2 focus:ring-primary/20 outline-none pl-4 pr-10 py-2">
+                            <option value="relevance">Relevancia</option>
+                            <option value="price_asc">Precio: Bajo a Alto</option>
+                            <option value="price_desc">Precio: Alto a Bajo</option>
+                            <option value="name_asc">Nombre: A-Z</option>
+                            <option value="name_desc">Nombre: Z-A</option>
+                            <option value="newest">MÃ¡s Recientes</option>
+                        </select>
+                        <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)] pointer-events-none text-xs group-hover:text-primary transition-colors"></i>
+                    </div>
+                </div>
             </div>
-            <h3 class="text-2xl font-bold text-[var(--text-main)] mb-4">
-                No se encontraron productos
-            </h3>
-            <p class="text-[var(--text-sub)] mb-8">
-                Intenta ajustar tus filtros o realiza una nueva búsqueda
-            </p>
-            <a href="{{ url_for('public.catalog') }}" class="btn-primary inline-flex">
-                <i class="fas fa-redo mr-2"></i>
-                Ver Todos los Productos
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</section>
 
+            <!-- Loading State -->
+            <div x-show="isLoading" class="text-center py-20">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <p class="text-lg text-[var(--text-sub)] mt-4">Cargando productos...</p>
+            </div>
+
+            <!-- Grid Layout -->
+            <div x-show="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <template x-for="product in filteredProducts" :key="product.id">
+                    <article class="product-card group flex flex-col h-full animate-fade-in">
+                        <!-- Image Container -->
+                        <div class="relative h-56 w-full bg-[var(--surface)] flex items-center justify-center p-6 overflow-hidden">
+                            <img :src="product.image" :alt="product.name" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" loading="lazy">
+
+                            <!-- Badges -->
+                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                <template x-if="product.new">
+                                    <span class="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
+                                </template>
+                                <template x-if="product.sale">
+                                    <span class="px-2 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Oferta</span>
+                                </template>
+                                <template x-if="product.condition === 'Usado'">
+                                    <span class="px-2 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Usado</span>
+                                </template>
+                                <template x-if="product.condition === 'Reacondicionado'">
+                                    <span class="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Reacond.</span>
+                                </template>
+                            </div>
+
+                            <!-- Quick Actions Overlay -->
+                            <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                                <button @click="openQuickView(product)" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform" title="Vista RÃ¡pida">
+                                    <i class="ph-bold ph-eye text-lg"></i>
+                                </button>
+                                <a :href="'/product/' + product.id" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform" title="Ver Detalles">
+                                    <i class="ph-bold ph-arrow-right text-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="mb-2 flex justify-between items-start">
+                                <span class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider" x-text="product.brand"></span>
+                                <div class="flex text-yellow-400 text-xs">
+                                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
+                                </div>
+                            </div>
+
+                            <h3 class="font-heading font-bold text-lg text-[var(--text-main)] leading-tight mb-3 group-hover:text-primary transition-colors">
+                                <a :href="'/product/' + product.id" class="line-clamp-2" x-text="product.name"></a>
+                            </h3>
+
+                            <!-- Mini Specs -->
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.cpu"></span>
+                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ram"></span>
+                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ssd"></span>
+                            </div>
+
+                            <div class="mt-auto pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                                <div>
+                                    <template x-if="product.oldPrice && product.oldPrice < product.price">
+                                        <span class="block text-xs text-[var(--text-sub)] line-through" x-text="'RD$ ' + formatPrice(product.oldPrice)"></span>
+                                    </template>
+                                    <span class="text-xl font-bold text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(product.price)"></span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button @click="addToCart(product)" class="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-body)] flex items-center justify-center hover:bg-primary transition-colors shadow-lg" title="AÃ±adir al carrito">
+                                        <i class="ph-bold ph-plus"></i>
+                                    </button>
+                                    <a :href="'/product/' + product.id" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors shadow-lg" title="Ver detalles">
+                                        <i class="ph-bold ph-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </template>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="!isLoading && filteredProducts.length === 0" class="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+                <div class="w-20 h-20 bg-[var(--surface)] rounded-full flex items-center justify-center mb-4 text-[var(--text-sub)]">
+                    <i class="ph-duotone ph-magnifying-glass text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-[var(--text-main)]">No se encontraron productos</h3>
+                <p class="text-[var(--text-sub)] mt-2 max-w-md">No hay productos que coincidan con tus filtros de bÃºsqueda. Intenta ajustar los filtros o busca otro tÃ©rmino.</p>
+                <button @click="resetFilters()" class="mt-4 btn-primary px-6 py-2 text-sm">Limpiar Filtros</button>
+            </div>
+
+            <!-- Pagination for large datasets (optional) -->
+            <div x-show="!isLoading && filteredProducts.length > 0" class="mt-12 flex justify-center">
+                <div class="flex items-center gap-2">
+                    <button @click="prevPage()" :disabled="currentPage === 1" :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--surface)]'" class="w-10 h-10 rounded-lg border border-[var(--border-subtle)] flex items-center justify-center">
+                        <i class="ph-bold ph-caret-left"></i>
+                    </button>
+                    <span class="text-sm text-[var(--text-sub)] px-4">
+                        PÃ¡gina <span x-text="currentPage"></span> de <span x-text="totalPages"></span>
+                    </span>
+                    <button @click="nextPage()" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--surface)]'" class="w-10 h-10 rounded-lg border border-[var(--border-subtle)] flex items-center justify-center">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK VIEW MODAL -->
+    <div x-show="quickViewItem" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="quickViewItem = null"></div>
+        <div class="bg-[var(--card-bg)] rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row max-h-[90vh] md:max-h-none animate-slide-up border border-[var(--border-subtle)]">
+            <button @click="quickViewItem = null" class="absolute top-4 right-4 z-10 w-8 h-8 bg-[var(--surface)] rounded-full flex items-center justify-center hover:bg-[var(--border-subtle)] transition text-[var(--text-main)]"><i class="ph-bold ph-x"></i></button>
+
+            <div class="w-full md:w-1/2 bg-[var(--surface)] p-8 flex flex-col items-center justify-center relative">
+                <template x-if="quickViewItem">
+                    <img :src="quickViewItem.image" :alt="quickViewItem.name" class="w-full max-w-sm object-contain mb-6">
+                </template>
+            </div>
+
+            <div class="w-full md:w-1/2 p-8 md:p-10 overflow-y-auto">
+                <template x-if="quickViewItem">
+                    <div>
+                        <div class="mb-6">
+                            <span class="text-xs font-bold text-primary uppercase tracking-wider mb-2 block" x-text="quickViewItem.brand"></span>
+                            <h2 class="text-3xl font-bold font-heading mb-2 text-[var(--text-main)]" x-text="quickViewItem.name"></h2>
+                            <div class="flex items-center gap-2 mb-4">
+                                <template x-if="quickViewItem.oldPrice && quickViewItem.oldPrice < quickViewItem.price">
+                                    <span class="text-lg text-[var(--text-sub)] line-through" x-text="'RD$ ' + formatPrice(quickViewItem.oldPrice)"></span>
+                                </template>
+                                <span class="text-3xl font-bold text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(quickViewItem.price)"></span>
+                            </div>
+                        </div>
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Procesador</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.cpu"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Tarjeta GrÃ¡fica</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.gpu"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Memoria RAM</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.ram"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Almacenamiento</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.ssd"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Pantalla</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.screen"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">CondiciÃ³n</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.condition"></span></div>
+                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Sistema Operativo</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.os"></span></div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button @click="addToCart(quickViewItem); quickViewItem = null" class="flex-1 btn-primary py-3 font-bold">AÃ±adir al Carrito</button>
+                            <a :href="'/product/' + quickViewItem.id" class="flex-1 py-3 rounded-full border border-[var(--border-subtle)] text-[var(--text-main)] font-bold hover:bg-[var(--surface)] transition text-center">Ver Detalles</a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div x-show="cartOpen" class="fixed inset-0 z-50 overflow-hidden" x-cloak>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cartOpen = false" x-transition.opacity></div>
+        <div class="absolute inset-y-0 right-0 max-w-sm w-full bg-[var(--card-bg)] shadow-2xl flex flex-col transform transition-transform duration-300 border-l border-[var(--border-subtle)]"
+             x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
+             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+
+            <div class="p-6 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--surface)]">
+                <h2 class="text-xl font-bold font-heading text-[var(--text-main)]">Tu Carrito (<span x-text="cart.length"></span>)</h2>
+                <button @click="cartOpen = false" class="text-[var(--text-main)]"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <template x-if="cart.length === 0">
+                    <div class="flex flex-col items-center justify-center h-full text-center text-[var(--text-sub)]">
+                        <i class="ph-duotone ph-shopping-bag text-4xl mb-3 text-primary/50"></i>
+                        <p>Tu carrito estÃ¡ vacÃ­o</p>
+                    </div>
+                </template>
+                <template x-for="(item, index) in cart" :key="index">
+                    <div class="flex gap-4 animate-slide-up">
+                        <div class="w-20 h-20 bg-[var(--surface)] rounded-lg flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                            <img :src="item.image" class="w-16 h-16 object-contain">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm line-clamp-1 text-[var(--text-main)]" x-text="item.name"></h4>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="font-bold text-sm text-primary" x-text="'RD$ ' + formatPrice(item.price)"></span>
+                                <button @click="removeFromCart(index)" class="text-red-500 text-xs hover:underline">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="p-6 border-t border-[var(--border-subtle)] bg-[var(--surface)]">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-[var(--text-sub)]">Subtotal</span>
+                    <span class="text-xl font-bold font-heading text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(cartTotal)"></span>
+                </div>
+                <button class="w-full btn-primary py-4 font-bold shadow-lg" :disabled="cart.length === 0" :class="cart.length === 0 ? 'opacity-50 cursor-not-allowed' : ''">Checkout Seguro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="fixed top-24 right-6 z-[60] flex flex-col gap-2 pointer-events-none">
+        <template x-for="notif in notifications" :key="notif.id">
+            <div x-show="true"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 class="bg-[var(--card-bg)] text-[var(--text-main)] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 min-w-[300px] pointer-events-auto border border-[var(--border-subtle)]">
+                <i class="ph-fill ph-check-circle text-primary text-xl"></i>
+                <div>
+                    <h4 class="text-sm font-bold" x-text="notif.title"></h4>
+                    <p class="text-xs text-[var(--text-sub)]" x-text="notif.message"></p>
+                </div>
+            </div>
+        </template>
+    </div>
+</main>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Icons (Phosphor) -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<!-- Datos de laptops desde Flask (DEBE definirse ANTES de cargar Alpine.js) -->
 <script>
-    // Toggle filtros en móvil
-    document.getElementById('toggle-filters').addEventListener('click', function() {
-        const content = document.getElementById('filters-content');
-        const icon = this.querySelector('.fa-chevron-down');
+    // DEBUG: Verificar datos desde Flask
+    console.log('=== DIAGNÓSTICO DEL CATÁLOGO ===');
+    console.log('Total de laptops recibidas desde Flask: {{ laptops|length }}');
 
-        content.classList.toggle('hidden');
-        icon.classList.toggle('rotate-180');
-    });
+    // Productos desde Flask (convertidos al formato Alpine.js)
+    const flaskLaptops = [
+        {% for laptop in laptops %}
+        {
+            id: {{ laptop.id }},
+            name: {{ laptop.display_name|tojson }},
+            brand: {{ (laptop.brand.name if laptop.brand else 'Sin marca')|tojson }},
+            cat: {{ (laptop.category if laptop.category else 'laptop')|tojson }},
+            price: {{ laptop.sale_price|default(0)|float }},
+            oldPrice: {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}{{ laptop.discount_price|float }}{% else %}null{% endif %},
+            gpu: {{ (laptop.graphics_card.name if laptop.graphics_card else 'Integrada')|tojson }},
+            cpu: {{ (laptop.processor.name if laptop.processor else 'Sin procesador')|tojson }},
+            ram: {{ (laptop.ram.name if laptop.ram else 'No especificado')|tojson }},
+            ssd: {{ (laptop.storage.name if laptop.storage else 'No especificado')|tojson }},
+            screen: {{ (laptop.screen.name if laptop.screen else 'No especificado')|tojson }},
+            condition: {{ ('Nuevo' if laptop.condition == 'new' else 'Usado' if laptop.condition == 'used' else 'Reacondicionado')|tojson }},
+            os: {{ (laptop.operating_system.name if laptop.operating_system else 'No especificado')|tojson }},
+            image: {% if laptop.images and laptop.images|list|length > 0 %}
+                {% set images_list = laptop.images|list %}
+                {% set cover = images_list|selectattr('is_cover', 'equalto', true)|first %}
+                {% if cover %}
+                    {{ url_for('static', filename=cover.image_path)|tojson }}
+                {% else %}
+                    {{ url_for('static', filename=images_list[0].image_path)|tojson }}
+                {% endif %}
+            {% else %}
+                "/static/images/default-laptop.jpg"
+            {% endif %},
+            entry_date: {{ (laptop.entry_date.isoformat() if laptop.entry_date else '')|tojson }},
+            new: {% if laptop.entry_date %}{% set days_diff = (now().date() - laptop.entry_date).days %}{{ (days_diff <= 30)|tojson }}{% else %}false{% endif %},
+            sale: {{ (laptop.discount_price is not none and laptop.discount_price < laptop.sale_price)|tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
 
-    // Auto-submit al cambiar filtros (opcional)
-    document.querySelectorAll('select[name="brand"], select[name="sort"]').forEach(select => {
-        select.addEventListener('change', function() {
-            this.form.submit();
-        });
-    });
+    console.log('flaskLaptops generado:', flaskLaptops.length, 'productos');
+    console.log('Primer producto:', flaskLaptops[0] || 'No hay productos');
 
-    // Smooth scroll al aplicar filtros
-    if (window.location.search) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Datos iniciales para filtros
+    const initialData = {
+        brandsList: [{% for brand in brands %}"{{ brand.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        cpuList: [{% for proc in processors %}"{{ proc.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        gpuList: [{% for gpu in gpus %}"{{ gpu.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        screenList: [{% for screen in screens %}"{{ screen.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        ramList: [{% for ram in rams %}"{{ ram.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        ssdList: [{% for storage in storages %}"{{ storage.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        conditionList: [{% for cond in conditions %}"{{ cond }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        priceRange: {
+            min: {{ min_price_available|default(0) }},
+            max: {{ max_price_available|default(10000) }}
+        },
+        categories: {{ categories|tojson }},
+        totalProducts: {{ total_products|default(0) }}
+    };
+
+    console.log('initialData:', initialData);
+    console.log('Marcas disponibles:', initialData.brandsList.length);
+    console.log('Rango de precios:', initialData.priceRange);
 </script>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        console.log('Alpine:init disparado');
+
+        Alpine.data('shopStore', () => ({
+            // UI State
+            mobileMenuOpen: false,
+            cartOpen: false,
+            searchQuery: '',
+            isLoading: false,
+            quickViewItem: null,
+
+            // Filters
+            minPrice: {{ min_price_available|default(0) }},
+            maxPrice: {{ max_price_available|default(10000) }},
+            priceGap: 500,
+            selectedCat: '',
+            selectedBrands: [],
+            selectedGPUs: [],
+            selectedCPUs: [],
+            selectedRAMs: [],
+            selectedSSDs: [],
+            selectedScreens: [],
+            selectedConditions: [],
+
+            // Data
+            products: [],
+            priceRange: initialData.priceRange,
+
+            // Cart
+            cart: [],
+            notifications: [],
+            sortBy: 'relevance',
+
+            // Pagination
+            currentPage: 1,
+            itemsPerPage: 12,
+
+            // Filter Lists
+            categories: initialData.categories,
+            brandsList: initialData.brandsList,
+            gpuList: initialData.gpuList,
+            cpuList: initialData.cpuList,
+            ramList: initialData.ramList,
+            ssdList: initialData.ssdList,
+            screenList: initialData.screenList,
+            conditionList: initialData.conditionList,
+
+            // Timer para búsqueda debounced
+            searchTimer: null,
+
+            init() {
+                console.log('shopStore.init() ejecutado');
+                console.log('flaskLaptops disponible:', typeof flaskLaptops !== 'undefined');
+                console.log('flaskLaptops length:', flaskLaptops ? flaskLaptops.length : 'N/A');
+
+                this.isLoading = true;
+
+                // Usar datos de Flask
+                this.products = flaskLaptops || [];
+                this.brandsList = initialData.brandsList || [];
+                this.cpuList = initialData.cpuList || [];
+                this.gpuList = initialData.gpuList || [];
+                this.screenList = initialData.screenList || [];
+                this.ramList = initialData.ramList || [];
+                this.ssdList = initialData.ssdList || [];
+                this.conditionList = initialData.conditionList || [];
+                this.categories = initialData.categories || [];
+                this.priceRange = initialData.priceRange || { min: 500, max: 8000 };
+
+                console.log('Productos cargados en Alpine:', this.products.length);
+                console.log('Marcas cargadas:', this.brandsList);
+
+                this.isLoading = false;
+            },
+
+            get filteredProducts() {
+                let filtered = this.products.filter(p => {
+                    // Filtro de bÃºsqueda
+                    if (this.searchQuery) {
+                        const searchLower = this.searchQuery.toLowerCase();
+                        const matchesSearch =
+                            p.name.toLowerCase().includes(searchLower) ||
+                            p.brand.toLowerCase().includes(searchLower) ||
+                            p.cpu.toLowerCase().includes(searchLower) ||
+                            p.gpu.toLowerCase().includes(searchLower) ||
+                            p.ram.toLowerCase().includes(searchLower);
+                        if (!matchesSearch) return false;
+                    }
+
+                    // Filtro de precio
+                    if (p.price < this.minPrice || p.price > this.maxPrice) return false;
+
+                    // Filtro de categorÃ­a
+                    if (this.selectedCat && p.cat !== this.selectedCat) return false;
+
+                    // Filtro de marcas
+                    if (this.selectedBrands.length > 0 && !this.selectedBrands.includes(p.brand)) return false;
+
+                    // Filtro de CPUs
+                    if (this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(p.cpu)) return false;
+
+                    // Filtro de GPUs
+                    if (this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(p.gpu)) return false;
+
+                    // Filtro de RAM
+                    if (this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(p.ram)) return false;
+
+                    // Filtro de SSD
+                    if (this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(p.ssd)) return false;
+
+                    // Filtro de pantallas
+                    if (this.selectedScreens.length > 0 && !this.selectedScreens.includes(p.screen)) return false;
+
+                    // Filtro de condiciones
+                    if (this.selectedConditions.length > 0) {
+                        const conditionMap = {
+                            'new': 'Nuevo',
+                            'used': 'Usado',
+                            'refurbished': 'Reacondicionado'
+                        };
+                        const productCondition = p.condition;
+                        const selectedConditionValues = this.selectedConditions.map(c => conditionMap[c] || c);
+                        if (!selectedConditionValues.includes(productCondition)) return false;
+                    }
+
+                    return true;
+                });
+
+                // Aplicar ordenamiento
+                filtered = this.applySortingToArray(filtered);
+
+                // PaginaciÃ³n
+                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+                const endIndex = startIndex + this.itemsPerPage;
+                return filtered.slice(startIndex, endIndex);
+            },
+
+            applySortingToArray(array) {
+                const sorted = [...array];
+
+                switch(this.sortBy) {
+                    case 'price_asc':
+                        return sorted.sort((a, b) => a.price - b.price);
+                    case 'price_desc':
+                        return sorted.sort((a, b) => b.price - a.price);
+                    case 'name_asc':
+                        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    case 'name_desc':
+                        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+                    case 'newest':
+                        return sorted.sort((a, b) => {
+                            if (!a.entry_date && !b.entry_date) return 0;
+                            if (!a.entry_date) return 1;
+                            if (!b.entry_date) return -1;
+                            return new Date(b.entry_date) - new Date(a.entry_date);
+                        });
+                    default: // 'relevance'
+                        return sorted;
+                }
+            },
+
+            applySorting() {
+                this.currentPage = 1; // Reset to first page when sorting
+            },
+
+            get totalPages() {
+                const totalItems = this.products.filter(p => this.matchesAllFilters(p)).length;
+                return Math.ceil(totalItems / this.itemsPerPage);
+            },
+
+            matchesAllFilters(product) {
+                // Misma lÃ³gica que en filteredProducts pero sin paginaciÃ³n
+                if (this.searchQuery) {
+                    const searchLower = this.searchQuery.toLowerCase();
+                    const matchesSearch =
+                        product.name.toLowerCase().includes(searchLower) ||
+                        product.brand.toLowerCase().includes(searchLower) ||
+                        product.cpu.toLowerCase().includes(searchLower) ||
+                        product.gpu.toLowerCase().includes(searchLower) ||
+                        product.ram.toLowerCase().includes(searchLower);
+                    if (!matchesSearch) return false;
+                }
+
+                if (product.price < this.minPrice || product.price > this.maxPrice) return false;
+                if (this.selectedCat && product.cat !== this.selectedCat) return false;
+                if (this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
+                if (this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(product.cpu)) return false;
+                if (this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(product.gpu)) return false;
+                if (this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(product.ram)) return false;
+                if (this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(product.ssd)) return false;
+                if (this.selectedScreens.length > 0 && !this.selectedScreens.includes(product.screen)) return false;
+
+                if (this.selectedConditions.length > 0) {
+                    const conditionMap = {
+                        'new': 'Nuevo',
+                        'used': 'Usado',
+                        'refurbished': 'Reacondicionado'
+                    };
+                    const productCondition = product.condition;
+                    const selectedConditionValues = this.selectedConditions.map(c => conditionMap[c] || c);
+                    if (!selectedConditionValues.includes(productCondition)) return false;
+                }
+
+                return true;
+            },
+
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.scrollToTop();
+                }
+            },
+
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.scrollToTop();
+                }
+            },
+
+            scrollToTop() {
+                window.scrollTo({ top: document.getElementById('catalog').offsetTop - 100, behavior: 'smooth' });
+            },
+
+            scrollToCatalog() {
+                document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
+            },
+
+            updateMinPrice() {
+                if (this.maxPrice - this.minPrice < this.priceGap) {
+                    this.minPrice = this.maxPrice - this.priceGap;
+                }
+                this.currentPage = 1;
+            },
+
+            updateMaxPrice() {
+                if (this.maxPrice - this.minPrice < this.priceGap) {
+                    this.maxPrice = parseInt(this.minPrice) + parseInt(this.priceGap);
+                }
+                this.currentPage = 1;
+            },
+
+            get progressStyle() {
+                const minVal = parseInt(this.minPrice);
+                const maxVal = parseInt(this.maxPrice);
+                const rangeMin = this.priceRange.min;
+                const rangeMax = this.priceRange.max;
+                const range = rangeMax - rangeMin;
+
+                const left = ((minVal - rangeMin) / range) * 100;
+                const right = 100 - ((maxVal - rangeMin) / range) * 100;
+
+                return `left: ${Math.max(0, left)}%; right: ${Math.max(0, right)}%`;
+            },
+
+            get cartTotal() {
+                return this.cart.reduce((acc, item) => acc + item.price, 0);
+            },
+
+            toggleFilter(arrayName, value) {
+                if (this[arrayName].includes(value)) {
+                    this[arrayName] = this[arrayName].filter(v => v !== value);
+                } else {
+                    this[arrayName].push(value);
+                }
+                this.currentPage = 1;
+            },
+
+            debouncedSearch() {
+                clearTimeout(this.searchTimer);
+                this.searchTimer = setTimeout(() => {
+                    this.currentPage = 1;
+                }, 300);
+            },
+
+            addToCart(product) {
+                this.cart.push({
+                    ...product,
+                    cartId: Date.now() + Math.random()
+                });
+                this.notify('Producto Agregado', `${product.name} se aÃ±adiÃ³ al carrito.`);
+            },
+
+            removeFromCart(index) {
+                this.cart.splice(index, 1);
+                this.notify('Producto Eliminado', 'Producto removido del carrito.');
+            },
+
+            openQuickView(product) {
+                this.quickViewItem = product;
+            },
+
+            notify(title, message) {
+                const id = Date.now();
+                this.notifications.push({ id, title, message });
+                setTimeout(() => {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                }, 3000);
+            },
+
+            resetFilters() {
+                this.searchQuery = '';
+                this.selectedCat = '';
+                this.selectedBrands = [];
+                this.selectedGPUs = [];
+                this.selectedCPUs = [];
+                this.selectedRAMs = [];
+                this.selectedSSDs = [];
+                this.selectedScreens = [];
+                this.selectedConditions = [];
+                this.minPrice = this.priceRange.min;
+                this.maxPrice = this.priceRange.max;
+                this.currentPage = 1;
+                this.sortBy = 'relevance';
+            },
+
+            formatPrice(price) {
+                return new Intl.NumberFormat('es-DO', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(price);
+            }
+        }));
+    });
+</script>
+
+<!-- Alpine.js - CARGAR AL FINAL para que los datos y componentes ya estén definidos -->
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 {% endblock %}
