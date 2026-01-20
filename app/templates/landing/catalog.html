@@ -505,6 +505,7 @@
                             <option value="name_asc">Nombre: A-Z</option>
                             <option value="name_desc">Nombre: Z-A</option>
                             <option value="newest">Más Recientes</option>
+                            <option value="oldest">Más Antiguos</option>
                         </select>
                         <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)] pointer-events-none text-xs group-hover:text-primary transition-colors"></i>
                     </div>
@@ -529,6 +530,9 @@
                             <div class="absolute top-4 left-4 flex flex-col gap-2">
                                 <template x-if="product.sale">
                                     <span class="px-2 py-1 bg-violet-500/10 text-violet-500 border border-violet-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Oferta</span>
+                                </template>
+                                <template x-if="product.condition === 'Nuevo'">
+                                    <span class="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
                                 </template>
                                 <template x-if="product.condition === 'Usado'">
                                     <span class="px-2 py-1 bg-purple-700/10 text-purple-700 border border-purple-700/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Usado</span>
@@ -826,7 +830,7 @@
             // Cart
             cart: [],
             notifications: [],
-            sortBy: 'price_desc',
+            sortBy: 'oldest',
 
             // Pagination
             currentPage: 1,
@@ -900,6 +904,13 @@
                             if (!a.entry_date) return 1;
                             if (!b.entry_date) return -1;
                             return new Date(b.entry_date) - new Date(a.entry_date);
+                        });
+                    case 'oldest':
+                        return sorted.sort((a, b) => {
+                            if (!a.entry_date && !b.entry_date) return 0;
+                            if (!a.entry_date) return 1;
+                            if (!b.entry_date) return -1;
+                            return new Date(a.entry_date) - new Date(b.entry_date);
                         });
                     default: // 'relevance'
                         return sorted;
@@ -1122,7 +1133,7 @@
                 this.minPrice = this.priceRange.min;
                 this.maxPrice = this.priceRange.max;
                 this.currentPage = 1;
-                this.sortBy = 'price_desc';
+                this.sortBy = 'oldest';
             },
 
             formatPrice(price) {
