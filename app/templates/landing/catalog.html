@@ -564,11 +564,14 @@
                         <!-- Info -->
                         <div class="p-5 flex-1 flex flex-col">
                             <div class="mb-2 flex justify-between items-start">
-                                <span class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider" x-text="product.brand"></span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider" x-text="product.brand"></span>
+                                    <span class="text-xs text-[var(--text-sub)]" x-text="product.model"></span>
+                                </div>
                             </div>
 
                             <h3 class="font-heading font-bold text-lg text-[var(--text-main)] leading-tight mb-3 group-hover:text-primary transition-colors">
-                                <a :href="'/product/' + product.id" class="line-clamp-2" x-text="product.model"></a>
+                                <a :href="'/product/' + product.id" class="line-clamp-2 bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]" x-text="product.name"></a>
                             </h3>
 
                             <!-- Mini Specs -->
@@ -753,6 +756,7 @@
             id: {{ laptop.id }},
             name: {{ laptop.display_name|tojson }},
             brand: {{ (laptop.brand.name if laptop.brand else 'Sin marca')|tojson }},
+            model: {{ (laptop.model.name if laptop.model else 'Sin modelo')|tojson }},
             cat: {{ (laptop.category if laptop.category else 'laptop')|tojson }},
             price: {{ laptop.sale_price|default(0)|float }},
             oldPrice: {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}{{ laptop.discount_price|float }}{% else %}null{% endif %},
@@ -838,7 +842,7 @@
             // Cart
             cart: [],
             notifications: [],
-            sortBy: 'oldest',
+            sortBy: 'relevance',
 
             // Pagination
             currentPage: 1,
@@ -1147,7 +1151,7 @@
                 this.minPrice = this.priceRange.min;
                 this.maxPrice = this.priceRange.max;
                 this.currentPage = 1;
-                this.sortBy = 'oldest';
+                this.sortBy = 'relevance';
             },
 
             formatPrice(price) {
