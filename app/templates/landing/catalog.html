@@ -256,7 +256,7 @@
     <div id="catalog" class="flex flex-col lg:flex-row gap-8 items-start">
 
         <!-- FILTERS SIDEBAR -->
-        <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border-subtle)] shadow-sm h-fit max-h-[85vh] overflow-y-auto no-scrollbar">
+        <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border-subtle)] shadow-sm h-fit no-scrollbar">
 
             <div class="flex justify-between items-center pb-4 border-b border-[var(--border-subtle)]">
                 <h3 class="font-heading font-bold text-lg text-[var(--text-main)]">Filtros</h3>
@@ -322,7 +322,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="flex flex-wrap gap-2 pt-2">
-                        <template x-for="brand in brandsList" :key="brand">
+                        <template x-for="brand in availableBrands" :key="brand">
                             <button @click="toggleFilter('selectedBrands', brand)"
                                     class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border"
                                     :class="selectedBrands.includes(brand) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
@@ -344,7 +344,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
-                        <template x-for="cpu in cpuList" :key="cpu">
+                        <template x-for="cpu in availableCPUs" :key="cpu">
                             <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
                                 <input type="checkbox" :value="cpu" x-model="selectedCPUs" class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)] truncate" x-text="cpu" :title="cpu"></span>
@@ -365,7 +365,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
-                        <template x-for="gpu in gpuList" :key="gpu">
+                        <template x-for="gpu in availableGPUs" :key="gpu">
                             <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
                                 <input type="checkbox" :value="gpu" x-model="selectedGPUs" class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)] truncate" x-text="gpu" :title="gpu"></span>
@@ -386,7 +386,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
-                        <template x-for="screen in screenList" :key="screen">
+                        <template x-for="screen in availableScreens" :key="screen">
                             <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
                                 <input type="checkbox" :value="screen" x-model="selectedScreens" class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)] truncate" x-text="screen" :title="screen"></span>
@@ -407,7 +407,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="flex flex-wrap gap-2 pt-2">
-                        <template x-for="ram in ramList" :key="ram">
+                        <template x-for="ram in availableRAMs" :key="ram">
                             <button @click="toggleFilter('selectedRAMs', ram)"
                                     class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
                                     :class="selectedRAMs.includes(ram) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
@@ -429,7 +429,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="flex flex-wrap gap-2 pt-2">
-                        <template x-for="ssd in ssdList" :key="ssd">
+                        <template x-for="ssd in availableSSDs" :key="ssd">
                             <button @click="toggleFilter('selectedSSDs', ssd)"
                                     class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
                                     :class="selectedSSDs.includes(ssd) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
@@ -451,7 +451,7 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="space-y-1 pt-2">
-                        <template x-for="cond in conditionList" :key="cond">
+                        <template x-for="cond in availableConditions" :key="cond">
                             <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
                                 <input type="checkbox" :value="cond" x-model="selectedConditions" class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)]"
@@ -471,7 +471,7 @@
 
                 <!-- Left: Categorías -->
                 <div class="flex items-center gap-4 flex-1 overflow-hidden w-full sm:w-auto">
-                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2">
+                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2 mr-6">
                         <span class="text-[var(--text-main)] font-bold" x-text="filteredProducts.length"></span> Productos
                     </p>
 
@@ -522,22 +522,19 @@
                 <template x-for="product in filteredProducts" :key="product.id">
                     <article class="product-card group flex flex-col h-full animate-fade-in">
                         <!-- Image Container -->
-                        <div class="relative h-56 w-full bg-[var(--surface)] flex items-center justify-center p-6 overflow-hidden">
+                        <div class="relative h-56 w-full bg-white flex items-center justify-center p-6 overflow-hidden">
                             <img :src="product.image" :alt="product.name" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" loading="lazy">
 
                             <!-- Badges -->
                             <div class="absolute top-4 left-4 flex flex-col gap-2">
-                                <template x-if="product.new">
-                                    <span class="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
-                                </template>
                                 <template x-if="product.sale">
-                                    <span class="px-2 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Oferta</span>
+                                    <span class="px-2 py-1 bg-violet-500/10 text-violet-500 border border-violet-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Oferta</span>
                                 </template>
                                 <template x-if="product.condition === 'Usado'">
-                                    <span class="px-2 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Usado</span>
+                                    <span class="px-2 py-1 bg-purple-700/10 text-purple-700 border border-purple-700/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Usado</span>
                                 </template>
                                 <template x-if="product.condition === 'Reacondicionado'">
-                                    <span class="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Reacond.</span>
+                                    <span class="px-2 py-1 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Reacond.</span>
                                 </template>
                             </div>
 
@@ -556,9 +553,6 @@
                         <div class="p-5 flex-1 flex flex-col">
                             <div class="mb-2 flex justify-between items-start">
                                 <span class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider" x-text="product.brand"></span>
-                                <div class="flex text-yellow-400 text-xs">
-                                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
-                                </div>
                             </div>
 
                             <h3 class="font-heading font-bold text-lg text-[var(--text-main)] leading-tight mb-3 group-hover:text-primary transition-colors">
@@ -568,8 +562,10 @@
                             <!-- Mini Specs -->
                             <div class="flex flex-wrap gap-2 mb-4">
                                 <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.cpu"></span>
+                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.gpu"></span>
                                 <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ram"></span>
                                 <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ssd"></span>
+                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.screen"></span>
                             </div>
 
                             <div class="mt-auto pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
@@ -830,7 +826,7 @@
             // Cart
             cart: [],
             notifications: [],
-            sortBy: 'relevance',
+            sortBy: 'price_desc',
 
             // Pagination
             currentPage: 1,
@@ -875,57 +871,7 @@
             },
 
             get filteredProducts() {
-                let filtered = this.products.filter(p => {
-                    // Filtro de búsqueda
-                    if (this.searchQuery) {
-                        const searchLower = this.searchQuery.toLowerCase();
-                        const matchesSearch =
-                            p.name.toLowerCase().includes(searchLower) ||
-                            p.brand.toLowerCase().includes(searchLower) ||
-                            p.cpu.toLowerCase().includes(searchLower) ||
-                            p.gpu.toLowerCase().includes(searchLower) ||
-                            p.ram.toLowerCase().includes(searchLower);
-                        if (!matchesSearch) return false;
-                    }
-
-                    // Filtro de precio
-                    if (p.price < this.minPrice || p.price > this.maxPrice) return false;
-
-                    // Filtro de categoría
-                    if (this.selectedCat && p.cat !== this.selectedCat) return false;
-
-                    // Filtro de marcas
-                    if (this.selectedBrands.length > 0 && !this.selectedBrands.includes(p.brand)) return false;
-
-                    // Filtro de CPUs
-                    if (this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(p.cpu)) return false;
-
-                    // Filtro de GPUs
-                    if (this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(p.gpu)) return false;
-
-                    // Filtro de RAM
-                    if (this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(p.ram)) return false;
-
-                    // Filtro de SSD
-                    if (this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(p.ssd)) return false;
-
-                    // Filtro de pantallas
-                    if (this.selectedScreens.length > 0 && !this.selectedScreens.includes(p.screen)) return false;
-
-                    // Filtro de condiciones
-                    if (this.selectedConditions.length > 0) {
-                        const conditionMap = {
-                            'new': 'Nuevo',
-                            'used': 'Usado',
-                            'refurbished': 'Reacondicionado'
-                        };
-                        const productCondition = p.condition;
-                        const selectedConditionValues = this.selectedConditions.map(c => conditionMap[c] || c);
-                        if (!selectedConditionValues.includes(productCondition)) return false;
-                    }
-
-                    return true;
-                });
+                let filtered = this.products.filter(p => this.matchesAllFilters(p));
 
                 // Aplicar ordenamiento
                 filtered = this.applySortingToArray(filtered);
@@ -969,9 +915,11 @@
                 return Math.ceil(totalItems / this.itemsPerPage);
             },
 
-            matchesAllFilters(product) {
-                // Misma lógica que en filteredProducts pero sin paginación
-                if (this.searchQuery) {
+            matchesAllFilters(product, ignore = []) {
+                if (!Array.isArray(ignore)) ignore = [ignore];
+
+                // Filtro de búsqueda
+                if (!ignore.includes('search') && this.searchQuery) {
                     const searchLower = this.searchQuery.toLowerCase();
                     const matchesSearch =
                         product.name.toLowerCase().includes(searchLower) ||
@@ -982,16 +930,32 @@
                     if (!matchesSearch) return false;
                 }
 
-                if (product.price < this.minPrice || product.price > this.maxPrice) return false;
-                if (this.selectedCat && product.cat !== this.selectedCat) return false;
-                if (this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
-                if (this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(product.cpu)) return false;
-                if (this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(product.gpu)) return false;
-                if (this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(product.ram)) return false;
-                if (this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(product.ssd)) return false;
-                if (this.selectedScreens.length > 0 && !this.selectedScreens.includes(product.screen)) return false;
+                // Filtro de precio
+                if (!ignore.includes('price') && (product.price < this.minPrice || product.price > this.maxPrice)) return false;
 
-                if (this.selectedConditions.length > 0) {
+                // Filtro de categoría
+                if (!ignore.includes('category') && this.selectedCat && product.cat !== this.selectedCat) return false;
+
+                // Filtro de marcas
+                if (!ignore.includes('brand') && this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
+
+                // Filtro de CPUs
+                if (!ignore.includes('cpu') && this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(product.cpu)) return false;
+
+                // Filtro de GPUs
+                if (!ignore.includes('gpu') && this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(product.gpu)) return false;
+
+                // Filtro de RAM
+                if (!ignore.includes('ram') && this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(product.ram)) return false;
+
+                // Filtro de SSD
+                if (!ignore.includes('ssd') && this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(product.ssd)) return false;
+
+                // Filtro de pantallas
+                if (!ignore.includes('screen') && this.selectedScreens.length > 0 && !this.selectedScreens.includes(product.screen)) return false;
+
+                // Filtro de condiciones
+                if (!ignore.includes('condition') && this.selectedConditions.length > 0) {
                     const conditionMap = {
                         'new': 'Nuevo',
                         'used': 'Usado',
@@ -1003,6 +967,52 @@
                 }
 
                 return true;
+            },
+
+            get availableBrands() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['brand']));
+                return [...new Set(filtered.map(p => p.brand))].sort();
+            },
+
+            get availableCPUs() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['cpu']));
+                return [...new Set(filtered.map(p => p.cpu))].sort();
+            },
+
+            get availableGPUs() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['gpu']));
+                return [...new Set(filtered.map(p => p.gpu))].sort();
+            },
+
+            get availableRAMs() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['ram']));
+                return [...new Set(filtered.map(p => p.ram))].sort();
+            },
+
+            get availableSSDs() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['ssd']));
+                return [...new Set(filtered.map(p => p.ssd))].sort();
+            },
+
+            get availableScreens() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['screen']));
+                return [...new Set(filtered.map(p => p.screen))].sort();
+            },
+
+            get availableConditions() {
+                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['condition']));
+                const conditionMap = {
+                    'Nuevo': 'new',
+                    'Usado': 'used',
+                    'Reacondicionado': 'refurbished'
+                };
+                const conditions = filtered.map(p => {
+                    for (const [key, value] of Object.entries(conditionMap)) {
+                        if (p.condition === key) return value;
+                    }
+                    return null;
+                }).filter(c => c !== null);
+                return [...new Set(conditions)].sort();
             },
 
             prevPage() {
@@ -1112,7 +1122,7 @@
                 this.minPrice = this.priceRange.min;
                 this.maxPrice = this.priceRange.max;
                 this.currentPage = 1;
-                this.sortBy = 'relevance';
+                this.sortBy = 'price_desc';
             },
 
             formatPrice(price) {
