@@ -1,38 +1,341 @@
-{% extends 'base.html' %}
+{% extends "landing/base_landing.html" %}
 
-{% block title %}Contacto{% endblock %}
+{% block title %}Ubicación y Contacto | LuxeraRD{% endblock %}
+
+{% block meta_description %}Visita nuestro showroom en Santo Domingo. Prueba los dispositivos, recibe asesoría experta y disfruta de la mejor experiencia tecnológica en República Dominicana.{% endblock %}
+
+{% block og_title %}Ubicación y Contacto | LuxeraRD{% endblock %}
+{% block og_description %}Ven a conocer el futuro de la tecnología en nuestro showroom principal. Asesoría experta en un ambiente diseñado para inspirar.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos para la página de ubicación */
+    .orb {
+        animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+
+    .map-filter {
+        filter: grayscale(100%);
+        transition: filter 0.6s ease;
+    }
+
+    .map-container:hover .map-filter {
+        filter: grayscale(0%);
+    }
+
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Estilos específicos para ubicación */
+    .location-hero {
+        padding-top: 7rem;
+        padding-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+        .location-hero {
+            padding-top: 6rem;
+            padding-bottom: 3rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12 animate-fade-in">
-            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Contacto
-            </h1>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                ¿Tienes alguna pregunta? Contáctanos
-            </p>
-        </div>
-        
-        <div class="card p-8">
-            <div class="space-y-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email</h3>
-                    <p class="text-gray-700 dark:text-gray-300">info@luxera.com</p>
+
+<!-- Hero Section -->
+<header class="location-hero bg-gradient-to-b from-white to-apple-gray-light relative overflow-hidden">
+    <!-- Orbes de luz de fondo -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-300/20 rounded-full blur-[100px] orb mix-blend-multiply pointer-events-none"></div>
+    <div class="absolute top-10 right-1/4 w-72 h-72 bg-purple-300/20 rounded-full blur-[80px] orb mix-blend-multiply pointer-events-none" style="animation-delay: 2s;"></div>
+
+    <div class="container-custom text-center relative z-10">
+        <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-apple-gray">
+            Visítanos en Santo Domingo.
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+            Ven a conocer el futuro de la tecnología en nuestro showroom principal.
+            Asesoría experta en un ambiente diseñado para inspirar.
+        </p>
+    </div>
+</header>
+
+<!-- Sección Principal (Mapa y Tarjeta Flotante) -->
+<main class="container-custom mb-16 md:mb-24">
+
+    <!-- Contenedor del Mapa -->
+    <div class="relative w-full h-[500px] md:h-[600px] rounded-3xl shadow-lg overflow-hidden map-container group bg-gray-200">
+
+        <!-- Iframe de Google Maps (Placeholder para Santo Domingo) -->
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.468014935182!2d-69.9102805!3d18.466529!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eaf8971eae901d3%3A0xfa8226592c08607e!2sFISM%20Technology%20SRL!5e0!3m2!1ses!2sdo!4v1709228912345!5m2!1ses!2sdo"
+            class="absolute inset-0 w-full h-full border-0 map-filter"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+
+        <!-- Botón flotante móvil (Solo visible en pantallas pequeñas) -->
+        <a href="https://maps.google.com/?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="md:hidden absolute bottom-6 right-6 bg-apple-blue text-white p-4 rounded-full shadow-lg z-20 hover:scale-105 transition-transform">
+            <i class="fa-solid fa-location-arrow text-xl"></i>
+        </a>
+
+        <!-- Tarjeta Flotante "Glass" -->
+        <div class="absolute bottom-0 left-0 w-full md:top-8 md:bottom-auto md:left-auto md:right-8 md:w-96 p-4 md:p-0 z-10">
+            <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-xl transform transition-all hover:scale-[1.01] duration-300">
+
+                <!-- Estado de la tienda -->
+                <div class="flex items-center gap-2 mb-4">
+                    <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
+                    <span id="store-status" class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Cargando...</span>
                 </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Ubicación</h3>
-                    <p class="text-gray-700 dark:text-gray-300">República Dominicana</p>
+
+                <h2 class="text-2xl font-bold mb-1 font-sans">
+                    <span class="text-[#9333ea]">F.I.S.M</span>
+                    <span class="text-[#9333ea]">Technology</span>
+                    <span class="text-[#9333ea]">S.R.L</span>
+                </h2>
+                <p class="text-gray-500 text-sm mb-6">
+                    Plaza Royal, Local 109<br>
+                    Avenida Máximo Gómez, esq. José Contreras<br>
+                    Santo Domingo, Distrito Nacional 10210<br>
+                    República Dominicana
+                </p>
+
+                <!-- Horario -->
+                <div class="space-y-2 mb-6 text-sm text-gray-600 border-t border-gray-200/50 pt-4">
+                    <div class="flex justify-between">
+                        <span>Lun - Vie</span>
+                        <span class="font-medium">09:00 AM – 06:00 PM</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Sábados</span>
+                        <span class="font-medium">09:00 AM – 05:00 PM</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>Domingos</span>
+                        <span>Bajo Cita</span>
+                    </div>
                 </div>
-                
-                <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        El formulario de contacto estará disponible próximamente.
-                    </p>
+
+                <!-- Botones de Acción -->
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <a href="https://waze.com/ul?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="flex items-center justify-center gap-2 bg-[#9333ea] text-white py-3 rounded-xl hover:bg-[#7c2bd1] transition-colors text-sm font-medium shadow-md">
+                        <i class="fa-brands fa-waze"></i> Waze
+                    </a>
+                    <a href="https://maps.google.com/?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="flex items-center justify-center gap-2 bg-white text-apple-gray border border-gray-200 py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium">
+                        <i class="fa-solid fa-map-pin"></i> Maps
+                    </a>
+                </div>
+
+                <div>
+                    <a href="https://wa.me/18298233450" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl hover:bg-[#20bd5a] transition-colors text-sm font-medium shadow-sm">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Contactanos!
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
+
+<!-- Sección 'La Experiencia' -->
+<section class="container-custom mb-16 md:mb-24">
+    <h2 class="text-3xl font-bold mb-8 text-center md:text-left text-apple-gray">La Experiencia Luxera</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
+            <div class="w-12 h-12 bg-blue-50 text-apple-blue rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-hand-holding-hand"></i>
+            </div>
+            <h4 class="text-xl font-bold mb-2 text-apple-gray">Prueba antes de comprar</h4>
+            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
+                Toca, siente y prueba todos los dispositivos. Desde el último iPhone hasta las MacBooks más potentes. Sin cajas cerradas.
+            </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
+            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <h4 class="text-xl font-bold mb-2 text-apple-gray">Tech Bar & Genius</h4>
+            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
+                Disfruta de un café artesanal mientras nuestros técnicos certificados configuran tu nuevo equipo o resuelven tus dudas.
+            </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
+            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <h4 class="text-xl font-bold mb-2 text-apple-gray">Asesores Expertos</h4>
+            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
+                No somos vendedores, somos entusiastas. Te ayudamos a encontrar exactamente lo que necesitas para tu flujo de trabajo.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Información Práctica + Imagen Inspiracional -->
+<section class="container-custom mb-16 md:mb-24">
+    <div class="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col md:flex-row">
+
+        <!-- Lista Visual -->
+        <div class="p-6 md:p-12 md:w-1/2 flex flex-col justify-center">
+            <h3 class="text-2xl font-bold mb-8 text-apple-gray">Detalles para tu visita</h3>
+
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+                        <i class="fa-solid fa-square-parking"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-gray-900">Parqueo Gratuito</h5>
+                        <p class="text-sm text-gray-600 mt-1">Valet parking disponible en la entrada principal o autoservicio en el nivel S1.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+                        <i class="fa-solid fa-wheelchair"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-gray-900">Accesibilidad Total</h5>
+                        <p class="text-sm text-gray-600 mt-1">Rampas y elevadores disponibles. Espacio amplio entre mesas para movilidad.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-gray-900">Seguridad Garantizada</h5>
+                        <p class="text-sm text-gray-600 mt-1">Monitoreo 24/7 y personal de seguridad privada para tu tranquilidad.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Imagen decorativa -->
+        <div class="md:w-1/2 bg-gray-100 min-h-[300px] relative overflow-hidden group">
+            <!-- Simulando una imagen interior de tienda tech -->
+            <div class="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
+            <!-- Elementos abstractos que parecen mesas y laptops -->
+            <div class="absolute top-1/2 left-1/4 w-32 h-20 bg-white rounded-lg shadow-xl transform -skew-x-12 opacity-80 group-hover:scale-105 transition-transform duration-700"></div>
+            <div class="absolute top-1/2 left-2/4 w-32 h-20 bg-white rounded-lg shadow-xl transform -skew-x-12 opacity-60 ml-8 group-hover:scale-105 transition-transform duration-700 delay-75"></div>
+
+            <!-- Overlay texto -->
+            <div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black/50 to-transparent">
+                <span class="text-white font-medium text-sm tracking-widest uppercase opacity-90">Interior</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Final -->
+<section class="bg-white py-12 md:py-16 border-t border-gray-100">
+    <div class="container-custom text-center">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-apple-gray">¿No puedes venir hoy?</h2>
+        <p class="text-gray-600 mb-8 max-w-lg mx-auto text-base md:text-lg">
+            Recibe la misma experiencia premium comprando desde casa. Envíos a todo el país en 24 horas.
+        </p>
+        <a href="{{ url_for('public.catalog') }}"
+           class="inline-flex items-center gap-2 text-apple-blue hover:text-apple-blue-dark font-medium text-lg transition-colors group">
+            Ir a la Tienda Online
+            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+        </a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lógica de horario para mostrar estado de la tienda
+    document.addEventListener('DOMContentLoaded', () => {
+        const statusText = document.getElementById('store-status');
+        const statusDot = document.getElementById('status-dot');
+
+        // Configuración de horario (formato 24h)
+        const openHour = 10;
+        const closeHourWeek = 21; // 9 PM
+        const closeHourSat = 19;  // 7 PM
+
+        const now = new Date();
+        const day = now.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+        const hour = now.getHours();
+
+        let isOpen = false;
+        let closingSoon = false;
+
+        // Lógica simple de horario
+        if (day === 0) {
+            // Domingo cerrado
+            isOpen = false;
+        } else if (day === 6) {
+            // Sábado
+            if (hour >= openHour && hour < closeHourSat) isOpen = true;
+            if (hour === closeHourSat - 1) closingSoon = true;
+        } else {
+            // Lunes a Viernes
+            if (hour >= openHour && hour < closeHourWeek) isOpen = true;
+            if (hour === closeHourWeek - 1) closingSoon = true;
+        }
+
+        // Actualizar UI
+        if (isOpen) {
+            statusText.textContent = closingSoon ? "Cierra pronto" : "Abierto ahora";
+            statusText.classList.add(closingSoon ? 'text-yellow-600' : 'text-green-600');
+            statusText.classList.remove('text-gray-500');
+
+            statusDot.classList.remove('bg-gray-400');
+            statusDot.classList.add(closingSoon ? 'bg-yellow-500' : 'bg-green-500');
+            statusDot.classList.add('animate-pulse');
+        } else {
+            statusText.textContent = "Cerrado ahora";
+            statusText.classList.add('text-red-500');
+            statusText.classList.remove('text-gray-500');
+
+            statusDot.classList.remove('bg-gray-400');
+            statusDot.classList.add('bg-red-500');
+        }
+
+        // Inicializar tooltips si existen
+        if (typeof showToast === 'function') {
+            // Ejemplo: Mostrar notificación de bienvenida si el usuario viene por primera vez
+            const hasVisited = localStorage.getItem('location_page_visited');
+            if (!hasVisited) {
+                setTimeout(() => {
+                    showToast('¡Bienvenido a LuxeraRD!', 'Visítanos en nuestro showroom o explora nuestra tienda online.', 'info');
+                    localStorage.setItem('location_page_visited', 'true');
+                }, 1500);
+            }
+        }
+    });
+</script>
 {% endblock %}
