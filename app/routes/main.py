@@ -756,18 +756,6 @@ def admin_users():
     )
 
 
-@main_bp.route('/about')
-def about():
-    """Página Acerca de"""
-    return render_template('about.html')
-
-
-@main_bp.route('/contact')
-def contact():
-    """Página de contacto"""
-    return render_template('contact.html')
-
-
 # ============================================
 # MANEJADORES DE ERRORES
 # ============================================

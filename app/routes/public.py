@@ -681,6 +681,22 @@ def catalog_old():
 
 
 # ============================================
+# RUTAS PÚBLICAS ADICIONALES
+# ============================================
+
+@public_bp.route('/about')
+def about():
+    """Página Acerca de"""
+    return render_template('landing/about.html')
+
+
+@public_bp.route('/contact')
+def contact():
+    """Página de contacto"""
+    return render_template('landing/contact.html')
+
+
+# ============================================
 # ERROR HANDLERS PARA RUTAS PÚBLICAS
 # ============================================
 

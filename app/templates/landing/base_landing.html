@@ -775,7 +775,7 @@
                 <a href="{{ url_for('public.landing') }}" class="nav-link-v2" data-nav="home">Inicio</a>
                 <a href="{{ url_for('public.catalog') }}" class="nav-link-v2" data-nav="catalog">Tienda</a>
                 <a href="#features" class="nav-link-v2" data-nav="features">Servicios</a>
-                <a href="#contact" class="nav-link-v2" data-nav="contact">Contacto</a>
+                <a href="contact" class="nav-link-v2" data-nav="contact">Contacto</a>
             </div>
         </div>
 
@@ -852,7 +852,7 @@
                 <i class="fa-solid fa-star w-5 text-[var(--text-sub)]"></i>
                 <span class="font-medium">Servicios</span>
             </a>
-            <a href="#contact" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+            <a href="contact" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
                 <i class="fa-solid fa-phone w-5 text-[var(--text-sub)]"></i>
                 <span class="font-medium">Contacto</span>
             </a>
@@ -902,10 +902,10 @@
                 <div class="lg:col-span-2">
                     <span class="footer-col-title">Luxera</span>
                     <nav class="flex flex-col">
-                        <a href="{{ url_for('main.about') }}" class="footer-link-v2">Historia</a>
+                        <a href="{{ url_for('public.about') }}" class="footer-link-v2">Historia</a>
                         <a href="#" class="footer-link-v2">Blog</a>
                         <a href="#" class="footer-link-v2">Carreras</a>
-                        <a href="{{ url_for('main.contact') }}" class="footer-link-v2">Contacto</a>
+                        <a href="{{ url_for('public.contact') }}" class="footer-link-v2">Contacto</a>
                     </nav>
                 </div>
 
