@@ -1,35 +1,273 @@
-{% extends 'base.html' %}
+{% extends "landing/base_landing.html" %}
 
-{% block title %}Acerca de{% endblock %}
+{% block title %}Sobre Nosotros | FISM Technology SRL{% endblock %}
+
+{% block meta_description %}Conoce FISM Technology SRL, líderes en soluciones tecnológicas en República Dominicana. Innovación, garantía y soporte especializado.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Animaciones personalizadas para About */
+    .blob {
+        position: absolute;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.4;
+        animation: blob-bounce 10s infinite ease-in-out;
+    }
+
+    @keyframes blob-bounce {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(20px, -20px) scale(1.1); }
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    [data-theme="dark"] .glass-card {
+        background: rgba(30, 30, 30, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(124, 58, 237, 0.15);
+        border-color: var(--primary);
+    }
+
+    .timeline-line {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+        z-index: 0;
+    }
+
+    /* Ajustes responsivos para timeline */
+    @media (max-width: 768px) {
+        .timeline-line {
+            left: 20px;
+        }
+    }
+
+    .stat-number {
+        font-family: var(--font-heading);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12 animate-fade-in">
-            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Acerca de Luxera
+
+<!-- HERO SECTION -->
+<div class="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-32">
+    <!-- Fondos animados -->
+    <div class="blob bg-purple-300 w-96 h-96 rounded-full top-0 left-0 mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+    <div class="blob bg-blue-300 w-96 h-96 rounded-full bottom-0 right-0 mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+
+    <div class="container-custom relative z-10">
+        <div class="text-center max-w-4xl mx-auto animate-fade-in">
+            <span class="inline-block px-4 py-1.5 mb-6 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-bold tracking-widest uppercase border border-purple-200 dark:border-purple-800">
+                Nuestra Historia
+            </span>
+            <h1 class="text-5xl md:text-7xl font-bold font-heading mb-8 text-[var(--text-main)] leading-tight">
+                Innovando el futuro <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">tecnológico en RD.</span>
             </h1>
-            <p class="text-xl text-gray-600 dark:text-gray-400">
-                Sistema de gestión moderno y eficiente
+            <p class="text-xl md:text-2xl text-[var(--text-secondary)] leading-relaxed">
+                En <strong>FISM Technology S.R.L.</strong>, no solo vendemos equipos; diseñamos ecosistemas digitales que impulsan tu productividad al siguiente nivel.
             </p>
-        </div>
-        
-        <div class="card p-8">
-            <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                Luxera es un sistema de gestión web desarrollado con las últimas tecnologías.
-                Diseñado para ser rápido, seguro y fácil de usar.
-            </p>
-            
-            <div class="mt-8">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Tecnologías utilizadas:</h2>
-                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
-                    <li>• Flask - Framework web de Python</li>
-                    <li>• PostgreSQL - Base de datos</li>
-                    <li>• Tailwind CSS - Framework de diseño</li>
-                    <li>• SQLAlchemy - ORM</li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
+
+<!-- MISION, VISION, VALORES (Grid Flotante) -->
+<section class="py-16 md:py-24 bg-[var(--surface-secondary)] relative">
+    <div class="container-custom">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10 -mt-32">
+
+            <!-- Misión -->
+            <div class="glass-card p-8 rounded-3xl flex flex-col items-center text-center group">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-rocket text-2xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold font-heading mb-4 text-[var(--text-main)]">Nuestra Misión</h3>
+                <p class="text-[var(--text-secondary)]">
+                    Democratizar el acceso a tecnología de alta gama en República Dominicana, ofreciendo productos premium con un respaldo técnico inigualable y garantía real.
+                </p>
+            </div>
+
+            <!-- Visión -->
+            <div class="glass-card p-8 rounded-3xl flex flex-col items-center text-center group transform md:-translate-y-8">
+                <div class="w-16 h-16 bg-purple-50 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-eye text-2xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold font-heading mb-4 text-[var(--text-main)]">Nuestra Visión</h3>
+                <p class="text-[var(--text-secondary)]">
+                    Ser el referente absoluto en soluciones informáticas del Caribe, reconocidos por nuestra integridad, innovación y la excelencia de nuestro servicio al cliente.
+                </p>
+            </div>
+
+            <!-- Valores -->
+            <div class="glass-card p-8 rounded-3xl flex flex-col items-center text-center group">
+                <div class="w-16 h-16 bg-green-50 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-heart text-2xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold font-heading mb-4 text-[var(--text-main)]">Valores</h3>
+                <p class="text-[var(--text-secondary)]">
+                    Transparencia en cada trato, Pasión por la tecnología, Compromiso con la calidad y Enfoque total en la satisfacción del usuario.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QUIENES SOMOS (Layout Alternado) -->
+<section class="py-20 overflow-hidden">
+    <div class="container-custom">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <!-- Imagen / Visual -->
+            <div class="w-full lg:w-1/2 relative group">
+                <div class="absolute inset-0 bg-gradient-to-tr from-purple-600 to-blue-600 rounded-[2.5rem] transform rotate-3 opacity-20 group-hover:rotate-6 transition-transform duration-500"></div>
+                <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+                     alt="Oficinas FISM Technology"
+                     class="relative z-10 rounded-[2.5rem] shadow-2xl w-full object-cover h-[500px] grayscale group-hover:grayscale-0 transition-all duration-500">
+
+                <!-- Floating Card -->
+                <div class="absolute -bottom-6 -right-6 z-20 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl max-w-xs animate-float hidden md:block border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                            <i class="fa-solid fa-certificate"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-semibold uppercase">Certificados</p>
+                            <p class="text-gray-900 dark:text-white font-bold">Distribuidores Autorizados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="w-full lg:w-1/2">
+                <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6 text-[var(--text-main)]">
+                    Más que una tienda, <br>
+                    <span class="text-purple-600">somos tus aliados.</span>
+                </h2>
+                <div class="space-y-6 text-lg text-[var(--text-secondary)]">
+                    <p>
+                        Fundada con el objetivo de elevar el estándar tecnológico en Santo Domingo, <strong>FISM Technology S.R.L.</strong> nació de la necesidad de encontrar equipos de alto rendimiento con garantía local real.
+                    </p>
+                    <p>
+                        Ubicados estratégicamente en <strong>Plaza Royal</strong>, nos hemos convertido en el punto de encuentro para profesionales, gamers y empresas que buscan asesoría experta y honesta.
+                    </p>
+                    <p>
+                        A través de nuestra marca comercial <strong>LuxeraRD</strong>, ofrecemos una experiencia de compra curada, donde cada laptop y componente ha sido seleccionado por su calidad y durabilidad.
+                    </p>
+                </div>
+
+                <div class="mt-10 flex gap-4">
+                    <a href="{{ url_for('public.contact') }}" class="btn-primary px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-purple-500/30 transition-all">
+                        Visitar Showroom
+                    </a>
+                    <a href="{{ url_for('public.catalog') }}" class="px-8 py-3 rounded-full border border-gray-300 dark:border-gray-600 text-[var(--text-main)] font-bold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                        Ver Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ESTADÍSTICAS -->
+<section class="py-20 bg-[var(--surface-secondary)] border-y border-[var(--border-subtle)]">
+    <div class="container-custom">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center">
+
+            <div class="space-y-2">
+                <div class="text-5xl md:text-6xl font-bold stat-number">5+</div>
+                <p class="text-[var(--text-main)] font-medium">Años de Experiencia</p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="text-5xl md:text-6xl font-bold stat-number">1k+</div>
+                <p class="text-[var(--text-main)] font-medium">Clientes Felices</p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="text-5xl md:text-6xl font-bold stat-number">100%</div>
+                <p class="text-[var(--text-main)] font-medium">Garantía Local</p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="text-5xl md:text-6xl font-bold stat-number">24h</div>
+                <p class="text-[var(--text-main)] font-medium">Soporte Técnico</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- UBICACIÓN / CTA -->
+<section class="py-24 relative overflow-hidden">
+    <!-- Fondo decorativo -->
+    <div class="absolute inset-0 bg-[var(--bg-body)]"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-full opacity-30">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="container-custom relative z-10">
+        <div class="glass-card rounded-[3rem] p-10 md:p-16 text-center border border-white/50 shadow-2xl bg-white/40 dark:bg-black/40">
+            <h2 class="text-3xl md:text-5xl font-bold font-heading mb-6 text-[var(--text-main)]">
+                ¿Listo para actualizar tu equipo?
+            </h2>
+            <p class="text-xl text-[var(--text-secondary)] mb-10 max-w-2xl mx-auto">
+                Ven a nuestro local en <strong>Plaza Royal, Local 109</strong> y recibe una asesoría personalizada de nuestros expertos.
+            </p>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="https://maps.google.com/?q=FISM+Technology+SRL+Plaza+Royal" target="_blank" class="btn-primary text-lg px-10 py-4">
+                    <i class="fa-solid fa-map-location-dot mr-2"></i> Cómo Llegar
+                </a>
+                <a href="https://wa.me/18298233450" target="_blank" class="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-10 py-4 rounded-full font-bold text-lg transition-all shadow-lg hover:shadow-green-500/30">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Escribir al WhatsApp
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-[var(--text-tertiary)]">
+                Horario: Lunes a Viernes 9:00 AM - 6:00 PM | Sábados 9:00 AM - 3:00 PM
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Pequeña animación para los números al hacer scroll
+    document.addEventListener('DOMContentLoaded', () => {
+        const stats = document.querySelectorAll('.stat-number');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-pulse');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        stats.forEach(stat => observer.observe(stat));
+    });
+</script>
 {% endblock %}
