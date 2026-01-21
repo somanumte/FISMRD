@@ -4,7 +4,7 @@
 # Blueprint para la landing page y catálogo público
 # sin requerir autenticación
 
-from flask import Blueprint, render_template, request, jsonify, abort, url_for
+from flask import Blueprint, render_template, request, jsonify, abort, url_for, redirect
 from sqlalchemy.orm import joinedload
 from sqlalchemy import and_, or_, case
 from app import db
@@ -208,18 +208,41 @@ def catalog():
     )
 
 # ============================================
-# RUTA: DETALLE DE PRODUCTO
+# RUTA: DETALLE DE PRODUCTO (REDIRECCIÓN POR ID)
 # ============================================
 
 @public_bp.route('/product/<int:id>')
 @public_bp.route('/laptop/<int:id>')
 def product_detail(id):
     """
-    Detalle público de un producto por ID
-    URL: /product/<id>
-    URL: /laptop/<id>
+    Redirige al detalle de producto por slug
+    URL: /product/<id> -> redirige a /product/<slug>
+    URL: /laptop/<id> -> redirige a /laptop/<slug>
     """
-    # Obtener la laptop con todas las relaciones necesarias
+    # Obtener la laptop por ID
+    laptop = Laptop.query.get_or_404(id)
+
+    # Verificar que esté publicado
+    if not laptop.is_published:
+        abort(404)
+
+    # Redirigir a la ruta con slug
+    return redirect(url_for('public.product_detail_slug', slug=laptop.slug))
+
+
+# ============================================
+# RUTA: DETALLE DE PRODUCTO POR SLUG
+# ============================================
+
+@public_bp.route('/product/<slug>')
+@public_bp.route('/laptop/<slug>')
+def product_detail_slug(slug):
+    """
+    Detalle público de un producto por slug
+    URL: /product/<slug>
+    URL: /laptop/<slug>
+    """
+    # Obtener la laptop con todas las relaciones necesarias por slug
     laptop = Laptop.query.options(
         joinedload(Laptop.brand),
         joinedload(Laptop.processor),
@@ -230,11 +253,10 @@ def product_detail(id):
         joinedload(Laptop.operating_system),
         joinedload(Laptop.model),
         joinedload(Laptop.images)
-    ).get_or_404(id)
-
-    # Verificar que esté publicado
-    if not laptop.is_published:
-        abort(404)
+    ).filter_by(
+        slug=slug,
+        is_published=True
+    ).first_or_404()
 
     # Obtener imágenes ordenadas
     images = sorted(laptop.images, key=lambda img: img.ordering if img.ordering else 0)
@@ -260,24 +282,6 @@ def product_detail(id):
         images=images,
         cover_image=cover_image
     )
-
-
-@public_bp.route('/product/<slug>')
-@public_bp.route('/laptop/<slug>')
-def product_by_slug(slug):
-    """
-    Detalle público de un producto por slug
-    URL: /product/<slug>
-    URL: /laptop/<slug>
-    """
-    # Buscar laptop por slug
-    laptop = Laptop.query.filter_by(
-        slug=slug,
-        is_published=True
-    ).first_or_404()
-
-    # Usar la misma función pero con el ID
-    return product_detail(laptop.id)
 
 
 # ============================================
@@ -581,7 +585,6 @@ def catalog_old():
                 Brand.name.ilike(search_pattern)
             )
         )
-
     if brand_id:
         query = query.filter(Laptop.brand_id == brand_id)
 
