@@ -876,7 +876,7 @@ def laptop_delete(id):
 
     try:
         # Obtener y eliminar imágenes asociadas
-        images = laptop.images.all()
+        images = laptop.images
 
         # Eliminar archivos de imágenes del sistema de archivos
         for image in images:
