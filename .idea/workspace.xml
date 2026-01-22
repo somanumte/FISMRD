@@ -5,48 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="1">
+      <change afterPath="$PROJECT_DIR$/app/static/favicon.ico" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/inventory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/img/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/logos/logo_20260111_154916.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/logos/logo_20260117_085515.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_1_20260121_130748.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_1_20260121_132545.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_1_20260121_191514.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_2_20260121_130753.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_2_20260121_132548.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_2_20260121_191515.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_3_20260121_130755.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_3_20260121_132552.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_3_20260121_191515.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_4_20260121_130759.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_4_20260121_132555.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_4_20260121_191515.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_5_20260121_130801.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_5_20260121_132558.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_5_20260121_191516.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_6_20260121_130802.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_6_20260121_132601.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_6_20260121_191518.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_7_20260121_130804.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260121-0001_7_20260121_132604.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_1_20260121_202444.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_1_20260121_220539.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_2_20260121_202445.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_3_20260121_202445.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_4_20260121_202446.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_5_20260121_202446.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260122-0001_6_20260121_202450.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_1_20260121_131833.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_2_20260121_131836.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_3_20260121_131840.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_4_20260121_131848.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_5_20260121_131852.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_6_20260121_131855.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260121-0002_7_20260121_131857.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260122-0002_1_20260121_202620.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260122-0002_2_20260121_202620.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260122-0002_3_20260121_202624.avif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/prueba.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routes/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +56,7 @@
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/felix/PycharmProjects/FISMRD/app/static/logos",
+    "last_opened_file_path": "C:/Users/felix/PycharmProjects/FISMRD/app/static",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -103,9 +67,9 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static\logos" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static\img" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -159,7 +123,7 @@
       <workItem from="1768932782093" duration="5951000" />
       <workItem from="1768940283966" duration="3277000" />
       <workItem from="1768945932796" duration="2572000" />
-      <workItem from="1769094189277" duration="4059000" />
+      <workItem from="1769094189277" duration="5870000" />
     </task>
     <task id="LOCAL-00001" summary="0">
       <option name="closed" value="true" />
@@ -513,7 +477,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769049862045</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="1">
+      <option name="closed" value="true" />
+      <created>1769107838862</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1769107838862</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -536,7 +508,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769107539004" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769108943494" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1768661564607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

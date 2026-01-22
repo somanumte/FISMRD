@@ -1,19 +1,18 @@
 # ============================================
 # INICIALIZACIÓN DE LA APLICACIÓN FLASK
 # ============================================
-
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 import logging
 from logging.handlers import RotatingFileHandler
-import os
 import click
 from datetime import date, timedelta, datetime
 import random
 import re
 from flask_cors import CORS
+from flask import Flask, send_from_directory
+import os
 
 # Inicializar extensiones
 db = SQLAlchemy()
@@ -60,6 +59,14 @@ def create_app(config_name='development'):
             'now': now,
             'timedelta': make_timedelta
         }
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(
+            os.path.join(app.root_path, 'static'),
+            'favicon.ico',
+            mimetype='image/vnd.microsoft.icon'
+        )
 
     # Registrar Blueprints
     from app.routes.auth import auth_bp

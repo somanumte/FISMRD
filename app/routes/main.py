@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-# ============================================
-# DASHBOARD MEJORADO - ADAPTADO A TU PROYECTO
-# ============================================
-# Dashboard avanzado compatible con tus modelos exactos
+
 
 from flask import Blueprint, render_template, jsonify, request, redirect, url_for, abort
 from flask_login import login_required, current_user
@@ -11,10 +8,8 @@ from app.models.laptop import Laptop, Brand
 from app.models.customer import Customer
 from app.models.invoice import Invoice, InvoiceItem
 from app.models.user import User
-from sqlalchemy import func, and_, or_, case, desc
-from datetime import datetime, timedelta, date
-from decimal import Decimal
-import json
+from sqlalchemy import func, and_, desc
+from datetime import datetime, timedelta
 
 # Crear Blueprint
 main_bp = Blueprint('main', __name__)
