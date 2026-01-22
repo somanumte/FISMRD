@@ -1,4 +1,5 @@
-# ============================================
+# -*- coding: utf-8 -*-
+# =========================================
 # FORMULARIOS DE INVENTARIO DE LAPTOPS
 # ============================================
 # Actualizado al nuevo modelo de datos

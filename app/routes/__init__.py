@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from app.routes.auth import auth_bp
 from app.routes.main import main_bp
 from app.routes.inventory import inventory_bp

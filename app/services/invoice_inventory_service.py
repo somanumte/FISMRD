@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # INVOICE INVENTORY SERVICE - Gestión de Inventario en Facturas
 # ============================================
 # Responsabilidad: control de stock al vender/restaurar laptops

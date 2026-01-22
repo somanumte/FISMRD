@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ============================================
 # SERVICIO DE CONSULTA A LA DGII OFICIAL - VERSIÓN CORREGIDA
 # ============================================

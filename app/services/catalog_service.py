@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Servicio para manejar la creación dinámica de catálogos
 Actualizado al nuevo modelo de datos
