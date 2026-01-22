@@ -6,235 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/forms/laptop_forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/forms/laptop_forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/inventory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/js/laptop_gallery.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/js/laptop_gallery.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_1_20260118_134418.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_1_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_2_20260118_134418.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_2_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_3_20260118_134418.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_3_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_4_20260118_134419.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_4_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_5_20260118_134419.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_5_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_6_20260118_134419.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/1/LX-20260118-0001_6_20260118_152203.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/10/LX-20260119-0010_1_20260120_143521.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/10/LX-20260119-0010_2_20260120_143521.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/10/LX-20260119-0010_3_20260120_143521.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/10/LX-20260119-0010_4_20260120_143521.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_1_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_2_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_3_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_4_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_5_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/12/LX-20260119-0012_6_20260120_143050.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_1_20260120_143030.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_2_20260120_143030.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_3_20260120_143030.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_4_20260120_143030.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_5_20260120_143030.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/15/LX-20260119-0015_6_20260120_143030.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_1_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_2_20260118_212443.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_3_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_4_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_5_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_6_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/19/LX-20260119-0019_7_20260118_212443.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_1_20260118_145543.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_1_20260118_154544.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_2_20260118_145543.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_2_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_3_20260118_145543.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_3_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_4_20260118_145543.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_4_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_5_20260118_145543.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_5_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_6_20260118_145543.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_6_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/2/LX-20260118-0002_7_20260118_154544.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_1_20260118_212321.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_2_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_3_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_4_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_5_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_6_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/20/LX-20260119-0020_7_20260118_212321.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_1_20260118_212340.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_2_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_3_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_4_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_5_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_6_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/21/LX-20260119-0021_7_20260118_212340.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_1_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_2_20260118_212537.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_3_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_4_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_5_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_6_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/23/LX-20260119-0023_7_20260118_212537.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_1_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_2_20260118_212403.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_3_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_4_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_5_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_6_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/26/LX-20260119-0026_7_20260118_212403.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/27/LX-20260108-0027_1_20260108_142226.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/27/LX-20260108-0027_2_20260108_142226.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/27/LX-20260108-0027_3_20260108_142226.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/27/LX-20260108-0027_4_20260108_142226.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/27/LX-20260108-0027_5_20260108_142226.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/30/LX-20260119-0030_1_20260120_143107.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/30/LX-20260119-0030_2_20260120_143107.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/30/LX-20260119-0030_3_20260120_143107.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/30/LX-20260119-0030_4_20260120_143107.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260102-0031_1_20260102_170206.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260102-0031_2_20260102_170206.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260102-0031_3_20260102_170206.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260102-0031_4_20260102_170206.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260119-0031_1_20260120_143123.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260119-0031_2_20260120_143123.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260119-0031_3_20260120_143123.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/31/LX-20260119-0031_4_20260120_143123.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_1_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_2_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_3_20260118_212601.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_4_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_5_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_6_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/32/LX-20260119-0032_7_20260118_212601.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_1_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_2_20260118_212422.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_3_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_4_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_5_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_6_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/34/LX-20260119-0034_7_20260118_212422.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_1_20260120_144043.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_2_20260120_144043.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_3_20260120_144043.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_4_20260120_144043.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_5_20260120_144043.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/37/LX-20260119-0037_6_20260120_144043.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/38/LX-20260119-0038_1_20260120_143451.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/38/LX-20260119-0038_2_20260120_143451.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/38/LX-20260119-0038_3_20260120_143451.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/38/LX-20260119-0038_4_20260120_143451.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/43/LX-20260102-0043_1_20260102_103409.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/43/LX-20260102-0043_2_20260102_103409.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/43/LX-20260102-0043_3_20260102_103409.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/43/LX-20260102-0043_4_20260102_103409.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/43/LX-20260102-0043_5_20260102_103409.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260108-0044_1_20260108_063616.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260108-0044_2_20260108_063616.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260108-0044_3_20260108_063616.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260108-0044_4_20260108_063616.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260108-0044_5_20260108_063616.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260119-0044_1_20260120_143235.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260119-0044_2_20260120_143235.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260119-0044_3_20260120_143235.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260119-0044_4_20260120_143235.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/44/LX-20260119-0044_5_20260120_143235.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260119-0045_1_20260120_143310.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260119-0045_2_20260120_143310.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260119-0045_3_20260120_143310.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260119-0045_4_20260120_143310.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_1_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_2_20260118_212509.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_3_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_4_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_5_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_6_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/46/LX-20260119-0046_7_20260118_212509.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/47/LX-20260119-0047_1_20260120_143157.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/47/LX-20260119-0047_2_20260120_143157.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/47/LX-20260119-0047_3_20260120_143157.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/47/LX-20260119-0047_4_20260120_143157.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/47/LX-20260119-0047_5_20260120_143157.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_2_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_3_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_4_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_5_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_6_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_7_20260108_165330.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260108-0048_7_20260108_165444.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260119-0048_1_20260120_143252.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260119-0048_2_20260120_143252.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260119-0048_3_20260120_143252.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/48/LX-20260119-0048_4_20260120_143252.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_1_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_2_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_3_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_4_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_5_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260112-0001_6_20260111_202848.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_1_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_2_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_3_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_4_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_5_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260117-0001_6_20260117_150811.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_1_20260101_092055_1082155881.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_1_20260101_092215_1082155881.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_1_20260101_092645_1082155881.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_2_20260101_092055_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_2_20260101_094540_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_3_20260101_092055_s-l1600_2.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_3_20260101_094540_s-l1600_1.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_4_20260101_094540_s-l1600_2.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20251231-0051_5_20260101_094541_s-l1600.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260103-0051_1_20260102_220249.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260107-0001_1_20260107_103349.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260107-0001_2_20260107_103349.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260107-0001_3_20260107_103349.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260107-0001_4_20260107_103349.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_3_20260117_205845.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_4_20260117_205845.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_4_20260117_230829.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_5_20260117_230829.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_6_20260117_205845.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_6_20260117_230829.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_7_20260117_230829.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/53/LX-20260118-0001_8_20260117_230829.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260101-0001_3_20260101_232546_s-l1600_1.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260101-0001_4_20260101_232546_s-l1600_2.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260101-0001_5_20260101_232546_s-l1600.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260101-0001_5_20260102_075906.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_1_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_2_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_3_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_4_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_5_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/55/LX-20260118-0002_6_20260117_231241.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_1_20260101_165406_1082155881.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_1_20260101_235004_s-l1600.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_2_20260101_165406_hp_7h9y7ua_aba_15_6_victus_gaming_laptop_1761475.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_3_20260101_165406_s-l1600_1.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_4_20260101_165406_s-l1600_2.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/56/LX-20260101-0002_5_20260101_165406_s-l1600.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_1_20260120_144005.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_2_20260120_144005.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_3_20260120_144005.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_4_20260120_144005.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_5_20260120_144005.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/6/LX-20260119-0006_6_20260120_144005.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/67/LX-20260108-0049_1_20260108_165840.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/67/LX-20260108-0049_2_20260108_165840.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/67/LX-20260108-0049_3_20260108_165840.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/9/LX-20260119-0009_1_20260120_144117.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/9/LX-20260119-0009_2_20260120_144117.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/9/LX-20260119-0009_3_20260120_144117.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/admin/panel.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/admin/panel.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/inventory/laptop_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/inventory/laptop_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/landing/catalog.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/landing/catalog.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -667,7 +439,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769009437602</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="1">
+      <option name="closed" value="true" />
+      <created>1769045221910</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1769045221910</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -679,7 +459,7 @@
     <option name="LAST_COMMIT_MESSAGE" value="1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769042862059" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769047488515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1768661564607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
