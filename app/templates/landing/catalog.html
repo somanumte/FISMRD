@@ -758,7 +758,7 @@
             brand: {{ (laptop.brand.name if laptop.brand else 'Sin marca')|tojson }},
             model: {{ (laptop.model.name if laptop.model else 'Sin modelo')|tojson }},
             cat: {{ (laptop.category if laptop.category else 'laptop')|tojson }},
-            price: {{ laptop.sale_price|default(0)|float }},
+            price: {{ (laptop.discount_price if laptop.discount_price else laptop.sale_price)|default(0)|float }},
             oldPrice: {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}{{ laptop.discount_price|float }}{% else %}null{% endif %},
             gpu: {{ (laptop.graphics_card.name if laptop.graphics_card else 'Integrada')|tojson }},
             cpu: {{ (laptop.processor.name if laptop.processor else 'Sin procesador')|tojson }},

@@ -15,7 +15,7 @@ const LaptopGalleryHybrid = {
         maxSize: 5 * 1024 * 1024,      // 5MB
         minWidth: 400,
         minHeight: 300,
-        validTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
+        validTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
         maxImages: 8
     },
 
@@ -364,7 +364,7 @@ const LaptopGalleryHybrid = {
 
     async validateImageFile(file) {
         if (!this.imageConfig.validTypes.includes(file.type)) {
-            throw new Error(`${file.name}: Formato no válido. Usa JPG, PNG, WebP o GIF`);
+            throw new Error(`${file.name}: Formato no válido. Usa JPG, PNG, WebP, GIF o AVIF`);
         }
 
         if (file.size > this.imageConfig.maxSize) {

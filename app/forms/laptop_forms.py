@@ -870,6 +870,6 @@ class LaptopForm(FlaskForm):
             # Verificar extensión del archivo
             filename = field.data.filename
             if filename:
-                allowed_extensions = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
+                allowed_extensions = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
                 if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
-                    raise ValidationError('Solo se permiten imágenes (jpg, png, webp, gif)')
+                    raise ValidationError('Solo se permiten imágenes (jpg, png, webp, gif, avif)')

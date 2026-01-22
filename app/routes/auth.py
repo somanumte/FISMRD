@@ -30,7 +30,7 @@ auth_bp = Blueprint(
 # RUTA: LOGIN
 # ============================================
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
     """
     Ruta de inicio de sesión
@@ -164,7 +164,7 @@ def login():
 # RUTA: REGISTRO
 # ============================================
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
     """
     Ruta de registro de nuevos usuarios
@@ -253,7 +253,7 @@ def register():
 
             return redirect(url_for('auth.register'))
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', strict_slashes=False)
 @login_required
 def logout():
     """

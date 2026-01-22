@@ -227,7 +227,7 @@
                             {% if mode == 'edit' %}
                             Gestiona las imágenes existentes o agrega nuevas. Máximo 8 imágenes.
                             {% else %}
-                            Sube hasta 8 imágenes. La primera será la portada. Formatos: JPG, PNG, WebP, GIF.
+                            Sube hasta 8 imágenes. La primera será la portada. Formatos: JPG, PNG, WebP, GIF, AVIF.
                             {% endif %}
                         </p>
                     </div>
@@ -284,7 +284,7 @@
                     <!-- Input para carga múltiple (oculto) -->
                     <input type="file"
                            id="bulk-upload-premium"
-                           accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                           accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif"
                            multiple
                            class="hidden">
                 </div>
@@ -305,7 +305,7 @@
                id="image_{{ i }}"
                name="image_{{ i }}"
                class="hidden original-image-input"
-               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif"
                {% if img %}
                data-image-id="{{ img.id }}"
                data-image-url="{{ url_for('static', filename=img.image_path) }}"
@@ -414,18 +414,77 @@
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Opcional - precio promocional</p>
                     </div>
 
-                    <!-- Margen (calculado automaticamente) -->
+                    <!-- Impuesto -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            Margen de Ganancia
+                            {{ form.tax_percent.label.text }}
                         </label>
-                        <div class="px-4 py-3 bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700">
-                            <p id="margin-display" class="text-2xl font-bold margin-good">
-                                0%
-                            </p>
-                            <p id="profit-display" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Ganancia: $0.00
-                            </p>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">%</span>
+                            {{ form.tax_percent(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Porcentaje de impuesto</p>
+                    </div>
+                </div>
+
+                <!-- Rentabilidades -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Rentabilidad Precio Normal -->
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Rentabilidad - Precio Normal
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
+                                <span id="normal-margin-display" class="text-2xl font-bold margin-good">0%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
+                                <span id="normal-profit-display" class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
+                                <span id="normal-final-price" class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rentabilidad Precio Promocional -->
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                        <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Rentabilidad - Precio Promocional
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
+                                <span id="promo-margin-display" class="text-2xl font-bold margin-warning">0%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
+                                <span id="promo-profit-display" class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
+                                <span id="promo-final-price" class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
+                            </div>
+                            <div id="promo-section" class="hidden">
+                                <div class="mt-2 pt-2 border-t border-yellow-200 dark:border-yellow-800">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Descuento:</span>
+                                        <span id="discount-percentage" class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="no-promo-message" class="text-sm text-gray-500 dark:text-gray-400 italic">
+                                No hay precio promocional establecido
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -584,6 +643,101 @@
 <script src="{{ url_for('static', filename='js/laptop_form.js') }}"></script>
 <script src="{{ url_for('static', filename='js/laptop_form_submit.js') }}"></script>
 <script src="{{ url_for('static', filename='js/laptop_gallery.js') }}"></script>
+
+<!-- Script para calcular rentabilidades -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const purchaseCostInput = document.querySelector('#purchase_cost');
+    const salePriceInput = document.querySelector('#sale_price');
+    const discountPriceInput = document.querySelector('#discount_price');
+    const taxPercentInput = document.querySelector('#tax_percent');
+
+    // Elementos para mostrar rentabilidades
+    const normalMarginDisplay = document.getElementById('normal-margin-display');
+    const normalProfitDisplay = document.getElementById('normal-profit-display');
+    const normalFinalPrice = document.getElementById('normal-final-price');
+
+    const promoMarginDisplay = document.getElementById('promo-margin-display');
+    const promoProfitDisplay = document.getElementById('promo-profit-display');
+    const promoFinalPrice = document.getElementById('promo-final-price');
+    const discountPercentage = document.getElementById('discount-percentage');
+    const promoSection = document.getElementById('promo-section');
+    const noPromoMessage = document.getElementById('no-promo-message');
+
+    // Función para calcular rentabilidades
+    function calculateProfitabilities() {
+        const purchaseCost = parseFloat(purchaseCostInput.value) || 0;
+        const salePrice = parseFloat(salePriceInput.value) || 0;
+        const discountPrice = parseFloat(discountPriceInput.value) || 0;
+        const taxPercent = parseFloat(taxPercentInput.value) || 0;
+
+        // Calcular rentabilidad con precio normal
+        const normalProfit = salePrice - purchaseCost;
+        const normalMargin = purchaseCost > 0 ? (normalProfit / purchaseCost) * 100 : 0;
+        const normalPriceWithTax = salePrice * (1 + taxPercent / 100);
+
+        // Actualizar displays precio normal
+        normalProfitDisplay.textContent = `$${normalProfit.toFixed(2)}`;
+        normalFinalPrice.textContent = `$${normalPriceWithTax.toFixed(2)}`;
+
+        // Determinar color del margen normal
+        normalMarginDisplay.textContent = `${normalMargin.toFixed(1)}%`;
+        if (normalMargin >= 30) {
+            normalMarginDisplay.className = 'text-2xl font-bold margin-good';
+        } else if (normalMargin >= 15) {
+            normalMarginDisplay.className = 'text-2xl font-bold margin-warning';
+        } else {
+            normalMarginDisplay.className = 'text-2xl font-bold margin-danger';
+        }
+
+        // Calcular rentabilidad con precio promocional
+        if (discountPrice > 0 && discountPrice < salePrice) {
+            const promoProfit = discountPrice - purchaseCost;
+            const promoMargin = purchaseCost > 0 ? (promoProfit / purchaseCost) * 100 : 0;
+            const promoPriceWithTax = discountPrice * (1 + taxPercent / 100);
+            const discountPercent = ((salePrice - discountPrice) / salePrice) * 100;
+
+            // Actualizar displays precio promocional
+            promoProfitDisplay.textContent = `$${promoProfit.toFixed(2)}`;
+            promoFinalPrice.textContent = `$${promoPriceWithTax.toFixed(2)}`;
+            discountPercentage.textContent = `${discountPercent.toFixed(1)}%`;
+
+            // Determinar color del margen promocional
+            promoMarginDisplay.textContent = `${promoMargin.toFixed(1)}%`;
+            if (promoMargin >= 30) {
+                promoMarginDisplay.className = 'text-2xl font-bold margin-good';
+            } else if (promoMargin >= 15) {
+                promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
+            } else {
+                promoMarginDisplay.className = 'text-2xl font-bold margin-danger';
+            }
+
+            // Mostrar sección promocional
+            promoSection.classList.remove('hidden');
+            noPromoMessage.classList.add('hidden');
+        } else {
+            // No hay precio promocional
+            promoMarginDisplay.textContent = '0%';
+            promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
+            promoProfitDisplay.textContent = '$0.00';
+            promoFinalPrice.textContent = '$0.00';
+
+            // Ocultar sección promocional
+            promoSection.classList.add('hidden');
+            noPromoMessage.classList.remove('hidden');
+        }
+    }
+
+    // Escuchar cambios en los inputs de precio
+    purchaseCostInput.addEventListener('input', calculateProfitabilities);
+    salePriceInput.addEventListener('input', calculateProfitabilities);
+    discountPriceInput.addEventListener('input', calculateProfitabilities);
+    taxPercentInput.addEventListener('input', calculateProfitabilities);
+
+    // Calcular inicialmente
+    calculateProfitabilities();
+});
+</script>
 
 <!-- Mensajes de error del formulario -->
 <script>

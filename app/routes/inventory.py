@@ -21,6 +21,7 @@ import re
 import os
 import json
 from werkzeug.utils import secure_filename
+from PIL import Image  # Importar PIL para procesamiento de imágenes
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')
 # Configuración de imágenes
 UPLOAD_FOLDER = 'static/uploads/laptops'
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
-ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
+ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
 
 
 # ===== UTILIDADES =====
@@ -206,7 +207,7 @@ def process_laptop_images(laptop, form):
 
                 # Validar extensión del archivo
                 if not allowed_image_file(file.filename):
-                    error_msg = f'Imagen {i}: Formato no permitido. Use JPG, PNG, WebP o GIF.'
+                    error_msg = f'Imagen {i}: Formato no permitido. Use JPG, PNG, WebP, GIF o AVIF.'
                     error_messages.append(error_msg)
                     logger.warning(f'Laptop {laptop.sku}: {error_msg}')
                     continue
@@ -226,16 +227,51 @@ def process_laptop_images(laptop, form):
                 filename = secure_filename(file.filename)
                 # Agregar timestamp para evitar colisiones
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                extension = filename.rsplit('.', 1)[1].lower()
-                filename = f"{laptop.sku}_{i}_{timestamp}.{extension}"
+                original_extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                filename = f"{laptop.sku}_{i}_{timestamp}.avif"
 
                 # Crear directorio si no existe
                 upload_folder = os.path.join('app', 'static', 'uploads', 'laptops', str(laptop.id))
                 os.makedirs(upload_folder, exist_ok=True)
 
-                # Guardar archivo
-                filepath = os.path.join(upload_folder, filename)
-                file.save(filepath)
+                # Guardar archivo original temporalmente
+                temp_path = os.path.join(upload_folder, f"temp_{filename}")
+                file.save(temp_path)
+
+                try:
+                    # Abrir imagen con PIL
+                    img = Image.open(temp_path)
+
+                    # Convertir a RGBA si tiene transparencia, de lo contrario a RGB
+                    if img.mode in ('RGBA', 'LA', 'P'):
+                        img = img.convert('RGBA')
+                    else:
+                        img = img.convert('RGB')
+
+                    # Crear fondo blanco para imágenes sin transparencia
+                    if img.mode == 'RGB':
+                        # Mantener imagen RGB sin cambios (fondo implícito)
+                        pass
+                    elif img.mode == 'RGBA':
+                        # Crear fondo blanco para imágenes con transparencia
+                        background = Image.new('RGB', img.size, (255, 255, 255))
+                        background.paste(img, mask=img.split()[-1])  # Usar canal alpha como máscara
+                        img = background
+
+                    # Guardar como AVIF
+                    filepath = os.path.join(upload_folder, filename)
+                    img.save(filepath, 'AVIF', quality=85)
+
+                    # Eliminar archivo temporal
+                    os.remove(temp_path)
+
+                except Exception as e:
+                    logger.error(f"Error procesando imagen {filename}: {str(e)}")
+                    # Si falla la conversión, usar el archivo original
+                    if os.path.exists(temp_path):
+                        os.rename(temp_path, os.path.join(upload_folder, filename))
+                    else:
+                        raise
 
                 # Ruta relativa para la base de datos
                 relative_path = f"uploads/laptops/{laptop.id}/{filename}"
@@ -255,7 +291,7 @@ def process_laptop_images(laptop, form):
                 processed_images.append(image)
                 success_count += 1
 
-                logger.info(f'   ✅ Guardado como: {filename}')
+                logger.info(f'   ✅ Guardado como: {filename} (convertido a AVIF)')
                 logger.info(f'   ✅ Registro creado: ID {image.id}')
 
             # CASO B: Imagen existente (mantener y actualizar)
@@ -342,6 +378,8 @@ def process_laptop_images(laptop, form):
     logger.info(f"{'=' * 60}\n")
 
     return success_count, error_messages
+
+
 # ===== RUTA PRINCIPAL: LISTADO DE LAPTOPS =====
 
 @inventory_bp.route('/')

@@ -389,7 +389,7 @@ def register_cli_commands(app):
             'Intel Core i5-13420H', 'Intel Core i5-13450H', 'Intel Core i5-13500H',
             'Intel Core i7-13620H', 'Intel Core i7-13650HX', 'Intel Core i7-13700H',
             'Intel Core i7-13700HX', 'Intel Core i9-13900H', 'Intel Core i9-13900HX',
-            'Intel Core i913950HX', 'Intel Core i9-13980HX',
+            'Intel Core i9-13950HX', 'Intel Core i9-13980HX',
             'AMD Ryzen 5 6600H', 'AMD Ryzen 7 6800H', 'AMD Ryzen 9 6900HX',
             'AMD Ryzen 5 7530U', 'AMD Ryzen 5 7535HS', 'AMD Ryzen 7 7735HS',
             'AMD Ryzen 7 7840HS', 'AMD Ryzen 9 7940HS', 'AMD Ryzen 9 7945HX',
@@ -515,6 +515,7 @@ def register_cli_commands(app):
     def _create_sample_laptops(admin_id):
         """Crea 50 laptops reales de prueba"""
 
+        db.session.flush()  # Esto asegura que los IDs estén disponibles
         # Obtener referencias
         brands = {b.name: b.id for b in Brand.query.all()}
         processors = {p.name: p.id for p in Processor.query.all()}
