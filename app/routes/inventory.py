@@ -918,19 +918,52 @@ def laptop_delete(id):
 def laptop_duplicate(id):
     original = Laptop.query.get_or_404(id)
 
+    # Generar nuevo SKU
+    new_sku = SKUService.generate_laptop_sku()
+
+    # Generar nuevo slug
+    new_display_name = f"{original.display_name} (Copia)"
+    base_slug = generate_slug(new_display_name)
+    new_slug = ensure_unique_slug(base_slug)
+
     duplicate = Laptop(
-        sku=f"{original.sku}-COPY",
-        display_name=f"{original.display_name} (Copia)",
+        sku=new_sku,
+        slug=new_slug,
+        display_name=new_display_name,
         short_description=original.short_description,
         long_description_html=original.long_description_html,
-        category=original.category,
+        is_published=False,  # La copia no se publica automáticamente
+        is_featured=False,   # Tampoco se destaca
+        seo_title=original.seo_title,
+        seo_description=original.seo_description,
         brand_id=original.brand_id,
         model_id=original.model_id,
         processor_id=original.processor_id,
-        ram_id=original.ram_id,
+        os_id=original.os_id,
+        screen_id=original.screen_id,
+        graphics_card_id=original.graphics_card_id,
         storage_id=original.storage_id,
+        ram_id=original.ram_id,
+        store_id=original.store_id,
+        location_id=original.location_id,
+        supplier_id=original.supplier_id,
+        npu=original.npu,
+        storage_upgradeable=original.storage_upgradeable,
+        ram_upgradeable=original.ram_upgradeable,
+        keyboard_layout=original.keyboard_layout,
+        connectivity_ports=original.connectivity_ports.copy() if original.connectivity_ports else {},
+        category=original.category,
+        condition=original.condition,
+        purchase_cost=original.purchase_cost,
         sale_price=original.sale_price,
-        is_published=False,
+        discount_price=original.discount_price,
+        tax_percent=original.tax_percent,
+        quantity=original.quantity,
+        reserved_quantity=original.reserved_quantity,
+        min_alert=original.min_alert,
+        entry_date=date.today(),  # Nueva fecha de entrada
+        sale_date=original.sale_date,
+        internal_notes=original.internal_notes,
         created_by_id=current_user.id
     )
 
