@@ -5,16 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="seriales">
+      <change afterPath="$PROJECT_DIR$/app/cli.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/extensions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/context_processors.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/logging_config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/utils/seeds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/inventory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/invoice_inventory_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/invoice_inventory_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/serial_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/serial_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/errors/500.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/errors/500.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -73,11 +82,11 @@
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\migrations" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\migrations\versions" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static\js" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\templates\landing" />
     </key>
   </component>
   <component name="RunManager">
@@ -128,15 +137,7 @@
       <workItem from="1769167515548" duration="2853000" />
       <workItem from="1769170539503" duration="2859000" />
       <workItem from="1769174962336" duration="358000" />
-      <workItem from="1769175554322" duration="9381000" />
-    </task>
-    <task id="LOCAL-00003" summary="0">
-      <option name="closed" value="true" />
-      <created>1768694381624</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1768694381624</updated>
+      <workItem from="1769175554322" duration="13093000" />
     </task>
     <task id="LOCAL-00004" summary="0">
       <option name="closed" value="true" />
@@ -522,7 +523,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769183087753</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="seriales">
+      <option name="closed" value="true" />
+      <created>1769185816823</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1769185816823</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -546,7 +555,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769185712032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769189547381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1768661564607" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
