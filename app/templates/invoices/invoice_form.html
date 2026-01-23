@@ -1304,7 +1304,8 @@ function updateSelectedSerials(itemId) {
     }
 }
 
-function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0) {
+// MODIFICACIÓN: Se agregó el parámetro forceLoadSerials para forzar la carga de seriales
+function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, forceLoadSerials = false) {
     hideEmptyMsg();
     const container = document.getElementById('items_container');
     const itemId = itemCounter++;
@@ -1322,6 +1323,9 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
             laptopName = currentLaptop.brand && currentLaptop.model ?
                 `${currentLaptop.brand} ${currentLaptop.model}` :
                 currentLaptop.brand || currentLaptop.model || 'Laptop';
+        } else {
+            // Si no está en la lista global, aún así guardamos el ID
+            laptopIdValue = laptopId;
         }
     }
 
@@ -1384,9 +1388,15 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     setupLaptopSearch(itemId);
     calculateTotals();
 
-    // Si encontramos la laptop, llamar a selectLaptop para cargar seriales
-    if (hasLaptop && currentLaptop) {
-        selectLaptop(itemId, currentLaptop);
+    // MODIFICACIÓN: Siempre cargar seriales si tenemos un laptopId
+    if (laptopId && laptopId !== 'null' && laptopId !== '') {
+        if (hasLaptop && currentLaptop) {
+            // Si la laptop está en la lista global, usar selectLaptop que también carga seriales
+            selectLaptop(itemId, currentLaptop);
+        } else if (forceLoadSerials) {
+            // Si forceLoadSerials es true (desde localStorage), cargar seriales directamente
+            loadSerialSelector(itemId, laptopId, 0);
+        }
     }
 
     return itemId;
@@ -1771,7 +1781,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Cargar laptops seleccionadas desde el localStorage - REFACTORIZADO
+    // MODIFICACIÓN: Cargar laptops seleccionadas desde localStorage
     if (!isEdit) {
         try {
             const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
@@ -1783,31 +1793,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (laptop && laptop.id && laptop.name && laptop.price !== undefined) {
                             console.log('Procesando laptop:', laptop);
 
-                            const laptopIdNum = Number(laptop.id);
-                            const foundLaptop = laptops.find(l => l.id === laptopIdNum);
-
-                            let itemId;
-                            if (foundLaptop) {
-                                // Si la laptop está en la lista global, usar la función normal
-                                itemId = addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
-                                // selectLaptop se llamará automáticamente desde addLaptopItem
-                            } else {
-                                // Si no está en la lista global, crear item manualmente
-                                itemId = addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
-
-                                // Mostrar el contenedor de descripción y establecer la descripción técnica
-                                const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
-                                const descTextarea = document.getElementById(`laptop_description_${itemId}`);
-                                if (descContainer && descTextarea) {
-                                    descContainer.classList.remove('hidden');
-                                    descTextarea.value = laptop.description || laptop.name;
-                                }
-
-                                // Cargar seriales incluso si la laptop no está en la lista global
-                                if (laptop.id) {
-                                    loadSerialSelector(itemId, laptop.id, 0);
-                                }
-                            }
+                            // Siempre usar forceLoadSerials: true para laptops desde localStorage
+                            const itemId = addLaptopItem(
+                                laptop.id,
+                                laptop.description || laptop.name,
+                                1,
+                                laptop.price,
+                                true  // <-- Esto fuerza la carga de seriales
+                            );
                         }
                     } catch (itemError) {
                         console.error('Error procesando laptop individual:', itemError, laptop);
