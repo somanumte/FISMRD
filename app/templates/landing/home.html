@@ -292,7 +292,7 @@
     /* Estado Inicial (oculto abajo) */
     .skew-enter-active {
         transform: translateY(110%) skewY(10deg);
-        opacity: 0;
+        opacity: 1;
     }
 
     /* Estado Final (visible) */
@@ -304,11 +304,17 @@
     /* Estado Salida (oculto arriba) */
     .skew-exit-active {
         transform: translateY(-110%) skewY(-10deg);
-        opacity: 0;
+        opacity: 1;
     }
 
     .fade-content {
         transition: opacity 0.4s ease-in-out;
+    }
+
+    /* Corregir opacidad del texto en el héroe */
+    .hero-section .fade-content {
+        opacity: 1;
+        transition: none;
     }
 
     /* Botones de Navegación */
@@ -811,7 +817,7 @@
                 </h1>
 
                 <!-- Descripción con Fade -->
-                <p id="product-desc" class="text-lg text-gray-600 leading-relaxed min-h-[3.5rem] fade-content transition-opacity duration-300">
+                <p id="product-desc" class="text-lg text-gray-600 leading-relaxed min-h-[3.5rem]">
                     {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].description %}
                         {{ featured_laptops[0].description[:150] }}...
                     {% else %}
@@ -820,7 +826,7 @@
                 </p>
 
                 <!-- Grid de Especificaciones -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 fade-content transition-opacity duration-300" id="specs-container">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4" id="specs-container">
                     <!-- CPU -->
                     <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
                         <i class="fa-solid fa-microchip text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
@@ -1293,13 +1299,12 @@
         suffixEl.classList.remove('skew-visible', 'skew-enter-active');
         suffixEl.classList.add('skew-exit-active');
 
-        // 2. Fade Out Content
+        // 2. Fade Out Content (solo la imagen)
         const descEl = document.getElementById('product-desc');
         const specsContainer = document.getElementById('specs-container');
         const imageContainer = document.getElementById('laptop-image-container');
 
-        descEl.style.opacity = '0';
-        specsContainer.style.opacity = '0';
+        // Solo desvanecer la imagen
         imageContainer.style.opacity = '0';
 
         setTimeout(() => {
@@ -1365,9 +1370,7 @@
                     suffixEl.classList.add('skew-visible');
                 }, 100);
 
-                // Fade In Content
-                descEl.style.opacity = '1';
-                specsContainer.style.opacity = '1';
+                // Fade In Content (solo la imagen)
                 imageContainer.style.opacity = '1';
 
                 setTimeout(() => { isAnimating = false; }, 800);
