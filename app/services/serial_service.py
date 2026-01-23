@@ -502,7 +502,9 @@ class SerialService:
 
                 # Marcar serial como vendido
                 old_status = serial.status
-                serial.mark_as_sold(price=invoice_item.unit_price)
+                serial.status = 'sold'
+                serial.sale_price = invoice_item.unit_price
+                serial.sold_date = datetime.utcnow()
 
                 # Registrar movimiento
                 SerialService._log_movement(
@@ -564,7 +566,9 @@ class SerialService:
 
                 if serial:
                     old_status = serial.status
-                    serial.mark_as_available()
+                    serial.status = 'available'
+                    serial.sale_price = None
+                    serial.sold_date = None
 
                     # Registrar movimiento
                     SerialService._log_movement(

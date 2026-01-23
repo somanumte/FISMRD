@@ -122,6 +122,47 @@ def allowed_image_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
 
+def validate_serial_quantity(quantity, serials_data, mode='add', laptop_id=None):
+    """
+    Valida que la cantidad de seriales coincida con la cantidad en inventario.
+
+    Args:
+        quantity: Cantidad en inventario
+        serials_data: Lista de seriales del formulario
+        mode: 'add' o 'edit'
+        laptop_id: ID de la laptop (para modo edición)
+
+    Returns:
+        tuple: (es_valido, mensaje_error)
+    """
+    try:
+        total_serials = len(serials_data)
+
+        # En modo edición, contar seriales existentes + nuevos
+        if mode == 'edit' and laptop_id:
+            # Obtener seriales existentes para esta laptop
+            existing_serials = SerialService.get_available_serials_for_laptop(laptop_id)
+            existing_count = len(existing_serials)
+
+            # Contar solo los nuevos seriales
+            new_serial_numbers = {s['serial_number'] for s in serials_data if 'serial_number' in s}
+            existing_serial_numbers = {s.serial_number for s in existing_serials}
+            new_serials_count = len(new_serial_numbers - existing_serial_numbers)
+
+            total_serials = existing_count + new_serials_count
+
+        if total_serials > quantity:
+            return False, f"La cantidad de seriales ({total_serials}) no puede ser mayor que la cantidad en inventario ({quantity})"
+
+        if total_serials < quantity:
+            return False, f"La cantidad de seriales ({total_serials}) no puede ser menor que la cantidad en inventario ({quantity}). Agrega más seriales o reduce la cantidad."
+
+        return True, ""
+
+    except Exception as e:
+        return False, f"Error en validación: {str(e)}"
+
+
 def process_laptop_images(laptop, form):
     """
     Procesa las imágenes del formulario (híbrido: nuevas + existentes)
@@ -648,6 +689,19 @@ def laptop_add():
 
             try:
                 serials_data = json.loads(serials_json)
+
+                # Validar cantidad de seriales vs inventario
+                is_valid, error_msg = validate_serial_quantity(
+                    quantity=form.quantity.data,
+                    serials_data=serials_data,
+                    mode='add'
+                )
+
+                if not is_valid:
+                    db.session.rollback()
+                    flash(f'❌ {error_msg}', 'error')
+                    return render_template('inventory/laptop_form.html', form=form, mode='add')
+
                 for serial_info in serials_data:
                     serial_number = serial_info.get('serial_number', '').strip().upper()
                     if serial_number:
@@ -700,6 +754,7 @@ def laptop_add():
                 flash(f'Error en {field}: {error}', 'error')
 
     return render_template('inventory/laptop_form.html', form=form, mode='add')
+
 
 # ===== VER DETALLE DE LAPTOP =====
 
@@ -858,6 +913,72 @@ def laptop_edit(id):
 
             laptop.updated_at = datetime.utcnow()
 
+            # ===== PROCESAR SERIALES EN MODO EDICIÓN =====
+            serials_json = request.form.get('serials_json', '[]')
+            serial_errors = []
+
+            # Validar cantidad de seriales vs inventario (en modo edición)
+            try:
+                serials_data = json.loads(serials_json)
+                is_valid, error_msg = validate_serial_quantity(
+                    quantity=form.quantity.data,
+                    serials_data=serials_data,
+                    mode='edit',
+                    laptop_id=laptop.id
+                )
+
+                if not is_valid:
+                    db.session.rollback()
+                    flash(f'❌ {error_msg}', 'error')
+                    return render_template('inventory/laptop_form.html', form=form, mode='edit', laptop=laptop)
+
+                # Obtener seriales existentes para esta laptop
+                existing_serials = SerialService.get_available_serials_for_laptop(laptop.id)
+                existing_serial_numbers = {s.serial_number for s in existing_serials}
+                submitted_serial_numbers = {s['serial_number'] for s in serials_data if 'serial_number' in s}
+
+                # Identificar seriales a eliminar (están en BD pero no en formulario)
+                serials_to_delete = existing_serial_numbers - submitted_serial_numbers
+
+                # Identificar seriales a agregar (están en formulario pero no en BD)
+                serials_to_add = submitted_serial_numbers - existing_serial_numbers
+
+                # Validar que no se eliminen seriales vendidos
+                for serial_number in list(serials_to_delete):
+                    serial = SerialService.find_by_serial(serial_number)
+                    if serial and serial.status == 'sold':
+                        serial_errors.append(f"No se puede eliminar el serial {serial_number} porque ya fue vendido")
+                        serials_to_delete.remove(serial_number)
+
+                # Eliminar seriales marcados para eliminar
+                for serial_number in serials_to_delete:
+                    serial = SerialService.find_by_serial(serial_number)
+                    if serial and serial.laptop_id == laptop.id:
+                        success, error = SerialService.delete_serial(serial.id, user_id=current_user.id)
+                        if not success:
+                            serial_errors.append(f"Error al eliminar serial {serial_number}: {error}")
+
+                # Agregar nuevos seriales
+                for serial_info in serials_data:
+                    serial_number = serial_info.get('serial_number', '').strip().upper()
+                    if serial_number in serials_to_add:
+                        success, result = SerialService.create_serial(
+                            laptop_id=laptop.id,
+                            serial_number=serial_number,
+                            created_by_id=current_user.id
+                        )
+                        if not success:
+                            serial_errors.append(f"Serial {serial_number}: {result}")
+
+            except Exception as e:
+                logger.error(f"Error procesando seriales en edición: {str(e)}")
+                serial_errors.append(f"Error general: {str(e)}")
+
+            # Si hubo errores en seriales, mostrar pero no hacer rollback completo
+            if serial_errors:
+                for error in serial_errors:
+                    flash(f'⚠️ {error}', 'warning')
+
             # Procesar imágenes
             img_success, img_errors = process_laptop_images(laptop, form)
             db.session.commit()
@@ -963,7 +1084,7 @@ def laptop_duplicate(id):
         short_description=original.short_description,
         long_description_html=original.long_description_html,
         is_published=False,  # La copia no se publica automáticamente
-        is_featured=False,   # Tampoco se destaca
+        is_featured=False,  # Tampoco se destaca
         seo_title=original.seo_title,
         seo_description=original.seo_description,
         brand_id=original.brand_id,
