@@ -11,6 +11,7 @@ from app.models.laptop import (
     Screen, GraphicsCard, Storage, Ram,
     Store, Location, Supplier, Laptop, LaptopImage
 )
+from app.models.serial import LaptopSerial, InvoiceItemSerial, SerialMovement
 
 __all__ = [
     # User
@@ -37,5 +38,10 @@ __all__ = [
 
     # Main Models
     'Laptop',
-    'LaptopImage'   # Nuevo modelo
+    'LaptopImage',   # Nuevo modelo
+
+    # Serial Models
+    'LaptopSerial',
+    'InvoiceItemSerial',
+    'SerialMovement'
 ]

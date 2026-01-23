@@ -489,29 +489,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- NCF seleccionado (resumen) -->
-                        <div class="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                                        NCF a generar
-                                    </p>
-                                    <p class="text-xl font-mono font-bold text-indigo-900 dark:text-indigo-100" id="selected_ncf_display">
-                                        {% if ncf_sequences and default_ncf_type in ncf_sequences %}
-                                            {{ ncf_sequences[default_ncf_type].next_preview }}
-                                        {% else %}
-                                            B0200000001
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs text-indigo-600 dark:text-indigo-400" id="selected_ncf_type_name">
-                                        Factura de Consumo
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     {% else %}
                     <!-- Si es edición, mostrar el NCF actual (no editable) -->
@@ -1212,7 +1189,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     setupLaptopSearch(itemId);
     calculateTotals();
 
-    return itemId; // CORRECCIÓN: Se agregó el return del itemId
+    return itemId;
 }
 
 function filterLaptops(searchTerm) {
@@ -1294,7 +1271,90 @@ function selectLaptop(itemId, laptop) {
         stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
     }
 
+    // ===== NUEVO: Cargar selector de seriales =====
+    loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
+
     calculateTotals();
+}
+
+// ===== NUEVA FUNCIÓN: Cargar selector de seriales =====
+function loadSerialSelector(itemId, laptopId, availableQty) {
+    // Crear contenedor si no existe
+    let selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+    if (!selectorContainer) {
+        const itemContainer = document.getElementById(`item_${itemId}`);
+        const serialHtml = `
+            <div id="serial_selector_${itemId}" class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-300 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                        </svg>
+                        Seleccionar Serial
+                    </h4>
+                    <span id="serial_count_${itemId}" class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
+                        Cargando...
+                    </span>
+                </div>
+                <div id="serial_list_${itemId}" class="space-y-2">
+                    <div class="animate-pulse flex space-x-2">
+                        <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded w-full"></div>
+                    </div>
+                </div>
+                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
+            </div>
+        `;
+        itemContainer.insertAdjacentHTML('beforeend', serialHtml);
+        selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+    }
+
+    // Cargar seriales disponibles
+    fetch(`/api/serials/laptop/${laptopId}/available`)
+        .then(response => response.json())
+        .then(data => {
+            const listContainer = document.getElementById(`serial_list_${itemId}`);
+            const countBadge = document.getElementById(`serial_count_${itemId}`);
+
+            if (data.success && data.serials && data.serials.length > 0) {
+                countBadge.textContent = `${data.serials.length} disponibles`;
+
+                listContainer.innerHTML = data.serials.map(serial => `
+                    <label class="flex items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-purple-400 transition-colors">
+                        <input type="checkbox"
+                               name="serial_${itemId}[]"
+                               value="${serial.id}"
+                               data-serial-number="${serial.serial_number}"
+                               onchange="updateSelectedSerials('${itemId}')"
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <span class="ml-3 font-mono text-sm text-gray-900 dark:text-white">${serial.serial_number}</span>
+                    </label>
+                `).join('');
+            } else {
+                countBadge.textContent = 'Sin seriales';
+                listContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">No hay seriales registrados para este producto</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando seriales:', error);
+            document.getElementById(`serial_list_${itemId}`).innerHTML = '<p class="text-sm text-red-500 text-center py-2">Error al cargar seriales</p>';
+        });
+}
+
+function updateSelectedSerials(itemId) {
+    const checkboxes = document.querySelectorAll(`input[name="serial_${itemId}[]"]:checked`);
+    const selectedIds = Array.from(checkboxes).map(cb => ({
+        id: parseInt(cb.value),
+        serial_number: cb.dataset.serialNumber
+    }));
+
+    document.getElementById(`selected_serials_${itemId}`).value = JSON.stringify(selectedIds);
+
+    // Actualizar cantidad automáticamente
+    const qtyInput = document.getElementById(`qty_${itemId}`);
+    if (qtyInput && selectedIds.length > 0) {
+        qtyInput.value = selectedIds.length;
+        calculateTotals();
+    }
 }
 
 function setupLaptopSearch(itemId) {

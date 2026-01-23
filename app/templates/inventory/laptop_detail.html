@@ -179,6 +179,17 @@
                 Editar
             </a>
 
+            <!-- Botón Seriales -->
+            <button type="button"
+                    onclick="openSerialModal({{ laptop.id }}, { sku: {{ laptop.sku | tojson }}, name: {{ laptop.display_name | tojson }}, quantity: {{ laptop.quantity }} })"
+                    class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
+                Seriales
+                <span class="ml-2 px-2 py-0.5 text-xs bg-purple-500 rounded-full" id="serial-count-badge">...</span>
+            </button>
+
             <form action="{{ url_for('inventory.laptop_duplicate', id=laptop.id) }}" method="POST" class="inline">
                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +219,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
                         </svg>
                         Galería de Imágenes
                     </h2>
@@ -243,7 +254,7 @@
                         <!-- Placeholder sin imágenes -->
                         <div class="gallery-placeholder">
                             <svg class="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
                             </svg>
                             <p class="text-sm font-medium">Sin imágenes</p>
                             <p class="text-xs mt-1 opacity-75">Edita la laptop para agregar imágenes</p>
@@ -436,6 +447,31 @@
                     </div>
                 </div>
 
+                <!-- Card: Números de Serie -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                            </svg>
+                            Números de Serie
+                        </h3>
+                        <button onclick="openSerialModal({{ laptop.id }}, { sku: {{ laptop.sku | tojson }}, name: {{ laptop.display_name | tojson }}, quantity: {{ laptop.quantity }} })"
+                                class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
+                                title="Gestionar seriales">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="serials-summary" class="space-y-3">
+                        <div class="animate-pulse">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Card: Ubicación -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ubicación</h3>
@@ -511,7 +547,6 @@
     <button class="lightbox-close" onclick="closeLightbox(event)">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
     </button>
 
     {% if images|length > 1 %}
@@ -539,6 +574,11 @@
 {% block extra_js %}
 {% if images and images|length > 0 %}
 <script>
+/* ===========================
+   Script de galería / lightbox
+   ===========================
+*/
+
 // Array de imágenes para el lightbox
 var galleryImages = [
     {% for image in images %}
@@ -623,4 +663,73 @@ document.addEventListener('keydown', function(e) {
 });
 </script>
 {% endif %}
+
+<!-- Modal de Seriales -->
+{% include 'inventory/serial_modal.html' %}
+
+<!--
+  Variables JS generadas por el servidor (serializadas con tojson para evitar problemas de comillas).
+  Se añadieron para construir HTML dinámico de forma segura sin hacer replace(...) en la plantilla.
+-->
+<script>
+var serverLaptopId = {{ laptop.id }};
+var serverLaptopSku = {{ laptop.sku | tojson }};
+var serverLaptopName = {{ laptop.display_name | tojson }};
+var serverLaptopQuantity = {{ laptop.quantity }};
+</script>
+
+<script>
+// Cargar resumen de seriales al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadSerialsSummary({{ laptop.id }});
+});
+
+function loadSerialsSummary(laptopId) {
+    fetch('/api/serials/laptop/' + laptopId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('serials-summary');
+                const badge = document.getElementById('serial-count-badge');
+                const serials = data.serials || [];
+                const available = serials.filter(s => s.status === 'available').length;
+                const sold = serials.filter(s => s.status === 'sold').length;
+                const total = serials.length;
+
+                // Actualizar badge
+                if (badge) {
+                    badge.textContent = available + '/' + total;
+                    badge.className = 'ml-2 px-2 py-0.5 text-xs rounded-full ' + (available > 0 ? 'bg-green-500' : 'bg-gray-500');
+                }
+
+                // Actualizar resumen
+                if (container) {
+                    if (total === 0) {
+                        /* Construimos el botón dinámicamente usando las variables serverLaptop* para evitar insertar strings con comillas
+                           directamente en la plantilla (evita backslashes y errores de Jinja). */
+                        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No hay seriales registrados</p>' +
+                            '<button onclick="openSerialModal(' + laptopId + ', {sku: ' + JSON.stringify(serverLaptopSku) + ', name: ' + JSON.stringify(serverLaptopName) + ', quantity: ' + serverLaptopQuantity + '})" class="mt-2 text-sm text-purple-600 hover:text-purple-800">+ Agregar seriales</button>';
+                    } else {
+                        var stockQty = {{ laptop.quantity }};
+                        var html = '<div class="flex justify-between text-sm"><span class="text-gray-500 dark:text-gray-400">Disponibles:</span><span class="font-semibold text-green-600">' + available + '</span></div>' +
+                            '<div class="flex justify-between text-sm"><span class="text-gray-500 dark:text-gray-400">Vendidos:</span><span class="font-semibold text-blue-600">' + sold + '</span></div>' +
+                            '<div class="flex justify-between text-sm border-t border-gray-200 dark:border-gray-700 pt-2 mt-2"><span class="text-gray-500 dark:text-gray-400">Total:</span><span class="font-semibold">' + total + '</span></div>';
+
+                        if (available < stockQty) {
+                            html += '<p class="mt-2 text-xs text-yellow-600">⚠️ Faltan ' + (stockQty - available) + ' serial(es)</p>';
+                        }
+                        container.innerHTML = html;
+                    }
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+}
+
+window.onSerialsUpdated = function(laptopId) {
+    loadSerialsSummary(laptopId);
+};
+</script>
 {% endblock %}

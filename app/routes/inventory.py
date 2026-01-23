@@ -15,6 +15,7 @@ from app.models.laptop import (
 from app.forms.laptop_forms import LaptopForm, FilterForm
 from app.services.sku_service import SKUService
 from app.services.catalog_service import CatalogService
+from app.services.serial_service import SerialService
 from app.utils.decorators import admin_required
 from datetime import datetime, date
 from sqlalchemy import or_
@@ -641,6 +642,36 @@ def laptop_add():
             db.session.add(laptop)
             db.session.flush()  # Para obtener el ID
 
+            # PROCESAR SERIALES - CON MEJOR MANEJO DE ERRORES
+            serials_json = request.form.get('serials_json', '[]')
+            serial_errors = []
+
+            try:
+                serials_data = json.loads(serials_json)
+                for serial_info in serials_data:
+                    serial_number = serial_info.get('serial_number', '').strip().upper()
+                    if serial_number:
+                        success, result = SerialService.create_serial(  # CAMBIADO: Capturar retorno
+                            laptop_id=laptop.id,
+                            serial_number=serial_number,
+                            created_by_id=current_user.id
+                        )
+
+                        if not success:  # NUEVO: Verificar si hubo error
+                            serial_errors.append(f"Serial {serial_number}: {result}")
+                            logger.error(f"Error al crear serial {serial_number}: {result}")
+
+            except Exception as e:
+                logger.error(f"Error procesando seriales: {str(e)}")
+                serial_errors.append(f"Error general: {str(e)}")
+
+            # Si hubo errores en seriales, hacer rollback y mostrar
+            if serial_errors:
+                db.session.rollback()
+                error_msg = "Errores al guardar seriales:<br>" + "<br>".join(serial_errors)
+                flash(f'❌ {error_msg}', 'error')
+                return render_template('inventory/laptop_form.html', form=form, mode='add')
+
             # Procesar imágenes
             img_success, img_errors = process_laptop_images(laptop, form)
             db.session.commit()
@@ -669,7 +700,6 @@ def laptop_add():
                 flash(f'Error en {field}: {error}', 'error')
 
     return render_template('inventory/laptop_form.html', form=form, mode='add')
-
 
 # ===== VER DETALLE DE LAPTOP =====
 
