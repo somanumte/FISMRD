@@ -383,7 +383,7 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Agotado</span>
                                             {% endif %}
                                         {% endif %}
-                                    </div>
+                                </div>
                                 </div>
                                 <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ ncf_type.name }}</h3>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ ncf_type.description }}</p>
@@ -519,7 +519,7 @@
                             </div>
                             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                 <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
                                 </svg>
                                 El NCF no puede modificarse una vez creada la factura (según DGII)
                             </p>
@@ -664,6 +664,16 @@
 
 <script>
 // ==========================================
+// CONSTANTES
+// ==========================================
+const TAX_RATE = 0.18;
+const RNC_LENGTH = 9;
+const CEDULA_LENGTH = 11;
+const NCF_SEQUENCE_LENGTH = 8;
+const DEBOUNCE_DELAY = 300;
+const NOTIFICATION_DURATION = 3000;
+
+// ==========================================
 // VARIABLES GLOBALES
 // ==========================================
 let itemCounter = 0;
@@ -699,15 +709,45 @@ let allCustomers = [
 let recentCustomers = [...allCustomers].sort((a, b) => b.id - a.id).slice(0, 10);
 const recentLaptops = [...laptops].sort((a, b) => b.id - a.id).slice(0, 10);
 
-let customerSearchTimeout = null;
-let laptopSearchTimeouts = {};
+// ==========================================
+// FUNCIONES DE UTILIDAD
+// ==========================================
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, NOTIFICATION_DURATION);
+}
 
 // ==========================================
 // FUNCIONES DE NCF
 // ==========================================
 
 function selectNcfType(ncfType) {
-    if (isEdit) return; // No permitir cambios en edición
+    if (isEdit) return;
 
     // Actualizar selección visual
     document.querySelectorAll('.ncf-type-card').forEach(card => {
@@ -782,7 +822,7 @@ function validateManualNcf() {
     updateSelectedNcfDisplay();
 
     // Validar con el servidor si tiene 8 dígitos
-    if (sequence.length === 8) {
+    if (sequence.length === NCF_SEQUENCE_LENGTH) {
         // Limpiar timeout anterior
         if (manualNcfValidationTimeout) {
             clearTimeout(manualNcfValidationTimeout);
@@ -834,7 +874,7 @@ function validateManualNcf() {
 }
 
 function suggestNcfTypeForCustomer(customer) {
-    if (isEdit) return; // No sugerir en edición
+    if (isEdit) return;
 
     // Mostrar sección de NCF
     const ncfSection = document.getElementById('ncf_section');
@@ -843,7 +883,7 @@ function suggestNcfTypeForCustomer(customer) {
     }
 
     // Determinar tipo sugerido basado en el cliente
-    let suggestedType = 'B02'; // Default: Consumo
+    let suggestedType = 'B02';
     let reason = '';
 
     if (customer.id_type === 'rnc') {
@@ -952,6 +992,28 @@ function displayCustomerResults(results, isRecent = false) {
     resultsDropdown.classList.remove('hidden');
 }
 
+function updateCustomerDisplay(customer) {
+    const displayElement = document.getElementById('selected_customer_display');
+    const nameElement = document.getElementById('selected_customer_name');
+    nameElement.textContent = `${customer.full_name} - ${customer.id_number}`;
+    displayElement.classList.remove('hidden');
+}
+
+function updateCustomerInfoPanel(customer) {
+    document.getElementById('customer_rnc').textContent = customer.id_number || 'No especificado';
+    document.getElementById('customer_id_type').textContent = customer.id_type === 'rnc' ? 'RNC (Empresa)' : 'Cédula (Persona)';
+    document.getElementById('customer_email').textContent = customer.email || 'No especificado';
+    document.getElementById('customer_phone').textContent = customer.phone_primary || 'No especificado';
+
+    const addressSection = document.getElementById('customer_address_section');
+    if (customer.address && customer.address.trim() !== '') {
+        document.getElementById('customer_address').textContent = customer.address;
+        addressSection.classList.remove('hidden');
+    } else {
+        addressSection.classList.add('hidden');
+    }
+}
+
 function selectCustomer(customer) {
     // Ocultar resultados
     document.getElementById('customer_results').classList.add('hidden');
@@ -962,33 +1024,16 @@ function selectCustomer(customer) {
     // Actualizar campo oculto
     document.getElementById('customer_id').value = customer.id;
 
-    // Mostrar nombre del cliente seleccionado
-    const displayElement = document.getElementById('selected_customer_display');
-    const nameElement = document.getElementById('selected_customer_name');
-    nameElement.textContent = `${customer.full_name} - ${customer.id_number}`;
-    displayElement.classList.remove('hidden');
+    updateCustomerDisplay(customer);
+    updateCustomerInfoPanel(customer);
 
-    // Actualizar información del panel
+    // Mostrar información del cliente y ocultar empty state
     const infoDiv = document.getElementById('customer_info');
     const emptyState = document.getElementById('customer_empty_state');
-    const addressSection = document.getElementById('customer_address_section');
-
-    document.getElementById('customer_rnc').textContent = customer.id_number || 'No especificado';
-    document.getElementById('customer_id_type').textContent = customer.id_type === 'rnc' ? 'RNC (Empresa)' : 'Cédula (Persona)';
-    document.getElementById('customer_email').textContent = customer.email || 'No especificado';
-    document.getElementById('customer_phone').textContent = customer.phone_primary || 'No especificado';
-
-    if (customer.address && customer.address.trim() !== '') {
-        document.getElementById('customer_address').textContent = customer.address;
-        addressSection.classList.remove('hidden');
-    } else {
-        addressSection.classList.add('hidden');
-    }
-
     infoDiv.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
-    // ===== NUEVO: Sugerir tipo de NCF basado en el cliente =====
+    // Sugerir tipo de NCF basado en el cliente
     suggestNcfTypeForCustomer(customer);
 }
 
@@ -1002,23 +1047,6 @@ function toggleAdditionalInfo() {
     content.classList.toggle('hidden');
     icon.classList.toggle('rotate-0');
     icon.classList.toggle('rotate-180');
-}
-
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                document.body.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
 }
 
 // ==========================================
@@ -1047,7 +1075,7 @@ function calculateTotals() {
         subtotal += quantity * price;
     });
 
-    const tax = subtotal * 0.18;
+    const tax = subtotal * TAX_RATE;
     const total = subtotal + tax;
 
     document.getElementById('subtotal_display').textContent = `RD$ ${subtotal.toFixed(2)}`;
@@ -1107,6 +1135,173 @@ function addCustomItem(description = '', quantity = 1, price = 0) {
 
     container.appendChild(itemDiv);
     calculateTotals();
+}
+
+function filterLaptops(searchTerm) {
+    const searchLower = searchTerm.toLowerCase().trim();
+    if (searchLower.length < 2) return [];
+
+    return laptops.filter(laptop => {
+        const brand = laptop.brand ? laptop.brand.toLowerCase() : '';
+        const model = laptop.model ? laptop.model.toLowerCase() : '';
+        const processor = laptop.processor ? laptop.processor.toLowerCase() : '';
+        const sku = laptop.sku ? laptop.sku.toLowerCase() : '';
+
+        return brand.includes(searchLower) ||
+               model.includes(searchLower) ||
+               processor.includes(searchLower) ||
+               sku.includes(searchLower);
+    }).slice(0, 10);
+}
+
+function displayLaptopResults(itemId, results, isRecent = false) {
+    const resultsContainer = document.getElementById(`laptop_results_list_${itemId}`);
+    const resultsDropdown = document.getElementById(`laptop_results_${itemId}`);
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500">No se encontraron laptops</div>`;
+        resultsDropdown.classList.remove('hidden');
+        return;
+    }
+
+    resultsContainer.innerHTML = '';
+
+    if (isRecent) {
+        const title = document.createElement('div');
+        title.className = 'px-4 py-2 bg-gray-50 dark:bg-gray-700 text-xs font-semibold text-gray-500 uppercase';
+        title.textContent = 'Laptops recientes';
+        resultsContainer.appendChild(title);
+    }
+
+    results.forEach(laptop => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
+
+        const name = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+
+        resultItem.innerHTML = `
+            <div class="font-medium text-gray-900 dark:text-white">${name}</div>
+            <div class="text-xs text-gray-500 mt-1">
+                ${laptop.processor || ''} • RD$ ${laptop.sale_price?.toLocaleString() || '0'} • ${laptop.quantity || 0} disponibles
+            </div>
+        `;
+
+        resultItem.addEventListener('click', () => selectLaptop(itemId, laptop));
+        resultsContainer.appendChild(resultItem);
+    });
+
+    resultsDropdown.classList.remove('hidden');
+}
+
+function updateLaptopItemDisplay(itemId, laptop, description) {
+    const laptopName = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+    document.getElementById(`laptop_search_${itemId}`).value = laptopName;
+    document.getElementById(`laptop_description_${itemId}`).value = description;
+    document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
+    document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
+    document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
+
+    const stockInfo = document.getElementById(`stock_info_${itemId}`);
+    if (stockInfo) {
+        stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
+    }
+}
+
+function selectLaptop(itemId, laptop) {
+    document.getElementById(`laptop_results_${itemId}`).classList.add('hidden');
+
+    let description = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+    const specs = [];
+    if (laptop.processor) specs.push(laptop.processor);
+    if (laptop.ram) specs.push(laptop.ram);
+    if (laptop.storage) specs.push(laptop.storage);
+    if (specs.length > 0) description += ' - ' + specs.join(' • ');
+
+    updateLaptopItemDisplay(itemId, laptop, description);
+
+    // Cargar selector de seriales
+    loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
+
+    calculateTotals();
+}
+
+function loadSerialSelector(itemId, laptopId, availableQty) {
+    // Crear contenedor si no existe
+    let selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+    if (!selectorContainer) {
+        const itemContainer = document.getElementById(`item_${itemId}`);
+        const serialHtml = `
+            <div id="serial_selector_${itemId}" class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-300 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                        </svg>
+                        Seleccionar Serial
+                    </h4>
+                    <span id="serial_count_${itemId}" class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
+                        Cargando...
+                    </span>
+                </div>
+                <div id="serial_list_${itemId}" class="space-y-2">
+                    <div class="animate-pulse flex space-x-2">
+                        <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded w-full"></div>
+                    </div>
+                </div>
+                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
+            </div>
+        `;
+        itemContainer.insertAdjacentHTML('beforeend', serialHtml);
+        selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+    }
+
+    // Cargar seriales disponibles
+    fetch(`/api/serials/laptop/${laptopId}/available`)
+        .then(response => response.json())
+        .then(data => {
+            const listContainer = document.getElementById(`serial_list_${itemId}`);
+            const countBadge = document.getElementById(`serial_count_${itemId}`);
+
+            if (data.success && data.serials && data.serials.length > 0) {
+                countBadge.textContent = `${data.serials.length} disponibles`;
+
+                listContainer.innerHTML = data.serials.map(serial => `
+                    <label class="flex items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-purple-400 transition-colors">
+                        <input type="checkbox"
+                               name="serial_${itemId}[]"
+                               value="${serial.id}"
+                               data-serial-number="${serial.serial_number}"
+                               onchange="updateSelectedSerials('${itemId}')"
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <span class="ml-3 font-mono text-sm text-gray-900 dark:text-white">${serial.serial_number}</span>
+                    </label>
+                `).join('');
+            } else {
+                countBadge.textContent = 'Sin seriales';
+                listContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">No hay seriales registrados para este producto</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando seriales:', error);
+            document.getElementById(`serial_list_${itemId}`).innerHTML = '<p class="text-sm text-red-500 text-center py-2">Error al cargar seriales</p>';
+        });
+}
+
+function updateSelectedSerials(itemId) {
+    const checkboxes = document.querySelectorAll(`input[name="serial_${itemId}[]"]:checked`);
+    const selectedIds = Array.from(checkboxes).map(cb => ({
+        id: parseInt(cb.value),
+        serial_number: cb.dataset.serialNumber
+    }));
+
+    document.getElementById(`selected_serials_${itemId}`).value = JSON.stringify(selectedIds);
+
+    // Actualizar cantidad automáticamente
+    const qtyInput = document.getElementById(`qty_${itemId}`);
+    if (qtyInput && selectedIds.length > 0) {
+        qtyInput.value = selectedIds.length;
+        calculateTotals();
+    }
 }
 
 function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0) {
@@ -1189,172 +1384,12 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     setupLaptopSearch(itemId);
     calculateTotals();
 
+    // Si encontramos la laptop, llamar a selectLaptop para cargar seriales
+    if (hasLaptop && currentLaptop) {
+        selectLaptop(itemId, currentLaptop);
+    }
+
     return itemId;
-}
-
-function filterLaptops(searchTerm) {
-    const searchLower = searchTerm.toLowerCase().trim();
-    if (searchLower.length < 2) return [];
-
-    return laptops.filter(laptop => {
-        const brand = laptop.brand ? laptop.brand.toLowerCase() : '';
-        const model = laptop.model ? laptop.model.toLowerCase() : '';
-        const processor = laptop.processor ? laptop.processor.toLowerCase() : '';
-        const sku = laptop.sku ? laptop.sku.toLowerCase() : '';
-
-        return brand.includes(searchLower) ||
-               model.includes(searchLower) ||
-               processor.includes(searchLower) ||
-               sku.includes(searchLower);
-    }).slice(0, 10);
-}
-
-function displayLaptopResults(itemId, results, isRecent = false) {
-    const resultsContainer = document.getElementById(`laptop_results_list_${itemId}`);
-    const resultsDropdown = document.getElementById(`laptop_results_${itemId}`);
-
-    if (results.length === 0) {
-        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500">No se encontraron laptops</div>`;
-        resultsDropdown.classList.remove('hidden');
-        return;
-    }
-
-    resultsContainer.innerHTML = '';
-
-    if (isRecent) {
-        const title = document.createElement('div');
-        title.className = 'px-4 py-2 bg-gray-50 dark:bg-gray-700 text-xs font-semibold text-gray-500 uppercase';
-        title.textContent = 'Laptops recientes';
-        resultsContainer.appendChild(title);
-    }
-
-    results.forEach(laptop => {
-        const resultItem = document.createElement('div');
-        resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
-
-        const name = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
-
-        resultItem.innerHTML = `
-            <div class="font-medium text-gray-900 dark:text-white">${name}</div>
-            <div class="text-xs text-gray-500 mt-1">
-                ${laptop.processor || ''} • RD$ ${laptop.sale_price?.toLocaleString() || '0'} • ${laptop.quantity || 0} disponibles
-            </div>
-        `;
-
-        resultItem.addEventListener('click', () => selectLaptop(itemId, laptop));
-        resultsContainer.appendChild(resultItem);
-    });
-
-    resultsDropdown.classList.remove('hidden');
-}
-
-function selectLaptop(itemId, laptop) {
-    document.getElementById(`laptop_results_${itemId}`).classList.add('hidden');
-
-    const laptopName = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
-
-    let description = laptopName;
-    const specs = [];
-    if (laptop.processor) specs.push(laptop.processor);
-    if (laptop.ram) specs.push(laptop.ram);
-    if (laptop.storage) specs.push(laptop.storage);
-    if (specs.length > 0) description += ' - ' + specs.join(' • ');
-
-    document.getElementById(`laptop_search_${itemId}`).value = laptopName;
-    document.getElementById(`laptop_description_${itemId}`).value = description;
-    document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
-    document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
-    document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
-
-    const stockInfo = document.getElementById(`stock_info_${itemId}`);
-    if (stockInfo) {
-        stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
-    }
-
-    // ===== NUEVO: Cargar selector de seriales =====
-    loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
-
-    calculateTotals();
-}
-
-// ===== NUEVA FUNCIÓN: Cargar selector de seriales =====
-function loadSerialSelector(itemId, laptopId, availableQty) {
-    // Crear contenedor si no existe
-    let selectorContainer = document.getElementById(`serial_selector_${itemId}`);
-    if (!selectorContainer) {
-        const itemContainer = document.getElementById(`item_${itemId}`);
-        const serialHtml = `
-            <div id="serial_selector_${itemId}" class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-300 flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                        </svg>
-                        Seleccionar Serial
-                    </h4>
-                    <span id="serial_count_${itemId}" class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
-                        Cargando...
-                    </span>
-                </div>
-                <div id="serial_list_${itemId}" class="space-y-2">
-                    <div class="animate-pulse flex space-x-2">
-                        <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded w-full"></div>
-                    </div>
-                </div>
-                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
-            </div>
-        `;
-        itemContainer.insertAdjacentHTML('beforeend', serialHtml);
-        selectorContainer = document.getElementById(`serial_selector_${itemId}`);
-    }
-
-    // Cargar seriales disponibles
-    fetch(`/api/serials/laptop/${laptopId}/available`)
-        .then(response => response.json())
-        .then(data => {
-            const listContainer = document.getElementById(`serial_list_${itemId}`);
-            const countBadge = document.getElementById(`serial_count_${itemId}`);
-
-            if (data.success && data.serials && data.serials.length > 0) {
-                countBadge.textContent = `${data.serials.length} disponibles`;
-
-                listContainer.innerHTML = data.serials.map(serial => `
-                    <label class="flex items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-purple-400 transition-colors">
-                        <input type="checkbox"
-                               name="serial_${itemId}[]"
-                               value="${serial.id}"
-                               data-serial-number="${serial.serial_number}"
-                               onchange="updateSelectedSerials('${itemId}')"
-                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                        <span class="ml-3 font-mono text-sm text-gray-900 dark:text-white">${serial.serial_number}</span>
-                    </label>
-                `).join('');
-            } else {
-                countBadge.textContent = 'Sin seriales';
-                listContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">No hay seriales registrados para este producto</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error cargando seriales:', error);
-            document.getElementById(`serial_list_${itemId}`).innerHTML = '<p class="text-sm text-red-500 text-center py-2">Error al cargar seriales</p>';
-        });
-}
-
-function updateSelectedSerials(itemId) {
-    const checkboxes = document.querySelectorAll(`input[name="serial_${itemId}[]"]:checked`);
-    const selectedIds = Array.from(checkboxes).map(cb => ({
-        id: parseInt(cb.value),
-        serial_number: cb.dataset.serialNumber
-    }));
-
-    document.getElementById(`selected_serials_${itemId}`).value = JSON.stringify(selectedIds);
-
-    // Actualizar cantidad automáticamente
-    const qtyInput = document.getElementById(`qty_${itemId}`);
-    if (qtyInput && selectedIds.length > 0) {
-        qtyInput.value = selectedIds.length;
-        calculateTotals();
-    }
 }
 
 function setupLaptopSearch(itemId) {
@@ -1366,23 +1401,17 @@ function setupLaptopSearch(itemId) {
         }
     });
 
-    laptopSearch.addEventListener('input', function(e) {
+    const debouncedLaptopSearch = debounce(function(e) {
         const searchTerm = e.target.value;
-
-        if (laptopSearchTimeouts[itemId]) {
-            clearTimeout(laptopSearchTimeouts[itemId]);
-        }
-
         if (searchTerm.trim() === '') {
             displayLaptopResults(itemId, recentLaptops, true);
             return;
         }
+        const results = filterLaptops(searchTerm);
+        displayLaptopResults(itemId, results, false);
+    }, DEBOUNCE_DELAY);
 
-        laptopSearchTimeouts[itemId] = setTimeout(() => {
-            const results = filterLaptops(searchTerm);
-            displayLaptopResults(itemId, results, false);
-        }, 300);
-    });
+    laptopSearch.addEventListener('input', debouncedLaptopSearch);
 
     document.addEventListener('click', function(e) {
         const results = document.getElementById(`laptop_results_${itemId}`);
@@ -1438,6 +1467,65 @@ function loadCustomerFormForInvoice() {
     });
 }
 
+function validateCustomerForm() {
+    const idNumberInput = document.getElementById('id_number');
+    const firstNameInput = document.getElementById('first_name');
+    const lastNameInput = document.getElementById('last_name');
+    const companyNameInput = document.getElementById('company_name');
+    const emailInput = document.getElementById('email');
+    const phonePrimaryInput = document.getElementById('phone_primary');
+
+    let isValid = true;
+    let errorMessage = '';
+
+    // Validar número de identificación
+    const idDigits = idNumberInput.value.replace(/\D/g, '');
+    if (idDigits.length === 0) {
+        isValid = false;
+        errorMessage = 'El número de identificación es requerido.';
+    } else if (idDigits.length !== RNC_LENGTH && idDigits.length !== CEDULA_LENGTH) {
+        isValid = false;
+        errorMessage = `Debe tener ${RNC_LENGTH} (RNC) u ${CEDULA_LENGTH} (Cédula) dígitos.`;
+    }
+
+    // Validar campos según tipo de cliente
+    const customerType = document.getElementById('customer_type').value;
+    if (customerType === 'person') {
+        if (!firstNameInput.value.trim()) {
+            isValid = false;
+            errorMessage = 'El nombre es requerido para personas.';
+        } else if (!lastNameInput.value.trim()) {
+            isValid = false;
+            errorMessage = 'El apellido es requerido para personas.';
+        }
+    } else if (customerType === 'company') {
+        if (!companyNameInput.value.trim()) {
+            isValid = false;
+            errorMessage = 'El nombre de la empresa es requerido.';
+        }
+    }
+
+    // Validar email
+    if (!emailInput.value.trim()) {
+        isValid = false;
+        errorMessage = 'El correo electrónico es requerido.';
+    } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value.trim())) {
+            isValid = false;
+            errorMessage = 'Por favor ingrese un correo electrónico válido.';
+        }
+    }
+
+    // Validar teléfono
+    if (!phonePrimaryInput.value.trim()) {
+        isValid = false;
+        errorMessage = 'El teléfono principal es requerido.';
+    }
+
+    return { isValid, errorMessage };
+}
+
 function initializeCustomerFormForInvoice() {
     const customerForm = document.getElementById('customer-form');
     if (!customerForm) return;
@@ -1449,64 +1537,10 @@ function initializeCustomerFormForInvoice() {
     customerForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Validar formulario (usar la validación existente del formulario)
-        const idNumberInput = document.getElementById('id_number');
-        const firstNameInput = document.getElementById('first_name');
-        const lastNameInput = document.getElementById('last_name');
-        const companyNameInput = document.getElementById('company_name');
-        const emailInput = document.getElementById('email');
-        const phonePrimaryInput = document.getElementById('phone_primary');
-
-        let isValid = true;
-        let errorMessage = '';
-
-        // Validar número de identificación
-        const idDigits = idNumberInput.value.replace(/\D/g, '');
-        if (idDigits.length === 0) {
-            isValid = false;
-            errorMessage = 'El número de identificación es requerido.';
-        } else if (idDigits.length !== 11 && idDigits.length !== 9) {
-            isValid = false;
-            errorMessage = 'Debe tener 9 (RNC) u 11 (Cédula) dígitos.';
-        }
-
-        // Validar campos según tipo de cliente
-        const customerType = document.getElementById('customer_type').value;
-        if (customerType === 'person') {
-            if (!firstNameInput.value.trim()) {
-                isValid = false;
-                errorMessage = 'El nombre es requerido para personas.';
-            } else if (!lastNameInput.value.trim()) {
-                isValid = false;
-                errorMessage = 'El apellido es requerido para personas.';
-            }
-        } else if (customerType === 'company') {
-            if (!companyNameInput.value.trim()) {
-                isValid = false;
-                errorMessage = 'El nombre de la empresa es requerido.';
-            }
-        }
-
-        // Validar email
-        if (!emailInput.value.trim()) {
-            isValid = false;
-            errorMessage = 'El correo electrónico es requerido.';
-        } else {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailInput.value.trim())) {
-                isValid = false;
-                errorMessage = 'Por favor ingrese un correo electrónico válido.';
-            }
-        }
-
-        // Validar teléfono
-        if (!phonePrimaryInput.value.trim()) {
-            isValid = false;
-            errorMessage = 'El teléfono principal es requerido.';
-        }
-
-        if (!isValid) {
-            showNotification(errorMessage, 'error');
+        // Validar formulario
+        const validation = validateCustomerForm();
+        if (!validation.isValid) {
+            showNotification(validation.errorMessage, 'error');
             return;
         }
 
@@ -1583,6 +1617,78 @@ function initializeCustomerFormForInvoice() {
 }
 
 // ==========================================
+// FUNCIONES DE VALIDACIÓN DEL FORMULARIO DE FACTURA
+// ==========================================
+
+function validateInvoiceForm() {
+    const customerId = document.getElementById('customer_id').value;
+    if (!customerId) {
+        alert('Debes seleccionar un cliente para la factura');
+        document.getElementById('customer_search').focus();
+        return false;
+    }
+
+    // Validar NCF manual si está activo
+    if (useManualNcf && !isEdit) {
+        const manualSequence = document.getElementById('manual_ncf_sequence').value;
+        if (manualSequence.length !== NCF_SEQUENCE_LENGTH) {
+            alert(`El NCF manual debe tener exactamente ${NCF_SEQUENCE_LENGTH} dígitos en la secuencia`);
+            document.getElementById('manual_ncf_sequence').focus();
+            return false;
+        }
+        if (!manualNcfValid) {
+            alert('El NCF manual ingresado no es válido o ya está en uso. Por favor verifique.');
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function collectInvoiceItems() {
+    const items = [];
+    document.querySelectorAll('[id^="item_"]').forEach(item => {
+        const itemId = item.id.split('_')[1];
+        const type = document.getElementById(`type_${itemId}`).value;
+
+        let description = '';
+        if (type === 'laptop') {
+            const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
+            if (descContainer && !descContainer.classList.contains('hidden')) {
+                description = document.getElementById(`laptop_description_${itemId}`).value.trim();
+            } else {
+                description = document.getElementById(`laptop_search_${itemId}`).value.trim();
+            }
+        } else {
+            description = document.getElementById(`desc_${itemId}`).value.trim();
+        }
+
+        const quantity = parseInt(document.getElementById(`qty_${itemId}`).value) || 0;
+        const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
+
+        if (description && quantity > 0 && price >= 0) {
+            const itemData = {
+                type: type,
+                description: description,
+                quantity: quantity,
+                price: price
+            };
+
+            if (type === 'laptop') {
+                const laptopId = document.getElementById(`laptop_id_${itemId}`).value;
+                if (laptopId && laptopId.trim() !== '') {
+                    itemData.laptop_id = laptopId;
+                }
+            }
+
+            items.push(itemData);
+        }
+    });
+
+    return items;
+}
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
 
@@ -1629,23 +1735,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        customerSearch.addEventListener('input', function(e) {
+        const debouncedCustomerSearch = debounce(function(e) {
             const searchTerm = e.target.value;
-
-            if (customerSearchTimeout) {
-                clearTimeout(customerSearchTimeout);
-            }
-
             if (searchTerm.trim() === '') {
                 displayCustomerResults(recentCustomers, true);
                 return;
             }
+            const results = filterCustomers(searchTerm);
+            displayCustomerResults(results, false);
+        }, DEBOUNCE_DELAY);
 
-            customerSearchTimeout = setTimeout(() => {
-                const results = filterCustomers(searchTerm);
-                displayCustomerResults(results, false);
-            }, 300);
-        });
+        customerSearch.addEventListener('input', debouncedCustomerSearch);
 
         document.addEventListener('click', function(e) {
             const results = document.getElementById('customer_results');
@@ -1671,29 +1771,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== NUEVO: Cargar laptops seleccionadas desde el localStorage =====
+    // Cargar laptops seleccionadas desde el localStorage - REFACTORIZADO
     if (!isEdit) {
-        const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
-        selectedLaptops.forEach(laptop => {
-            // Buscar la laptop en la lista global por id
-            const laptopIdNum = Number(laptop.id);
-            const foundLaptop = laptops.find(l => l.id === laptopIdNum);
-            if (foundLaptop) {
-                addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
-            } else {
-                // Si no se encuentra, agregar con los datos del localStorage
-                const itemId = addLaptopItem(null, laptop.name, 1, laptop.price);
-                // Mostrar el contenedor de descripción y establecer la descripción técnica
-                const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
-                const descTextarea = document.getElementById(`laptop_description_${itemId}`);
-                if (descContainer && descTextarea) {
-                    descContainer.classList.remove('hidden');
-                    descTextarea.value = laptop.description;
+        try {
+            const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
+            console.log('Laptops seleccionadas desde localStorage:', selectedLaptops);
+
+            if (Array.isArray(selectedLaptops) && selectedLaptops.length > 0) {
+                for (const laptop of selectedLaptops) {
+                    try {
+                        if (laptop && laptop.id && laptop.name && laptop.price !== undefined) {
+                            console.log('Procesando laptop:', laptop);
+
+                            const laptopIdNum = Number(laptop.id);
+                            const foundLaptop = laptops.find(l => l.id === laptopIdNum);
+
+                            let itemId;
+                            if (foundLaptop) {
+                                // Si la laptop está en la lista global, usar la función normal
+                                itemId = addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
+                                // selectLaptop se llamará automáticamente desde addLaptopItem
+                            } else {
+                                // Si no está en la lista global, crear item manualmente
+                                itemId = addLaptopItem(laptop.id, laptop.description, 1, laptop.price);
+
+                                // Mostrar el contenedor de descripción y establecer la descripción técnica
+                                const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
+                                const descTextarea = document.getElementById(`laptop_description_${itemId}`);
+                                if (descContainer && descTextarea) {
+                                    descContainer.classList.remove('hidden');
+                                    descTextarea.value = laptop.description || laptop.name;
+                                }
+
+                                // Cargar seriales incluso si la laptop no está en la lista global
+                                if (laptop.id) {
+                                    loadSerialSelector(itemId, laptop.id, 0);
+                                }
+                            }
+                        }
+                    } catch (itemError) {
+                        console.error('Error procesando laptop individual:', itemError, laptop);
+                    }
                 }
+
+                // Calcular totales después de agregar todas las laptops
+                setTimeout(() => {
+                    calculateTotals();
+                }, 500);
             }
-        });
-        // Limpiar localStorage después de cargar
-        localStorage.removeItem('selectedLaptopsForInvoice');
+
+            // Limpiar localStorage SOLO después de procesar todas las laptops
+            localStorage.removeItem('selectedLaptopsForInvoice');
+            console.log('LocalStorage limpiado después de procesar laptops');
+        } catch (error) {
+            console.error('Error cargando laptops desde localStorage:', error);
+            // Asegurarse de limpiar el localStorage incluso si hay error
+            localStorage.removeItem('selectedLaptopsForInvoice');
+        }
     }
 
     // Cargar items existentes en modo edición
@@ -1725,67 +1859,13 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Validar cliente
-    const customerId = document.getElementById('customer_id').value;
-    if (!customerId) {
-        alert('Debes seleccionar un cliente para la factura');
-        document.getElementById('customer_search').focus();
+    // Validar formulario
+    if (!validateInvoiceForm()) {
         return;
     }
 
-    // Validar NCF manual si está activo
-    if (useManualNcf && !isEdit) {
-        const manualSequence = document.getElementById('manual_ncf_sequence').value;
-        if (manualSequence.length !== 8) {
-            alert('El NCF manual debe tener exactamente 8 dígitos en la secuencia');
-            document.getElementById('manual_ncf_sequence').focus();
-            return;
-        }
-        if (!manualNcfValid) {
-            alert('El NCF manual ingresado no es válido o ya está en uso. Por favor verifique.');
-            return;
-        }
-    }
-
     // Recopilar items
-    const items = [];
-    document.querySelectorAll('[id^="item_"]').forEach(item => {
-        const itemId = item.id.split('_')[1];
-        const type = document.getElementById(`type_${itemId}`).value;
-
-        let description = '';
-        if (type === 'laptop') {
-            const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
-            if (descContainer && !descContainer.classList.contains('hidden')) {
-                description = document.getElementById(`laptop_description_${itemId}`).value.trim();
-            } else {
-                description = document.getElementById(`laptop_search_${itemId}`).value.trim();
-            }
-        } else {
-            description = document.getElementById(`desc_${itemId}`).value.trim();
-        }
-
-        const quantity = parseInt(document.getElementById(`qty_${itemId}`).value) || 0;
-        const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
-
-        if (description && quantity > 0 && price >= 0) {
-            const itemData = {
-                type: type,
-                description: description,
-                quantity: quantity,
-                price: price
-            };
-
-            if (type === 'laptop') {
-                const laptopId = document.getElementById(`laptop_id_${itemId}`).value;
-                if (laptopId && laptopId.trim() !== '') {
-                    itemData.laptop_id = laptopId;
-                }
-            }
-
-            items.push(itemData);
-        }
-    });
+    const items = collectInvoiceItems();
 
     if (items.length === 0) {
         alert('Debes agregar al menos un item a la factura');
