@@ -1058,8 +1058,8 @@ function selectCustomer(customer) {
     infoDiv.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
-    // Sugerir tipo de NCF basado en el cliente
-    suggestNcfTypeForCustomer(customer);
+    // NO sugerir tipo de NCF basado en el cliente (según requisitos)
+    // suggestNcfTypeForCustomer(customer);
 }
 
 // ==========================================
@@ -1091,6 +1091,13 @@ function checkEmptyMsg() {
     }
 }
 
+function formatCurrency(amount) {
+    return amount.toLocaleString('es-DO', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 function calculateTotals() {
     let subtotal = 0;
     let totalItems = 0;
@@ -1120,9 +1127,9 @@ function calculateTotals() {
     const totalDisplay = document.getElementById('total_display');
     const itemsCountDisplay = document.getElementById('items_count_display');
 
-    if (subtotalDisplay) subtotalDisplay.textContent = `RD$ ${subtotal.toFixed(2)}`;
-    if (taxDisplay) taxDisplay.textContent = `RD$ ${tax.toFixed(2)}`;
-    if (totalDisplay) totalDisplay.textContent = `RD$ ${total.toFixed(2)}`;
+    if (subtotalDisplay) subtotalDisplay.textContent = `RD$ ${formatCurrency(subtotal)}`;
+    if (taxDisplay) taxDisplay.textContent = `RD$ ${formatCurrency(tax)}`;
+    if (totalDisplay) totalDisplay.textContent = `RD$ ${formatCurrency(total)}`;
     if (itemsCountDisplay) itemsCountDisplay.textContent = `${totalItems} item(s)`;
 }
 
@@ -1229,7 +1236,7 @@ function displayLaptopResults(itemId, results, isRecent = false) {
         resultItem.innerHTML = `
             <div class="font-medium text-gray-900 dark:text-white">${name}</div>
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ${laptop.processor || ''} • RD$ ${laptop.sale_price?.toLocaleString() || '0'} • ${laptop.quantity || 0} disponibles
+                ${laptop.processor || ''} • RD$ ${formatCurrency(laptop.sale_price || 0)} • ${laptop.quantity || 0} disponibles
             </div>
         `;
 
@@ -2017,6 +2024,11 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
     {% endfor %}
     {% endif %}
+
+    // Si no estamos en modo edición y no hay items, agregar un item de laptop vacío para precargar el buscador
+    if (!isEdit && document.getElementById('items_container').children.length === 0) {
+        addLaptopItem(null, '', 1, 0);
+    }
 
     // Si hay cliente en edición, mostrar sección NCF
     {% if invoice and invoice.customer_id %}
