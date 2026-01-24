@@ -1257,17 +1257,32 @@ function updateLaptopItemDisplay(itemId, laptop, description) {
 function selectLaptop(itemId, laptop) {
     document.getElementById(`laptop_results_${itemId}`).classList.add('hidden');
 
-    let description = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+    // Nombre para el campo de búsqueda (solo marca y modelo)
+    let laptopName = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+
+    // Especificaciones técnicas para el campo de descripción
     const specs = [];
     if (laptop.processor) specs.push(laptop.processor);
     if (laptop.ram) specs.push(laptop.ram);
+    if (laptop.graphics_card) specs.push(laptop.graphics_card);
     if (laptop.storage) specs.push(laptop.storage);
-    if (specs.length > 0) description += ' - ' + specs.join(' • ');
+    if (laptop.screen) specs.push(laptop.screen);
+    if (laptop.condition) specs.push(laptop.condition === 'new' ? 'Nuevo' : (laptop.condition === 'used' ? 'Usado' : laptop.condition));
+    let specsString = specs.join(' • ');
 
-    // Actualizar todos los campos
-    document.getElementById(`laptop_search_${itemId}`).value = description;
-    document.getElementById(`laptop_description_${itemId}`).value = description;
-    document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
+    // Actualizar campo de búsqueda con solo nombre
+    document.getElementById(`laptop_search_${itemId}`).value = laptopName;
+
+    // Actualizar campo de descripción con especificaciones técnicas
+    document.getElementById(`laptop_description_${itemId}`).value = specsString;
+
+    // Mostrar contenedor de descripción si hay especificaciones
+    if (specsString.trim() !== '') {
+        document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
+    } else {
+        document.getElementById(`laptop_description_container_${itemId}`).classList.add('hidden');
+    }
+
     document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
     document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
 
