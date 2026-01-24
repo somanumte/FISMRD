@@ -1,112 +1,96 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full" data-theme="auto">
+<html lang="es" class="scroll-smooth" data-theme="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="LuxeraRD - Sistema de gestión de inventario de laptops empresarial">
+    <meta name="description" content="{% block meta_description %}LuxeraRD - Sistema profesional de gestión de inventario de laptops empresarial{% endblock %}">
     <meta name="keywords" content="inventario, laptops, gestión, empresarial, LuxeraRD">
     <meta name="author" content="LuxeraRD">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="LuxeraRD - Sistema de Gestión de Inventario">
-    <meta property="og:description" content="Sistema profesional de gestión de inventario de laptops">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}LuxeraRD | Sistema de Gestión de Inventario{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Sistema profesional de gestión de inventario de laptops empresarial{% endblock %}">
     <meta property="og:type" content="website">
 
     <title>{% block title %}LuxeraRD | Sistema de Gestión de Inventario{% endblock %}</title>
 
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
-    <!-- Tailwind CSS with optimized config -->
+    <!-- Fonts - Outfit y Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        'sans': ['Outfit', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+                        'heading': ['Space Grotesk', 'system-ui', 'sans-serif'],
+                    },
                     colors: {
                         'luxera': {
-                            'primary': '#6366f1',
-                            'primary-dark': '#4f46e5',
-                            'dark': '#0f172a',
-                            'light': '#f8fafc',
+                            'primary': '#7c3aed',
+                            'primary-dark': '#6d28d9',
+                            'primary-light': '#a78bfa',
                             'accent': '#8b5cf6',
                             'secondary': '#06b6d4',
                             'success': '#10b981',
                             'warning': '#f59e0b',
                             'error': '#ef4444',
-                            'info': '#3b82f6'
+                            'info': '#3b82f6',
+                            'dark': '#0f172a',
+                            'light': '#f8fafc'
                         }
                     },
                     spacing: {
-                        'sidebar': '16rem',
-                        'sidebar-mobile': '20rem'
+                        '18': '4.5rem',
+                        '88': '22rem',
+                        '100': '25rem',
+                        '128': '32rem',
                     },
-                    transitionProperty: {
-                        'theme': 'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
-                    },
-                    transitionDuration: {
-                        'theme': '300ms',
+                    maxWidth: {
+                        '8xl': '88rem',
+                        '9xl': '96rem',
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                        'slide-in-right': 'slideInRight 0.25s ease-out',
-                        'slide-in-left': 'slideInLeft 0.25s ease-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'pulse-subtle': 'pulseSubtle 3s ease-in-out infinite',
-                        'theme-transition': 'themeTransition 0.3s ease-in-out',
-                        'float': 'float 8s ease-in-out infinite',
-                        'gradient-shift': 'gradientShift 3s ease infinite alternate',
-                        'spin-slow': 'spin 3s linear infinite',
-                        'bounce-gentle': 'bounceGentle 2s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                        'ripple': 'ripple 0.6s linear',
                     },
                     keyframes: {
                         fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
                         },
-                        slideInRight: {
-                            '0%': { transform: 'translateX(20px)', opacity: '0' },
-                            '100%': { transform: 'translateX(0)', opacity: '1' },
-                        },
-                        slideInLeft: {
-                            '0%': { transform: 'translateX(-20px)', opacity: '0' },
-                            '100%': { transform: 'translateX(0)', opacity: '1' },
-                        },
                         slideUp: {
-                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
                             '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
                         },
                         pulseSubtle: {
                             '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.95' },
+                            '50%': { opacity: '0.8' },
                         },
-                        themeTransition: {
-                            '0%': { filter: 'brightness(1)' },
-                            '50%': { filter: 'brightness(1.02)' },
-                            '100%': { filter: 'brightness(1)' },
+                        fadeInUp: {
+                            'from': { opacity: '0', transform: 'translateY(40px)' },
+                            'to': { opacity: '1', transform: 'translateY(0)' },
                         },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-8px)' },
-                        },
-                        gradientShift: {
-                            '0%': { backgroundPosition: '0% 50%' },
-                            '100%': { backgroundPosition: '100% 50%' },
-                        },
-                        bounceGentle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
+                        ripple: {
+                            'to': { transform: 'scale(4)', opacity: '0' },
                         }
-                    },
-                    backdropBlur: {
-                        'xs': '2px',
-                    },
-                    boxShadow: {
-                        'luxera': '0 10px 40px rgba(99, 102, 241, 0.1)',
-                        'luxera-dark': '0 10px 40px rgba(0, 0, 0, 0.3)',
-                        'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
                     }
                 }
             },
@@ -117,362 +101,708 @@
     </script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <!-- Custom CSS -->
     <style>
-        /* Performance optimizations */
-        *, *::before, *::after {
-            box-sizing: border-box;
+        /* =========================================
+           PALETA DE COLORES CALIBRADA V2
+           ========================================= */
+        :root {
+            --font-body: 'Outfit', sans-serif;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: #a78bfa;
+
+            /* --- TEMA CLARO (Light) --- */
+            --bg-body: #f8fafc;
+            --bg-nav: rgba(255, 255, 255, 0.9);
+            --bg-footer: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border-subtle: #e2e8f0;
+            --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            --card-footer: #f1f5f9;
+
+            --surface-primary: #ffffff;
+            --surface-secondary: #f5f5f7;
+            --surface-tertiary: #fbfbfd;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --text-tertiary: #86868b;
+            --border-light: rgba(0, 0, 0, 0.1);
+            --border-medium: rgba(0, 0, 0, 0.16);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-full: 980px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- TEMA OSCURO (Dark) --- */
+        .dark {
+            --bg-body: #050505;
+            --bg-nav: rgba(20, 20, 20, 0.85);
+            --bg-footer: #0a0a0a;
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+            --border-subtle: #262626;
+            --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+            --card-footer: #171717;
+
+            --surface-primary: #0a0a0a;
+            --surface-secondary: #171717;
+            --surface-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1a6;
+            --text-tertiary: #6e6e73;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --border-medium: rgba(255, 255, 255, 0.16);
+        }
+
+        * {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* CSS Custom Properties for theming */
-        :root {
-            --luxera-primary: 99, 102, 241;
-            --luxera-primary-dark: 79, 70, 229;
-            --luxera-accent: 139, 92, 246;
-            --luxera-secondary: 6, 182, 212;
-            --luxera-surface-light: 255, 255, 255;
-            --luxera-surface-dark: 30, 41, 59;
-            --luxera-bg-light: 248, 250, 252;
-            --luxera-bg-dark: 15, 23, 42;
-            --luxera-text-light: 51, 65, 85;
-            --luxera-text-dark: 226, 232, 240;
-            --luxera-border-light: 226, 232, 240;
-            --luxera-border-dark: 51, 65, 85;
-
-            /* Spacing */
-            --sidebar-width: 16rem;
-            --header-height: 4rem;
-
-            /* Transitions */
-            --transition-theme: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-            /* Shadows */
-            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-
-            /* Border radius */
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-        }
-
-        .dark {
-            --luxera-primary: var(--luxera-primary-dark);
-            --luxera-surface: var(--luxera-surface-dark);
-            --luxera-bg: var(--luxera-bg-dark);
-            --luxera-text: var(--luxera-text-dark);
-            --luxera-border: var(--luxera-border-dark);
-            color-scheme: dark;
-        }
-
-        .light {
-            --luxera-surface: var(--luxera-surface-light);
-            --luxera-bg: var(--luxera-bg-light);
-            --luxera-text: var(--luxera-text-light);
-            --luxera-border: var(--luxera-border-light);
-            color-scheme: light;
-        }
-
-        /* Base styles */
-        html {
-            height: 100%;
-            scroll-behavior: smooth;
-            scroll-padding-top: 1rem;
+            box-sizing: border-box;
         }
 
         body {
-            min-height: 100%;
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background-color: rgb(var(--luxera-bg));
-            color: rgb(var(--luxera-text));
-            transition: var(--transition-theme);
+            font-family: var(--font-body);
+            color: var(--text-main);
+            background: var(--bg-body);
             overflow-x: hidden;
-            position: relative;
+            line-height: 1.5;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Subtle background pattern */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
+        h1, h2, h3, h4, h5, .font-heading {
+            font-family: var(--font-heading);
+        }
+
+        /* Accessibility - Skip to main content */
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                radial-gradient(circle at 15% 50%, rgba(var(--luxera-primary), 0.03) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(var(--luxera-accent), 0.03) 0%, transparent 25%);
-            z-index: -1;
-            opacity: 0.6;
-            transition: var(--transition-theme);
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            z-index: 9999;
+            transition: top var(--transition-fast);
         }
 
-        .dark body::before {
-            background-image:
-                radial-gradient(circle at 15% 50%, rgba(var(--luxera-primary), 0.05) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(var(--luxera-accent), 0.05) 0%, transparent 25%);
-            opacity: 0.4;
+        .skip-to-content:focus {
+            top: 10px;
+            outline: 3px solid var(--primary-light);
+            outline-offset: 2px;
         }
 
-        /* Layout */
-        .main-container {
-            display: flex;
-            min-height: 100vh;
-            position: relative;
+        /* Smooth scrolling with offset for fixed header */
+        html {
+            scroll-padding-top: 100px;
+            scroll-behavior: smooth;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: rgb(var(--luxera-surface));
-            border-right: 1px solid rgba(var(--luxera-border), 0.5);
-            display: flex;
-            flex-direction: column;
+        /* =========================================
+           NAVBAR FLOTANTE (ISLA) V2
+           ========================================= */
+        .nav-island {
             position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 50;
-            transform: translateX(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                        background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                        border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.02);
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            z-index: 1000;
+
+            background: var(--bg-nav);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+
+            border: 1px solid var(--border-subtle);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+
+            box-shadow: var(--shadow-nav);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .dark .sidebar {
-            box-shadow: 10px 0 25px rgba(0, 0, 0, 0.2);
+        .nav-island.scrolled {
+            top: 1rem;
+            padding: 0.5rem 1.25rem;
         }
 
-        .sidebar-hidden {
-            transform: translateX(-100%);
+        /* Enlaces Nav V2 */
+        .nav-link-v2 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-sub);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            text-decoration: none;
         }
 
-        /* Mobile sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: var(--sidebar-width);
-                transform: translateX(-100%);
-                backdrop-filter: blur(20px);
-                background: rgba(var(--luxera-surface), 0.95);
-            }
-
-            .sidebar.sidebar-visible {
-                transform: translateX(0);
-                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
-            }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 40;
-                backdrop-filter: blur(4px);
-                animation: fadeIn 0.2s ease-out;
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-            }
+        .nav-link-v2:hover {
+            color: var(--primary);
+            background-color: rgba(124, 58, 237, 0.08);
         }
 
-        /* Main content */
-        .content-area {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .nav-link-v2.active {
+            color: var(--primary);
+            background-color: rgba(124, 58, 237, 0.1);
         }
 
-        @media (max-width: 768px) {
-            .content-area {
-                margin-left: 0;
-                width: 100%;
-            }
+        .dark .nav-link-v2:hover {
+            background-color: rgba(124, 58, 237, 0.15);
+            color: #fff;
         }
 
-        /* Navigation */
-        .nav-link {
+        /* Botón Circular Acción */
+        .btn-icon-v2 {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 0.75rem;
-            border-radius: var(--radius-lg);
-            color: rgb(var(--luxera-text));
+            justify-content: center;
+            color: var(--text-main);
+            border: 1px solid transparent;
+            background: transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-icon-v2:hover {
+            background: var(--card-footer);
+            border-color: var(--border-subtle);
+        }
+
+        /* Typography - Enhanced style */
+        .hero-title {
+            font-size: clamp(2.75rem, 5.5vw, 5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.022em;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.018em;
+            margin-bottom: 1rem;
+        }
+
+        .subsection-title {
+            font-size: clamp(1.5rem, 3vw, 2.25rem);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.012em;
+        }
+
+        .subtitle {
+            font-size: clamp(1.125rem, 2.25vw, 1.75rem);
+            font-weight: 400;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .body-large {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons - Enhanced V2 style */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.875rem 2rem;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--radius-full);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
             text-decoration: none;
-            transition: var(--transition-smooth);
             position: relative;
             overflow: hidden;
         }
 
-        .nav-link:not(.active):hover {
-            background: rgba(var(--luxera-primary), 0.08);
-            color: rgb(var(--luxera-primary));
-            transform: translateX(4px);
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
         }
 
-        .nav-link.active {
-            background: linear-gradient(135deg,
-                rgba(var(--luxera-primary), 0.15),
-                rgba(var(--luxera-accent), 0.1));
-            color: rgb(var(--luxera-primary));
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.875rem 2rem;
+            background: transparent;
+            color: var(--primary);
+            font-size: 1rem;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(var(--luxera-primary), 0.15);
+            border-radius: var(--radius-full);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
         }
 
-        .nav-link.active::before {
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        /* Product Cards - Enhanced interactions */
+        .product-card {
+            background: var(--surface-tertiary);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all var(--transition-base);
+            cursor: pointer;
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
+
+        .product-card::before {
             content: '';
             position: absolute;
+            top: 0;
             left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 60%;
-            background: linear-gradient(to bottom,
-                rgb(var(--luxera-primary)),
-                rgb(var(--luxera-accent)));
-            border-radius: 0 2px 2px 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            opacity: 0;
+            transition: opacity var(--transition-base);
         }
 
-        /* Logo */
-        .logo-text {
-            background: linear-gradient(135deg,
-                rgb(var(--luxera-primary)),
-                rgb(var(--luxera-accent)),
-                rgb(var(--luxera-secondary)));
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-image {
+            transition: transform var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Feature Icons - Enhanced design */
+        .feature-icon {
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--surface-secondary) 0%, var(--surface-primary) 100%);
+            border-radius: var(--radius-lg);
+            margin: 0 auto 1.5rem;
+            transition: all var(--transition-base);
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-card:hover .feature-icon::before {
+            opacity: 0.1;
+        }
+
+        .feature-icon i {
+            position: relative;
+            z-index: 1;
+            transition: color var(--transition-base);
+        }
+
+        .feature-card:hover .feature-icon i {
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        .staggered > * {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .staggered > *:nth-child(1) { animation-delay: 0.1s; }
+        .staggered > *:nth-child(2) { animation-delay: 0.2s; }
+        .staggered > *:nth-child(3) { animation-delay: 0.3s; }
+        .staggered > *:nth-child(4) { animation-delay: 0.4s; }
+        .staggered > *:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Spacing - Systematic approach */
+        .section-spacing {
+            padding: 6rem 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .section-spacing {
+                padding: 8rem 2rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .section-spacing {
+                padding: 10rem 3rem;
+            }
+        }
+
+        /* Container */
+        .container-custom {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .container-custom {
+                padding: 0 2rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .container-custom {
+                padding: 0 4rem;
+            }
+        }
+
+        /* Grid - Responsive and flexible */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .products-grid {
+                gap: 2.5rem;
+            }
+        }
+
+        /* Utility classes */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            background-size: 200% auto;
-            animation: gradientShift 3s ease infinite alternate;
         }
 
-        /* Enhanced Dark Mode Toggle - Icon Only */
-        .theme-toggle-btn {
-            width: 2.5rem;
-            height: 2.5rem;
+        .bg-gradient {
+            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+        }
+
+        /* Loading states */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--text-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all var(--transition-base);
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Focus states for accessibility */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid var(--primary-light);
+            outline-offset: 3px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Progress indicator */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            color: white;
             border-radius: 50%;
-            background: rgba(var(--luxera-primary), 0.1);
-            border: 1px solid rgba(var(--luxera-primary), 0.2);
-            cursor: pointer;
-            transition: var(--transition-bounce);
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgb(var(--luxera-primary));
-        }
-
-        .theme-toggle-btn:hover {
-            transform: scale(1.1) rotate(12deg);
-            background: rgba(var(--luxera-primary), 0.15);
-            box-shadow: 0 0 20px rgba(var(--luxera-primary), 0.2);
-        }
-
-        .theme-toggle-btn:active {
-            transform: scale(0.95);
-        }
-
-        .theme-toggle-btn i {
-            font-size: 1.1rem;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .theme-toggle-btn .fa-sun {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-        }
-
-        .theme-toggle-btn .fa-moon {
-            position: absolute;
-            opacity: 0;
-            transform: rotate(90deg) scale(0);
-        }
-
-        .dark .theme-toggle-btn {
-            background: rgba(var(--luxera-primary), 0.2);
-            border-color: rgba(var(--luxera-primary), 0.3);
-            color: rgb(var(--luxera-primary));
-        }
-
-        .dark .theme-toggle-btn:hover {
-            background: rgba(var(--luxera-primary), 0.25);
-            box-shadow: 0 0 25px rgba(var(--luxera-primary), 0.3);
-        }
-
-        .dark .theme-toggle-btn .fa-sun {
-            opacity: 0;
-            transform: rotate(-90deg) scale(0);
-        }
-
-        .dark .theme-toggle-btn .fa-moon {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-        }
-
-        /* Alternative compact toggle for mobile */
-        .theme-toggle-compact {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            background: rgba(var(--luxera-primary), 0.1);
-            border: 1px solid rgba(var(--luxera-primary), 0.2);
             cursor: pointer;
-            transition: var(--transition-smooth);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgb(var(--luxera-primary));
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all var(--transition-base);
+            z-index: 999;
+            box-shadow: var(--shadow-md);
+            border: none;
         }
 
-        .theme-toggle-compact:hover {
-            transform: scale(1.1);
-            background: rgba(var(--luxera-primary), 0.15);
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .dark .theme-toggle-compact {
-            background: rgba(var(--luxera-primary), 0.2);
-            border-color: rgba(var(--luxera-primary), 0.3);
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px);
         }
 
-        .theme-toggle-compact i {
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        /* Mobile menu */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+            z-index: 998;
         }
 
-        /* Flash messages */
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 400px;
+            height: 100vh;
+            background: var(--bg-nav);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        /* Flash Messages (Adaptado) */
         .flash-message {
-            animation: slideUp 0.3s ease-out;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(var(--luxera-primary), 0.1);
-            box-shadow: var(--shadow-xl);
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--surface-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 1.5rem;
+            max-width: 400px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateX(150%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* User dropdown */
+        .flash-message.show {
+            transform: translateX(0);
+        }
+
+        .flash-message.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .flash-message.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .flash-message.warning {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .flash-message.info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* =========================================
+           FOOTER V2: GRID ESTRUCTURADO
+           ========================================= */
+        .footer-v2 {
+            background-color: var(--bg-footer);
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 5rem;
+            padding-bottom: 2rem;
+            transition: background-color 0.4s ease;
+        }
+
+        .footer-col-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .footer-link-v2 {
+            display: block;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            transition: transform 0.2s, color 0.2s;
+            text-decoration: none;
+        }
+
+        .footer-link-v2:hover {
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        /* Tarjeta Newsletter dentro del Footer */
+        .newsletter-card {
+            background-color: var(--card-footer);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Input Minimalista */
+        .input-v2 {
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .input-v2:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+        }
+
+        /* User dropdown (Adaptado) */
         .user-dropdown {
             position: absolute;
             right: 0;
             top: calc(100% + 0.5rem);
             width: 14rem;
-            background: rgb(var(--luxera-surface));
+            background: var(--surface-primary);
             border-radius: var(--radius-xl);
             box-shadow: var(--shadow-xl);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: var(--transition-bounce);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 100;
-            border: 1px solid rgba(var(--luxera-border), 0.5);
+            border: 1px solid var(--border-subtle);
             overflow: hidden;
         }
 
@@ -482,782 +812,739 @@
             transform: translateY(0);
         }
 
-        /* Cards */
-        .card {
-            background: rgb(var(--luxera-surface));
-            border: 1px solid rgba(var(--luxera-border), 0.5);
-            border-radius: var(--radius-xl);
-            padding: 1.5rem;
-            transition: var(--transition-smooth);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-            border-color: rgba(var(--luxera-primary), 0.3);
-        }
-
-        .dark .card:hover {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg,
-                rgb(var(--luxera-primary)),
-                rgb(var(--luxera-accent)));
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 12px rgba(var(--luxera-primary), 0.3);
-            border: none;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(var(--luxera-primary), 0.4);
-        }
-
-        .btn-primary:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Loading bar */
-        .theme-loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 2px;
-            background: linear-gradient(90deg,
-                rgb(var(--luxera-primary)),
-                rgb(var(--luxera-accent)));
-            z-index: 1000;
-            transition: width 0.3s ease;
-        }
-
-        /* Scrollbar */
-        .sidebar-content::-webkit-scrollbar,
-        .main-wrapper::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-track,
-        .main-wrapper::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb,
-        .main-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(var(--luxera-primary), 0.3);
-            border-radius: 3px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb:hover,
-        .main-wrapper::-webkit-scrollbar-thumb:hover {
-            background: rgba(var(--luxera-primary), 0.5);
-        }
-
-        /* Selection */
-        ::selection {
-            background: rgba(var(--luxera-primary), 0.2);
-            color: inherit;
-        }
-
-        /* Focus styles for accessibility */
-        :focus-visible {
-            outline: 2px solid rgb(var(--luxera-primary));
-            outline-offset: 2px;
-            border-radius: 2px;
-        }
-
         /* Print styles */
         @media print {
-            .sidebar,
-            .mobile-top-bar,
-            .flash-message,
-            footer {
+            .nav-island,
+            footer,
+            .btn-primary,
+            .btn-secondary,
+            .back-to-top {
                 display: none !important;
             }
 
-            .content-area {
-                margin-left: 0 !important;
+            body {
+                font-size: 12pt;
+                line-height: 1.4;
             }
+        }
+
+        /* Main content area */
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 2rem 0;
+        }
+
+        /* Cards para el dashboard */
+        .dashboard-card {
+            background: var(--surface-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            transition: all var(--transition-base);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="h-full">
-    <!-- Theme transition loading bar -->
-    <div id="theme-loading-bar" class="theme-loading-bar"></div>
+    <!-- Scroll progress indicator -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- Sidebar Overlay (Mobile) -->
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-content">Saltar al contenido principal</a>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar" aria-label="Navegación principal">
-            <div class="flex flex-col h-full">
-                <!-- Logo -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                    <!-- CAMBIADO: public.landing a main.dashboard -->
-                    <a href="{{ url_for('main.dashboard') }}" class="flex items-center space-x-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary rounded-lg p-1">
-                        <div class="w-12 h-12 bg-gradient-to-br from-luxera-primary to-luxera-accent rounded-xl flex items-center justify-center shadow-lg animate-float">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <span class="text-2xl font-bold logo-text">LuxeraRD</span>
+    <!-- ============================================
+         NAVBAR V2: "ISLA FLOTANTE"
+         ============================================ -->
+    <nav class="nav-island flex items-center justify-between" id="navbar">
+        <!-- Izquierda: Logo y Menú Desktop -->
+        <div class="flex items-center gap-8">
+            <!-- Logo Compacto -->
+            <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-2 group" aria-label="LuxeraRD - Sistema de Gestión">
+                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-md shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-laptop"></i>
+                </div>
+                <span class="font-heading font-bold text-xl tracking-tight text-[var(--text-main)]">
+                    Luxera<span class="text-gradient">RD</span>
+                </span>
+            </a>
+
+            <!-- Links Desktop (Menu principal) -->
+            <div class="hidden md:flex items-center gap-1">
+                {% if current_user.is_authenticated %}
+                    <!-- Dashboard -->
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-link-v2 {% if request.endpoint == 'main.dashboard' %}active{% endif %}" data-nav="dashboard">
+                        <i class="fa-solid fa-gauge mr-1"></i> Dashboard
                     </a>
 
-                    <!-- Close button (Mobile) -->
-                    <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary" aria-label="Cerrar menú">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
+                    <!-- Inventory -->
+                    <a href="{{ url_for('inventory.laptops_list') }}" class="nav-link-v2 {% if request.endpoint and 'inventory' in request.endpoint %}active{% endif %}" data-nav="inventory">
+                        <i class="fa-solid fa-laptop mr-1"></i> Inventario
+                    </a>
 
-                <!-- Theme Toggle for Desktop - Icon Only -->
-                <div class="px-6 py-4 hidden md:flex items-center justify-center">
-                    <button onclick="toggleDarkMode()" class="theme-toggle-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary"
-                            aria-label="Alternar modo oscuro/claro" title="Cambiar tema">
-                        <i class="fas fa-sun"></i>
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+                    <!-- Invoices -->
+                    <a href="{{ url_for('invoices.invoices_list') }}" class="nav-link-v2 {% if request.endpoint and 'invoices' in request.endpoint %}active{% endif %}" data-nav="invoices">
+                        <i class="fa-solid fa-file-invoice mr-1"></i> Facturas
+                    </a>
 
-                <!-- Navigation -->
-                <div class="sidebar-content flex-1 overflow-y-auto">
-                    <nav class="py-4" aria-label="Navegación de aplicación">
-                        {% if current_user.is_authenticated %}
-                        <div class="space-y-1">
-                            <!-- Dashboard -->
-                            <!-- CAMBIADO: public.landing a main.dashboard -->
-                            <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" aria-current="{% if request.endpoint == 'main.dashboard' %}page{% endif %}">
-                                <i class="fas fa-home w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Dashboard</span>
-                            </a>
+                    <!-- Customers -->
+                    <a href="{{ url_for('customers.customers_list') }}" class="nav-link-v2 {% if request.endpoint and 'customers' in request.endpoint %}active{% endif %}" data-nav="customers">
+                        <i class="fa-solid fa-users mr-1"></i> Clientes
+                    </a>
 
-                            <!-- Inventory -->
-                            <a href="{{ url_for('inventory.laptops_list') }}" class="nav-link {% if request.endpoint and 'inventory' in request.endpoint %}active{% endif %}">
-                                <i class="fas fa-laptop w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Inventario</span>
-                            </a>
+                    {% if current_user.is_admin %}
+                        <!-- Admin Panel -->
+                        <a href="{{ url_for('main.admin_panel') }}" class="nav-link-v2 {% if request.endpoint == 'main.admin_panel' %}active{% endif %}" data-nav="admin">
+                            <i class="fa-solid fa-sliders-h mr-1"></i> Administración
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <!-- Public links for non-authenticated users -->
+                    <a href="{{ url_for('main.dashboard') }}" class="nav-link-v2" data-nav="home">Inicio</a>
+                    <a href="{{ url_for('public.about') }}" class="nav-link-v2" data-nav="about">Acerca de</a>
+                    <a href="{{ url_for('public.contact') }}" class="nav-link-v2" data-nav="contact">Contacto</a>
+                {% endif %}
+            </div>
+        </div>
 
-                            <!-- Invoices -->
-                            <a href="{{ url_for('invoices.invoices_list') }}" class="nav-link {% if request.endpoint and 'invoices' in request.endpoint %}active{% endif %}">
-                                <i class="fas fa-file-invoice w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Facturas</span>
-                            </a>
+        <!-- Derecha: Acciones -->
+        <div class="flex items-center gap-3">
+            <!-- Buscador (Expandible visualmente) -->
+            <div class="hidden lg:flex items-center bg-[var(--card-footer)] rounded-full px-3 py-1.5 border border-[var(--border-subtle)] focus-within:border-purple-500 transition-colors">
+                <i class="fa-solid fa-search text-[var(--text-sub)] text-sm ml-1"></i>
+                <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-sm ml-2 w-32 text-[var(--text-main)] placeholder-[var(--text-sub)] focus:w-48 transition-all duration-300">
+            </div>
 
-                            <!-- Customers -->
-                            <a href="{{ url_for('customers.customers_list') }}" class="nav-link {% if request.endpoint and 'customers' in request.endpoint %}active{% endif %}">
-                                <i class="fas fa-users w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Clientes</span>
-                            </a>
+            <div class="h-6 w-px bg-[var(--border-subtle)] mx-1 hidden sm:block"></div>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="btn-icon-v2" title="Cambiar Tema" aria-label="Cambiar tema">
+                <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
+            </button>
+
+            {% if current_user.is_authenticated %}
+                <!-- User Menu (Authenticated) -->
+                <div class="relative group">
+                    <button class="btn-icon-v2" aria-label="Mi cuenta" onclick="toggleUserDropdown()">
+                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                            {{ current_user.username[0].upper() }}
                         </div>
-
-                        {% if current_user.is_admin %}
-                        <div class="mt-8">
-                            <div class="px-4 mb-2">
-                                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center">
-                                    <i class="fas fa-cog mr-2 text-luxera-primary" aria-hidden="true"></i>
-                                    Administración
-                                </p>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown" role="menu" aria-hidden="true">
+                        <div class="py-2">
+                            <div class="px-4 py-3 border-b border-[var(--border-subtle)]">
+                                <p class="text-sm font-semibold text-[var(--text-main)]">{{ current_user.username }}</p>
+                                <p class="text-xs text-[var(--text-sub)] truncate">{{ current_user.email }}</p>
                             </div>
-                            <div class="space-y-1">
-                                <!-- CORREGIDO: Ahora apunta correctamente al panel de administración -->
-                                <a href="{{ url_for('main.admin_panel') }}" class="nav-link {% if request.endpoint == 'main.admin_panel' %}active{% endif %}">
-                                    <i class="fas fa-sliders-h w-5 mr-3 text-center" aria-hidden="true"></i>
-                                    <span>Panel de Administración</span>
-                                </a>
-                                <a href="{{ url_for('main.admin_users') }}" class="nav-link {% if request.endpoint == 'main.admin_users' %}active{% endif %}">
-                                    <i class="fas fa-user-cog w-5 mr-3 text-center" aria-hidden="true"></i>
+                            <a href="#" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
+                                <i class="fas fa-user-circle mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
+                                <i class="fas fa-cog mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
+                                <span>Configuración</span>
+                            </a>
+                            {% if current_user.is_admin %}
+                                <div class="my-2 border-t border-[var(--border-subtle)]"></div>
+                                <a href="{{ url_for('main.admin_users') }}" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
+                                    <i class="fas fa-user-cog mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
                                     <span>Usuarios</span>
                                 </a>
-                            </div>
+                            {% endif %}
+                            <div class="my-2 border-t border-[var(--border-subtle)]"></div>
+                            <a href="{{ url_for('auth.logout') }}" class="flex items-center px-4 py-3 text-sm text-red-500 hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
+                                <i class="fas fa-sign-out-alt mr-3 w-4 text-center" aria-hidden="true"></i>
+                                <span>Cerrar Sesión</span>
+                            </a>
                         </div>
-                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- User Menu (Not Authenticated) -->
+                <div class="relative group">
+                    <button class="btn-icon-v2" aria-label="Mi cuenta">
+                        <i class="fa-solid fa-user text-sm"></i>
+                    </button>
+                    <div class="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-nav)] backdrop-blur-xl rounded-xl shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 border border-[var(--border-subtle)]">
+                        <a href="{{ url_for('auth.login') }}" class="block px-4 py-2 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="block px-4 py-2 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">
+                            <i class="fas fa-user-plus mr-2"></i> Crear Cuenta
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
 
-                        {% else %}
-                        <div class="space-y-1">
-                            <!-- CAMBIADO: public.landing a main.dashboard -->
-                            <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
-                                <i class="fas fa-home w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Inicio</span>
-                            </a>
-                            <a href="{{ url_for('public.about') }}" class="nav-link {% if request.endpoint == 'public.about' %}active{% endif %}">
-                                <i class="fas fa-info-circle w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Acerca de</span>
-                            </a>
-                            <a href="{{ url_for('public.contact') }}" class="nav-link {% if request.endpoint == 'public.contact' %}active{% endif %}">
-                                <i class="fas fa-envelope w-5 mr-3 text-center" aria-hidden="true"></i>
-                                <span>Contacto</span>
-                            </a>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden btn-icon-v2 ml-1" aria-label="Menú de navegación" aria-expanded="false">
+                <i class="fa-solid fa-bars" id="menu-icon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobile-overlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="flex items-center justify-between mb-8">
+            <span class="font-heading font-bold text-xl text-[var(--text-main)]">Menú</span>
+            <button id="close-mobile-menu" class="btn-icon-v2">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="space-y-2">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-gauge w-5 text-purple-500"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="{{ url_for('inventory.laptops_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-laptop w-5 text-purple-500"></i>
+                    <span class="font-medium">Inventario</span>
+                </a>
+                <a href="{{ url_for('invoices.invoices_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-file-invoice w-5 text-purple-500"></i>
+                    <span class="font-medium">Facturas</span>
+                </a>
+                <a href="{{ url_for('customers.customers_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-users w-5 text-purple-500"></i>
+                    <span class="font-medium">Clientes</span>
+                </a>
+                {% if current_user.is_admin %}
+                    <div class="pt-4 border-t border-[var(--border-subtle)]">
+                        <p class="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider px-4 mb-2">Administración</p>
+                        <a href="{{ url_for('main.admin_panel') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                            <i class="fa-solid fa-sliders-h w-5 text-purple-500"></i>
+                            <span class="font-medium">Panel de Admin</span>
+                        </a>
+                        <a href="{{ url_for('main.admin_users') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                            <i class="fa-solid fa-user-cog w-5 text-purple-500"></i>
+                            <span class="font-medium">Usuarios</span>
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-home w-5 text-purple-500"></i>
+                    <span class="font-medium">Inicio</span>
+                </a>
+                <a href="{{ url_for('public.about') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-info-circle w-5 text-purple-500"></i>
+                    <span class="font-medium">Acerca de</span>
+                </a>
+                <a href="{{ url_for('public.contact') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
+                    <i class="fa-solid fa-envelope w-5 text-purple-500"></i>
+                    <span class="font-medium">Contacto</span>
+                </a>
+            {% endif %}
+        </nav>
+
+        <div class="border-t border-[var(--border-subtle)] my-6"></div>
+
+        <div class="space-y-3">
+            {% if current_user.is_authenticated %}
+                <div class="px-4 py-3 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl">
+                    <p class="text-sm font-medium text-[var(--text-main)]">{{ current_user.username }}</p>
+                    <p class="text-xs text-[var(--text-sub)] truncate">{{ current_user.email }}</p>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">
+                    <i class="fa-solid fa-sign-in-alt"></i>
+                    <span>Iniciar Sesión</span>
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-purple-600 text-purple-600 font-medium hover:bg-purple-50 transition-colors">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Crear Cuenta</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-28" id="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="fixed top-24 right-6 z-50 space-y-2" role="alert" aria-live="polite" aria-atomic="true">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }} show animate-fade-in">
+                            <div class="flex-shrink-0">
+                                {% if category == 'success' %}
+                                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                                        <i class="fas fa-check text-green-600 dark:text-green-300" aria-hidden="true"></i>
+                                    </div>
+                                {% elif category == 'error' %}
+                                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                                        <i class="fas fa-times text-red-600 dark:text-red-300" aria-hidden="true"></i>
+                                    </div>
+                                {% elif category == 'warning' %}
+                                    <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
+                                        <i class="fas fa-exclamation text-yellow-600 dark:text-yellow-300" aria-hidden="true"></i>
+                                    </div>
+                                {% else %}
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                                        <i class="fas fa-info text-blue-600 dark:text-blue-300" aria-hidden="true"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-[var(--text-main)]">{{ message }}</p>
+                            </div>
+                            <button onclick="this.closest('.flash-message').classList.remove('show')" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors focus-visible:outline-none rounded-lg p-1" aria-label="Cerrar mensaje">
+                                <i class="fas fa-times w-4 h-4" aria-hidden="true"></i>
+                            </button>
                         </div>
-                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Main Content Block -->
+        <div class="container-custom main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- ============================================
+         FOOTER V2: GRID ESTRUCTURADO
+         ============================================ -->
+    <footer class="footer-v2">
+        <div class="container mx-auto px-6 lg:px-12">
+            <!-- Parte Superior: Grid Principal -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-16">
+                <!-- Columna 1: Navegación Rápida (Span 2) -->
+                <div class="lg:col-span-2">
+                    <span class="footer-col-title">Sistema</span>
+                    <nav class="flex flex-col">
+                        <a href="{{ url_for('main.dashboard') }}" class="footer-link-v2">Dashboard</a>
+                        <a href="{{ url_for('inventory.laptops_list') }}" class="footer-link-v2">Inventario</a>
+                        <a href="{{ url_for('invoices.invoices_list') }}" class="footer-link-v2">Facturas</a>
+                        <a href="{{ url_for('customers.customers_list') }}" class="footer-link-v2">Clientes</a>
                     </nav>
                 </div>
 
-                <!-- User/Auth Section -->
-                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                    {% if current_user.is_authenticated %}
-                    <div class="relative">
-                        <button onclick="toggleUserDropdown()" class="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary" aria-expanded="false" aria-haspopup="true" aria-label="Menú de usuario">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-luxera-primary to-luxera-accent flex items-center justify-center text-white font-semibold shadow-md">
-                                {{ current_user.username[0].upper() }}
-                            </div>
-                            <div class="flex-1 text-left min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ current_user.username }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ current_user.email }}</p>
-                            </div>
-                            <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" aria-hidden="true"></i>
-                        </button>
+                <!-- Columna 2: Empresa (Span 2) -->
+                <div class="lg:col-span-2">
+                    <span class="footer-col-title">Luxera</span>
+                    <nav class="flex flex-col">
+                        <a href="{{ url_for('public.about') }}" class="footer-link-v2">Historia</a>
+                        <a href="#" class="footer-link-v2">Blog</a>
+                        <a href="#" class="footer-link-v2">Carreras</a>
+                        <a href="{{ url_for('public.contact') }}" class="footer-link-v2">Contacto</a>
+                    </nav>
+                </div>
 
-                        <div id="user-dropdown" class="user-dropdown" role="menu" aria-hidden="true">
-                            <div class="py-2">
-                                <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" role="menuitem">
-                                    <i class="fas fa-user-circle mr-3 text-luxera-primary w-4 text-center" aria-hidden="true"></i>
-                                    <span>Mi Perfil</span>
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" role="menuitem">
-                                    <i class="fas fa-cog mr-3 text-luxera-primary w-4 text-center" aria-hidden="true"></i>
-                                    <span>Configuración</span>
-                                </a>
-                                <div class="my-2 border-t border-gray-200 dark:border-gray-700"></div>
-                                <a href="{{ url_for('auth.logout') }}" class="flex items-center px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" role="menuitem">
-                                    <i class="fas fa-sign-out-alt mr-3 w-4 text-center" aria-hidden="true"></i>
-                                    <span>Cerrar Sesión</span>
-                                </a>
-                            </div>
+                <!-- Columna 3: Soporte (Span 2) -->
+                <div class="lg:col-span-2">
+                    <span class="footer-col-title">Legal & Ayuda</span>
+                    <nav class="flex flex-col">
+                        <a href="#" class="footer-link-v2">Garantía</a>
+                        <a href="#" class="footer-link-v2">Envíos</a>
+                        <a href="#" class="footer-link-v2">Privacidad</a>
+                        <a href="#" class="footer-link-v2">Términos</a>
+                    </nav>
+                </div>
+
+                <!-- Columna 4: Newsletter Destacado (Span 6) -->
+                <div class="lg:col-span-6">
+                    <div class="newsletter-card flex flex-col justify-center h-full">
+                        <!-- Decoración Abstracta -->
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <div class="relative z-10">
+                            <h3 class="font-heading text-2xl font-bold text-[var(--text-main)] mb-2">
+                                ¿Necesitas ayuda?
+                            </h3>
+                            <p class="text-[var(--text-sub)] mb-6 text-sm max-w-md">
+                                Suscríbete para recibir notificaciones del sistema y actualizaciones importantes.
+                            </p>
+
+                            <form class="flex flex-col sm:flex-row gap-3">
+                                <input type="email" placeholder="tu@correo.com" class="input-v2 px-4 py-3 w-full text-sm">
+                                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-600/20 whitespace-nowrap">
+                                    Suscribirse
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    {% else %}
-                    <div class="space-y-3">
-                        <a href="{{ url_for('auth.login') }}" class="btn-primary block w-full text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
-                            <i class="fas fa-sign-in-alt mr-2" aria-hidden="true"></i>
-                            Iniciar Sesión
-                        </a>
-                        <a href="{{ url_for('auth.register') }}" class="block w-full text-center px-4 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary">
-                            <i class="fas fa-user-plus mr-2" aria-hidden="true"></i>
-                            Registrarse
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <div class="content-area">
-            <!-- Mobile Header -->
-            <header class="md:hidden mobile-top-bar px-4 py-3 flex items-center justify-between sticky top=0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
-                <button onclick="toggleSidebar()" class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary" aria-label="Abrir menú">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+            <!-- Separador -->
+            <div class="h-px w-full bg-[var(--border-subtle)] mb-8"></div>
 
-                <span class="text-xl font-bold logo-text">LuxeraRD</span>
-
-                <!-- Mobile Theme Toggle - Compact Icon -->
-                <button onclick="toggleDarkMode()" class="theme-toggle-compact focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary"
-                        aria-label="Alternar modo oscuro/claro" title="Cambiar tema">
-                    <i class="fas fa-sun"></i>
-                </button>
-            </header>
-
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm" role="alert" aria-live="polite" aria-atomic="true">
-                        {% for category, message in messages %}
-                            <div class="flash-message bg-white dark:bg-gray-800 rounded-xl shadow-xl border-l-4 {% if category == 'success' %}border-green-500{% elif category == 'error' %}border-red-500{% elif category == 'warning' %}border-yellow-500{% else %}border-blue-500{% endif %} p-4 flex items-start animate-slide-up">
-                                <div class="flex-shrink-0">
-                                    {% if category == 'success' %}
-                                        <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                                            <i class="fas fa-check text-green-600 dark:text-green-300" aria-hidden="true"></i>
-                                        </div>
-                                    {% elif category == 'error' %}
-                                        <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                                            <i class="fas fa-times text-red-600 dark:text-red-300" aria-hidden="true"></i>
-                                        </div>
-                                    {% elif category == 'warning' %}
-                                        <div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
-                                            <i class="fas fa-exclamation text-yellow-600 dark:text-yellow-300" aria-hidden="true"></i>
-                                        </div>
-                                    {% else %}
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                                            <i class="fas fa-info text-blue-600 dark:text-blue-300" aria-hidden="true"></i>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ message }}</p>
-                                </div>
-                                <button onclick="this.closest('.flash-message').remove()" class="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary rounded-lg p-1" aria-label="Cerrar mensaje">
-                                    <i class="fas fa-times w-4 h-4" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        {% endfor %}
+            <!-- Parte Inferior: Copyright & Social -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <!-- Logo & Copy -->
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 bg-[var(--text-main)] rounded-lg flex items-center justify-center text-[var(--bg-body)]">
+                        <i class="fa-solid fa-laptop-code text-xs"></i>
                     </div>
-                {% endif %}
-            {% endwith %}
-
-            <!-- Main Content -->
-            <main class="main-wrapper flex-1 overflow-y-auto">
-                <div class="p-4 md:p-6 max-w-7xl mx-auto w-full">
-                    {% block content %}{% endblock %}
+                    <span class="text-sm text-[var(--text-sub)]">
+                        © {{ now.year if now else '2026' }} LuxeraRD - Sistema de Gestión de Inventario
+                    </span>
                 </div>
 
-<!-- Footer -->
-<footer class="py-6 px-4 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                <i class="fas fa-copyright mr-1" aria-hidden="true"></i>
-                {{ now.year if now else '2025' }} LuxeraRD. Todos los derechos reservados.
-            </p>
-            <div class="flex flex-wrap gap-4 mt-4 md:mt-0 justify-center">
-                <a href="{{ url_for('public.about') }}" class="text-sm text-gray-500 hover:text-luxera-primary dark:text-gray-400 dark:hover:text-luxera-primary transition-colors flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary rounded px=2 py-1">
-                    <i class="fas fa-info-circle mr-1" aria-hidden="true"></i> Acerca de
-                </a>
-                <a href="{{ url_for('public.contact') }}" class="text-sm text-gray-500 hover:text-luxera-primary dark:text-gray-400 dark:hover:text-luxera-primary transition-colors flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary rounded px=2 py-1">
-                    <i class="fas fa-envelope mr-1" aria-hidden="true"></i> Contacto
-                </a>
-                <a href="#" class="text-sm text-gray-500 hover:text-luxera-primary dark:text-gray-400 dark:hover:text-luxera-primary transition-colors flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxera-primary rounded px=2 py-1">
-                    <i class="fas fa-shield-alt mr-1" aria-hidden="true"></i> Privacidad
-                </a>
+                <!-- Social Icons (Minimalistas) -->
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-facebook text-lg"></i>
+                    </a>
+                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-twitter text-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/fismrd" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-instagram text-lg"></i>
+                    </a>
+                    <a href="https://wa.me/1829823340" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
-            <p>Versión 1.0.0 • <span id="current-year">{{ now.year if now else '2025' }}</span></p>
-        </div>
-    </div>
-</footer>
-            </main>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="flex items-start">
+            <i class="fas fa-check-circle text-green-400 mt-0.5 mr-3"></i>
+            <div>
+                <p class="font-medium" id="toast-title">Notificación</p>
+                <p class="text-sm text-gray-300 mt-1" id="toast-message">Mensaje de notificación</p>
+            </div>
+            <button class="ml-auto text-gray-400 hover:text-white" id="toast-close" aria-label="Cerrar notificación">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     </div>
 
     <!-- JavaScript -->
     <script>
-        // Enhanced Theme Management
-        class ThemeManager {
-            constructor() {
-                this.theme = localStorage.getItem('theme') || 'auto';
-                this.systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                this.loadingBar = document.getElementById('theme-loading-bar');
-                this.init();
-            }
+        // ============================================
+        // THEME TOGGLE
+        // ============================================
+        const themeIcon = document.getElementById('theme-icon');
 
-            init() {
-                this.applyTheme();
-                this.setupListeners();
-                this.setupMobileToggle();
-            }
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.classList.contains('dark') ? 'dark' : 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
 
-            getPreferredTheme() {
-                if (this.theme === 'dark' || this.theme === 'light') {
-                    return this.theme;
-                }
-                return this.systemPrefersDark ? 'dark' : 'light';
-            }
-
-            applyTheme() {
-                const theme = this.getPreferredTheme();
-                const html = document.documentElement;
-
-                this.showLoadingBar();
-
-                requestAnimationFrame(() => {
-                    if (theme === 'dark') {
-                        html.classList.add('dark');
-                        html.classList.remove('light');
-                    } else {
-                        html.classList.add('light');
-                        html.classList.remove('dark');
-                    }
-
-                    html.setAttribute('data-theme', this.theme);
-
-                    // Update mobile toggle icon
-                    this.updateMobileToggleIcon();
-
-                    this.hideLoadingBar();
-                });
-            }
-
-            updateMobileToggleIcon() {
-                const mobileToggle = document.querySelector('.theme-toggle-compact i');
-                if (mobileToggle) {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    if (isDark) {
-                        mobileToggle.className = 'fas fa-moon';
-                    } else {
-                        mobileToggle.className = 'fas fa-sun';
-                    }
-                }
-            }
-
-            toggle() {
-                const current = this.getPreferredTheme();
-                this.theme = current === 'dark' ? 'light' : 'dark';
-                localStorage.setItem('theme', this.theme);
-                this.applyTheme();
-                this.animateToggle();
-            }
-
-            setAuto() {
-                this.theme = 'auto';
-                localStorage.setItem('theme', 'auto');
-                this.applyTheme();
-            }
-
-            showLoadingBar() {
-                if (this.loadingBar) {
-                    this.loadingBar.style.width = '100%';
-                }
-            }
-
-            hideLoadingBar() {
-                if (this.loadingBar) {
-                    setTimeout(() => {
-                        this.loadingBar.style.width = '0%';
-                    }, 300);
-                }
-            }
-
-            animateToggle() {
-                // Animate desktop toggle button
-                const desktopToggle = document.querySelector('.theme-toggle-btn');
-                if (desktopToggle) {
-                    desktopToggle.style.transform = 'scale(0.9) rotate(-30deg)';
-                    setTimeout(() => {
-                        desktopToggle.style.transform = '';
-                    }, 300);
-                }
-
-                // Animate mobile toggle button
-                const mobileToggle = document.querySelector('.theme-toggle-compact');
-                if (mobileToggle) {
-                    mobileToggle.style.transform = 'scale(0.9)';
-                    setTimeout(() => {
-                        mobileToggle.style.transform = '';
-                    }, 200);
-                }
-            }
-
-            setupListeners() {
-                // System theme change
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                    if (this.theme === 'auto') {
-                        this.applyTheme();
-                    }
-                });
-
-                // Add ripple effect to buttons
-                document.addEventListener('click', this.handleRippleEffect.bind(this));
-            }
-
-            setupMobileToggle() {
-                // Initialize mobile toggle icon
-                this.updateMobileToggleIcon();
-            }
-
-            handleRippleEffect(e) {
-                const btn = e.target.closest('.btn-primary');
-                if (btn && !btn.disabled) {
-                    const ripple = document.createElement('span');
-                    const rect = btn.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-
-                    ripple.style.cssText = `
-                        position: absolute;
-                        border-radius: 50%;
-                        background: rgba(255, 255, 255, 0.7);
-                        transform: scale(0);
-                        animation: ripple 0.6s linear;
-                        width: ${size}px;
-                        height: ${size}px;
-                        top: ${y}px;
-                        left: ${x}px;
-                        pointer-events: none;
-                    `;
-
-                    btn.style.position = 'relative';
-                    btn.style.overflow = 'hidden';
-                    btn.appendChild(ripple);
-
-                    setTimeout(() => ripple.remove(), 600);
-                }
+            if (next === 'dark') {
+                html.classList.add('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'light');
             }
         }
 
-        // UI Controller
-        class UIController {
-            constructor() {
-                this.sidebar = document.getElementById('sidebar');
-                this.overlay = document.getElementById('sidebar-overlay');
-                this.userDropdown = document.getElementById('user-dropdown');
-                this.init();
+        // Init Theme
+        const savedTheme = localStorage.getItem('theme') || 'auto';
+        if (savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+
+        // ============================================
+        // UI STATE & DOM ELEMENTS
+        // ============================================
+        const uiState = {
+            lastScroll: 0,
+            scrollDirection: 'down',
+            isMobileMenuOpen: false,
+            currentSection: 'dashboard'
+        };
+
+        const navbar = document.getElementById('navbar');
+        const scrollProgress = document.getElementById('scrollProgress');
+        const backToTop = document.getElementById('backToTop');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        const toastClose = document.getElementById('toast-close');
+        const navLinks = document.querySelectorAll('.nav-link-v2');
+        const userDropdown = document.getElementById('user-dropdown');
+
+        // ============================================
+        // SCROLL EFFECTS
+        // ============================================
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+
+            // Update scroll direction
+            uiState.scrollDirection = currentScroll > uiState.lastScroll ? 'down' : 'up';
+            uiState.lastScroll = currentScroll;
+
+            // Navbar scroll effect
+            if (currentScroll > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
 
-            init() {
-                this.setupEventListeners();
-                this.setupKeyboardShortcuts();
+            // Scroll progress
+            const scrollPercent = (currentScroll / (documentHeight - windowHeight)) * 100;
+            scrollProgress.style.width = scrollPercent + '%';
+
+            // Back to top button
+            if (currentScroll > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
             }
 
-            toggleSidebar() {
-                const isVisible = this.sidebar.classList.contains('sidebar-visible');
+            // Update active nav
+            updateActiveNav();
+        });
 
-                if (isVisible) {
-                    this.sidebar.classList.remove('sidebar-visible');
-                    this.overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                } else {
-                    this.sidebar.classList.add('sidebar-visible');
-                    this.overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
+        // Back to top click
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
 
-                // Update ARIA attributes
-                const toggleBtn = document.querySelector('[aria-label="Abrir menú"]');
-                if (toggleBtn) {
-                    toggleBtn.setAttribute('aria-expanded', !isVisible);
-                }
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        function toggleMobileMenu() {
+            uiState.isMobileMenuOpen = !uiState.isMobileMenuOpen;
+
+            if (uiState.isMobileMenuOpen) {
+                mobileMenu.classList.add('active');
+                mobileOverlay.classList.add('active');
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                menuIcon.classList.remove('fa-times');
+                menuIcon.classList.add('fa-bars');
+                document.body.style.overflow = '';
             }
+        }
 
-            toggleUserDropdown() {
-                const isActive = this.userDropdown.classList.contains('active');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (closeMobileMenuBtn) {
+            closeMobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        }
+
+        // Close mobile menu on link click
+        if (mobileMenu) {
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (uiState.isMobileMenuOpen) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+        }
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+        function showToast(title, message, type = 'success') {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            const icon = toast.querySelector('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle text-green-400 mt-0.5 mr-3' :
+                            type === 'error' ? 'fas fa-exclamation-circle text-red-400 mt-0.5 mr-3' :
+                            'fas fa-info-circle text-blue-400 mt-0.5 mr-3';
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        if (toastClose) {
+            toastClose.addEventListener('click', () => {
+                toast.classList.remove('show');
+            });
+        }
+
+        // ============================================
+        // USER DROPDOWN
+        // ============================================
+        function toggleUserDropdown() {
+            if (userDropdown) {
+                const isActive = userDropdown.classList.contains('active');
 
                 if (isActive) {
-                    this.userDropdown.classList.remove('active');
-                    this.userDropdown.setAttribute('aria-hidden', 'true');
+                    userDropdown.classList.remove('active');
+                    userDropdown.setAttribute('aria-hidden', 'true');
                 } else {
-                    // Close other dropdowns
-                    document.querySelectorAll('.user-dropdown.active').forEach(dropdown => {
-                        dropdown.classList.remove('active');
-                        dropdown.setAttribute('aria-hidden', 'true');
-                    });
-
-                    this.userDropdown.classList.add('active');
-                    this.userDropdown.setAttribute('aria-hidden', 'false');
-                }
-            }
-
-            closeAllDropdowns() {
-                document.querySelectorAll('.user-dropdown.active').forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                    dropdown.setAttribute('aria-hidden', 'true');
-                });
-
-                if (window.innerWidth < 768 && this.sidebar.classList.contains('sidebar-visible')) {
-                    this.toggleSidebar();
-                }
-            }
-
-            setupEventListeners() {
-                // Close dropdowns on outside click
-                document.addEventListener('click', (e) => {
-                    if (this.userDropdown && !this.userDropdown.contains(e.target) &&
-                        !e.target.closest('[aria-haspopup="true"]')) {
-                        this.userDropdown.classList.remove('active');
-                        this.userDropdown.setAttribute('aria-hidden', 'true');
-                    }
-
-                    if (this.overlay && e.target === this.overlay) {
-                        this.toggleSidebar();
-                    }
-                });
-
-                // Handle window resize
-                let resizeTimeout;
-                window.addEventListener('resize', () => {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(() => {
-                        if (window.innerWidth >= 768 && this.sidebar.classList.contains('sidebar-visible')) {
-                            this.toggleSidebar();
-                        }
-                    }, 250);
-                });
-
-                // Auto-hide flash messages
-                setTimeout(() => {
-                    document.querySelectorAll('.flash-message').forEach(message => {
-                        message.style.opacity = '0';
-                        message.style.transform = 'translateY(-10px)';
-                        setTimeout(() => message.remove(), 300);
-                    });
-                }, 5000);
-            }
-
-            setupKeyboardShortcuts() {
-                document.addEventListener('keydown', (e) => {
-                    // Ctrl/Cmd + B: Toggle sidebar
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-                        e.preventDefault();
-                        this.toggleSidebar();
-                    }
-
-                    // Ctrl/Cmd + D: Toggle dark mode
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                        e.preventDefault();
-                        themeManager.toggle();
-                    }
-
-                    // Ctrl/Cmd + T: Toggle dark mode (alternative)
-                    if ((e.ctrlKey || e.metaKey) && e.key === 't') {
-                        e.preventDefault();
-                        themeManager.toggle();
-                    }
-
-                    // Escape: Close all dropdowns
-                    if (e.key === 'Escape') {
-                        this.closeAllDropdowns();
-                    }
-
-                    // Tab: Handle focus trap in mobile sidebar
-                    if (e.key === 'Tab' && window.innerWidth < 768 &&
-                        this.sidebar.classList.contains('sidebar-visible')) {
-                        this.handleFocusTrap(e);
-                    }
-                });
-            }
-
-            handleFocusTrap(e) {
-                const focusableElements = this.sidebar.querySelectorAll(
-                    'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                );
-
-                if (focusableElements.length === 0) return;
-
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-
-                if (e.shiftKey) {
-                    if (document.activeElement === firstElement) {
-                        lastElement.focus();
-                        e.preventDefault();
-                    }
-                } else {
-                    if (document.activeElement === lastElement) {
-                        firstElement.focus();
-                        e.preventDefault();
-                    }
+                    userDropdown.classList.add('active');
+                    userDropdown.setAttribute('aria-hidden', 'false');
                 }
             }
         }
 
-        // Performance Optimizations
-        class PerformanceOptimizer {
-            static observeLazyLoad() {
-                if ('IntersectionObserver' in window) {
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const img = entry.target;
-                                if (img.dataset.src) {
-                                    img.src = img.dataset.src;
-                                    img.removeAttribute('data-src');
-                                }
-                                observer.unobserve(img);
-                            }
-                        });
-                    }, { rootMargin: '50px' });
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (userDropdown && !userDropdown.contains(e.target) &&
+                !e.target.closest('[onclick="toggleUserDropdown()"]')) {
+                userDropdown.classList.remove('active');
+                userDropdown.setAttribute('aria-hidden', 'true');
+            }
+        });
 
-                    document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
+        // ============================================
+        // ACTIVE NAV UPDATE
+        // ============================================
+        function updateActiveNav() {
+            const sections = {
+                dashboard: 0,
+                inventory: document.getElementById('inventory')?.offsetTop || 500,
+                invoices: document.getElementById('invoices')?.offsetTop || 1000,
+                customers: document.getElementById('customers')?.offsetTop || 1500,
+                admin: document.getElementById('admin')?.offsetTop || 2000
+            };
+
+            const currentScroll = window.pageYOffset + 150;
+
+            let current = 'dashboard';
+            for (const [section, offset] of Object.entries(sections)) {
+                if (currentScroll >= offset) {
+                    current = section;
                 }
             }
 
-            static debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
+            if (uiState.currentSection !== current) {
+                uiState.currentSection = current;
+
+                navLinks.forEach(link => {
+                    const nav = link.dataset.nav;
+                    if (nav === current) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
             }
         }
 
-        // Initialize application
+        // ============================================
+        // FLASH MESSAGES AUTO-HIDE
+        // ============================================
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(message => {
+                message.classList.remove('show');
+                setTimeout(() => message.remove(), 300);
+            });
+        }, 5000);
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Add ripple animation styles
-            if (!document.querySelector('#ripple-style')) {
-                const style = document.createElement('style');
-                style.id = 'ripple-style';
-                style.textContent = `
-                    @keyframes ripple {
-                        to {
-                            transform: scale(4);
-                            opacity: 0;
-                        }
+            updateActiveNav();
+
+            // Observe animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in-up');
+                        observer.unobserve(entry.target);
                     }
-                `;
-                document.head.appendChild(style);
-            }
+                });
+            }, observerOptions);
 
-            // Initialize managers
-            window.themeManager = new ThemeManager();
-            window.uiController = new UIController();
+            document.querySelectorAll('[data-animate]').forEach(el => {
+                observer.observe(el);
+            });
 
-            // Initialize performance optimizations
-            PerformanceOptimizer.observeLazyLoad();
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && uiState.isMobileMenuOpen) {
+                    toggleMobileMenu();
+                }
+
+                // Ctrl/Cmd + D: Toggle theme
+                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            });
+
+            // Enhanced smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href === '#') return;
+
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const navbarHeight = navbar.offsetHeight + 40;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        history.pushState(null, null, href);
+                    }
+                });
+            });
 
             // Update current year
-            document.getElementById('current-year').textContent = new Date().getFullYear();
-
-            // Add loading state
-            document.body.classList.add('loaded');
-
-            // Log initialization
-            console.log('LuxeraRD initialized successfully');
+            document.getElementById('current-year')?.textContent = new Date().getFullYear();
         });
 
         // Global functions for inline handlers
         function toggleDarkMode() {
-            themeManager.toggle();
+            toggleTheme();
         }
-
-        function toggleSidebar() {
-            uiController.toggleSidebar();
-        }
-
-        function toggleUserDropdown() {
-            uiController.toggleUserDropdown();
-        }
-
-        // Error handling
-        window.addEventListener('error', (e) => {
-            console.error('Application error:', e.error);
-        });
-
-        // Offline detection
-        window.addEventListener('online', () => {
-            console.log('Application is back online');
-        });
-
-        window.addEventListener('offline', () => {
-            console.warn('Application is offline');
-        });
     </script>
 
     {% block extra_js %}{% endblock %}
