@@ -557,6 +557,31 @@
 
                 <!-- COLUMNA DERECHA: Detalles y Totales -->
                 <div class="space-y-6">
+                    <!-- Panel de Totales -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Totales</h2>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                <span id="subtotal_display" class="text-lg font-bold text-gray-900 dark:text-white">RD$ 0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 dark:text-gray-400">ITBIS (18%):</span>
+                                <span id="tax_display" class="text-lg font-bold text-gray-900 dark:text-white">RD$ 0.00</span>
+                            </div>
+                            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400 text-lg font-semibold">Total:</span>
+                                    <span id="total_display" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">RD$ 0.00</span>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 text-center">
+                                <span id="items_count_display">0 item(s)</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Detalles</h2>
 
@@ -1068,19 +1093,37 @@ function checkEmptyMsg() {
 
 function calculateTotals() {
     let subtotal = 0;
+    let totalItems = 0;
+
     document.querySelectorAll('[id^="item_"]').forEach(item => {
         const itemId = item.id.split('_')[1];
         const quantity = parseFloat(document.getElementById(`qty_${itemId}`).value) || 0;
         const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
-        subtotal += quantity * price;
+        const itemTotal = quantity * price;
+
+        subtotal += itemTotal;
+        totalItems += quantity;
+
+        // Actualizar total del item
+        const totalInput = document.getElementById(`total_${itemId}`);
+        if (totalInput) {
+            totalInput.value = itemTotal.toFixed(2);
+        }
     });
 
     const tax = subtotal * TAX_RATE;
     const total = subtotal + tax;
 
-    document.getElementById('subtotal_display').textContent = `RD$ ${subtotal.toFixed(2)}`;
-    document.getElementById('tax_display').textContent = `RD$ ${tax.toFixed(2)}`;
-    document.getElementById('total_display').textContent = `RD$ ${total.toFixed(2)}`;
+    // Actualizar displays
+    const subtotalDisplay = document.getElementById('subtotal_display');
+    const taxDisplay = document.getElementById('tax_display');
+    const totalDisplay = document.getElementById('total_display');
+    const itemsCountDisplay = document.getElementById('items_count_display');
+
+    if (subtotalDisplay) subtotalDisplay.textContent = `RD$ ${subtotal.toFixed(2)}`;
+    if (taxDisplay) taxDisplay.textContent = `RD$ ${tax.toFixed(2)}`;
+    if (totalDisplay) totalDisplay.textContent = `RD$ ${total.toFixed(2)}`;
+    if (itemsCountDisplay) itemsCountDisplay.textContent = `${totalItems} item(s)`;
 }
 
 function removeItem(itemId) {
@@ -1125,9 +1168,13 @@ function addCustomItem(description = '', quantity = 1, price = 0) {
                         <input type="number" id="qty_${itemId}" value="${quantity}" min="1" onchange="calculateTotals()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio (RD$)</label>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Unitario (RD$)</label>
                         <input type="number" id="price_${itemId}" value="${price}" min="0" step="0.01" onchange="calculateTotals()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                     </div>
+                </div>
+                <div class="mt-3">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total (RD$)</label>
+                    <input type="text" id="total_${itemId}" readonly value="${(quantity * price).toFixed(2)}" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white bg-gray-50 dark:bg-gray-700">
                 </div>
             </div>
         </div>
@@ -1159,7 +1206,7 @@ function displayLaptopResults(itemId, results, isRecent = false) {
     const resultsDropdown = document.getElementById(`laptop_results_${itemId}`);
 
     if (results.length === 0) {
-        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500">No se encontraron laptops</div>`;
+        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No se encontraron laptops</div>`;
         resultsDropdown.classList.remove('hidden');
         return;
     }
@@ -1168,7 +1215,7 @@ function displayLaptopResults(itemId, results, isRecent = false) {
 
     if (isRecent) {
         const title = document.createElement('div');
-        title.className = 'px-4 py-2 bg-gray-50 dark:bg-gray-700 text-xs font-semibold text-gray-500 uppercase';
+        title.className = 'px-4 py-2 bg-gray-50 dark:bg-gray-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase';
         title.textContent = 'Laptops recientes';
         resultsContainer.appendChild(title);
     }
@@ -1181,7 +1228,7 @@ function displayLaptopResults(itemId, results, isRecent = false) {
 
         resultItem.innerHTML = `
             <div class="font-medium text-gray-900 dark:text-white">${name}</div>
-            <div class="text-xs text-gray-500 mt-1">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 ${laptop.processor || ''} • RD$ ${laptop.sale_price?.toLocaleString() || '0'} • ${laptop.quantity || 0} disponibles
             </div>
         `;
@@ -1217,7 +1264,23 @@ function selectLaptop(itemId, laptop) {
     if (laptop.storage) specs.push(laptop.storage);
     if (specs.length > 0) description += ' - ' + specs.join(' • ');
 
-    updateLaptopItemDisplay(itemId, laptop, description);
+    // Actualizar todos los campos
+    document.getElementById(`laptop_search_${itemId}`).value = description;
+    document.getElementById(`laptop_description_${itemId}`).value = description;
+    document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
+    document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
+    document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
+
+    // Actualizar stock info
+    const stockInfo = document.getElementById(`stock_info_${itemId}`);
+    if (stockInfo) {
+        stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
+    }
+
+    // Calcular total inicial
+    const qty = parseInt(document.getElementById(`qty_${itemId}`).value) || 1;
+    const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
+    document.getElementById(`total_${itemId}`).value = (qty * price).toFixed(2);
 
     // Cargar selector de seriales
     loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
@@ -1226,65 +1289,103 @@ function selectLaptop(itemId, laptop) {
 }
 
 function loadSerialSelector(itemId, laptopId, availableQty) {
-    // Crear contenedor si no existe
-    let selectorContainer = document.getElementById(`serial_selector_${itemId}`);
-    if (!selectorContainer) {
-        const itemContainer = document.getElementById(`item_${itemId}`);
-        const serialHtml = `
-            <div id="serial_selector_${itemId}" class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+    // Mostrar el contenedor de seriales
+    const selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+    if (selectorContainer) {
+        selectorContainer.classList.remove('hidden');
+
+        // Mostrar loading
+        selectorContainer.innerHTML = `
+            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-300 flex items-center">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
                         </svg>
-                        Seleccionar Serial
+                        Seleccionar Seriales
                     </h4>
-                    <span id="serial_count_${itemId}" class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
+                    <span class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
                         Cargando...
                     </span>
                 </div>
-                <div id="serial_list_${itemId}" class="space-y-2">
-                    <div class="animate-pulse flex space-x-2">
-                        <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded w-full"></div>
-                    </div>
+                <div class="animate-pulse">
+                    <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded mb-2"></div>
+                    <div class="h-8 bg-purple-200 dark:bg-purple-800 rounded"></div>
                 </div>
-                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
             </div>
         `;
-        itemContainer.insertAdjacentHTML('beforeend', serialHtml);
-        selectorContainer = document.getElementById(`serial_selector_${itemId}`);
+
+        // Cargar seriales disponibles
+        fetch(`/api/serials/laptop/${laptopId}/available`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.serials && data.serials.length > 0) {
+                    selectorContainer.innerHTML = `
+                        <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-300 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                    </svg>
+                                    Seleccionar Seriales (${data.serials.length} disponibles)
+                                </h4>
+                                <span class="text-xs px-2 py-1 bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full">
+                                    ${data.serials.length} disponibles
+                                </span>
+                            </div>
+                            <div class="max-h-48 overflow-y-auto space-y-2 pr-2">
+                                ${data.serials.map(serial => `
+                                    <label class="flex items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-purple-400 transition-colors">
+                                        <input type="checkbox"
+                                               name="serial_${itemId}[]"
+                                               value="${serial.id}"
+                                               data-serial-number="${serial.serial_number}"
+                                               onchange="updateSelectedSerials('${itemId}')"
+                                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                        <span class="ml-3 font-mono text-sm text-gray-900 dark:text-white">${serial.serial_number}</span>
+                                        ${serial.condition ? `<span class="ml-2 px-2 py-0.5 text-xs rounded ${serial.condition === 'new' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}">${serial.condition === 'new' ? 'Nuevo' : 'Usado'}</span>` : ''}
+                                    </label>
+                                `).join('')}
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800">
+                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                    <span id="selected_serials_count_${itemId}">0</span> serial(es) seleccionado(s)
+                                </p>
+                                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    selectorContainer.innerHTML = `
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                    No hay seriales registrados para este producto
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando seriales:', error);
+                selectorContainer.innerHTML = `
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <p class="text-sm text-red-700 dark:text-red-300">
+                                Error al cargar seriales
+                            </p>
+                        </div>
+                    </div>
+                `;
+            });
     }
-
-    // Cargar seriales disponibles
-    fetch(`/api/serials/laptop/${laptopId}/available`)
-        .then(response => response.json())
-        .then(data => {
-            const listContainer = document.getElementById(`serial_list_${itemId}`);
-            const countBadge = document.getElementById(`serial_count_${itemId}`);
-
-            if (data.success && data.serials && data.serials.length > 0) {
-                countBadge.textContent = `${data.serials.length} disponibles`;
-
-                listContainer.innerHTML = data.serials.map(serial => `
-                    <label class="flex items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-purple-400 transition-colors">
-                        <input type="checkbox"
-                               name="serial_${itemId}[]"
-                               value="${serial.id}"
-                               data-serial-number="${serial.serial_number}"
-                               onchange="updateSelectedSerials('${itemId}')"
-                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                        <span class="ml-3 font-mono text-sm text-gray-900 dark:text-white">${serial.serial_number}</span>
-                    </label>
-                `).join('');
-            } else {
-                countBadge.textContent = 'Sin seriales';
-                listContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">No hay seriales registrados para este producto</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error cargando seriales:', error);
-            document.getElementById(`serial_list_${itemId}`).innerHTML = '<p class="text-sm text-red-500 text-center py-2">Error al cargar seriales</p>';
-        });
 }
 
 function updateSelectedSerials(itemId) {
@@ -1294,7 +1395,17 @@ function updateSelectedSerials(itemId) {
         serial_number: cb.dataset.serialNumber
     }));
 
-    document.getElementById(`selected_serials_${itemId}`).value = JSON.stringify(selectedIds);
+    // Actualizar contador
+    const countElement = document.getElementById(`selected_serials_count_${itemId}`);
+    if (countElement) {
+        countElement.textContent = selectedIds.length;
+    }
+
+    // Guardar en campo oculto
+    const hiddenInput = document.getElementById(`selected_serials_${itemId}`);
+    if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(selectedIds);
+    }
 
     // Actualizar cantidad automáticamente
     const qtyInput = document.getElementById(`qty_${itemId}`);
@@ -1304,8 +1415,22 @@ function updateSelectedSerials(itemId) {
     }
 }
 
-// MODIFICACIÓN: Se agregó el parámetro forceLoadSerials para forzar la carga de seriales
-function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, forceLoadSerials = false) {
+function updateQuantityFromSerials(itemId) {
+    const serialSelector = document.getElementById(`serial_selector_${itemId}`);
+    if (serialSelector && !serialSelector.classList.contains('hidden')) {
+        const selectedCount = document.querySelectorAll(`input[name="serial_${itemId}[]"]:checked`).length;
+        const qtyInput = document.getElementById(`qty_${itemId}`);
+
+        if (selectedCount > 0 && parseInt(qtyInput.value) !== selectedCount) {
+            if (confirm(`Ya tienes ${selectedCount} serial(es) seleccionado(s). ¿Quieres actualizar la cantidad a ${selectedCount}?`)) {
+                qtyInput.value = selectedCount;
+                calculateTotals();
+            }
+        }
+    }
+}
+
+function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, fromLocalStorage = false) {
     hideEmptyMsg();
     const container = document.getElementById('items_container');
     const itemId = itemCounter++;
@@ -1316,6 +1441,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     let hasLaptop = false;
 
     if (laptopId && laptopId !== 'null' && laptopId !== '') {
+        // Buscar la laptop en la lista global
         currentLaptop = laptops.find(l => l.id === Number(laptopId));
         if (currentLaptop) {
             laptopIdValue = laptopId;
@@ -1329,12 +1455,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
         }
     }
 
-    // Si no se encontró la laptop, usar la descripción como nombre para la búsqueda
-    let searchName = laptopName;
-    if (!hasLaptop && description.trim() !== '') {
-        searchName = description;
-    }
-
+    // Crear el HTML del item (igual que cuando se busca)
     const itemDiv = document.createElement('div');
     itemDiv.className = 'bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4';
     itemDiv.id = `item_${itemId}`;
@@ -1360,25 +1481,55 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
                 <div class="mb-4">
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Buscar Laptop</label>
                     <div class="relative">
-                        <input type="text" id="laptop_search_${itemId}" value="${searchName}" placeholder="Busca por marca, modelo..." autocomplete="off" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <input type="text"
+                               id="laptop_search_${itemId}"
+                               value="${laptopName}"
+                               placeholder="Busca por marca, modelo..."
+                               autocomplete="off"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                         <div id="laptop_results_${itemId}" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             <div id="laptop_results_list_${itemId}" class="py-1"></div>
                         </div>
                     </div>
                 </div>
-                <div id="laptop_description_container_${itemId}" class="${hasLaptop ? '' : 'hidden'} mb-4">
+                <div id="laptop_description_container_${itemId}" class="${hasLaptop || fromLocalStorage ? '' : 'hidden'} mb-4">
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-                    <textarea id="laptop_description_${itemId}" rows="2" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-y">${description}</textarea>
+                    <textarea id="laptop_description_${itemId}"
+                              rows="2"
+                              class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-y">${description}</textarea>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
-                        <input type="number" id="qty_${itemId}" value="${quantity}" min="1" onchange="calculateTotals()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <input type="number"
+                               id="qty_${itemId}"
+                               value="${quantity}"
+                               min="1"
+                               onchange="calculateTotals(); updateQuantityFromSerials(${itemId})"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio (RD$)</label>
-                        <input type="number" id="price_${itemId}" value="${price}" min="0" step="0.01" onchange="calculateTotals()" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Unitario (RD$)</label>
+                        <input type="number"
+                               id="price_${itemId}"
+                               value="${price}"
+                               min="0"
+                               step="0.01"
+                               onchange="calculateTotals()"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                     </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total (RD$)</label>
+                        <input type="text"
+                               id="total_${itemId}"
+                               readonly
+                               value="${(quantity * price).toFixed(2)}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white bg-gray-50 dark:bg-gray-700">
+                    </div>
+                </div>
+                <!-- Selector de seriales (se mostrará si hay laptop seleccionada) -->
+                <div id="serial_selector_${itemId}" class="mt-4 ${hasLaptop || fromLocalStorage ? '' : 'hidden'}">
+                    <!-- Se cargará dinámicamente -->
                 </div>
             </div>
         </div>
@@ -1388,15 +1539,38 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
     setupLaptopSearch(itemId);
     calculateTotals();
 
-    // MODIFICACIÓN: Siempre cargar seriales si tenemos un laptopId
-    if (laptopId && laptopId !== 'null' && laptopId !== '') {
-        if (hasLaptop && currentLaptop) {
-            // Si la laptop está en la lista global, usar selectLaptop que también carga seriales
-            selectLaptop(itemId, currentLaptop);
-        } else if (forceLoadSerials) {
-            // Si forceLoadSerials es true (desde localStorage), cargar seriales directamente
-            loadSerialSelector(itemId, laptopId, 0);
+    // Si la laptop viene de localStorage, simular la selección completa
+    if (fromLocalStorage && laptopIdValue) {
+        // Actualizar la descripción si no está vacía
+        if (description.trim() !== '') {
+            document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
         }
+
+        // Cargar seriales si hay laptopId
+        if (laptopIdValue) {
+            // Hacer una petición para obtener los detalles de la laptop (incluyendo stock)
+            fetch(`/api/laptops/${laptopIdValue}/details`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.laptop) {
+                        const laptop = data.laptop;
+                        // Actualizar el stock info
+                        document.getElementById(`stock_info_${itemId}`).textContent =
+                            `${laptop.quantity || 0} disponibles`;
+
+                        // Cargar selector de seriales
+                        loadSerialSelector(itemId, laptopIdValue, laptop.quantity || 0);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando detalles de laptop:', error);
+                    // Intentar cargar seriales de todos modos
+                    loadSerialSelector(itemId, laptopIdValue, 0);
+                });
+        }
+    } else if (hasLaptop && currentLaptop) {
+        // Si se encontró en la lista global, seleccionarla completamente
+        selectLaptop(itemId, currentLaptop);
     }
 
     return itemId;
@@ -1788,37 +1962,32 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Laptops seleccionadas desde localStorage:', selectedLaptops);
 
             if (Array.isArray(selectedLaptops) && selectedLaptops.length > 0) {
-                for (const laptop of selectedLaptops) {
-                    try {
-                        if (laptop && laptop.id && laptop.name && laptop.price !== undefined) {
-                            console.log('Procesando laptop:', laptop);
+                selectedLaptops.forEach(laptop => {
+                    if (laptop && laptop.id && laptop.name && laptop.price !== undefined) {
+                        console.log('Procesando laptop desde localStorage:', laptop);
 
-                            // Siempre usar forceLoadSerials: true para laptops desde localStorage
-                            const itemId = addLaptopItem(
-                                laptop.id,
-                                laptop.description || laptop.name,
-                                1,
-                                laptop.price,
-                                true  // <-- Esto fuerza la carga de seriales
-                            );
-                        }
-                    } catch (itemError) {
-                        console.error('Error procesando laptop individual:', itemError, laptop);
+                        // Usar fromLocalStorage: true para diferenciar el origen
+                        const itemId = addLaptopItem(
+                            laptop.id,
+                            laptop.description || laptop.name,
+                            1, // Cantidad por defecto
+                            laptop.price,
+                            true // fromLocalStorage
+                        );
                     }
-                }
+                });
 
-                // Calcular totales después de agregar todas las laptops
+                // Calcular totales después de un breve delay
                 setTimeout(() => {
                     calculateTotals();
-                }, 500);
+                }, 300);
             }
 
-            // Limpiar localStorage SOLO después de procesar todas las laptops
+            // Limpiar localStorage
             localStorage.removeItem('selectedLaptopsForInvoice');
             console.log('LocalStorage limpiado después de procesar laptops');
         } catch (error) {
             console.error('Error cargando laptops desde localStorage:', error);
-            // Asegurarse de limpiar el localStorage incluso si hay error
             localStorage.removeItem('selectedLaptopsForInvoice');
         }
     }
