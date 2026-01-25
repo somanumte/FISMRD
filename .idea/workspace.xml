@@ -4,47 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="seriales">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/invoices.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/invoices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/serial_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/serial_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_1_20260122_163253.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_2_20260122_163254.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_3_20260122_163254.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_4_20260122_163254.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_5_20260122_163255.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/40/LX-20260122-0040_6_20260122_163257.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_1_20260123_133733.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_2_20260123_133734.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_3_20260123_133734.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_4_20260123_133735.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_5_20260123_133735.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/45/LX-20260123-0045_6_20260123_133739.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260123-0049_1_20260123_082120.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/49/LX-20260124-0001_1_20260124_195101.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_1_20260123_094424.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_2_20260123_094425.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_3_20260123_094425.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_4_20260123_094425.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_5_20260123_094426.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/50/LX-20260123-0050_6_20260123_094428.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_1_20260123_095952.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_2_20260123_095952.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_3_20260123_095953.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_4_20260123_095953.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_5_20260123_095953.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/51/LX-20260123-0051_6_20260123_095956.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/54/LX-20260123-0052_1_20260123_113625.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_1_20260122_163007.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_2_20260122_163009.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_3_20260122_163012.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_4_20260122_163014.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_5_20260122_163016.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_6_20260122_163017.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/static/uploads/laptops/59/LX-20260122-0050_7_20260122_163019.avif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/invoices/invoice_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/invoices/invoice_form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tree_simple.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tree_simple.txt" afterDir="false" />
-    </list>
+    <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="seriales" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -181,15 +141,7 @@
       <workItem from="1769253526430" duration="1763000" />
       <workItem from="1769255467206" duration="1572000" />
       <workItem from="1769263858058" duration="3433000" />
-      <workItem from="1769299087891" duration="28940000" />
-    </task>
-    <task id="LOCAL-00013" summary="0">
-      <option name="closed" value="true" />
-      <created>1768750637822</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1768750637822</updated>
+      <workItem from="1769299087891" duration="29474000" />
     </task>
     <task id="LOCAL-00014" summary="0">
       <option name="closed" value="true" />
@@ -575,7 +527,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769346569402</updated>
     </task>
-    <option name="localTasksCounter" value="62" />
+    <task id="LOCAL-00062" summary="seriales">
+      <option name="closed" value="true" />
+      <created>1769371831391</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1769371831391</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -599,7 +559,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769371570772" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769371632523" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$app.coverage" NAME="app Coverage Results" MODIFIED="1769222239684" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1769269288867" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

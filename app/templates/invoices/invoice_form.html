@@ -1287,6 +1287,8 @@ function updateLaptopFields(itemId, laptop) {
     const specsString = buildLaptopSpecsString(laptop);
     const descTextarea = document.getElementById(`laptop_description_${itemId}`);
     if (descTextarea) {
+        // Guardar descripción base en atributo data para referencia futura
+        descTextarea.dataset.baseDescription = specsString;
         descTextarea.value = specsString;
     }
 
@@ -1313,6 +1315,47 @@ function updateLaptopFields(itemId, laptop) {
     if (stockInfo) {
         stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
     }
+}
+
+// ==========================================
+// FUNCIÓN PARA ACTUALIZAR DESCRIPCIÓN CON SERIALES
+// ==========================================
+function updateDescriptionWithSerials(itemId) {
+    const descTextarea = document.getElementById(`laptop_description_${itemId}`);
+    if (!descTextarea) return;
+
+    // Obtener descripción base (guardada en data-base-description o sin seriales)
+    let baseDescription = descTextarea.dataset.baseDescription || descTextarea.value;
+
+    // Si no hay baseDescription guardada, intentar remover seriales de la descripción actual
+    if (!descTextarea.dataset.baseDescription) {
+        const serialSeparator = '\n\nSeriales:';
+        if (baseDescription.includes(serialSeparator)) {
+            baseDescription = baseDescription.split(serialSeparator)[0];
+            // Guardar para uso futuro
+            descTextarea.dataset.baseDescription = baseDescription;
+        }
+    }
+
+    // Obtener seriales seleccionados
+    const serialsInput = document.getElementById(`selected_serials_${itemId}`);
+    let finalDescription = baseDescription;
+
+    if (serialsInput && serialsInput.value) {
+        try {
+            const serials = JSON.parse(serialsInput.value);
+            if (serials && serials.length > 0) {
+                // Agregar seriales al final de la descripción
+                const serialNumbers = serials.map(s => s.serial_number).join(', ');
+                finalDescription = `${baseDescription}\n\nSeriales: ${serialNumbers}`;
+            }
+        } catch (e) {
+            console.error('Error parseando seriales:', e);
+        }
+    }
+
+    // Actualizar textarea
+    descTextarea.value = finalDescription;
 }
 
 function selectLaptop(itemId, laptop) {
@@ -1490,6 +1533,9 @@ function updateSelectedSerials(itemId) {
     if (selectedIds.length > 0) {
         showSerialBadge(itemId, selectedIds.map(s => s.serial_number));
     }
+
+    // Actualizar descripción con seriales
+    updateDescriptionWithSerials(itemId);
 }
 
 function updateQuantityFromSerials(itemId) {
@@ -1573,6 +1619,9 @@ async function searchBySerial(serialNumber, itemId) {
                 if (countElement) {
                     countElement.textContent = serials.length;
                 }
+
+                // Actualizar descripción con seriales
+                updateDescriptionWithSerials(itemId);
 
                 // Actualizar cantidad
                 const qtyInput = document.getElementById(`qty_${itemId}`);
