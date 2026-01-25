@@ -537,6 +537,16 @@
                                 Items de la Factura
                             </h2>
                             <div class="flex gap-3">
+                                <div class="relative flex-1">
+                                    <input type="text"
+                                           id="global_laptop_search"
+                                           placeholder="Buscar o escanear serial..."
+                                           autocomplete="off"
+                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                    <div id="global_laptop_results" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                        <div id="global_laptop_results_list" class="py-1"></div>
+                                    </div>
+                                </div>
                                 <button type="button" onclick="addLaptopItem()" class="px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium">
                                     + Agregar Laptop
                                 </button>
@@ -1452,6 +1462,397 @@ function updateQuantityFromSerials(itemId) {
     }
 }
 
+// ==========================================
+// FUNCIÓN PARA ENCONTRAR ITEM POR LAPTOP_ID
+// ==========================================
+
+function findItemByLaptopId(laptopId) {
+    const items = document.querySelectorAll('[id^="item_"]');
+    for (const item of items) {
+        const itemId = item.id.split('_')[1];
+        const itemLaptopId = document.getElementById(`laptop_id_${itemId}`)?.value;
+        if (itemLaptopId && itemLaptopId === laptopId.toString()) {
+            return itemId;
+        }
+    }
+    return null;
+}
+
+// ==========================================
+// FUNCIÓN GLOBAL PARA BUSCAR POR SERIAL
+// ==========================================
+
+async function globalSearchBySerial(serialNumber) {
+    const input = document.getElementById('global_laptop_search');
+    const originalPlaceholder = input.placeholder;
+
+    try {
+        // UI: Mostrar loading
+        input.placeholder = '🔍 Buscando serial...';
+        input.disabled = true;
+        input.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+
+        // API Call
+        const response = await fetch(
+            `/api/serials/search-for-invoice?serial=${encodeURIComponent(serialNumber)}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // CASO 1: Serial encontrado y disponible ✅
+        if (data.found && data.available_for_sale) {
+            console.log('✅ Serial disponible:', data);
+
+            // Buscar si ya existe un item con este laptop_id
+            const existingItemId = findItemByLaptopId(data.laptop.id);
+
+            if (existingItemId) {
+                // Si ya existe, incrementar cantidad y agregar serial
+                console.log('📦 Laptop ya existe en factura, incrementando cantidad...');
+
+                const qtyInput = document.getElementById(`qty_${existingItemId}`);
+                const currentQty = parseInt(qtyInput.value) || 0;
+                qtyInput.value = currentQty + 1;
+
+                // Agregar serial a la lista de seriales seleccionados
+                const serialInput = document.getElementById(`selected_serials_${existingItemId}`);
+                let serials = [];
+                if (serialInput && serialInput.value) {
+                    try {
+                        serials = JSON.parse(serialInput.value);
+                    } catch (e) {
+                        serials = [];
+                    }
+                }
+
+                // Agregar nuevo serial
+                serials.push({
+                    id: data.serial.id,
+                    serial_number: serialNumber
+                });
+
+                if (serialInput) {
+                    serialInput.value = JSON.stringify(serials);
+                }
+
+                // Actualizar contador de seriales
+                const countElement = document.getElementById(`selected_serials_count_${existingItemId}`);
+                if (countElement) {
+                    countElement.textContent = serials.length;
+                }
+
+                // Actualizar badge visual con múltiples seriales
+                showSerialBadge(existingItemId, serials.map(s => s.serial_number));
+
+                // Calcular totales
+                calculateTotals();
+
+                // Notificación de éxito
+                showNotification(
+                    `✅ ${data.laptop.display_name} - Cantidad incrementada a ${currentQty + 1} - Serial: ${serialNumber}`,
+                    'success'
+                );
+
+                playSuccessSound();
+
+            } else {
+                // Si no existe, crear nuevo item
+                console.log('🆕 Creando nuevo item para laptop...');
+
+                const itemId = addLaptopItem(
+                    data.laptop.id,
+                    data.laptop.display_name,
+                    1,
+                    data.laptop.sale_price,
+                    false
+                );
+
+                // Después de un breve delay, seleccionar el serial
+                setTimeout(() => {
+                    // Guardar serial_id en campo oculto
+                    let serialInput = document.getElementById(`serial_ids_${itemId}`);
+                    if (!serialInput) {
+                        serialInput = document.createElement('input');
+                        serialInput.type = 'hidden';
+                        serialInput.id = `serial_ids_${itemId}`;
+                        serialInput.name = `serial_ids_${itemId}`;
+                        document.getElementById(`item_${itemId}`).appendChild(serialInput);
+                    }
+                    serialInput.value = data.serial.id;
+
+                    // Mostrar badge visual
+                    showSerialBadge(itemId, [serialNumber]);
+
+                    // Calcular totales
+                    calculateTotals();
+                }, 300);
+
+                // Notificación de éxito
+                showNotification(
+                    `✅ ${data.laptop.display_name} agregado - Serial: ${serialNumber}`,
+                    'success'
+                );
+
+                playSuccessSound();
+            }
+
+            // Feedback visual positivo (verde)
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            input.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+
+            setTimeout(() => {
+                input.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+            }, 2000);
+
+        }
+
+        // CASO 2: Serial encontrado pero NO disponible ⚠️
+        else if (data.found && !data.available_for_sale) {
+            console.warn('⚠️ Serial no disponible:', data);
+
+            input.value = '';
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            input.classList.add('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+
+            setTimeout(() => {
+                input.classList.remove('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+            }, 3000);
+
+            showNotification(
+                `⚠️ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
+                'warning'
+            );
+
+            playErrorSound();
+        }
+
+        // CASO 3: Serial no encontrado - Fallback a búsqueda normal ❌
+        else {
+            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
+
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+
+            // Intentar búsqueda tradicional
+            handleGlobalSearch(serialNumber);
+
+            showNotification(
+                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
+                'info'
+            );
+        }
+
+    } catch (error) {
+        console.error('❌ Error buscando serial:', error);
+
+        input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+        input.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+
+        setTimeout(() => {
+            input.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+        }, 3000);
+
+        showNotification('❌ Error al buscar serial', 'error');
+        playErrorSound();
+
+    } finally {
+        input.disabled = false;
+        input.placeholder = originalPlaceholder;
+        input.value = '';
+    }
+}
+
+// ==========================================
+// FUNCIÓN PARA BÚSQUEDA GLOBAL (NO SERIAL)
+// ==========================================
+
+function handleGlobalSearch(searchTerm) {
+    const results = filterLaptops(searchTerm);
+    const resultsContainer = document.getElementById('global_laptop_results_list');
+    const resultsDropdown = document.getElementById('global_laptop_results');
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No se encontraron laptops</div>`;
+        resultsDropdown.classList.remove('hidden');
+        return;
+    }
+
+    resultsContainer.innerHTML = '';
+
+    results.forEach(laptop => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
+
+        const name = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+
+        resultItem.innerHTML = `
+            <div class="font-medium text-gray-900 dark:text-white">${name}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                ${laptop.processor || ''} • RD$ ${formatCurrency(laptop.sale_price || 0)} • ${laptop.quantity || 0} disponibles
+            </div>
+        `;
+
+        resultItem.addEventListener('click', () => {
+            // Crear nuevo item con esta laptop
+            addLaptopItem(laptop.id, name, 1, laptop.sale_price || 0);
+            resultsDropdown.classList.add('hidden');
+            document.getElementById('global_laptop_search').value = '';
+        });
+
+        resultsContainer.appendChild(resultItem);
+    });
+
+    resultsDropdown.classList.remove('hidden');
+}
+
+// ==========================================
+// BÚSQUEDA POR SERIAL (API) - MODIFICADA
+// ==========================================
+
+async function searchBySerial(serialNumber, itemId) {
+    // Si no se especifica itemId, usar la función global
+    if (!itemId) {
+        return globalSearchBySerial(serialNumber);
+    }
+
+    const input = document.getElementById(`laptop_search_${itemId}`);
+    const originalPlaceholder = input.placeholder;
+
+    try {
+        // UI: Mostrar loading
+        input.placeholder = '🔍 Buscando serial...';
+        input.disabled = true;
+        input.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+
+        // API Call
+        const response = await fetch(
+            `/api/serials/search-for-invoice?serial=${encodeURIComponent(serialNumber)}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // CASO 1: Serial encontrado y disponible ✅
+        if (data.found && data.available_for_sale) {
+            console.log('✅ Serial disponible:', data);
+
+            // Llenar datos del item
+            document.getElementById(`laptop_id_${itemId}`).value = data.laptop.id;
+            document.getElementById(`laptop_search_${itemId}`).value = data.laptop.display_name;
+
+            // Incrementar cantidad
+            const currentQty = parseInt(document.getElementById(`qty_${itemId}`).value) || 0;
+            document.getElementById(`qty_${itemId}`).value = currentQty + 1;
+
+            document.getElementById(`price_${itemId}`).value = data.laptop.sale_price;
+
+            // Ocultar el dropdown de búsqueda
+            const resultsDiv = document.getElementById(`laptop_results_${itemId}`);
+            if (resultsDiv) {
+                resultsDiv.classList.add('hidden');
+            }
+
+            // Guardar serial_id en campo oculto
+            let serialInput = document.getElementById(`serial_ids_${itemId}`);
+            if (!serialInput) {
+                serialInput = document.createElement('input');
+                serialInput.type = 'hidden';
+                serialInput.id = `serial_ids_${itemId}`;
+                serialInput.name = `serial_ids_${itemId}`;
+                document.getElementById(`item_${itemId}`).appendChild(serialInput);
+            }
+            serialInput.value = data.serial.id;
+
+            // Mostrar badge visual de serial escaneado
+            showSerialBadge(itemId, [serialNumber]);
+
+            // Feedback visual positivo (verde)
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            input.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+
+            setTimeout(() => {
+                input.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+            }, 2000);
+
+            // Calcular totales
+            calculateTotals();
+
+            // Auto-agregar nuevo item vacío para siguiente escaneo
+            setTimeout(() => {
+                addLaptopItem(null, '', 1, 0);
+            }, 300);
+
+            // Notificación de éxito
+            showNotification(
+                `✅ ${data.laptop.display_name} agregado - Serial: ${serialNumber}`,
+                'success'
+            );
+
+            // Efecto de sonido
+            playSuccessSound();
+        }
+
+        // CASO 2: Serial encontrado pero NO disponible ⚠️
+        else if (data.found && !data.available_for_sale) {
+            console.warn('⚠️ Serial no disponible:', data);
+
+            input.value = '';
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            input.classList.add('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+
+            setTimeout(() => {
+                input.classList.remove('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+            }, 3000);
+
+            showNotification(
+                `⚠️ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
+                'warning'
+            );
+
+            playErrorSound();
+        }
+
+        // CASO 3: Serial no encontrado - Fallback a búsqueda normal ❌
+        else {
+            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
+
+            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+
+            // Intentar búsqueda tradicional
+            const results = filterLaptops(serialNumber);
+            displayLaptopResults(itemId, results);
+
+            showNotification(
+                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
+                'info'
+            );
+        }
+
+    } catch (error) {
+        console.error('❌ Error buscando serial:', error);
+
+        input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+        input.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+
+        setTimeout(() => {
+            input.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+        }, 3000);
+
+        showNotification('❌ Error al buscar serial', 'error');
+        playErrorSound();
+
+    } finally {
+        input.disabled = false;
+        input.placeholder = originalPlaceholder;
+    }
+}
+
 function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, fromLocalStorage = false) {
     hideEmptyMsg();
     const container = document.getElementById('items_container');
@@ -1595,7 +1996,137 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
         selectLaptop(itemId, currentLaptop);
     }
 
+
+    // NUEVO: Configurar búsqueda inteligente
+    setTimeout(() => {
+        setupIntelligentLaptopSearch(itemId);
+    }, 100);
+
     return itemId;
+}
+
+// ==========================================
+// BADGE VISUAL DE SERIAL ESCANEADO - MODIFICADA
+// ==========================================
+
+function showSerialBadge(itemId, serialNumbers) {
+    const item = document.getElementById(`item_${itemId}`);
+    if (!item) return;
+
+    // Remover badge anterior si existe
+    const oldBadge = item.querySelector('.serial-badge');
+    if (oldBadge) oldBadge.remove();
+
+    if (!serialNumbers || serialNumbers.length === 0) return;
+
+    // Crear badge
+    const badge = document.createElement('div');
+    badge.className = 'serial-badge mt-2 inline-flex items-center px-3 py-1.5 text-sm font-medium text-green-800 bg-green-100 dark:bg-green-800 dark:text-green-100 rounded-full border border-green-200 dark:border-green-700';
+
+    if (serialNumbers.length === 1) {
+        badge.innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="font-mono font-semibold">${serialNumbers[0]}</span>
+            <span class="ml-2 text-xs opacity-75">Escaneado</span>
+        `;
+    } else {
+        badge.innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="font-semibold">${serialNumbers.length} seriales</span>
+            <span class="ml-2 text-xs opacity-75">${serialNumbers.slice(0, 2).join(', ')}${serialNumbers.length > 2 ? '...' : ''}</span>
+        `;
+    }
+
+    // Insertar después del input de búsqueda
+    const searchInput = document.getElementById(`laptop_search_${itemId}`);
+    if (searchInput && searchInput.parentElement) {
+        searchInput.parentElement.appendChild(badge);
+    }
+
+    // Animación de entrada
+    badge.style.opacity = '0';
+    badge.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+        badge.style.transition = 'all 0.3s ease-out';
+        badge.style.opacity = '1';
+        badge.style.transform = 'scale(1)';
+    }, 10);
+}
+
+// ==========================================
+// FEEDBACK AUDITIVO
+// ==========================================
+
+function playSuccessSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        console.log('Audio no soportado');
+    }
+}
+
+function playErrorSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 200;
+        oscillator.type = 'sawtooth';
+
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (e) {
+        console.log('Audio no soportado');
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const colors = {
+        'success': 'bg-green-500',
+        'error': 'bg-red-500',
+        'warning': 'bg-yellow-500',
+        'info': 'bg-blue-500'
+    };
+
+    const notification = document.createElement('div');
+    notification.className = `${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg fixed top-4 right-4 z-50`;
+    notification.style.whiteSpace = 'pre-line';
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.transition = 'opacity 0.3s ease-out';
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 function setupLaptopSearch(itemId) {
@@ -1631,6 +2162,74 @@ function setupLaptopSearch(itemId) {
     laptopSearch.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.getElementById(`laptop_results_${itemId}`).classList.add('hidden');
+        }
+    });
+}
+
+// ==========================================
+// SETUP DE INPUT INTELIGENTE DE BÚSQUEDA
+// ==========================================
+
+const SCANNER_CONFIG = {
+    minTimeBetweenKeys: 50,
+    minSerialLength: 5,
+    scanTimeout: 500
+};
+
+const scannerState = new Map();
+
+function setupIntelligentLaptopSearch(itemId) {
+    const input = document.getElementById(`laptop_search_${itemId}`);
+    if (!input) return;
+
+    scannerState.set(itemId, {
+        lastKeyTime: 0,
+        keyCount: 0,
+        isScanMode: false,
+        scanBuffer: ''
+    });
+
+    const state = scannerState.get(itemId);
+
+    input.addEventListener('keydown', function(e) {
+        const now = Date.now();
+        const timeDiff = now - state.lastKeyTime;
+
+        if (timeDiff > 0 && timeDiff < SCANNER_CONFIG.minTimeBetweenKeys) {
+            state.isScanMode = true;
+            state.keyCount++;
+        }
+
+        if (timeDiff > SCANNER_CONFIG.scanTimeout) {
+            state.keyCount = 0;
+            state.isScanMode = false;
+        }
+
+        state.lastKeyTime = now;
+
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            const value = input.value.trim();
+
+            if (state.isScanMode && value.length >= SCANNER_CONFIG.minSerialLength) {
+                console.log('🔍 Modo Scanner detectado:', value);
+                searchBySerial(value, itemId);
+
+                state.isScanMode = false;
+                state.keyCount = 0;
+                input.value = '';
+
+            } else {
+                console.log('⌨️ Modo teclado normal:', value);
+                const resultsContainer = document.getElementById(`laptop_results_${itemId}`);
+                if (resultsContainer) {
+                    const firstResult = resultsContainer.querySelector('[data-laptop-id]');
+                    if (firstResult) {
+                        firstResult.click();
+                    }
+                }
+            }
         }
     });
 }
@@ -1736,21 +2335,18 @@ function initializeCustomerFormForInvoice() {
     const customerForm = document.getElementById('customer-form');
     if (!customerForm) return;
 
-    // Modificar el comportamiento del formulario para que funcione en el contexto de factura
     const submitBtn = customerForm.querySelector('button[type="submit"]');
     const originalSubmitText = submitBtn.textContent;
 
     customerForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Validar formulario
         const validation = validateCustomerForm();
         if (!validation.isValid) {
             showNotification(validation.errorMessage, 'error');
             return;
         }
 
-        // Mostrar loading
         submitBtn.disabled = true;
         submitBtn.innerHTML = `
             <div class="flex items-center justify-center">
@@ -1759,7 +2355,6 @@ function initializeCustomerFormForInvoice() {
             </div>
         `;
 
-        // Enviar formulario
         const formData = new FormData(customerForm);
 
         fetch('/customers/add', {
@@ -1774,18 +2369,15 @@ function initializeCustomerFormForInvoice() {
             if (data.success) {
                 showNotification(data.message, 'success');
 
-                // Cerrar modal después de 1.5 segundos
                 setTimeout(() => {
                     const modal = document.getElementById('customer-modal-invoice');
                     if (modal) modal.classList.remove('active');
 
-                    // Recargar la página para actualizar la lista de clientes
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
                 }, 1500);
             } else {
-                // Mostrar errores
                 if (data.errors) {
                     for (const [field, error] of Object.entries(data.errors)) {
                         showNotification(error, 'error');
@@ -1806,7 +2398,6 @@ function initializeCustomerFormForInvoice() {
         });
     });
 
-    // Agregar botón de cancelar específico para el modal
     const formButtons = customerForm.querySelector('.flex.items-center.justify-between');
     if (formButtons) {
         const cancelBtn = formButtons.querySelector('a[href*="customers_list"]');
@@ -1816,7 +2407,6 @@ function initializeCustomerFormForInvoice() {
                 const modal = document.getElementById('customer-modal-invoice');
                 if (modal) modal.classList.remove('active');
             });
-            // Cambiar el href para que no redirija
             cancelBtn.href = '#';
         }
     }
@@ -1834,7 +2424,6 @@ function validateInvoiceForm() {
         return false;
     }
 
-    // Validar NCF manual si está activo
     if (useManualNcf && !isEdit) {
         const manualSequence = document.getElementById('manual_ncf_sequence').value;
         if (manualSequence.length !== NCF_SEQUENCE_LENGTH) {
@@ -1884,6 +2473,11 @@ function collectInvoiceItems() {
                 const laptopId = document.getElementById(`laptop_id_${itemId}`).value;
                 if (laptopId && laptopId.trim() !== '') {
                     itemData.laptop_id = laptopId;
+
+                    const serialInput = document.getElementById(`serial_ids_${itemId}`);
+                    if (serialInput && serialInput.value) {
+                        itemData.serial_ids = [parseInt(serialInput.value)];
+                    }
                 }
             }
 
@@ -1977,7 +2571,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // MODIFICACIÓN: Cargar laptops seleccionadas desde localStorage
+    // Configuración del input global de búsqueda
+    const globalSearchInput = document.getElementById('global_laptop_search');
+    if (globalSearchInput) {
+        globalSearchInput.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                handleGlobalSearch('');
+            }
+        });
+
+        const debouncedGlobalSearch = debounce(function(e) {
+            const searchTerm = e.target.value;
+            if (searchTerm.trim() === '') {
+                return;
+            }
+            handleGlobalSearch(searchTerm);
+        }, DEBOUNCE_DELAY);
+
+        globalSearchInput.addEventListener('input', debouncedGlobalSearch);
+
+        globalSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const searchTerm = this.value.trim();
+
+                if (searchTerm.length >= SCANNER_CONFIG.minSerialLength) {
+                    // Intentar como serial primero
+                    globalSearchBySerial(searchTerm);
+                } else {
+                    handleGlobalSearch(searchTerm);
+                }
+            }
+
+            if (e.key === 'Escape') {
+                document.getElementById('global_laptop_results').classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            const results = document.getElementById('global_laptop_results');
+            const search = document.getElementById('global_laptop_search');
+
+            if (results && search && !search.contains(e.target) && !results.contains(e.target)) {
+                results.classList.add('hidden');
+            }
+        });
+    }
+
+    // Cargar laptops seleccionadas desde localStorage
     if (!isEdit) {
         try {
             const selectedLaptops = JSON.parse(localStorage.getItem('selectedLaptopsForInvoice') || '[]');
@@ -1988,24 +2629,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (laptop && laptop.id && laptop.name && laptop.price !== undefined) {
                         console.log('Procesando laptop desde localStorage:', laptop);
 
-                        // Usar fromLocalStorage: true para diferenciar el origen
                         const itemId = addLaptopItem(
                             laptop.id,
                             laptop.description || laptop.name,
-                            1, // Cantidad por defecto
+                            1,
                             laptop.price,
-                            true // fromLocalStorage
+                            true
                         );
                     }
                 });
 
-                // Calcular totales después de un breve delay
                 setTimeout(() => {
                     calculateTotals();
                 }, 300);
             }
 
-            // Limpiar localStorage
             localStorage.removeItem('selectedLaptopsForInvoice');
             console.log('LocalStorage limpiado después de procesar laptops');
         } catch (error) {
@@ -2039,6 +2677,14 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
 
     calculateTotals();
+
+    // Configurar búsqueda inteligente en items existentes
+    document.querySelectorAll('[id^="laptop_search_"]').forEach(input => {
+        const itemId = input.id.split('_')[2];
+        if (itemId) {
+            setupIntelligentLaptopSearch(itemId);
+        }
+    });
 });
 
 // ==========================================
@@ -2048,12 +2694,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('invoiceForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Validar formulario
     if (!validateInvoiceForm()) {
         return;
     }
 
-    // Recopilar items
     const items = collectInvoiceItems();
 
     if (items.length === 0) {
@@ -2061,7 +2705,6 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         return;
     }
 
-    // Agregar items como inputs hidden
     items.forEach(item => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -2070,7 +2713,6 @@ document.getElementById('invoiceForm').addEventListener('submit', function(e) {
         this.appendChild(input);
     });
 
-    // Enviar formulario
     this.submit();
 });
 </script>
