@@ -536,11 +536,24 @@
                                 </svg>
                                 Items de la Factura
                             </h2>
-                            <div class="flex gap-3">
-                                <button type="button" onclick="addLaptopItem()" class="px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium">
+                            <div class="flex gap-3 flex-wrap">
+                                <!-- Input para escaneo continuo de seriales -->
+                                <div class="relative flex-1 min-w-[250px]">
+                                    <input type="text"
+                                           id="continuous_serial_scanner"
+                                           placeholder="Escanear serial aquí (Enter)..."
+                                           autocomplete="off"
+                                           class="w-full px-3 py-2 pl-10 text-sm border border-indigo-300 dark:border-indigo-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white bg-indigo-50 dark:bg-indigo-900/30">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="addLaptopItem()" class="px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium whitespace-nowrap">
                                     + Agregar Laptop
                                 </button>
-                                <button type="button" onclick="addCustomItem()" class="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors font-medium">
+                                <button type="button" onclick="addCustomItem()" class="px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors font-medium whitespace-nowrap">
                                     + Item Personalizado
                                 </button>
                             </div>
@@ -1638,6 +1651,16 @@ async function searchBySerial(serialNumber, itemId) {
                 // Cargar selector de seriales
                 loadSerialSelector(itemId, data.laptop.id, data.laptop.quantity || 0);
 
+                // Marcar automáticamente el checkbox del serial escaneado
+                setTimeout(() => {
+                    const checkbox = document.querySelector(`input[name="serial_${itemId}[]"][data-serial-number="${serialNumber}"]`);
+                    if (checkbox && !checkbox.checked) {
+                        checkbox.checked = true;
+                        // Trigger change event para actualizar todo
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                }, 300); // Esperar a que se cargue el selector
+
                 // Mostrar badge visual de serial escaneado
                 showSerialBadge(itemId, serials.map(s => s.serial_number));
 
@@ -1720,6 +1743,224 @@ async function searchBySerial(serialNumber, itemId) {
     } finally {
         input.disabled = false;
         input.placeholder = originalPlaceholder;
+    }
+}
+
+// ==========================================
+// ESCANEO CONTINUO DE SERIALES
+// ==========================================
+
+async function handleContinuousSerialScan(serialNumber) {
+    if (!serialNumber || serialNumber.trim() === '') return;
+
+    const scanner = document.getElementById('continuous_serial_scanner');
+    if (!scanner) return;
+
+    try {
+        // UI: Mostrar loading
+        scanner.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+        scanner.disabled = true;
+
+        // API Call para obtener info del serial
+        const response = await fetch(
+            `/api/serials/search-for-invoice?serial=${encodeURIComponent(serialNumber)}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // CASO 1: Serial encontrado y disponible
+        if (data.found && data.available_for_sale) {
+            const laptopId = data.laptop.id;
+
+            // Buscar si ya existe un item con esta laptop
+            let existingItemId = null;
+            document.querySelectorAll('[id^="laptop_id_"]').forEach(input => {
+                if (input.value == laptopId) {
+                    existingItemId = input.id.split('_')[2];
+                }
+            });
+
+            if (existingItemId) {
+                // Item existe, agregar serial a ese item
+                console.log(`✅ Agregando serial a item existente ${existingItemId}`);
+
+                // Obtener seriales actuales
+                const serialInput = document.getElementById(`selected_serials_${existingItemId}`);
+                let serials = [];
+                if (serialInput && serialInput.value) {
+                    try {
+                        serials = JSON.parse(serialInput.value);
+                    } catch (e) {
+                        serials = [];
+                    }
+                }
+
+                // Verificar si el serial ya está agregado
+                const serialExists = serials.some(s => s.serial_number === serialNumber);
+                if (!serialExists) {
+                    serials.push({
+                        id: data.serial.id,
+                        serial_number: serialNumber
+                    });
+
+                    // Actualizar campo oculto
+                    serialInput.value = JSON.stringify(serials);
+
+                    // Actualizar cantidad
+                    const qtyInput = document.getElementById(`qty_${existingItemId}`);
+                    if (qtyInput) {
+                        qtyInput.value = serials.length;
+                    }
+
+                    // Marcar checkbox del serial si existe
+                    setTimeout(() => {
+                        const checkbox = document.querySelector(`input[name="serial_${existingItemId}[]"][data-serial-number="${serialNumber}"]`);
+                        if (checkbox && !checkbox.checked) {
+                            checkbox.checked = true;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    }, 100);
+
+                    // Actualizar descripción
+                    updateDescriptionWithSerials(existingItemId);
+
+                    // Calcular totales
+                    calculateTotals();
+
+                    // Notificación de éxito
+                    showNotification(
+                        `✅ Serial ${serialNumber} agregado - ${data.laptop.display_name} (${serials.length})`,
+                        'success'
+                    );
+
+                    playSuccessSound();
+                } else {
+                    showNotification(
+                        `ℹ️ Serial ${serialNumber} ya está seleccionado`,
+                        'info'
+                    );
+                }
+            } else {
+                // No existe item, crear uno nuevo
+                console.log(`✅ Creando nuevo item para laptop ${laptopId}`);
+
+                const itemId = addLaptopItem(
+                    laptopId,
+                    '', // descripción se llenará automáticamente
+                    1,
+                    data.laptop.sale_price || 0,
+                    false
+                );
+
+                // Esperar a que se cree el item
+                setTimeout(async () => {
+                    // Actualizar campos de la laptop
+                    updateLaptopFields(itemId, data.laptop);
+
+                    // Agregar serial
+                    const serialInput = document.getElementById(`selected_serials_${itemId}`);
+                    if (serialInput) {
+                        const serials = [{
+                            id: data.serial.id,
+                            serial_number: serialNumber
+                        }];
+                        serialInput.value = JSON.stringify(serials);
+                    }
+
+                    // Actualizar cantidad
+                    const qtyInput = document.getElementById(`qty_${itemId}`);
+                    if (qtyInput) {
+                        qtyInput.value = 1;
+                    }
+
+                    // Cargar selector de seriales
+                    loadSerialSelector(itemId, laptopId, data.laptop.quantity || 0);
+
+                    // Marcar checkbox después de cargar selector
+                    setTimeout(() => {
+                        const checkbox = document.querySelector(`input[name="serial_${itemId}[]"][data-serial-number="${serialNumber}"]`);
+                        if (checkbox && !checkbox.checked) {
+                            checkbox.checked = true;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    }, 400);
+
+                    // Actualizar descripción
+                    setTimeout(() => {
+                        updateDescriptionWithSerials(itemId);
+                    }, 500);
+
+                    // Calcular totales
+                    calculateTotals();
+
+                    // Notificación de éxito
+                    showNotification(
+                        `✅ ${data.laptop.display_name} agregado - Serial: ${serialNumber}`,
+                        'success'
+                    );
+
+                    playSuccessSound();
+                }, 200);
+            }
+
+            // Limpiar y mantener foco
+            scanner.value = '';
+            scanner.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            scanner.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+
+            setTimeout(() => {
+                scanner.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+                scanner.focus(); // Mantener foco para siguiente escaneo
+            }, 500);
+
+        } else if (data.found && !data.available_for_sale) {
+            // Serial no disponible
+            scanner.value = '';
+            scanner.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            scanner.classList.add('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+
+            setTimeout(() => {
+                scanner.classList.remove('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
+                scanner.focus();
+            }, 2000);
+
+            showNotification(
+                `⚠️ Serial ${serialNumber} no disponible - ${data.serial.status_display}`,
+                'warning'
+            );
+            playErrorSound();
+
+        } else {
+            // Serial no encontrado
+            scanner.value = '';
+            scanner.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+            scanner.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+
+            setTimeout(() => {
+                scanner.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
+                scanner.focus();
+            }, 2000);
+
+            showNotification(
+                `❌ Serial ${serialNumber} no encontrado`,
+                'error'
+            );
+            playErrorSound();
+        }
+
+    } catch (error) {
+        console.error('Error en escaneo continuo:', error);
+        scanner.value = '';
+        scanner.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+        showNotification('❌ Error al procesar serial', 'error');
+        playErrorSound();
+        scanner.focus();
+    } finally {
+        scanner.disabled = false;
     }
 }
 
@@ -2410,6 +2651,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+
+    // Input de escaneo continuo de seriales
+    const continuousScanner = document.getElementById('continuous_serial_scanner');
+    if (continuousScanner) {
+        continuousScanner.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const serialNumber = this.value.trim();
+                if (serialNumber) {
+                    handleContinuousSerialScan(serialNumber);
+                }
+            }
+        });
+
+        // Auto-focus en el scanner al cargar la página (solo en modo nuevo)
+        if (!isEdit) {
+            setTimeout(() => {
+                continuousScanner.focus();
+            }, 500);
+        }
     }
 
     // Cargar laptops seleccionadas desde localStorage
