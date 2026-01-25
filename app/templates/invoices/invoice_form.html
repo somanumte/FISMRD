@@ -1314,6 +1314,17 @@ function selectLaptop(itemId, laptop) {
     const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
     document.getElementById(`total_${itemId}`).value = (qty * price).toFixed(2);
 
+    // Inicializar el array de seriales seleccionados
+    const serialsInput = document.getElementById(`selected_serials_${itemId}`);
+    if (!serialsInput) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = `selected_serials_${itemId}`;
+        hiddenInput.name = `selected_serials_${itemId}`;
+        hiddenInput.value = '[]';
+        document.getElementById(`item_${itemId}`).appendChild(hiddenInput);
+    }
+
     // Cargar selector de seriales
     loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
 
@@ -1387,6 +1398,23 @@ function loadSerialSelector(itemId, laptopId, availableQty) {
                             </div>
                         </div>
                     `;
+
+                    // Marcar checkboxes de seriales ya seleccionados
+                    const selectedSerialsInput = document.getElementById(`selected_serials_${itemId}`);
+                    if (selectedSerialsInput && selectedSerialsInput.value) {
+                        try {
+                            const selectedSerials = JSON.parse(selectedSerialsInput.value);
+                            selectedSerials.forEach(serial => {
+                                const checkbox = document.querySelector(`input[name="serial_${itemId}[]"][value="${serial.id}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                }
+                            });
+                            updateSelectedSerials(itemId);
+                        } catch (e) {
+                            console.error('Error parsing selected serials:', e);
+                        }
+                    }
                 } else {
                     selectorContainer.innerHTML = `
                         <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
@@ -1444,6 +1472,11 @@ function updateSelectedSerials(itemId) {
     if (qtyInput && selectedIds.length > 0) {
         qtyInput.value = selectedIds.length;
         calculateTotals();
+    }
+
+    // Actualizar badge con seriales seleccionados
+    if (selectedIds.length > 0) {
+        showSerialBadge(itemId, selectedIds.map(s => s.serial_number));
     }
 }
 
@@ -1514,11 +1547,7 @@ async function globalSearchBySerial(serialNumber) {
                 // Si ya existe, incrementar cantidad y agregar serial
                 console.log('📦 Laptop ya existe en factura, incrementando cantidad...');
 
-                const qtyInput = document.getElementById(`qty_${existingItemId}`);
-                const currentQty = parseInt(qtyInput.value) || 0;
-                qtyInput.value = currentQty + 1;
-
-                // Agregar serial a la lista de seriales seleccionados
+                // Obtener seriales actualmente seleccionados
                 const serialInput = document.getElementById(`selected_serials_${existingItemId}`);
                 let serials = [];
                 if (serialInput && serialInput.value) {
@@ -1529,33 +1558,47 @@ async function globalSearchBySerial(serialNumber) {
                     }
                 }
 
-                // Agregar nuevo serial
-                serials.push({
-                    id: data.serial.id,
-                    serial_number: serialNumber
-                });
+                // Agregar nuevo serial si no existe ya
+                const serialExists = serials.some(s => s.serial_number === serialNumber);
+                if (!serialExists) {
+                    serials.push({
+                        id: data.serial.id,
+                        serial_number: serialNumber
+                    });
 
-                if (serialInput) {
-                    serialInput.value = JSON.stringify(serials);
+                    if (serialInput) {
+                        serialInput.value = JSON.stringify(serials);
+                    }
+
+                    // Actualizar contador de seriales
+                    const countElement = document.getElementById(`selected_serials_count_${existingItemId}`);
+                    if (countElement) {
+                        countElement.textContent = serials.length;
+                    }
+
+                    // Actualizar cantidad
+                    const qtyInput = document.getElementById(`qty_${existingItemId}`);
+                    if (qtyInput) {
+                        qtyInput.value = serials.length;
+                    }
+
+                    // Actualizar badge visual con múltiples seriales
+                    showSerialBadge(existingItemId, serials.map(s => s.serial_number));
+
+                    // Calcular totales
+                    calculateTotals();
+
+                    // Notificación de éxito
+                    showNotification(
+                        `✅ ${data.laptop.display_name} - Cantidad actualizada a ${serials.length} - Serial: ${serialNumber}`,
+                        'success'
+                    );
+                } else {
+                    showNotification(
+                        `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
+                        'info'
+                    );
                 }
-
-                // Actualizar contador de seriales
-                const countElement = document.getElementById(`selected_serials_count_${existingItemId}`);
-                if (countElement) {
-                    countElement.textContent = serials.length;
-                }
-
-                // Actualizar badge visual con múltiples seriales
-                showSerialBadge(existingItemId, serials.map(s => s.serial_number));
-
-                // Calcular totales
-                calculateTotals();
-
-                // Notificación de éxito
-                showNotification(
-                    `✅ ${data.laptop.display_name} - Cantidad incrementada a ${currentQty + 1} - Serial: ${serialNumber}`,
-                    'success'
-                );
 
                 playSuccessSound();
 
@@ -1573,16 +1616,20 @@ async function globalSearchBySerial(serialNumber) {
 
                 // Después de un breve delay, seleccionar el serial
                 setTimeout(() => {
-                    // Guardar serial_id en campo oculto
-                    let serialInput = document.getElementById(`serial_ids_${itemId}`);
-                    if (!serialInput) {
-                        serialInput = document.createElement('input');
-                        serialInput.type = 'hidden';
-                        serialInput.id = `serial_ids_${itemId}`;
-                        serialInput.name = `serial_ids_${itemId}`;
-                        document.getElementById(`item_${itemId}`).appendChild(serialInput);
+                    // Inicializar array de seriales
+                    const serialInput = document.getElementById(`selected_serials_${itemId}`);
+                    if (serialInput) {
+                        serialInput.value = JSON.stringify([{
+                            id: data.serial.id,
+                            serial_number: serialNumber
+                        }]);
                     }
-                    serialInput.value = data.serial.id;
+
+                    // Actualizar contador
+                    const countElement = document.getElementById(`selected_serials_count_${itemId}`);
+                    if (countElement) {
+                        countElement.textContent = '1';
+                    }
 
                     // Mostrar badge visual
                     showSerialBadge(itemId, [serialNumber]);
@@ -1670,6 +1717,15 @@ async function globalSearchBySerial(serialNumber) {
 // ==========================================
 
 function handleGlobalSearch(searchTerm) {
+    // Si el término parece un serial (longitud >= 5 y contiene principalmente números/letras)
+    const isLikelySerial = searchTerm.length >= 5 && /^[A-Za-z0-9]+$/.test(searchTerm);
+
+    if (isLikelySerial) {
+        // Intentar como serial primero
+        globalSearchBySerial(searchTerm);
+        return;
+    }
+
     const results = filterLaptops(searchTerm);
     const resultsContainer = document.getElementById('global_laptop_results_list');
     const resultsDropdown = document.getElementById('global_laptop_results');
@@ -1746,53 +1802,74 @@ async function searchBySerial(serialNumber, itemId) {
             document.getElementById(`laptop_id_${itemId}`).value = data.laptop.id;
             document.getElementById(`laptop_search_${itemId}`).value = data.laptop.display_name;
 
-            // Incrementar cantidad
-            const currentQty = parseInt(document.getElementById(`qty_${itemId}`).value) || 0;
-            document.getElementById(`qty_${itemId}`).value = currentQty + 1;
-
-            document.getElementById(`price_${itemId}`).value = data.laptop.sale_price;
-
-            // Ocultar el dropdown de búsqueda
-            const resultsDiv = document.getElementById(`laptop_results_${itemId}`);
-            if (resultsDiv) {
-                resultsDiv.classList.add('hidden');
+            // Obtener seriales actualmente seleccionados
+            const serialInput = document.getElementById(`selected_serials_${itemId}`);
+            let serials = [];
+            if (serialInput && serialInput.value) {
+                try {
+                    serials = JSON.parse(serialInput.value);
+                } catch (e) {
+                    serials = [];
+                }
             }
 
-            // Guardar serial_id en campo oculto
-            let serialInput = document.getElementById(`serial_ids_${itemId}`);
-            if (!serialInput) {
-                serialInput = document.createElement('input');
-                serialInput.type = 'hidden';
-                serialInput.id = `serial_ids_${itemId}`;
-                serialInput.name = `serial_ids_${itemId}`;
-                document.getElementById(`item_${itemId}`).appendChild(serialInput);
+            // Agregar nuevo serial si no existe ya
+            const serialExists = serials.some(s => s.serial_number === serialNumber);
+            if (!serialExists) {
+                serials.push({
+                    id: data.serial.id,
+                    serial_number: serialNumber
+                });
+
+                if (serialInput) {
+                    serialInput.value = JSON.stringify(serials);
+                }
+
+                // Actualizar contador de seriales
+                const countElement = document.getElementById(`selected_serials_count_${itemId}`);
+                if (countElement) {
+                    countElement.textContent = serials.length;
+                }
+
+                // Actualizar cantidad
+                const qtyInput = document.getElementById(`qty_${itemId}`);
+                if (qtyInput) {
+                    qtyInput.value = serials.length;
+                }
+
+                document.getElementById(`price_${itemId}`).value = data.laptop.sale_price;
+
+                // Ocultar el dropdown de búsqueda
+                const resultsDiv = document.getElementById(`laptop_results_${itemId}`);
+                if (resultsDiv) {
+                    resultsDiv.classList.add('hidden');
+                }
+
+                // Mostrar badge visual de serial escaneado
+                showSerialBadge(itemId, serials.map(s => s.serial_number));
+
+                // Feedback visual positivo (verde)
+                input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
+                input.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+
+                setTimeout(() => {
+                    input.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
+                }, 2000);
+
+                // Calcular totales
+                calculateTotals();
+
+                // Notificación de éxito
+                showNotification(
+                    `✅ ${data.laptop.display_name} - Cantidad actualizada a ${serials.length} - Serial: ${serialNumber}`,
+                    'success'
+                );
+            } else {
+                showNotification(
+                    `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
+                    'info'
+                );
             }
-            serialInput.value = data.serial.id;
-
-            // Mostrar badge visual de serial escaneado
-            showSerialBadge(itemId, [serialNumber]);
-
-            // Feedback visual positivo (verde)
-            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-            input.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
-
-            setTimeout(() => {
-                input.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
-            }, 2000);
-
-            // Calcular totales
-            calculateTotals();
-
-            // Auto-agregar nuevo item vacío para siguiente escaneo
-            setTimeout(() => {
-                addLaptopItem(null, '', 1, 0);
-            }, 300);
-
-            // Notificación de éxito
-            showNotification(
-                `✅ ${data.laptop.display_name} agregado - Serial: ${serialNumber}`,
-                'success'
-            );
 
             // Efecto de sonido
             playSuccessSound();
@@ -1907,7 +1984,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
                         <input type="text"
                                id="laptop_search_${itemId}"
                                value="${laptopName}"
-                               placeholder="Busca por marca, modelo..."
+                               placeholder="Busca por marca, modelo o serial..."
                                autocomplete="off"
                                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                         <div id="laptop_results_${itemId}" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -1954,6 +2031,8 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
                 <div id="serial_selector_${itemId}" class="mt-4 ${hasLaptop || fromLocalStorage ? '' : 'hidden'}">
                     <!-- Se cargará dinámicamente -->
                 </div>
+                <!-- Campo oculto para seriales seleccionados -->
+                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
             </div>
         </div>
     `;
@@ -1996,8 +2075,7 @@ function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 
         selectLaptop(itemId, currentLaptop);
     }
 
-
-    // NUEVO: Configurar búsqueda inteligente
+    // Configurar búsqueda inteligente
     setTimeout(() => {
         setupIntelligentLaptopSearch(itemId);
     }, 100);
@@ -2170,63 +2248,31 @@ function setupLaptopSearch(itemId) {
 // SETUP DE INPUT INTELIGENTE DE BÚSQUEDA
 // ==========================================
 
-const SCANNER_CONFIG = {
-    minTimeBetweenKeys: 50,
-    minSerialLength: 5,
-    scanTimeout: 500
-};
-
-const scannerState = new Map();
-
 function setupIntelligentLaptopSearch(itemId) {
     const input = document.getElementById(`laptop_search_${itemId}`);
     if (!input) return;
 
-    scannerState.set(itemId, {
-        lastKeyTime: 0,
-        keyCount: 0,
-        isScanMode: false,
-        scanBuffer: ''
-    });
-
-    const state = scannerState.get(itemId);
-
     input.addEventListener('keydown', function(e) {
-        const now = Date.now();
-        const timeDiff = now - state.lastKeyTime;
-
-        if (timeDiff > 0 && timeDiff < SCANNER_CONFIG.minTimeBetweenKeys) {
-            state.isScanMode = true;
-            state.keyCount++;
-        }
-
-        if (timeDiff > SCANNER_CONFIG.scanTimeout) {
-            state.keyCount = 0;
-            state.isScanMode = false;
-        }
-
-        state.lastKeyTime = now;
-
         if (e.key === 'Enter') {
             e.preventDefault();
-
             const value = input.value.trim();
 
-            if (state.isScanMode && value.length >= SCANNER_CONFIG.minSerialLength) {
-                console.log('🔍 Modo Scanner detectado:', value);
+            if (value.length >= 5 && /^[A-Za-z0-9]+$/.test(value)) {
+                // Parece un serial, buscar por serial
                 searchBySerial(value, itemId);
-
-                state.isScanMode = false;
-                state.keyCount = 0;
-                input.value = '';
-
-            } else {
-                console.log('⌨️ Modo teclado normal:', value);
+            } else if (value.trim() !== '') {
+                // Es texto normal, seleccionar primera sugerencia o buscar
                 const resultsContainer = document.getElementById(`laptop_results_${itemId}`);
-                if (resultsContainer) {
+                if (resultsContainer && !resultsContainer.classList.contains('hidden')) {
                     const firstResult = resultsContainer.querySelector('[data-laptop-id]');
                     if (firstResult) {
                         firstResult.click();
+                    }
+                } else {
+                    // No hay resultados visibles, hacer búsqueda
+                    const results = filterLaptops(value);
+                    if (results.length > 0) {
+                        selectLaptop(itemId, results[0]);
                     }
                 }
             }
@@ -2474,9 +2520,13 @@ function collectInvoiceItems() {
                 if (laptopId && laptopId.trim() !== '') {
                     itemData.laptop_id = laptopId;
 
-                    const serialInput = document.getElementById(`serial_ids_${itemId}`);
+                    const serialInput = document.getElementById(`selected_serials_${itemId}`);
                     if (serialInput && serialInput.value) {
-                        itemData.serial_ids = [parseInt(serialInput.value)];
+                        try {
+                            itemData.serial_ids = JSON.parse(serialInput.value).map(s => s.id);
+                        } catch (e) {
+                            console.error('Error parsing serials:', e);
+                        }
                     }
                 }
             }
@@ -2583,6 +2633,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const debouncedGlobalSearch = debounce(function(e) {
             const searchTerm = e.target.value;
             if (searchTerm.trim() === '') {
+                handleGlobalSearch('');
                 return;
             }
             handleGlobalSearch(searchTerm);
@@ -2595,11 +2646,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 const searchTerm = this.value.trim();
 
-                if (searchTerm.length >= SCANNER_CONFIG.minSerialLength) {
+                if (searchTerm.length >= 5 && /^[A-Za-z0-9]+$/.test(searchTerm)) {
                     // Intentar como serial primero
                     globalSearchBySerial(searchTerm);
                 } else {
-                    handleGlobalSearch(searchTerm);
+                    const resultsContainer = document.getElementById('global_laptop_results');
+                    if (resultsContainer && !resultsContainer.classList.contains('hidden')) {
+                        const firstResult = resultsContainer.querySelector('div.cursor-pointer');
+                        if (firstResult) {
+                            firstResult.click();
+                        }
+                    } else {
+                        handleGlobalSearch(searchTerm);
+                    }
                 }
             }
 

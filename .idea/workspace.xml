@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1eb336cd-3429-4bf4-b530-8c3b1043c29d" name="Changes" comment="seriales">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/invoices.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/invoices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/serial_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/serial_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/invoices/invoice_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/invoices/invoice_form.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -146,23 +144,7 @@
       <workItem from="1769253526430" duration="1763000" />
       <workItem from="1769255467206" duration="1572000" />
       <workItem from="1769263858058" duration="3433000" />
-      <workItem from="1769299087891" duration="13361000" />
-    </task>
-    <task id="LOCAL-00010" summary="0">
-      <option name="closed" value="true" />
-      <created>1768739916081</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1768739916081</updated>
-    </task>
-    <task id="LOCAL-00011" summary="0">
-      <option name="closed" value="true" />
-      <created>1768746800661</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1768746800661</updated>
+      <workItem from="1769299087891" duration="15534000" />
     </task>
     <task id="LOCAL-00012" summary="0">
       <option name="closed" value="true" />
@@ -540,7 +522,23 @@
       <option name="project" value="LOCAL" />
       <updated>1769267366779</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="seriales">
+      <option name="closed" value="true" />
+      <created>1769343612738</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343612738</updated>
+    </task>
+    <task id="LOCAL-00060" summary="seriales">
+      <option name="closed" value="true" />
+      <created>1769343622529</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1769343622530</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -564,7 +562,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769343410691" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769346293495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$app.coverage" NAME="app Coverage Results" MODIFIED="1769222239684" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1769269288867" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
