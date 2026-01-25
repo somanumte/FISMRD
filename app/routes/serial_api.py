@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 # ============================================
 # API DE SERIALES
 # ============================================
-# Endpoints REST para gestión de números de serie
-# 
+# Endpoints REST para gestiÃ³n de nÃºmeros de serie
+#
 # Endpoints:
 # - GET  /api/serials/search       - Buscar serial
 # - POST /api/serials/validate     - Validar serial
@@ -10,10 +11,10 @@
 # - POST /api/serials              - Crear serial
 # - PUT  /api/serials/<id>         - Actualizar serial
 # - DELETE /api/serials/<id>       - Eliminar serial
-# - POST /api/serials/batch        - Crear múltiples seriales
+# - POST /api/serials/batch        - Crear mÃºltiples seriales
 # - GET  /api/serials/laptop/<id>  - Seriales de una laptop
 # - POST /api/serials/<id>/status  - Cambiar estado
-# - GET  /api/serials/search-for-invoice - Búsqueda rápida para facturas (NUEVO)
+# - GET  /api/serials/search-for-invoice - BÃºsqueda rÃ¡pida para facturas (NUEVO)
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
@@ -67,7 +68,7 @@ def require_json(f):
 
 
 # ============================================
-# ENDPOINTS DE BÚSQUEDA
+# ENDPOINTS DE BÃšSQUEDA
 # ============================================
 
 @serial_api.route('/search')
@@ -75,19 +76,19 @@ def require_json(f):
 @json_response
 def search_serial():
     """
-    Busca un serial por número o código de barras.
+    Busca un serial por nÃºmero o cÃ³digo de barras.
 
     Query params:
-        q: Texto de búsqueda (requerido)
+        q: Texto de bÃºsqueda (requerido)
         laptop_id: Filtrar por laptop (opcional)
         status: Filtrar por estado (opcional)
-        limit: Límite de resultados (default: 50)
+        limit: LÃ­mite de resultados (default: 50)
 
     Returns:
         {
             found: bool,
             serial: {...} | null,
-            results: [...] (si hay múltiples)
+            results: [...] (si hay mÃºltiples)
         }
     """
     query = request.args.get('q', '').strip()
@@ -100,7 +101,7 @@ def search_serial():
             'found': False,
             'serial': None,
             'results': [],
-            'error': 'Se requiere parámetro de búsqueda (q)'
+            'error': 'Se requiere parÃ¡metro de bÃºsqueda (q)'
         })
 
     # Buscar coincidencia exacta primero
@@ -133,14 +134,14 @@ def search_serial():
 @json_response
 def search_serial_for_invoice():
     """
-    Busca un serial por número y devuelve datos listos para agregar a factura.
+    Busca un serial por nÃºmero y devuelve datos listos para agregar a factura.
     NUEVO ENDPOINT para sistema de escaneo en facturas.
 
     Query Params:
-        serial (str): Número de serie a buscar
+        serial (str): NÃºmero de serie a buscar
 
     Returns:
-        JSON con información del serial, laptop y disponibilidad
+        JSON con informaciÃ³n del serial, laptop y disponibilidad
 
     Ejemplo de uso:
         GET /api/serials/search-for-invoice?serial=ABC123XYZ
@@ -179,7 +180,7 @@ def search_serial_for_invoice():
     if not serial_number:
         return jsonify({
             'found': False,
-            'error': 'Parámetro serial requerido'
+            'error': 'ParÃ¡metro serial requerido'
         }), 400
 
     try:
@@ -192,7 +193,7 @@ def search_serial_for_invoice():
                 'error': 'Serial no encontrado en el sistema'
             })
 
-        # Verificar si está disponible para venta
+        # Verificar si estÃ¡ disponible para venta
         available_for_sale = serial.status == 'available'
 
         # Obtener laptop asociada
@@ -211,7 +212,9 @@ def search_serial_for_invoice():
                 }
             })
 
-        # Respuesta exitosa
+        # Respuesta exitosa con datos completos de la laptop
+        laptop_data = laptop.to_dict(include_relationships=True)
+
         return jsonify({
             'found': True,
             'available_for_sale': available_for_sale,
@@ -223,14 +226,7 @@ def search_serial_for_invoice():
                 'barcode': serial.barcode,
                 'warranty_end': serial.warranty_end.isoformat() if serial.warranty_end else None
             },
-            'laptop': {
-                'id': laptop.id,
-                'display_name': laptop.display_name,
-                'sku': laptop.sku,
-                'sale_price': float(laptop.sale_price),
-                'quantity_available': laptop.quantity,
-                'short_description': laptop.short_description
-            },
+            'laptop': laptop_data,
             'suggested_item': {
                 'laptop_id': laptop.id,
                 'description': laptop.display_name,
@@ -239,6 +235,7 @@ def search_serial_for_invoice():
                 'serial_ids': [serial.id]
             }
         })
+
 
     except Exception as e:
         logger.error(f"Error buscando serial para factura: {str(e)}", exc_info=True)
@@ -254,12 +251,12 @@ def search_serial_for_invoice():
 @require_json
 def validate_serial():
     """
-    Valida un número de serial.
+    Valida un nÃºmero de serial.
 
     Body JSON:
-        serial_number: Número de serie a validar (requerido)
+        serial_number: NÃºmero de serie a validar (requerido)
         serial_type: Tipo de serial (opcional, default: 'manufacturer')
-        exclude_id: ID a excluir de validación de unicidad (opcional)
+        exclude_id: ID a excluir de validaciÃ³n de unicidad (opcional)
 
     Returns:
         {
@@ -279,7 +276,7 @@ def validate_serial():
         return jsonify({
             'valid': False,
             'unique': False,
-            'errors': ['El número de serie es requerido']
+            'errors': ['El nÃºmero de serie es requerido']
         })
 
     errors = []
@@ -318,7 +315,7 @@ def get_serial(serial_id):
             'error': f'Serial con ID {serial_id} no encontrado'
         }), 404
 
-    # Obtener información de venta si existe
+    # Obtener informaciÃ³n de venta si existe
     sale_info = SerialService.get_serial_sale_info(serial_id)
 
     data = serial.to_dict()
@@ -340,14 +337,14 @@ def create_serial():
 
     Body JSON:
         laptop_id: ID de la laptop (requerido)
-        serial_number: Número de serie (requerido)
+        serial_number: NÃºmero de serie (requerido)
         serial_type: Tipo de serial (opcional)
-        barcode: Código de barras (opcional)
+        barcode: CÃ³digo de barras (opcional)
         notes: Notas (opcional)
         unit_cost: Costo unitario (opcional)
-        warranty_start: Inicio garantía (opcional, formato YYYY-MM-DD)
-        warranty_end: Fin garantía (opcional, formato YYYY-MM-DD)
-        warranty_provider: Proveedor de garantía (opcional)
+        warranty_start: Inicio garantÃ­a (opcional, formato YYYY-MM-DD)
+        warranty_end: Fin garantÃ­a (opcional, formato YYYY-MM-DD)
+        warranty_provider: Proveedor de garantÃ­a (opcional)
     """
     data = request.get_json()
 
@@ -415,17 +412,17 @@ def create_serial():
 @require_json
 def create_serials_batch():
     """
-    Crea múltiples seriales para una laptop.
+    Crea mÃºltiples seriales para una laptop.
 
     Body JSON:
         laptop_id: ID de la laptop (requerido)
-        serial_numbers: Lista de números de serie (requerido)
+        serial_numbers: Lista de nÃºmeros de serie (requerido)
         serial_type: Tipo de serial (opcional)
         notes: Notas comunes (opcional)
-        unit_cost: Costo unitario común (opcional)
-        warranty_start: Inicio garantía común (opcional)
-        warranty_end: Fin garantía común (opcional)
-        warranty_provider: Proveedor de garantía común (opcional)
+        unit_cost: Costo unitario comÃºn (opcional)
+        warranty_start: Inicio garantÃ­a comÃºn (opcional)
+        warranty_end: Fin garantÃ­a comÃºn (opcional)
+        warranty_provider: Proveedor de garantÃ­a comÃºn (opcional)
     """
     data = request.get_json()
 
@@ -441,7 +438,7 @@ def create_serials_batch():
     if not serial_numbers or not isinstance(serial_numbers, list):
         return jsonify({
             'success': False,
-            'error': 'serial_numbers debe ser una lista no vacía'
+            'error': 'serial_numbers debe ser una lista no vacÃ­a'
         }), 400
 
     # Parsear fechas
@@ -571,7 +568,7 @@ def get_serials_for_laptop(laptop_id):
 
     serials = query.order_by(LaptopSerial.created_at.desc()).all()
 
-    # Estadísticas
+    # EstadÃ­sticas
     stats = SerialService.count_serials_by_status(laptop_id)
     validation = SerialService.validate_laptop_serial_count(laptop_id)
 
@@ -618,7 +615,7 @@ def change_serial_status(serial_id):
 
     Body JSON:
         status: Nuevo estado (requerido)
-        reason: Razón del cambio (opcional)
+        reason: RazÃ³n del cambio (opcional)
     """
     data = request.get_json()
 
@@ -680,14 +677,14 @@ def get_serial_history(serial_id):
 
 
 # ============================================
-# ENDPOINTS DE ESTADÍSTICAS
+# ENDPOINTS DE ESTADÃSTICAS
 # ============================================
 
 @serial_api.route('/stats')
 @login_required
 @json_response
 def get_serial_stats():
-    """Obtiene estadísticas generales de seriales"""
+    """Obtiene estadÃ­sticas generales de seriales"""
     stats = SerialService.get_serial_stats()
 
     return jsonify({
@@ -697,7 +694,7 @@ def get_serial_stats():
 
 
 # ============================================
-# ENDPOINTS DE SINCRONIZACIÓN
+# ENDPOINTS DE SINCRONIZACIÃ“N
 # ============================================
 
 @serial_api.route('/laptop/<int:laptop_id>/sync', methods=['POST'])
@@ -713,7 +710,7 @@ def sync_laptop_quantity(laptop_id):
         return jsonify({
             'success': True,
             'result': result,
-            'message': 'Cantidad sincronizada' if result['synced'] else 'No se requirió sincronización'
+            'message': 'Cantidad sincronizada' if result['synced'] else 'No se requiriÃ³ sincronizaciÃ³n'
         })
     else:
         return jsonify({

@@ -134,7 +134,7 @@
         cursor: not-allowed;
     }
 
-    /* Animación para sugerencia de NCF */
+    /* AnimaciÃ³n para sugerencia de NCF */
     .ncf-suggestion-pulse {
         animation: pulse-border 2s ease-in-out infinite;
     }
@@ -184,7 +184,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 space-y-6">
-                    <!-- SECCIÓN: CLIENTE -->
+                    <!-- SECCIÃ“N: CLIENTE -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <div class="mb-6">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
@@ -194,7 +194,7 @@
                                 Cliente
                             </h2>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Información de facturación del cliente
+                                InformaciÃ³n de facturaciÃ³n del cliente
                             </p>
                         </div>
 
@@ -208,7 +208,7 @@
                                         <div class="relative">
                                             <input type="text"
                                                    id="customer_search"
-                                                   placeholder="Escribe nombre, RNC o cédula..."
+                                                   placeholder="Escribe nombre, RNC o cÃ©dula..."
                                                    autocomplete="off"
                                                    class="w-full px-4 py-2.5 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
                                                    {% if is_edit %}disabled{% endif %}>
@@ -260,11 +260,11 @@
                                         <div class="space-y-3">
                                             <div>
                                                 <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                                    Información básica
+                                                    InformaciÃ³n bÃ¡sica
                                                 </h4>
                                                 <div class="space-y-2">
                                                     <div>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Identificación</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">IdentificaciÃ³n</p>
                                                         <p id="customer_rnc" class="text-sm font-medium text-gray-900 dark:text-white font-mono">
                                                             {% if invoice and invoice.customer %}{{ invoice.customer.id_number }}{% endif %}
                                                         </p>
@@ -273,7 +273,7 @@
                                                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Tipo</p>
                                                         <p id="customer_id_type" class="text-sm font-medium text-gray-900 dark:text-white">
                                                             {% if invoice and invoice.customer %}
-                                                                {% if invoice.customer.id_type == 'rnc' %}RNC (Empresa){% else %}Cédula (Persona){% endif %}
+                                                                {% if invoice.customer.id_type == 'rnc' %}RNC (Empresa){% else %}CÃ©dula (Persona){% endif %}
                                                             {% endif %}
                                                         </p>
                                                     </div>
@@ -288,13 +288,13 @@
                                                 </h4>
                                                 <div class="space-y-2">
                                                     <div>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Correo electrónico</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Correo electrÃ³nico</p>
                                                         <p id="customer_email" class="text-sm text-gray-900 dark:text-white truncate">
                                                             {% if invoice and invoice.customer %}{{ invoice.customer.email or 'No especificado' }}{% endif %}
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Teléfono</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">TelÃ©fono</p>
                                                         <p id="customer_phone" class="text-sm text-gray-900 dark:text-white">
                                                             {% if invoice and invoice.customer %}{{ invoice.customer.phone_primary or 'No especificado' }}{% endif %}
                                                         </p>
@@ -306,7 +306,7 @@
                                         <div id="customer_address_section" class="{% if invoice and invoice.customer and invoice.customer.address %}space-y-3{% else %}hidden{% endif %}">
                                             <div>
                                                 <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                                    Dirección
+                                                    DirecciÃ³n
                                                 </h4>
                                                 <div>
                                                     <p id="customer_address" class="text-sm text-gray-900 dark:text-white line-clamp-2">
@@ -324,14 +324,14 @@
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Ningún cliente seleccionado</h3>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">NingÃºn cliente seleccionado</h3>
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Busca y selecciona un cliente de la lista para ver sus detalles.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- ========================================== -->
-                    <!-- SECCIÓN: TIPO DE COMPROBANTE FISCAL (NCF) -->
+                    <!-- SECCIÃ“N: TIPO DE COMPROBANTE FISCAL (NCF) -->
                     <!-- ========================================== -->
                     {% if not is_edit %}
                     <div id="ncf_section" class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 hidden">
@@ -343,11 +343,11 @@
                                 Comprobante Fiscal (NCF)
                             </h2>
                             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Selecciona el tipo de comprobante según el cliente
+                                Selecciona el tipo de comprobante segÃºn el cliente
                             </p>
                         </div>
 
-                        <!-- Sugerencia automática -->
+                        <!-- Sugerencia automÃ¡tica -->
                         <div id="ncf_suggestion_banner" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hidden">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0">
@@ -388,10 +388,10 @@
                                 <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ ncf_type.name }}</h3>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ ncf_type.description }}</p>
 
-                                <!-- Próximo NCF disponible -->
+                                <!-- PrÃ³ximo NCF disponible -->
                                 {% if ncf_sequences and ncf_type.code in ncf_sequences %}
                                 <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Próximo:</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">PrÃ³ximo:</p>
                                     <p class="text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400" id="ncf_preview_{{ ncf_type.code }}">
                                         {{ ncf_sequences[ncf_type.code].next_preview }}
                                     </p>
@@ -403,7 +403,7 @@
                                 </div>
                                 {% endif %}
 
-                                <!-- Indicador de selección -->
+                                <!-- Indicador de selecciÃ³n -->
                                 <div class="ncf-check-icon hidden mt-3">
                                     <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
@@ -413,7 +413,7 @@
                             {% endfor %}
                         </div>
 
-                        <!-- Opción para NCF manual -->
+                        <!-- OpciÃ³n para NCF manual -->
                         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
                             <div class="flex items-center mb-4">
                                 <input type="checkbox"
@@ -444,7 +444,7 @@
                                                    oninput="validateManualNcf()">
                                         </div>
                                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                            Ingrese los 8 dígitos de la secuencia
+                                            Ingrese los 8 dÃ­gitos de la secuencia
                                         </p>
                                     </div>
                                     <div>
@@ -459,14 +459,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Estado de validación -->
+                                <!-- Estado de validaciÃ³n -->
                                 <div id="manual_ncf_validation" class="mt-4 hidden">
                                     <div id="manual_ncf_valid" class="hidden p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                         <div class="flex items-center">
                                             <svg class="h-5 w-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                             </svg>
-                                            <span class="ml-2 text-sm text-green-700 dark:text-green-300">NCF válido y disponible</span>
+                                            <span class="ml-2 text-sm text-green-700 dark:text-green-300">NCF vÃ¡lido y disponible</span>
                                         </div>
                                     </div>
                                     <div id="manual_ncf_invalid" class="hidden p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -491,7 +491,7 @@
                         </div>
                     </div>
                     {% else %}
-                    <!-- Si es edición, mostrar el NCF actual (no editable) -->
+                    <!-- Si es ediciÃ³n, mostrar el NCF actual (no editable) -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <div class="mb-4">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
@@ -521,13 +521,13 @@
                                 <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
                                 </svg>
-                                El NCF no puede modificarse una vez creada la factura (según DGII)
+                                El NCF no puede modificarse una vez creada la factura (segÃºn DGII)
                             </p>
                         </div>
                     </div>
                     {% endif %}
 
-                    <!-- SECCIÓN: ITEMS -->
+                    <!-- SECCIÃ“N: ITEMS -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
@@ -537,16 +537,6 @@
                                 Items de la Factura
                             </h2>
                             <div class="flex gap-3">
-                                <div class="relative flex-1">
-                                    <input type="text"
-                                           id="global_laptop_search"
-                                           placeholder="Buscar o escanear serial..."
-                                           autocomplete="off"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
-                                    <div id="global_laptop_results" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                        <div id="global_laptop_results_list" class="py-1"></div>
-                                    </div>
-                                </div>
                                 <button type="button" onclick="addLaptopItem()" class="px-3 py-2 text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium">
                                     + Agregar Laptop
                                 </button>
@@ -598,7 +588,7 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Fecha de Emisión
+                                    Fecha de EmisiÃ³n
                                 </label>
                                 <input type="date"
                                        id="invoice_date"
@@ -610,14 +600,14 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Método de Pago
+                                    MÃ©todo de Pago
                                 </label>
                                 <select name="payment_method"
                                         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
                                     <option value="cash" {% if invoice and invoice.payment_method == 'cash' %}selected{% endif %}>Efectivo</option>
                                     <option value="card" {% if invoice and invoice.payment_method == 'card' %}selected{% endif %}>Tarjeta</option>
                                     <option value="transfer" {% if invoice and invoice.payment_method == 'transfer' %}selected{% endif %}>Transferencia</option>
-                                    <option value="credit" {% if invoice and invoice.payment_method == 'credit' %}selected{% endif %}>Crédito</option>
+                                    <option value="credit" {% if invoice and invoice.payment_method == 'credit' %}selected{% endif %}>CrÃ©dito</option>
                                 </select>
                             </div>
 
@@ -638,7 +628,7 @@
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 cursor-pointer flex items-center justify-between" onclick="toggleAdditionalInfo()">
-                            Información Adicional
+                            InformaciÃ³n Adicional
                             <svg id="additionalInfoIcon" class="w-5 h-5 transition-transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -656,11 +646,11 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Términos y Condiciones
+                                    TÃ©rminos y Condiciones
                                 </label>
                                 <textarea name="terms"
                                           rows="4"
-                                          placeholder="Términos y condiciones de la factura..."
+                                          placeholder="TÃ©rminos y condiciones de la factura..."
                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none">{% if invoice and invoice.terms %}{{ invoice.terms }}{% else %}{{ settings.default_terms }}{% endif %}</textarea>
                             </div>
                         </div>
@@ -777,6 +767,30 @@ function showNotification(message, type) {
     }, NOTIFICATION_DURATION);
 }
 
+function formatCurrency(amount) {
+    return amount.toLocaleString('es-DO', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// ==========================================
+// FUNCIÃ“N PARA CONSTRUIR ESPECIFICACIONES DE LAPTOP
+// ==========================================
+function buildLaptopSpecsString(laptop) {
+    const specs = [];
+    if (laptop.processor) specs.push(laptop.processor); // CPU
+    if (laptop.graphics_card) specs.push(laptop.graphics_card); // GPU
+    if (laptop.storage) specs.push(laptop.storage); // SSD/HDD
+    if (laptop.ram) specs.push(laptop.ram); // RAM
+    if (laptop.screen) specs.push(laptop.screen); // Pantalla
+    if (laptop.condition) {
+        specs.push(laptop.condition === 'new' ? 'Nuevo' :
+                  (laptop.condition === 'used' ? 'Usado' : laptop.condition)); // CondiciÃ³n
+    }
+    return specs.join(' â€¢ ');
+}
+
 // ==========================================
 // FUNCIONES DE NCF
 // ==========================================
@@ -784,7 +798,7 @@ function showNotification(message, type) {
 function selectNcfType(ncfType) {
     if (isEdit) return;
 
-    // Actualizar selección visual
+    // Actualizar selecciÃ³n visual
     document.querySelectorAll('.ncf-type-card').forEach(card => {
         card.classList.remove('selected', 'border-indigo-500', 'ncf-suggestion-pulse');
         card.classList.add('border-gray-200', 'dark:border-gray-600');
@@ -856,7 +870,7 @@ function validateManualNcf() {
     // Actualizar display principal
     updateSelectedNcfDisplay();
 
-    // Validar con el servidor si tiene 8 dígitos
+    // Validar con el servidor si tiene 8 dÃ­gitos
     if (sequence.length === NCF_SEQUENCE_LENGTH) {
         // Limpiar timeout anterior
         if (manualNcfValidationTimeout) {
@@ -869,7 +883,7 @@ function validateManualNcf() {
         document.getElementById('manual_ncf_valid').classList.add('hidden');
         document.getElementById('manual_ncf_invalid').classList.add('hidden');
 
-        // Validar después de 500ms para evitar muchas peticiones
+        // Validar despuÃ©s de 500ms para evitar muchas peticiones
         manualNcfValidationTimeout = setTimeout(() => {
             fetch('/invoices/api/ncf/validate', {
                 method: 'POST',
@@ -911,7 +925,7 @@ function validateManualNcf() {
 function suggestNcfTypeForCustomer(customer) {
     if (isEdit) return;
 
-    // Mostrar sección de NCF
+    // Mostrar secciÃ³n de NCF
     const ncfSection = document.getElementById('ncf_section');
     if (ncfSection) {
         ncfSection.classList.remove('hidden');
@@ -923,10 +937,10 @@ function suggestNcfTypeForCustomer(customer) {
 
     if (customer.id_type === 'rnc') {
         suggestedType = 'B01';
-        reason = `El cliente "${customer.full_name}" tiene RNC (${customer.id_number}), por lo que puede recibir Crédito Fiscal para deducir gastos.`;
+        reason = `El cliente "${customer.full_name}" tiene RNC (${customer.id_number}), por lo que puede recibir CrÃ©dito Fiscal para deducir gastos.`;
     } else {
         suggestedType = 'B02';
-        reason = `El cliente "${customer.full_name}" tiene cédula (${customer.id_number}). Si es contribuyente registrado en DGII, puede cambiar a Crédito Fiscal (B01).`;
+        reason = `El cliente "${customer.full_name}" tiene cÃ©dula (${customer.id_number}). Si es contribuyente registrado en DGII, puede cambiar a CrÃ©dito Fiscal (B01).`;
     }
 
     // Mostrar banner de sugerencia
@@ -942,10 +956,10 @@ function suggestNcfTypeForCustomer(customer) {
         reasonEl.textContent = reason;
     }
 
-    // Seleccionar automáticamente el tipo sugerido
+    // Seleccionar automÃ¡ticamente el tipo sugerido
     selectNcfType(suggestedType);
 
-    // Añadir animación de pulso al card sugerido
+    // AÃ±adir animaciÃ³n de pulso al card sugerido
     const suggestedCard = document.querySelector(`[data-ncf-type="${suggestedType}"]`);
     if (suggestedCard) {
         suggestedCard.classList.add('ncf-suggestion-pulse');
@@ -1002,10 +1016,10 @@ function displayCustomerResults(results, isRecent = false) {
         const resultItem = document.createElement('div');
         resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0';
 
-        // Mostrar badge de tipo de identificación y NCF sugerido
+        // Mostrar badge de tipo de identificaciÃ³n y NCF sugerido
         const idTypeBadge = customer.id_type === 'rnc'
-            ? '<span class="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded">RNC → B01</span>'
-            : '<span class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded">Cédula → B02</span>';
+            ? '<span class="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded">RNC â†’ B01</span>'
+            : '<span class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded">CÃ©dula â†’ B02</span>';
 
         resultItem.innerHTML = `
             <div class="flex items-center justify-between">
@@ -1013,7 +1027,7 @@ function displayCustomerResults(results, isRecent = false) {
                 ${idTypeBadge}
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ${customer.id_number} • ${customer.email || 'Sin email'} • ${customer.phone_primary || 'Sin teléfono'}
+                ${customer.id_number} â€¢ ${customer.email || 'Sin email'} â€¢ ${customer.phone_primary || 'Sin telÃ©fono'}
             </div>
         `;
 
@@ -1036,7 +1050,7 @@ function updateCustomerDisplay(customer) {
 
 function updateCustomerInfoPanel(customer) {
     document.getElementById('customer_rnc').textContent = customer.id_number || 'No especificado';
-    document.getElementById('customer_id_type').textContent = customer.id_type === 'rnc' ? 'RNC (Empresa)' : 'Cédula (Persona)';
+    document.getElementById('customer_id_type').textContent = customer.id_type === 'rnc' ? 'RNC (Empresa)' : 'CÃ©dula (Persona)';
     document.getElementById('customer_email').textContent = customer.email || 'No especificado';
     document.getElementById('customer_phone').textContent = customer.phone_primary || 'No especificado';
 
@@ -1053,7 +1067,7 @@ function selectCustomer(customer) {
     // Ocultar resultados
     document.getElementById('customer_results').classList.add('hidden');
 
-    // Limpiar campo de búsqueda
+    // Limpiar campo de bÃºsqueda
     document.getElementById('customer_search').value = '';
 
     // Actualizar campo oculto
@@ -1062,13 +1076,13 @@ function selectCustomer(customer) {
     updateCustomerDisplay(customer);
     updateCustomerInfoPanel(customer);
 
-    // Mostrar información del cliente y ocultar empty state
+    // Mostrar informaciÃ³n del cliente y ocultar empty state
     const infoDiv = document.getElementById('customer_info');
     const emptyState = document.getElementById('customer_empty_state');
     infoDiv.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
-    // NO sugerir tipo de NCF basado en el cliente (según requisitos)
+    // NO sugerir tipo de NCF basado en el cliente (segÃºn requisitos)
     // suggestNcfTypeForCustomer(customer);
 }
 
@@ -1099,13 +1113,6 @@ function checkEmptyMsg() {
     if(container.children.length === 0 && msg) {
         msg.classList.remove('hidden');
     }
-}
-
-function formatCurrency(amount) {
-    return amount.toLocaleString('es-DO', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
 }
 
 function calculateTotals() {
@@ -1177,8 +1184,8 @@ function addCustomItem(description = '', quantity = 1, price = 0) {
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-                        <input type="text" id="desc_${itemId}" value="${description}" placeholder="Descripción del producto o servicio" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">DescripciÃ³n</label>
+                        <input type="text" id="desc_${itemId}" value="${description}" placeholder="DescripciÃ³n del producto o servicio" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
@@ -1242,11 +1249,16 @@ function displayLaptopResults(itemId, results, isRecent = false) {
         resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
 
         const name = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
+        const specs = buildLaptopSpecsString(laptop);
+        const shortSpecs = specs.length > 40 ? specs.substring(0, 37) + '...' : specs;
 
         resultItem.innerHTML = `
             <div class="font-medium text-gray-900 dark:text-white">${name}</div>
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ${laptop.processor || ''} • RD$ ${formatCurrency(laptop.sale_price || 0)} • ${laptop.quantity || 0} disponibles
+                ${shortSpecs}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+                RD$ ${formatCurrency(laptop.sale_price || 0)} â€¢ ${laptop.quantity || 0} disponibles
             </div>
         `;
 
@@ -1257,14 +1269,46 @@ function displayLaptopResults(itemId, results, isRecent = false) {
     resultsDropdown.classList.remove('hidden');
 }
 
-function updateLaptopItemDisplay(itemId, laptop, description) {
-    const laptopName = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
-    document.getElementById(`laptop_search_${itemId}`).value = laptopName;
-    document.getElementById(`laptop_description_${itemId}`).value = description;
-    document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
-    document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
-    document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
+// ==========================================
+// FUNCIÃ“N CENTRALIZADA PARA ACTUALIZAR CAMPOS DE LAPTOP
+// ==========================================
+function updateLaptopFields(itemId, laptop) {
+    // Actualizar campo de bÃºsqueda con marca y modelo
+    const laptopName = laptop.brand && laptop.model ?
+        `${laptop.brand} ${laptop.model}` :
+        laptop.brand || laptop.model || 'Laptop';
 
+    const searchInput = document.getElementById(`laptop_search_${itemId}`);
+    if (searchInput) {
+        searchInput.value = laptopName;
+    }
+
+    // Construir descripciÃ³n con especificaciones tÃ©cnicas formateadas
+    const specsString = buildLaptopSpecsString(laptop);
+    const descTextarea = document.getElementById(`laptop_description_${itemId}`);
+    if (descTextarea) {
+        descTextarea.value = specsString;
+    }
+
+    // Mostrar contenedor de descripciÃ³n
+    const descContainer = document.getElementById(`laptop_description_container_${itemId}`);
+    if (descContainer) {
+        descContainer.classList.remove('hidden');
+    }
+
+    // Actualizar ID de laptop
+    const laptopIdInput = document.getElementById(`laptop_id_${itemId}`);
+    if (laptopIdInput) {
+        laptopIdInput.value = laptop.id;
+    }
+
+    // Actualizar precio
+    const priceInput = document.getElementById(`price_${itemId}`);
+    if (priceInput) {
+        priceInput.value = laptop.sale_price || 0;
+    }
+
+    // Actualizar informaciÃ³n de stock
     const stockInfo = document.getElementById(`stock_info_${itemId}`);
     if (stockInfo) {
         stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
@@ -1274,45 +1318,8 @@ function updateLaptopItemDisplay(itemId, laptop, description) {
 function selectLaptop(itemId, laptop) {
     document.getElementById(`laptop_results_${itemId}`).classList.add('hidden');
 
-    // Nombre para el campo de búsqueda (solo marca y modelo)
-    let laptopName = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
-
-    // Especificaciones técnicas para el campo de descripción
-    const specs = [];
-    if (laptop.processor) specs.push(laptop.processor);
-    if (laptop.ram) specs.push(laptop.ram);
-    if (laptop.graphics_card) specs.push(laptop.graphics_card);
-    if (laptop.storage) specs.push(laptop.storage);
-    if (laptop.screen) specs.push(laptop.screen);
-    if (laptop.condition) specs.push(laptop.condition === 'new' ? 'Nuevo' : (laptop.condition === 'used' ? 'Usado' : laptop.condition));
-    let specsString = specs.join(' • ');
-
-    // Actualizar campo de búsqueda con solo nombre
-    document.getElementById(`laptop_search_${itemId}`).value = laptopName;
-
-    // Actualizar campo de descripción con especificaciones técnicas
-    document.getElementById(`laptop_description_${itemId}`).value = specsString;
-
-    // Mostrar contenedor de descripción si hay especificaciones
-    if (specsString.trim() !== '') {
-        document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
-    } else {
-        document.getElementById(`laptop_description_container_${itemId}`).classList.add('hidden');
-    }
-
-    document.getElementById(`laptop_id_${itemId}`).value = laptop.id;
-    document.getElementById(`price_${itemId}`).value = laptop.sale_price || 0;
-
-    // Actualizar stock info
-    const stockInfo = document.getElementById(`stock_info_${itemId}`);
-    if (stockInfo) {
-        stockInfo.textContent = `${laptop.quantity || 0} disponibles`;
-    }
-
-    // Calcular total inicial
-    const qty = parseInt(document.getElementById(`qty_${itemId}`).value) || 1;
-    const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
-    document.getElementById(`total_${itemId}`).value = (qty * price).toFixed(2);
+    // Actualizar todos los campos usando la funciÃ³n centralizada
+    updateLaptopFields(itemId, laptop);
 
     // Inicializar el array de seriales seleccionados
     const serialsInput = document.getElementById(`selected_serials_${itemId}`);
@@ -1327,6 +1334,11 @@ function selectLaptop(itemId, laptop) {
 
     // Cargar selector de seriales
     loadSerialSelector(itemId, laptop.id, laptop.quantity || 0);
+
+    // Calcular total inicial
+    const qty = parseInt(document.getElementById(`qty_${itemId}`).value) || 1;
+    const price = parseFloat(document.getElementById(`price_${itemId}`).value) || 0;
+    document.getElementById(`total_${itemId}`).value = (qty * price).toFixed(2);
 
     calculateTotals();
 }
@@ -1419,7 +1431,7 @@ function loadSerialSelector(itemId, laptopId, availableQty) {
                     selectorContainer.innerHTML = `
                         <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                             <div class="flex items-center">
-                                <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 w-5 text-yellow-600 dark:text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                 </svg>
                                 <p class="text-sm text-yellow-700 dark:text-yellow-300">
@@ -1467,7 +1479,7 @@ function updateSelectedSerials(itemId) {
         hiddenInput.value = JSON.stringify(selectedIds);
     }
 
-    // Actualizar cantidad automáticamente
+    // Actualizar cantidad automÃ¡ticamente
     const qtyInput = document.getElementById(`qty_${itemId}`);
     if (qtyInput && selectedIds.length > 0) {
         qtyInput.value = selectedIds.length;
@@ -1487,7 +1499,7 @@ function updateQuantityFromSerials(itemId) {
         const qtyInput = document.getElementById(`qty_${itemId}`);
 
         if (selectedCount > 0 && parseInt(qtyInput.value) !== selectedCount) {
-            if (confirm(`Ya tienes ${selectedCount} serial(es) seleccionado(s). ¿Quieres actualizar la cantidad a ${selectedCount}?`)) {
+            if (confirm(`Ya tienes ${selectedCount} serial(es) seleccionado(s). Â¿Quieres actualizar la cantidad a ${selectedCount}?`)) {
                 qtyInput.value = selectedCount;
                 calculateTotals();
             }
@@ -1496,282 +1508,14 @@ function updateQuantityFromSerials(itemId) {
 }
 
 // ==========================================
-// FUNCIÓN PARA ENCONTRAR ITEM POR LAPTOP_ID
-// ==========================================
-
-function findItemByLaptopId(laptopId) {
-    const items = document.querySelectorAll('[id^="item_"]');
-    for (const item of items) {
-        const itemId = item.id.split('_')[1];
-        const itemLaptopId = document.getElementById(`laptop_id_${itemId}`)?.value;
-        if (itemLaptopId && itemLaptopId === laptopId.toString()) {
-            return itemId;
-        }
-    }
-    return null;
-}
-
-// ==========================================
-// FUNCIÓN GLOBAL PARA BUSCAR POR SERIAL
-// ==========================================
-
-async function globalSearchBySerial(serialNumber) {
-    const input = document.getElementById('global_laptop_search');
-    const originalPlaceholder = input.placeholder;
-
-    try {
-        // UI: Mostrar loading
-        input.placeholder = '🔍 Buscando serial...';
-        input.disabled = true;
-        input.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-
-        // API Call
-        const response = await fetch(
-            `/api/serials/search-for-invoice?serial=${encodeURIComponent(serialNumber)}`
-        );
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // CASO 1: Serial encontrado y disponible ✅
-        if (data.found && data.available_for_sale) {
-            console.log('✅ Serial disponible:', data);
-
-            // Buscar si ya existe un item con este laptop_id
-            const existingItemId = findItemByLaptopId(data.laptop.id);
-
-            if (existingItemId) {
-                // Si ya existe, incrementar cantidad y agregar serial
-                console.log('📦 Laptop ya existe en factura, incrementando cantidad...');
-
-                // Obtener seriales actualmente seleccionados
-                const serialInput = document.getElementById(`selected_serials_${existingItemId}`);
-                let serials = [];
-                if (serialInput && serialInput.value) {
-                    try {
-                        serials = JSON.parse(serialInput.value);
-                    } catch (e) {
-                        serials = [];
-                    }
-                }
-
-                // Agregar nuevo serial si no existe ya
-                const serialExists = serials.some(s => s.serial_number === serialNumber);
-                if (!serialExists) {
-                    serials.push({
-                        id: data.serial.id,
-                        serial_number: serialNumber
-                    });
-
-                    if (serialInput) {
-                        serialInput.value = JSON.stringify(serials);
-                    }
-
-                    // Actualizar contador de seriales
-                    const countElement = document.getElementById(`selected_serials_count_${existingItemId}`);
-                    if (countElement) {
-                        countElement.textContent = serials.length;
-                    }
-
-                    // Actualizar cantidad
-                    const qtyInput = document.getElementById(`qty_${existingItemId}`);
-                    if (qtyInput) {
-                        qtyInput.value = serials.length;
-                    }
-
-                    // Actualizar badge visual con múltiples seriales
-                    showSerialBadge(existingItemId, serials.map(s => s.serial_number));
-
-                    // Calcular totales
-                    calculateTotals();
-
-                    // Notificación de éxito
-                    showNotification(
-                        `✅ ${data.laptop.display_name} - Cantidad actualizada a ${serials.length} - Serial: ${serialNumber}`,
-                        'success'
-                    );
-                } else {
-                    showNotification(
-                        `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
-                        'info'
-                    );
-                }
-
-                playSuccessSound();
-
-            } else {
-                // Si no existe, crear nuevo item
-                console.log('🆕 Creando nuevo item para laptop...');
-
-                const itemId = addLaptopItem(
-                    data.laptop.id,
-                    data.laptop.display_name,
-                    1,
-                    data.laptop.sale_price,
-                    false
-                );
-
-                // Después de un breve delay, seleccionar el serial
-                setTimeout(() => {
-                    // Inicializar array de seriales
-                    const serialInput = document.getElementById(`selected_serials_${itemId}`);
-                    if (serialInput) {
-                        serialInput.value = JSON.stringify([{
-                            id: data.serial.id,
-                            serial_number: serialNumber
-                        }]);
-                    }
-
-                    // Actualizar contador
-                    const countElement = document.getElementById(`selected_serials_count_${itemId}`);
-                    if (countElement) {
-                        countElement.textContent = '1';
-                    }
-
-                    // Mostrar badge visual
-                    showSerialBadge(itemId, [serialNumber]);
-
-                    // Calcular totales
-                    calculateTotals();
-                }, 300);
-
-                // Notificación de éxito
-                showNotification(
-                    `✅ ${data.laptop.display_name} agregado - Serial: ${serialNumber}`,
-                    'success'
-                );
-
-                playSuccessSound();
-            }
-
-            // Feedback visual positivo (verde)
-            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-            input.classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900');
-
-            setTimeout(() => {
-                input.classList.remove('border-green-500', 'bg-green-50', 'dark:bg-green-900');
-            }, 2000);
-
-        }
-
-        // CASO 2: Serial encontrado pero NO disponible ⚠️
-        else if (data.found && !data.available_for_sale) {
-            console.warn('⚠️ Serial no disponible:', data);
-
-            input.value = '';
-            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-            input.classList.add('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
-
-            setTimeout(() => {
-                input.classList.remove('border-yellow-500', 'bg-yellow-50', 'dark:bg-yellow-900');
-            }, 3000);
-
-            showNotification(
-                `⚠️ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
-                'warning'
-            );
-
-            playErrorSound();
-        }
-
-        // CASO 3: Serial no encontrado - Fallback a búsqueda normal ❌
-        else {
-            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
-
-            input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-
-            // Intentar búsqueda tradicional
-            handleGlobalSearch(serialNumber);
-
-            showNotification(
-                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
-                'info'
-            );
-        }
-
-    } catch (error) {
-        console.error('❌ Error buscando serial:', error);
-
-        input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
-        input.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
-
-        setTimeout(() => {
-            input.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
-        }, 3000);
-
-        showNotification('❌ Error al buscar serial', 'error');
-        playErrorSound();
-
-    } finally {
-        input.disabled = false;
-        input.placeholder = originalPlaceholder;
-        input.value = '';
-    }
-}
-
-// ==========================================
-// FUNCIÓN PARA BÚSQUEDA GLOBAL (NO SERIAL)
-// ==========================================
-
-function handleGlobalSearch(searchTerm) {
-    // Si el término parece un serial (longitud >= 5 y contiene principalmente números/letras)
-    const isLikelySerial = searchTerm.length >= 5 && /^[A-Za-z0-9]+$/.test(searchTerm);
-
-    if (isLikelySerial) {
-        // Intentar como serial primero
-        globalSearchBySerial(searchTerm);
-        return;
-    }
-
-    const results = filterLaptops(searchTerm);
-    const resultsContainer = document.getElementById('global_laptop_results_list');
-    const resultsDropdown = document.getElementById('global_laptop_results');
-
-    if (results.length === 0) {
-        resultsContainer.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No se encontraron laptops</div>`;
-        resultsDropdown.classList.remove('hidden');
-        return;
-    }
-
-    resultsContainer.innerHTML = '';
-
-    results.forEach(laptop => {
-        const resultItem = document.createElement('div');
-        resultItem.className = 'px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
-
-        const name = laptop.brand && laptop.model ? `${laptop.brand} ${laptop.model}` : laptop.brand || laptop.model || 'Laptop';
-
-        resultItem.innerHTML = `
-            <div class="font-medium text-gray-900 dark:text-white">${name}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                ${laptop.processor || ''} • RD$ ${formatCurrency(laptop.sale_price || 0)} • ${laptop.quantity || 0} disponibles
-            </div>
-        `;
-
-        resultItem.addEventListener('click', () => {
-            // Crear nuevo item con esta laptop
-            addLaptopItem(laptop.id, name, 1, laptop.sale_price || 0);
-            resultsDropdown.classList.add('hidden');
-            document.getElementById('global_laptop_search').value = '';
-        });
-
-        resultsContainer.appendChild(resultItem);
-    });
-
-    resultsDropdown.classList.remove('hidden');
-}
-
-// ==========================================
-// BÚSQUEDA POR SERIAL (API) - MODIFICADA
+// FUNCIÃ“N PARA BÃšSQUEDA POR SERIAL (API)
 // ==========================================
 
 async function searchBySerial(serialNumber, itemId) {
-    // Si no se especifica itemId, usar la función global
+    // itemId es requerido
     if (!itemId) {
-        return globalSearchBySerial(serialNumber);
+        console.error('itemId es requerido para searchBySerial');
+        return;
     }
 
     const input = document.getElementById(`laptop_search_${itemId}`);
@@ -1779,7 +1523,7 @@ async function searchBySerial(serialNumber, itemId) {
 
     try {
         // UI: Mostrar loading
-        input.placeholder = '🔍 Buscando serial...';
+        input.placeholder = 'ðŸ” Buscando serial...';
         input.disabled = true;
         input.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
 
@@ -1794,13 +1538,12 @@ async function searchBySerial(serialNumber, itemId) {
 
         const data = await response.json();
 
-        // CASO 1: Serial encontrado y disponible ✅
+        // CASO 1: Serial encontrado y disponible âœ…
         if (data.found && data.available_for_sale) {
-            console.log('✅ Serial disponible:', data);
+            console.log('âœ… Serial disponible:', data);
 
-            // Llenar datos del item
-            document.getElementById(`laptop_id_${itemId}`).value = data.laptop.id;
-            document.getElementById(`laptop_search_${itemId}`).value = data.laptop.display_name;
+            // Actualizar todos los campos usando la funciÃ³n centralizada
+            updateLaptopFields(itemId, data.laptop);
 
             // Obtener seriales actualmente seleccionados
             const serialInput = document.getElementById(`selected_serials_${itemId}`);
@@ -1837,13 +1580,14 @@ async function searchBySerial(serialNumber, itemId) {
                     qtyInput.value = serials.length;
                 }
 
-                document.getElementById(`price_${itemId}`).value = data.laptop.sale_price;
-
-                // Ocultar el dropdown de búsqueda
+                // Ocultar el dropdown de bÃºsqueda
                 const resultsDiv = document.getElementById(`laptop_results_${itemId}`);
                 if (resultsDiv) {
                     resultsDiv.classList.add('hidden');
                 }
+
+                // Cargar selector de seriales
+                loadSerialSelector(itemId, data.laptop.id, data.laptop.quantity || 0);
 
                 // Mostrar badge visual de serial escaneado
                 showSerialBadge(itemId, serials.map(s => s.serial_number));
@@ -1859,14 +1603,14 @@ async function searchBySerial(serialNumber, itemId) {
                 // Calcular totales
                 calculateTotals();
 
-                // Notificación de éxito
+                // NotificaciÃ³n de Ã©xito
                 showNotification(
-                    `✅ ${data.laptop.display_name} - Cantidad actualizada a ${serials.length} - Serial: ${serialNumber}`,
+                    `âœ… ${data.laptop.display_name} - Cantidad actualizada a ${serials.length} - Serial: ${serialNumber}`,
                     'success'
                 );
             } else {
                 showNotification(
-                    `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
+                    `â„¹ï¸ El serial ${serialNumber} ya estÃ¡ seleccionado para este item`,
                     'info'
                 );
             }
@@ -1875,9 +1619,9 @@ async function searchBySerial(serialNumber, itemId) {
             playSuccessSound();
         }
 
-        // CASO 2: Serial encontrado pero NO disponible ⚠️
+        // CASO 2: Serial encontrado pero NO disponible âš ï¸
         else if (data.found && !data.available_for_sale) {
-            console.warn('⚠️ Serial no disponible:', data);
+            console.warn('âš ï¸ Serial no disponible:', data);
 
             input.value = '';
             input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
@@ -1888,31 +1632,31 @@ async function searchBySerial(serialNumber, itemId) {
             }, 3000);
 
             showNotification(
-                `⚠️ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
+                `âš ï¸ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
                 'warning'
             );
 
             playErrorSound();
         }
 
-        // CASO 3: Serial no encontrado - Fallback a búsqueda normal ❌
+        // CASO 3: Serial no encontrado - Fallback a bÃºsqueda normal âŒ
         else {
-            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
+            console.log('â„¹ï¸ Serial no encontrado, buscando como laptop...');
 
             input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
 
-            // Intentar búsqueda tradicional
+            // Intentar bÃºsqueda tradicional
             const results = filterLaptops(serialNumber);
             displayLaptopResults(itemId, results);
 
             showNotification(
-                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
+                `â„¹ï¸ Serial ${serialNumber} no encontrado - Mostrando resultados de bÃºsqueda`,
                 'info'
             );
         }
 
     } catch (error) {
-        console.error('❌ Error buscando serial:', error);
+        console.error('âŒ Error buscando serial:', error);
 
         input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
         input.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
@@ -1921,7 +1665,7 @@ async function searchBySerial(serialNumber, itemId) {
             input.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
         }, 3000);
 
-        showNotification('❌ Error al buscar serial', 'error');
+        showNotification('âŒ Error al buscar serial', 'error');
         playErrorSound();
 
     } finally {
@@ -1930,161 +1674,8 @@ async function searchBySerial(serialNumber, itemId) {
     }
 }
 
-function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, fromLocalStorage = false) {
-    hideEmptyMsg();
-    const container = document.getElementById('items_container');
-    const itemId = itemCounter++;
-
-    let currentLaptop = null;
-    let laptopName = '';
-    let laptopIdValue = '';
-    let hasLaptop = false;
-
-    if (laptopId && laptopId !== 'null' && laptopId !== '') {
-        // Buscar la laptop en la lista global
-        currentLaptop = laptops.find(l => l.id === Number(laptopId));
-        if (currentLaptop) {
-            laptopIdValue = laptopId;
-            hasLaptop = true;
-            laptopName = currentLaptop.brand && currentLaptop.model ?
-                `${currentLaptop.brand} ${currentLaptop.model}` :
-                currentLaptop.brand || currentLaptop.model || 'Laptop';
-        } else {
-            // Si no está en la lista global, aún así guardamos el ID
-            laptopIdValue = laptopId;
-        }
-    }
-
-    // Crear el HTML del item (igual que cuando se busca)
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4';
-    itemDiv.id = `item_${itemId}`;
-
-    itemDiv.innerHTML = `
-        <input type="hidden" id="type_${itemId}" value="laptop">
-        <input type="hidden" id="laptop_id_${itemId}" value="${laptopIdValue}">
-        <div class="flex items-start gap-4">
-            <div class="flex-1">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded">Laptop</span>
-                        <span id="stock_info_${itemId}" class="text-xs text-gray-500 dark:text-gray-400">
-                            ${hasLaptop && currentLaptop ? `${currentLaptop.quantity} disponibles` : 'Selecciona una laptop'}
-                        </span>
-                    </div>
-                    <button type="button" onclick="removeItem(${itemId})" class="text-red-500 hover:text-red-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Laptop</label>
-                    <div class="relative">
-                        <input type="text"
-                               id="laptop_search_${itemId}"
-                               value="${laptopName}"
-                               placeholder="Busca por marca, modelo o serial..."
-                               autocomplete="off"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
-                        <div id="laptop_results_${itemId}" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            <div id="laptop_results_list_${itemId}" class="py-1"></div>
-                        </div>
-                    </div>
-                </div>
-                <div id="laptop_description_container_${itemId}" class="${hasLaptop || fromLocalStorage ? '' : 'hidden'} mb-4">
-                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-                    <textarea id="laptop_description_${itemId}"
-                              rows="2"
-                              class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-y">${description}</textarea>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
-                        <input type="number"
-                               id="qty_${itemId}"
-                               value="${quantity}"
-                               min="1"
-                               onchange="calculateTotals(); updateQuantityFromSerials(${itemId})"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Unitario (RD$)</label>
-                        <input type="number"
-                               id="price_${itemId}"
-                               value="${price}"
-                               min="0"
-                               step="0.01"
-                               onchange="calculateTotals()"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total (RD$)</label>
-                        <input type="text"
-                               id="total_${itemId}"
-                               readonly
-                               value="${(quantity * price).toFixed(2)}"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white bg-gray-50 dark:bg-gray-700">
-                    </div>
-                </div>
-                <!-- Selector de seriales (se mostrará si hay laptop seleccionada) -->
-                <div id="serial_selector_${itemId}" class="mt-4 ${hasLaptop || fromLocalStorage ? '' : 'hidden'}">
-                    <!-- Se cargará dinámicamente -->
-                </div>
-                <!-- Campo oculto para seriales seleccionados -->
-                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
-            </div>
-        </div>
-    `;
-
-    container.appendChild(itemDiv);
-    setupLaptopSearch(itemId);
-    calculateTotals();
-
-    // Si la laptop viene de localStorage, simular la selección completa
-    if (fromLocalStorage && laptopIdValue) {
-        // Actualizar la descripción si no está vacía
-        if (description.trim() !== '') {
-            document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
-        }
-
-        // Cargar seriales si hay laptopId
-        if (laptopIdValue) {
-            // Hacer una petición para obtener los detalles de la laptop (incluyendo stock)
-            fetch(`/api/laptops/${laptopIdValue}/details`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.laptop) {
-                        const laptop = data.laptop;
-                        // Actualizar el stock info
-                        document.getElementById(`stock_info_${itemId}`).textContent =
-                            `${laptop.quantity || 0} disponibles`;
-
-                        // Cargar selector de seriales
-                        loadSerialSelector(itemId, laptopIdValue, laptop.quantity || 0);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error cargando detalles de laptop:', error);
-                    // Intentar cargar seriales de todos modos
-                    loadSerialSelector(itemId, laptopIdValue, 0);
-                });
-        }
-    } else if (hasLaptop && currentLaptop) {
-        // Si se encontró en la lista global, seleccionarla completamente
-        selectLaptop(itemId, currentLaptop);
-    }
-
-    // Configurar búsqueda inteligente
-    setTimeout(() => {
-        setupIntelligentLaptopSearch(itemId);
-    }, 100);
-
-    return itemId;
-}
-
 // ==========================================
-// BADGE VISUAL DE SERIAL ESCANEADO - MODIFICADA
+// BADGE VISUAL DE SERIAL ESCANEADO
 // ==========================================
 
 function showSerialBadge(itemId, serialNumbers) {
@@ -2121,13 +1712,13 @@ function showSerialBadge(itemId, serialNumbers) {
         `;
     }
 
-    // Insertar después del input de búsqueda
+    // Insertar despuÃ©s del input de bÃºsqueda
     const searchInput = document.getElementById(`laptop_search_${itemId}`);
     if (searchInput && searchInput.parentElement) {
         searchInput.parentElement.appendChild(badge);
     }
 
-    // Animación de entrada
+    // AnimaciÃ³n de entrada
     badge.style.opacity = '0';
     badge.style.transform = 'scale(0.9)';
     setTimeout(() => {
@@ -2245,7 +1836,7 @@ function setupLaptopSearch(itemId) {
 }
 
 // ==========================================
-// SETUP DE INPUT INTELIGENTE DE BÚSQUEDA
+// SETUP DE INPUT INTELIGENTE DE BÃšSQUEDA
 // ==========================================
 
 function setupIntelligentLaptopSearch(itemId) {
@@ -2269,7 +1860,7 @@ function setupIntelligentLaptopSearch(itemId) {
                         firstResult.click();
                     }
                 } else {
-                    // No hay resultados visibles, hacer búsqueda
+                    // No hay resultados visibles, hacer bÃºsqueda
                     const results = filterLaptops(value);
                     if (results.length > 0) {
                         selectLaptop(itemId, results[0]);
@@ -2278,6 +1869,157 @@ function setupIntelligentLaptopSearch(itemId) {
             }
         }
     });
+}
+
+function addLaptopItem(laptopId = null, description = '', quantity = 1, price = 0, fromLocalStorage = false) {
+    hideEmptyMsg();
+    const container = document.getElementById('items_container');
+    const itemId = itemCounter++;
+
+    let currentLaptop = null;
+    let laptopName = '';
+    let laptopIdValue = '';
+    let hasLaptop = false;
+
+    if (laptopId && laptopId !== 'null' && laptopId !== '') {
+        // Buscar la laptop en la lista global
+        currentLaptop = laptops.find(l => l.id === Number(laptopId));
+        if (currentLaptop) {
+            laptopIdValue = laptopId;
+            hasLaptop = true;
+            laptopName = currentLaptop.brand && currentLaptop.model ?
+                `${currentLaptop.brand} ${currentLaptop.model}` :
+                currentLaptop.brand || currentLaptop.model || 'Laptop';
+        } else {
+            // Si no estÃ¡ en la lista global, aÃºn asÃ­ guardamos el ID
+            laptopIdValue = laptopId;
+        }
+    }
+
+    // Crear el HTML del item (igual que cuando se busca)
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4';
+    itemDiv.id = `item_${itemId}`;
+
+    itemDiv.innerHTML = `
+        <input type="hidden" id="type_${itemId}" value="laptop">
+        <input type="hidden" id="laptop_id_${itemId}" value="${laptopIdValue}">
+        <div class="flex items-start gap-4">
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded">Laptop</span>
+                        <span id="stock_info_${itemId}" class="text-xs text-gray-500 dark:text-gray-400">
+                            ${hasLaptop && currentLaptop ? `${currentLaptop.quantity} disponibles` : 'Selecciona una laptop'}
+                        </span>
+                    </div>
+                    <button type="button" onclick="removeItem(${itemId})" class="text-red-500 hover:text-red-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Laptop</label>
+                    <div class="relative">
+                        <input type="text"
+                               id="laptop_search_${itemId}"
+                               value="${laptopName}"
+                               placeholder="Busca por marca, modelo o serial..."
+                               autocomplete="off"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                        <div id="laptop_results_${itemId}" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div id="laptop_results_list_${itemId}" class="py-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="laptop_description_container_${itemId}" class="${hasLaptop || fromLocalStorage ? '' : 'hidden'} mb-4">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">DescripciÃ³n</label>
+                    <textarea id="laptop_description_${itemId}"
+                              rows="2"
+                              class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-y">${description}</textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad</label>
+                        <input type="number"
+                               id="qty_${itemId}"
+                               value="${quantity}"
+                               min="1"
+                               onchange="calculateTotals(); updateQuantityFromSerials(${itemId})"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Precio Unitario (RD$)</label>
+                        <input type="number"
+                               id="price_${itemId}"
+                               value="${price}"
+                               min="0"
+                               step="0.01"
+                               onchange="calculateTotals()"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total (RD$)</label>
+                        <input type="text"
+                               id="total_${itemId}"
+                               readonly
+                               value="${(quantity * price).toFixed(2)}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white bg-gray-50 dark:bg-gray-700">
+                    </div>
+                </div>
+                <!-- Selector de seriales (se mostrarÃ¡ si hay laptop seleccionada) -->
+                <div id="serial_selector_${itemId}" class="mt-4 ${hasLaptop || fromLocalStorage ? '' : 'hidden'}">
+                    <!-- Se cargarÃ¡ dinÃ¡micamente -->
+                </div>
+                <!-- Campo oculto para seriales seleccionados -->
+                <input type="hidden" id="selected_serials_${itemId}" name="selected_serials_${itemId}" value="[]">
+            </div>
+        </div>
+    `;
+
+    container.appendChild(itemDiv);
+    setupLaptopSearch(itemId);
+    calculateTotals();
+
+    // Si la laptop viene de localStorage, obtener los detalles completos
+    if (fromLocalStorage && laptopIdValue) {
+        // Actualizar la descripciÃ³n si no estÃ¡ vacÃ­a
+        if (description.trim() !== '') {
+            document.getElementById(`laptop_description_container_${itemId}`).classList.remove('hidden');
+        }
+
+        // Cargar detalles de la laptop para llenar todos los campos correctamente
+        if (laptopIdValue) {
+            fetch(`/invoices/api/laptops/${laptopIdValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.laptop) {
+                        const laptop = data.laptop;
+                        // Actualizar todos los campos usando la funciÃ³n centralizada
+                        updateLaptopFields(itemId, laptop);
+
+                        // Cargar selector de seriales
+                        loadSerialSelector(itemId, laptopIdValue, laptop.quantity || 0);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando detalles de laptop:', error);
+                    // Intentar cargar seriales de todos modos
+                    loadSerialSelector(itemId, laptopIdValue, 0);
+                });
+        }
+    } else if (hasLaptop && currentLaptop) {
+        // Si se encontrÃ³ en la lista global, seleccionarla completamente
+        selectLaptop(itemId, currentLaptop);
+    }
+
+    // Configurar bÃºsqueda inteligente
+    setTimeout(() => {
+        setupIntelligentLaptopSearch(itemId);
+    }, 100);
+
+    return itemId;
 }
 
 // ==========================================
@@ -2329,17 +2071,17 @@ function validateCustomerForm() {
     let isValid = true;
     let errorMessage = '';
 
-    // Validar número de identificación
+    // Validar nÃºmero de identificaciÃ³n
     const idDigits = idNumberInput.value.replace(/\D/g, '');
     if (idDigits.length === 0) {
         isValid = false;
-        errorMessage = 'El número de identificación es requerido.';
+        errorMessage = 'El nÃºmero de identificaciÃ³n es requerido.';
     } else if (idDigits.length !== RNC_LENGTH && idDigits.length !== CEDULA_LENGTH) {
         isValid = false;
-        errorMessage = `Debe tener ${RNC_LENGTH} (RNC) u ${CEDULA_LENGTH} (Cédula) dígitos.`;
+        errorMessage = `Debe tener ${RNC_LENGTH} (RNC) u ${CEDULA_LENGTH} (CÃ©dula) dÃ­gitos.`;
     }
 
-    // Validar campos según tipo de cliente
+    // Validar campos segÃºn tipo de cliente
     const customerType = document.getElementById('customer_type').value;
     if (customerType === 'person') {
         if (!firstNameInput.value.trim()) {
@@ -2359,19 +2101,19 @@ function validateCustomerForm() {
     // Validar email
     if (!emailInput.value.trim()) {
         isValid = false;
-        errorMessage = 'El correo electrónico es requerido.';
+        errorMessage = 'El correo electrÃ³nico es requerido.';
     } else {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(emailInput.value.trim())) {
             isValid = false;
-            errorMessage = 'Por favor ingrese un correo electrónico válido.';
+            errorMessage = 'Por favor ingrese un correo electrÃ³nico vÃ¡lido.';
         }
     }
 
-    // Validar teléfono
+    // Validar telÃ©fono
     if (!phonePrimaryInput.value.trim()) {
         isValid = false;
-        errorMessage = 'El teléfono principal es requerido.';
+        errorMessage = 'El telÃ©fono principal es requerido.';
     }
 
     return { isValid, errorMessage };
@@ -2459,7 +2201,7 @@ function initializeCustomerFormForInvoice() {
 }
 
 // ==========================================
-// FUNCIONES DE VALIDACIÓN DEL FORMULARIO DE FACTURA
+// FUNCIONES DE VALIDACIÃ“N DEL FORMULARIO DE FACTURA
 // ==========================================
 
 function validateInvoiceForm() {
@@ -2473,12 +2215,12 @@ function validateInvoiceForm() {
     if (useManualNcf && !isEdit) {
         const manualSequence = document.getElementById('manual_ncf_sequence').value;
         if (manualSequence.length !== NCF_SEQUENCE_LENGTH) {
-            alert(`El NCF manual debe tener exactamente ${NCF_SEQUENCE_LENGTH} dígitos en la secuencia`);
+            alert(`El NCF manual debe tener exactamente ${NCF_SEQUENCE_LENGTH} dÃ­gitos en la secuencia`);
             document.getElementById('manual_ncf_sequence').focus();
             return false;
         }
         if (!manualNcfValid) {
-            alert('El NCF manual ingresado no es válido o ya está en uso. Por favor verifique.');
+            alert('El NCF manual ingresado no es vÃ¡lido o ya estÃ¡ en uso. Por favor verifique.');
             return false;
         }
     }
@@ -2539,7 +2281,7 @@ function collectInvoiceItems() {
 }
 
 // ==========================================
-// INICIALIZACIÓN
+// INICIALIZACIÃ“N
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2621,62 +2363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Configuración del input global de búsqueda
-    const globalSearchInput = document.getElementById('global_laptop_search');
-    if (globalSearchInput) {
-        globalSearchInput.addEventListener('focus', function() {
-            if (this.value.trim() === '') {
-                handleGlobalSearch('');
-            }
-        });
-
-        const debouncedGlobalSearch = debounce(function(e) {
-            const searchTerm = e.target.value;
-            if (searchTerm.trim() === '') {
-                handleGlobalSearch('');
-                return;
-            }
-            handleGlobalSearch(searchTerm);
-        }, DEBOUNCE_DELAY);
-
-        globalSearchInput.addEventListener('input', debouncedGlobalSearch);
-
-        globalSearchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const searchTerm = this.value.trim();
-
-                if (searchTerm.length >= 5 && /^[A-Za-z0-9]+$/.test(searchTerm)) {
-                    // Intentar como serial primero
-                    globalSearchBySerial(searchTerm);
-                } else {
-                    const resultsContainer = document.getElementById('global_laptop_results');
-                    if (resultsContainer && !resultsContainer.classList.contains('hidden')) {
-                        const firstResult = resultsContainer.querySelector('div.cursor-pointer');
-                        if (firstResult) {
-                            firstResult.click();
-                        }
-                    } else {
-                        handleGlobalSearch(searchTerm);
-                    }
-                }
-            }
-
-            if (e.key === 'Escape') {
-                document.getElementById('global_laptop_results').classList.add('hidden');
-            }
-        });
-
-        document.addEventListener('click', function(e) {
-            const results = document.getElementById('global_laptop_results');
-            const search = document.getElementById('global_laptop_search');
-
-            if (results && search && !search.contains(e.target) && !results.contains(e.target)) {
-                results.classList.add('hidden');
-            }
-        });
-    }
-
     // Cargar laptops seleccionadas desde localStorage
     if (!isEdit) {
         try {
@@ -2704,14 +2390,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             localStorage.removeItem('selectedLaptopsForInvoice');
-            console.log('LocalStorage limpiado después de procesar laptops');
+            console.log('LocalStorage limpiado despuÃ©s de procesar laptops');
         } catch (error) {
             console.error('Error cargando laptops desde localStorage:', error);
             localStorage.removeItem('selectedLaptopsForInvoice');
         }
     }
 
-    // Cargar items existentes en modo edición
+    // Cargar items existentes en modo ediciÃ³n
     {% if invoice and invoice.items %}
     {% for item in invoice.items.all() %}
     {% if item.item_type == 'laptop' %}
@@ -2722,12 +2408,12 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endfor %}
     {% endif %}
 
-    // Si no estamos en modo edición y no hay items, agregar un item de laptop vacío para precargar el buscador
+    // Si no estamos en modo ediciÃ³n y no hay items, agregar un item de laptop vacÃ­o para precargar el buscador
     if (!isEdit && document.getElementById('items_container').children.length === 0) {
         addLaptopItem(null, '', 1, 0);
     }
 
-    // Si hay cliente en edición, mostrar sección NCF
+    // Si hay cliente en ediciÃ³n, mostrar secciÃ³n NCF
     {% if invoice and invoice.customer_id %}
     const ncfSection = document.getElementById('ncf_section');
     if (ncfSection && !isEdit) {
@@ -2737,7 +2423,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calculateTotals();
 
-    // Configurar búsqueda inteligente en items existentes
+    // Configurar bÃºsqueda inteligente en items existentes
     document.querySelectorAll('[id^="laptop_search_"]').forEach(input => {
         const itemId = input.id.split('_')[2];
         if (itemId) {

@@ -62,37 +62,6 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   ├── logos/
 │   │   ├── uploads/
 │   │   │   └── laptops/
-│   │   │       ├── 40/
-│   │   │       │   ├── LX-20260122-0040_1_20260122_163253.avif
-│   │   │       │   ├── LX-20260122-0040_2_20260122_163254.avif
-│   │   │       │   ├── LX-20260122-0040_3_20260122_163254.avif
-│   │   │       │   ├── LX-20260122-0040_4_20260122_163254.avif
-│   │   │       │   ├── LX-20260122-0040_5_20260122_163255.avif
-│   │   │       │   └── LX-20260122-0040_6_20260122_163257.avif
-│   │   │       ├── 49/
-│   │   │       │   └── LX-20260123-0049_1_20260123_082120.avif
-│   │   │       ├── 50/
-│   │   │       │   ├── LX-20260123-0050_1_20260123_094424.avif
-│   │   │       │   ├── LX-20260123-0050_2_20260123_094425.avif
-│   │   │       │   ├── LX-20260123-0050_3_20260123_094425.avif
-│   │   │       │   ├── LX-20260123-0050_4_20260123_094425.avif
-│   │   │       │   ├── LX-20260123-0050_5_20260123_094426.avif
-│   │   │       │   └── LX-20260123-0050_6_20260123_094428.avif
-│   │   │       ├── 51/
-│   │   │       │   ├── LX-20260123-0051_1_20260123_095952.avif
-│   │   │       │   ├── LX-20260123-0051_2_20260123_095952.avif
-│   │   │       │   ├── LX-20260123-0051_3_20260123_095953.avif
-│   │   │       │   ├── LX-20260123-0051_4_20260123_095953.avif
-│   │   │       │   ├── LX-20260123-0051_5_20260123_095953.avif
-│   │   │       │   └── LX-20260123-0051_6_20260123_095956.avif
-│   │   │       └── 59/
-│   │   │           ├── LX-20260122-0050_1_20260122_163007.avif
-│   │   │           ├── LX-20260122-0050_2_20260122_163009.avif
-│   │   │           ├── LX-20260122-0050_3_20260122_163012.avif
-│   │   │           ├── LX-20260122-0050_4_20260122_163014.avif
-│   │   │           ├── LX-20260122-0050_5_20260122_163016.avif
-│   │   │           ├── LX-20260122-0050_6_20260122_163017.avif
-│   │   │           └── LX-20260122-0050_7_20260122_163019.avif
 │   │   └── favicon.ico
 │   ├── templates/
 │   │   ├── admin/
@@ -101,6 +70,7 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   ├── auth/
 │   │   │   ├── login.html
 │   │   │   └── register.html
+│   │   ├── componets/
 │   │   ├── customers/
 │   │   │   ├── customer_detail.html
 │   │   │   ├── customer_form.html
@@ -136,10 +106,15 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   └── index.html
 │   ├── utils/
 │   │   ├── __init__.py
+│   │   ├── context_processors.py
 │   │   ├── decorators.py
 │   │   ├── dominican_validators.py
+│   │   ├── logging_config.py
+│   │   ├── seeds.py
 │   │   └── validators.py
-│   └── __init__.py
+│   ├── __init__.py
+│   ├── cli.py
+│   └── extensions.py
 ├── logs/
 │   └── luxera.log
 ├── migrations/
@@ -151,7 +126,6 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   ├── Migrate_ncf_sequences.py
 │   ├── README
 │   └── script.py.mako
-├── app.py
 ├── config.py
 ├── generate_tree.bat
 ├── generate_tree.py
