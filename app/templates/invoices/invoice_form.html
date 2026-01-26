@@ -1031,8 +1031,8 @@ function displayCustomerResults(results, isRecent = false) {
 
         // Mostrar badge de tipo de identificación y NCF sugerido
         const idTypeBadge = customer.id_type === 'rnc'
-            ? '<span class="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded">RNC â†’ B01</span>'
-            : '<span class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded">Cédula â†’ B02</span>';
+            ? '<span class="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 rounded">RNC → B01</span>'
+            : '<span class="px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded">Cédula → B02</span>';
 
         resultItem.innerHTML = `
             <div class="flex items-center justify-between">
@@ -1558,7 +1558,7 @@ function updateQuantityFromSerials(itemId) {
         const qtyInput = document.getElementById(`qty_${itemId}`);
 
         if (selectedCount > 0 && parseInt(qtyInput.value) !== selectedCount) {
-            if (confirm(`Ya tienes ${selectedCount} serial(es) seleccionado(s). Â¿Quieres actualizar la cantidad a ${selectedCount}?`)) {
+            if (confirm(`Ya tienes ${selectedCount} serial(es) seleccionado(s). ¿Quieres actualizar la cantidad a ${selectedCount}?`)) {
                 qtyInput.value = selectedCount;
                 calculateTotals();
             }
@@ -1582,7 +1582,7 @@ async function searchBySerial(serialNumber, itemId) {
 
     try {
         // UI: Mostrar loading
-        input.placeholder = 'ðŸ” Buscando serial...';
+        input.placeholder = '🔍 Buscando serial...';
         input.disabled = true;
         input.classList.add('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
 
@@ -1682,7 +1682,7 @@ async function searchBySerial(serialNumber, itemId) {
                 );
             } else {
                 showNotification(
-                    `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
+                    `ℹ️ El serial ${serialNumber} ya está seleccionado para este item`,
                     'info'
                 );
             }
@@ -1691,9 +1691,9 @@ async function searchBySerial(serialNumber, itemId) {
             playSuccessSound();
         }
 
-        // CASO 2: Serial encontrado pero NO disponible âš ï¸
+        // CASO 2: Serial encontrado pero NO disponible ⚠️
         else if (data.found && !data.available_for_sale) {
-            console.warn('âš ï¸ Serial no disponible:', data);
+            console.warn('⚠️ Serial no disponible:', data);
 
             input.value = '';
             input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
@@ -1704,16 +1704,16 @@ async function searchBySerial(serialNumber, itemId) {
             }, 3000);
 
             showNotification(
-                `âš ï¸ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
+                `⚠️ Serial ${serialNumber} no disponible - Estado: ${data.serial.status_display}`,
                 'warning'
             );
 
             playErrorSound();
         }
 
-        // CASO 3: Serial no encontrado - Fallback a búsqueda normal âŒ
+        // CASO 3: Serial no encontrado - Fallback a búsqueda normal ❌
         else {
-            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
+            console.log('ℹ️ Serial no encontrado, buscando como laptop...');
 
             input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
 
@@ -1722,13 +1722,13 @@ async function searchBySerial(serialNumber, itemId) {
             displayLaptopResults(itemId, results);
 
             showNotification(
-                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
+                `ℹ️ Serial ${serialNumber} no encontrado - Mostrando resultados de búsqueda`,
                 'info'
             );
         }
 
     } catch (error) {
-        console.error('âŒ Error buscando serial:', error);
+        console.error('❌ Error buscando serial:', error);
 
         input.classList.remove('animate-pulse', 'bg-blue-50', 'dark:bg-blue-900');
         input.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900');
@@ -1737,7 +1737,7 @@ async function searchBySerial(serialNumber, itemId) {
             input.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-900');
         }, 3000);
 
-        showNotification('âŒ Error al buscar serial', 'error');
+        showNotification('❌ Error al buscar serial', 'error');
         playErrorSound();
 
     } finally {
