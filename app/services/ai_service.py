@@ -1,386 +1,578 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# AI SERVICE - Recomendaciones Inteligentes
+# AI SERVICE - Análisis Predictivo y Recomendaciones
 # ============================================
-# Responsabilidad: Generar recomendaciones basadas en datos
 
 from decimal import Decimal
+from datetime import datetime, timedelta
+from typing import Dict, List, Tuple, Any
+import json
 
 
 class AIService:
-    """Servicio de Inteligencia Artificial para recomendaciones"""
+    """Servicio de Inteligencia Artificial Avanzado"""
 
     @staticmethod
-    def generate_recommendations(laptop):
+    def generate_executive_report(financial_data: Dict, inventory_data: Dict,
+                                  sales_data: Dict, period: str = 'month') -> str:
         """
-        Genera recomendaciones basadas en el análisis de la laptop
+        Genera reporte ejecutivo completo
 
         Args:
-            laptop: Objeto Laptop
+            financial_data: Datos financieros
+            inventory_data: Datos de inventario
+            sales_data: Datos de ventas
+            period: Período analizado
 
         Returns:
-            list: Lista de diccionarios con recomendaciones
+            str: Reporte ejecutivo formateado
+        """
+        try:
+            # Analizar salud financiera
+            financial_health = AIService.analyze_financial_health(financial_data)
+
+            # Analizar inventario
+            inventory_analysis = AIService.analyze_inventory_health(inventory_data)
+
+            # Analizar tendencias de ventas
+            sales_trends = AIService.analyze_sales_trends(sales_data)
+
+            # Generar recomendaciones estratégicas
+            recommendations = AIService.generate_strategic_recommendations(
+                financial_health,
+                inventory_analysis,
+                sales_trends
+            )
+
+            # Construir reporte
+            report_parts = [
+                "📊 **REPORTE EJECUTIVO LUXERA AI**",
+                f"📅 Período: {period.upper()}",
+                "",
+                "🚀 **RESUMEN DE DESEMPEÑO**",
+                f"• Salud Financiera: {financial_health['overall_score']}/10",
+                f"• Estado de Inventario: {inventory_analysis['overall_score']}/10",
+                f"• Tendencias de Ventas: {'📈 Positiva' if sales_trends['trend'] == 'up' else '📉 Negativa' if sales_trends['trend'] == 'down' else '➡️ Estable'}",
+                "",
+                "💰 **MÉTRICAS CLAVE**",
+                f"• Ventas Totales: ${financial_data.get('total_sales', 0):,.2f}",
+                f"• Margen Neto: {financial_data.get('net_margin', 0):.1f}%",
+                f"• Utilidad Neta: ${financial_data.get('net_profit', 0):,.2f}",
+                f"• Rotación de Inventario: {inventory_data.get('turnover', 0):.1f}x",
+                "",
+                "⚠️ **PUNTOS DE ATENCIÓN**",
+            ]
+
+            # Añadir alertas
+            alerts = financial_health.get('alerts', []) + inventory_analysis.get('alerts', [])
+            if alerts:
+                for alert in alerts[:3]:  # Máximo 3 alertas
+                    report_parts.append(f"• {alert}")
+            else:
+                report_parts.append("• ✅ Todo dentro de parámetros normales")
+
+            report_parts.extend([
+                "",
+                "🎯 **RECOMENDACIONES ESTRATÉGICAS**",
+            ])
+
+            # Añadir recomendaciones
+            for i, rec in enumerate(recommendations[:5], 1):  # Máximo 5 recomendaciones
+                report_parts.append(f"{i}. {rec}")
+
+            report_parts.extend([
+                "",
+                "📈 **PRONÓSTICO**",
+                AIService.generate_forecast(financial_data, sales_trends),
+                "",
+                "💡 **CONSEJO DEL DÍA**",
+                AIService.get_daily_tip(),
+                "",
+                f"🔄 Reporte generado el {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            ])
+
+            return "\n".join(report_parts)
+
+        except Exception as e:
+            print(f"Error en generate_executive_report: {e}")
+            return "⚠️ No se pudo generar el reporte ejecutivo en este momento."
+
+    @staticmethod
+    def analyze_financial_health(financial_data: Dict) -> Dict:
+        """
+        Analiza la salud financiera del negocio
+
+        Returns:
+            Dict con puntuación y análisis
+        """
+        try:
+            total_sales = financial_data.get('total_sales', 0)
+            net_margin = financial_data.get('net_margin', 0)
+            net_profit = financial_data.get('net_profit', 0)
+            break_even = financial_data.get('break_even_point', 0)
+
+            score = 0
+            alerts = []
+            strengths = []
+
+            # Evaluar margen neto
+            if net_margin > 20:
+                score += 3
+                strengths.append("Margen neto excelente (>20%)")
+            elif net_margin > 10:
+                score += 2
+                strengths.append("Margen neto saludable (10-20%)")
+            elif net_margin > 5:
+                score += 1
+                alerts.append("Margen neto bajo (5-10%)")
+            else:
+                score -= 2
+                alerts.append("⚠️ Margen neto crítico (<5%)")
+
+            # Evaluar utilidad
+            if net_profit > total_sales * 0.15:
+                score += 3
+                strengths.append("Alta rentabilidad")
+            elif net_profit > 0:
+                score += 1
+            else:
+                score -= 3
+                alerts.append("🚨 PÉRDIDAS DETECTADAS")
+
+            # Evaluar punto de equilibrio
+            if break_even < total_sales * 0.7:
+                score += 2
+                strengths.append("Bajo punto de equilibrio")
+            elif break_even > total_sales:
+                score -= 2
+                alerts.append("Punto de equilibrio muy alto")
+
+            # Evaluar crecimiento (si hay datos históricos)
+            growth_rate = financial_data.get('growth_rate', 0)
+            if growth_rate > 15:
+                score += 2
+                strengths.append("Crecimiento acelerado")
+            elif growth_rate < 0:
+                score -= 1
+                alerts.append("Crecimiento negativo")
+
+            # Normalizar score a 10
+            overall_score = min(10, max(0, score + 5))
+
+            return {
+                'overall_score': overall_score,
+                'grade': AIService.get_grade(overall_score),
+                'alerts': alerts,
+                'strengths': strengths,
+                'financial_metrics': financial_data
+            }
+
+        except Exception as e:
+            print(f"Error en analyze_financial_health: {e}")
+            return {'overall_score': 0, 'grade': 'F', 'alerts': [], 'strengths': []}
+
+    @staticmethod
+    def analyze_inventory_health(inventory_data: Dict) -> Dict:
+        """
+        Analiza la salud del inventario
+
+        Returns:
+            Dict con puntuación y análisis
+        """
+        try:
+            turnover = inventory_data.get('turnover', 0)
+            dead_stock = inventory_data.get('dead_stock_count', 0)
+            low_stock = inventory_data.get('low_stock_count', 0)
+            out_of_stock = inventory_data.get('out_of_stock_count', 0)
+            total_items = inventory_data.get('total_items', 0)
+
+            score = 0
+            alerts = []
+            strengths = []
+
+            # Evaluar rotación
+            if turnover > 8:
+                score += 3
+                strengths.append("Alta rotación de inventario")
+            elif turnover > 4:
+                score += 2
+                strengths.append("Rotación adecuada")
+            elif turnover > 2:
+                score += 1
+            else:
+                score -= 2
+                alerts.append("⚠️ Rotación de inventario muy baja")
+
+            # Evaluar stock muerto
+            dead_stock_percent = (dead_stock / total_items * 100) if total_items > 0 else 0
+            if dead_stock_percent > 20:
+                score -= 3
+                alerts.append("🚨 ALTO PORCENTAJE DE STOCK MUERTO")
+            elif dead_stock_percent > 10:
+                score -= 1
+                alerts.append("Stock muerto por encima del óptimo")
+
+            # Evaluar stock bajo
+            if low_stock > total_items * 0.3:
+                score -= 2
+                alerts.append("Muchos productos con stock bajo")
+
+            # Evaluar sin stock
+            if out_of_stock > 0:
+                score -= 1
+                alerts.append(f"{out_of_stock} productos sin stock")
+
+            # Normalizar score a 10
+            overall_score = min(10, max(0, score + 5))
+
+            return {
+                'overall_score': overall_score,
+                'grade': AIService.get_grade(overall_score),
+                'alerts': alerts,
+                'strengths': strengths,
+                'inventory_metrics': inventory_data
+            }
+
+        except Exception as e:
+            print(f"Error en analyze_inventory_health: {e}")
+            return {'overall_score': 0, 'grade': 'F', 'alerts': [], 'strengths': []}
+
+    @staticmethod
+    def analyze_sales_trends(sales_data: Dict) -> Dict:
+        """
+        Analiza tendencias de ventas
+
+        Returns:
+            Dict con análisis de tendencias
+        """
+        try:
+            daily_sales = sales_data.get('daily_sales', [])
+            if not daily_sales or len(daily_sales) < 7:
+                return {'trend': 'stable', 'momentum': 0, 'volatility': 0}
+
+            # Calcular tendencia de los últimos 7 días
+            recent_sales = [day.get('amount', 0) for day in daily_sales[-7:]]
+
+            if len(recent_sales) >= 2:
+                # Tendencia simple
+                first_half = sum(recent_sales[:3]) / 3 if len(recent_sales) >= 3 else recent_sales[0]
+                second_half = sum(recent_sales[-3:]) / 3 if len(recent_sales) >= 3 else recent_sales[-1]
+
+                trend_percent = ((second_half - first_half) / first_half * 100) if first_half > 0 else 0
+
+                if trend_percent > 10:
+                    trend = 'up'
+                    momentum = 'strong'
+                elif trend_percent > 5:
+                    trend = 'up'
+                    momentum = 'moderate'
+                elif trend_percent < -10:
+                    trend = 'down'
+                    momentum = 'strong'
+                elif trend_percent < -5:
+                    trend = 'down'
+                    momentum = 'moderate'
+                else:
+                    trend = 'stable'
+                    momentum = 'neutral'
+
+                # Calcular volatilidad
+                avg_sales = sum(recent_sales) / len(recent_sales)
+                variance = sum((x - avg_sales) ** 2 for x in recent_sales) / len(recent_sales)
+                volatility = (variance ** 0.5) / avg_sales if avg_sales > 0 else 0
+
+                # Identificar mejores y peores días
+                best_day = max(daily_sales, key=lambda x: x.get('amount', 0))
+                worst_day = min(daily_sales, key=lambda x: x.get('amount', 0))
+
+                return {
+                    'trend': trend,
+                    'momentum': momentum,
+                    'trend_percent': round(trend_percent, 2),
+                    'volatility': round(volatility, 3),
+                    'best_day': best_day,
+                    'worst_day': worst_day,
+                    'avg_daily_sales': round(avg_sales, 2)
+                }
+
+            return {'trend': 'stable', 'momentum': 'neutral', 'trend_percent': 0}
+
+        except Exception as e:
+            print(f"Error en analyze_sales_trends: {e}")
+            return {'trend': 'stable', 'momentum': 'neutral', 'trend_percent': 0}
+
+    @staticmethod
+    def generate_strategic_recommendations(financial_health: Dict,
+                                           inventory_analysis: Dict,
+                                           sales_trends: Dict) -> List[str]:
+        """
+        Genera recomendaciones estratégicas basadas en análisis
+
+        Returns:
+            Lista de recomendaciones
         """
         recommendations = []
 
-        # Validar que laptop tenga los datos mínimos
-        if not laptop:
-            return recommendations
+        # Recomendaciones basadas en salud financiera
+        if financial_health['overall_score'] < 6:
+            recommendations.append("Optimizar costos operativos para mejorar margen neto")
 
-        # 1. Análisis de margen
-        if laptop.margin_percentage is not None:
-            if laptop.margin_percentage < 15:
-                recommendations.append({
-                    'level': 'danger',
-                    'title': 'Margen Muy Bajo',
-                    'message': f'El margen de {laptop.margin_percentage:.1f}% está por debajo del mínimo recomendado (15%).',
-                    'action': 'Considera aumentar el precio de venta o negociar mejor precio de compra.'
-                })
-            elif laptop.margin_percentage < 25:
-                recommendations.append({
-                    'level': 'warning',
-                    'title': 'Margen Aceptable',
-                    'message': f'El margen de {laptop.margin_percentage:.1f}% está en rango aceptable pero puede mejorar.',
-                    'action': 'Busca oportunidades para optimizar costos o ajustar precio.'
-                })
+        if financial_health.get('financial_metrics', {}).get('net_margin', 0) < 10:
+            recommendations.append("Revisar estrategia de precios para aumentar márgenes")
+
+        # Recomendaciones basadas en inventario
+        if inventory_analysis['overall_score'] < 6:
+            recommendations.append("Implementar sistema de reorden automático para stock bajo")
+
+        dead_stock_count = inventory_analysis.get('inventory_metrics', {}).get('dead_stock_count', 0)
+        if dead_stock_count > 5:
+            recommendations.append(f"Crear promoción para liquidar {dead_stock_count} items de stock muerto")
+
+        # Recomendaciones basadas en ventas
+        if sales_trends['trend'] == 'down' and sales_trends['momentum'] == 'strong':
+            recommendations.append("Lanzar campaña promocional para reactivar ventas")
+
+        if sales_trends['volatility'] > 0.3:
+            recommendations.append("Diversificar canales de venta para estabilizar ingresos")
+
+        # Recomendaciones generales
+        recommendations.append("Implementar programa de fidelización para clientes recurrentes")
+        recommendations.append("Analizar competencia para ajustar precios competitivamente")
+        recommendations.append("Capacitar equipo de ventas en técnicas de upselling")
+
+        return recommendations[:8]  # Máximo 8 recomendaciones
+
+    @staticmethod
+    def generate_forecast(financial_data: Dict, sales_trends: Dict) -> str:
+        """
+        Genera pronóstico basado en datos actuales
+
+        Returns:
+            str: Pronóstico formateado
+        """
+        try:
+            current_sales = financial_data.get('total_sales', 0)
+            trend_percent = sales_trends.get('trend_percent', 0)
+
+            # Pronóstico simple
+            if trend_percent > 0:
+                forecast_sales = current_sales * (1 + trend_percent / 100)
+                forecast_text = f"Pronóstico positivo: ${forecast_sales:,.0f} (+{trend_percent:.1f}%)"
+            elif trend_percent < 0:
+                forecast_sales = current_sales * (1 + trend_percent / 100)
+                forecast_text = f"Pronóstico cauteloso: ${forecast_sales:,.0f} ({trend_percent:.1f}%)"
             else:
-                recommendations.append({
-                    'level': 'success',
-                    'title': 'Margen Excelente',
-                    'message': f'El margen de {laptop.margin_percentage:.1f}% está muy bien posicionado.',
-                    'action': 'Mantén esta estrategia de precios.'
+                forecast_sales = current_sales
+                forecast_text = f"Pronóstico estable: ${forecast_sales:,.0f}"
+
+            return forecast_text
+
+        except Exception as e:
+            print(f"Error en generate_forecast: {e}")
+            return "Pronóstico no disponible"
+
+    @staticmethod
+    def get_grade(score: float) -> str:
+        """Convierte puntuación a letra de calificación"""
+        if score >= 9:
+            return 'A+'
+        elif score >= 8:
+            return 'A'
+        elif score >= 7:
+            return 'B'
+        elif score >= 6:
+            return 'C'
+        elif score >= 5:
+            return 'D'
+        else:
+            return 'F'
+
+    @staticmethod
+    def get_daily_tip() -> str:
+        """Retorna consejo del día"""
+        tips = [
+            "📱 Publica en redes sociales al menos 3 veces por semana",
+            "💬 Pide reseñas a clientes satisfechos para aumentar credibilidad",
+            "📊 Analiza tus productos más rentables cada semana",
+            "🔄 Renueva tu inventario de productos destacados mensualmente",
+            "🎯 Ofrece paquetes o combos para aumentar ticket promedio",
+            "📧 Crea lista de correo para promociones exclusivas",
+            "⭐ Premia a tus clientes más fieles con descuentos especiales",
+            "🔍 Investiga a tu competencia regularmente para mantener precios competitivos"
+        ]
+        from datetime import datetime
+        day_of_year = datetime.now().timetuple().tm_yday
+        return tips[day_of_year % len(tips)]
+
+    @staticmethod
+    def generate_bcg_matrix_analysis(laptops_data: List[Dict]) -> Dict:
+        """
+        Genera análisis avanzado de matriz BCG
+
+        Args:
+            laptops_data: Datos de laptops con ventas y crecimiento
+
+        Returns:
+            Dict con análisis completo
+        """
+        try:
+            if not laptops_data:
+                return {}
+
+            # Calcular métricas para matriz BCG
+            total_sales = sum(item.get('sales', 0) for item in laptops_data)
+            total_market_growth = 12  # Suposición: mercado crece 12% anual
+
+            matrix_data = []
+            for item in laptops_data:
+                sales = item.get('sales', 0)
+                market_share = (sales / total_sales * 100) if total_sales > 0 else 0
+                growth_rate = item.get('growth_rate', total_market_growth)
+
+                # Clasificar en cuadrantes BCG
+                if market_share > 15 and growth_rate > total_market_growth:
+                    quadrant = 'star'
+                    color = '#6366f1'  # Indigo
+                    label = 'Estrella'
+                    action = 'Invertir y mantener'
+                elif market_share > 15 and growth_rate <= total_market_growth:
+                    quadrant = 'cash_cow'
+                    color = '#10b981'  # Emerald
+                    label = 'Vaca Lechera'
+                    action = 'Ordeñar ganancia'
+                elif market_share <= 15 and growth_rate > total_market_growth:
+                    quadrant = 'question_mark'
+                    color = '#f59e0b'  # Amber
+                    label = 'Oportunidad'
+                    action = 'Promocionar'
+                else:
+                    quadrant = 'dog'
+                    color = '#6b7280'  # Gray
+                    label = 'Riesgo'
+                    action = 'Liquidar/Evaluar'
+
+                matrix_data.append({
+                    'name': item.get('name', ''),
+                    'category': item.get('category', ''),
+                    'x': round(market_share, 1),  # Participación de mercado
+                    'y': round(growth_rate, 1),  # Tasa de crecimiento
+                    'z': sales,  # Tamaño (ventas)
+                    'color': color,
+                    'label': label,
+                    'action': action,
+                    'profit_margin': item.get('margin', 0),
+                    'units_sold': item.get('units_sold', 0)
                 })
 
-        # 2. Análisis de stock
-        if laptop.quantity is not None and laptop.min_alert is not None:
-            if laptop.quantity <= 0:
-                recommendations.append({
-                    'level': 'danger',
-                    'title': 'Sin Stock',
-                    'message': 'El producto está agotado.',
-                    'action': 'Reabastece urgentemente si hay demanda.'
-                })
-            elif laptop.quantity <= laptop.min_alert:
-                recommendations.append({
-                    'level': 'warning',
-                    'title': 'Stock Bajo',
-                    'message': f'Solo quedan {laptop.quantity} unidades (mínimo: {laptop.min_alert}).',
-                    'action': 'Planifica reabastecimiento pronto.'
-                })
+            # Análisis por cuadrante
+            quadrant_analysis = {}
+            for item in matrix_data:
+                quadrant = item['label']
+                if quadrant not in quadrant_analysis:
+                    quadrant_analysis[quadrant] = {
+                        'count': 0,
+                        'total_sales': 0,
+                        'total_profit': 0,
+                        'avg_margin': 0,
+                        'items': []
+                    }
 
-        # 3. Análisis de rotación
-        if laptop.rotation_status:
-            if laptop.rotation_status == 'slow' and laptop.days_in_inventory:
-                recommendations.append({
-                    'level': 'warning',
-                    'title': 'Rotación Lenta',
-                    'message': f'El producto lleva {laptop.days_in_inventory} días en inventario.',
-                    'action': 'Considera promociones o descuentos para acelerar la venta.'
-                })
-            elif laptop.rotation_status == 'fast':
-                recommendations.append({
-                    'level': 'success',
-                    'title': 'Alta Rotación',
-                    'message': 'El producto se vende rápidamente.',
-                    'action': 'Asegura disponibilidad constante de este modelo.'
-                })
+                quadrant_analysis[quadrant]['count'] += 1
+                quadrant_analysis[quadrant]['total_sales'] += item['z']
+                quadrant_analysis[quadrant]['items'].append(item['name'])
 
-        # 4. Análisis de categoría vs especificaciones
-        if laptop.category:
-            category_name = laptop.category
+            # Calcular márgenes promedio
+            for quadrant in quadrant_analysis:
+                if quadrant_analysis[quadrant]['count'] > 0:
+                    quadrant_analysis[quadrant]['avg_margin'] = (
+                            sum(item.get('profit_margin', 0) for item in matrix_data
+                                if AIService.get_quadrant_label(item) == quadrant)
+                            / quadrant_analysis[quadrant]['count']
+                    )
 
-            # Para laptops gamer
-            if category_name == 'gamer':
-                # Verificar GPU
-                if laptop.graphics_card and laptop.graphics_card.name:
-                    gpu_name = laptop.graphics_card.name.lower()
-                    if 'integrated' in gpu_name or 'intel' in gpu_name or 'uhd' in gpu_name or 'iris' in gpu_name:
-                        recommendations.append({
-                            'level': 'info',
-                            'title': 'GPU No Óptima para Gaming',
-                            'message': 'La GPU integrada puede no ser ideal para gaming exigente.',
-                            'action': 'Considera recategorizar o ajustar precio según rendimiento real.'
-                        })
+            return {
+                'matrix_data': matrix_data,
+                'quadrant_analysis': quadrant_analysis,
+                'total_items': len(matrix_data),
+                'recommendations': AIService.get_bcg_recommendations(quadrant_analysis)
+            }
 
-                # Verificar RAM - CORREGIDO CON TRY-EXCEPT
-                if laptop.ram_type and laptop.ram_type.name:
-                    try:
-                        ram_str = ''.join(filter(str.isdigit, laptop.ram_type.name))
-                        if ram_str:
-                            ram_value = int(ram_str)
-                            if ram_value < 16:
-                                recommendations.append({
-                                    'level': 'info',
-                                    'title': 'RAM Limitada para Gaming',
-                                    'message': f'{laptop.ram_type.name} puede ser insuficiente para gaming moderno.',
-                                    'action': 'Recomienda upgrade de RAM si es posible.'
-                                })
-                    except (ValueError, AttributeError):
-                        pass  # Si no se puede extraer el valor, ignorar
+        except Exception as e:
+            print(f"Error en generate_bcg_matrix_analysis: {e}")
+            return {}
 
-            # Para laptops de trabajo
-            elif category_name == 'working':
-                if laptop.processor and laptop.processor.name:
-                    proc_name = laptop.processor.name.lower()
-                    if 'i3' in proc_name or 'ryzen 3' in proc_name or 'celeron' in proc_name or 'pentium' in proc_name:
-                        recommendations.append({
-                            'level': 'info',
-                            'title': 'Procesador de Nivel Básico',
-                            'message': 'El procesador es adecuado para tareas básicas de oficina.',
-                            'action': 'Enfoca marketing en uso ligero de oficina.'
-                        })
+    @staticmethod
+    def get_quadrant_label(item: Dict) -> str:
+        """Obtiene etiqueta del cuadrante BCG"""
+        return item.get('label', '')
 
-        # 5. Análisis de condición vs precio
-        if laptop.condition and laptop.sale_price:
-            if laptop.condition == 'used' and laptop.margin_percentage and laptop.margin_percentage > 35:
-                recommendations.append({
-                    'level': 'info',
-                    'title': 'Margen Alto en Producto Usado',
-                    'message': 'El margen es alto para un producto usado.',
-                    'action': 'Verifica que el precio sea competitivo en el mercado.'
-                })
-            elif laptop.condition == 'refurbished':
-                recommendations.append({
-                    'level': 'info',
-                    'title': 'Producto Refurbished',
-                    'message': 'Destaca la garantía y proceso de renovación en marketing.',
-                    'action': 'Comunica claramente el valor agregado del refurbishing.'
-                })
+    @staticmethod
+    def get_bcg_recommendations(quadrant_analysis: Dict) -> List[str]:
+        """Genera recomendaciones basadas en análisis BCG"""
+        recommendations = []
 
-        # Si no hay recomendaciones, agregar una genérica positiva
-        if not recommendations:
-            recommendations.append({
-                'level': 'success',
-                'title': 'Producto Bien Configurado',
-                'message': 'El producto está correctamente configurado.',
-                'action': 'Monitorea regularmente el rendimiento de ventas.'
-            })
+        if 'Estrella' in quadrant_analysis:
+            stars = quadrant_analysis['Estrella']
+            recommendations.append(
+                f"Invertir en {stars['count']} productos Estrella (${stars['total_sales']:,.0f} en ventas)"
+            )
+
+        if 'Vaca Lechera' in quadrant_analysis:
+            cash_cows = quadrant_analysis['Vaca Lechera']
+            recommendations.append(
+                f"Optimizar márgenes de {cash_cows['count']} Vacas Lecheras"
+            )
+
+        if 'Oportunidad' in quadrant_analysis:
+            questions = quadrant_analysis['Oportunidad']
+            recommendations.append(
+                f"Promocionar {questions['count']} productos con oportunidad de crecimiento"
+            )
+
+        if 'Riesgo' in quadrant_analysis:
+            dogs = quadrant_analysis['Riesgo']
+            if dogs['count'] > 0:
+                recommendations.append(
+                    f"Reevaluar o liquidar {dogs['count']} productos de bajo rendimiento"
+                )
 
         return recommendations
 
     @staticmethod
-    def format_recommendations_text(recommendations):
+    def chat_with_gemini(prompt: str, context_data: Dict) -> str:
         """
-        Convierte lista de recomendaciones a texto formateado
+        Simula conversación con IA (en producción usarías la API real)
 
         Args:
-            recommendations: Lista de dicts con recomendaciones
+            prompt: Pregunta del usuario
+            context_data: Datos de contexto del negocio
 
         Returns:
-            str: Texto formateado para mostrar
+            str: Respuesta generada
         """
-        if not recommendations:
-            return "✅ Todo en orden. No hay recomendaciones en este momento."
+        # En producción, aquí conectarías con la API de Gemini
+        # Por ahora, simulamos respuestas basadas en reglas
 
-        text_parts = []
+        prompt_lower = prompt.lower()
 
-        for rec in recommendations:
-            # Emojis por nivel
-            level_icons = {
-                'danger': '🔴',
-                'warning': '⚠️',
-                'success': '✅',
-                'info': 'ℹ️'
-            }
-            icon = level_icons.get(rec.get('level', 'info'), 'ℹ️')
+        # Respuestas predefinidas basadas en palabras clave
+        if any(word in prompt_lower for word in ['ventas', 'vender', 'ingresos']):
+            return f"📈 Tus ventas actuales son ${context_data.get('total_sales', 0):,.2f} con un margen neto del {context_data.get('net_margin', 0):.1f}%. Recomiendo focalizar en tus productos estrella."
 
-            # Header
-            header = f"{icon} {rec.get('title', 'Recomendación')}"
-            message = rec.get('message', '')
+        elif any(word in prompt_lower for word in ['inventario', 'stock', 'bodega']):
+            dead_stock = context_data.get('dead_stock_count', 0)
+            low_stock = context_data.get('low_stock_count', 0)
+            return f"📦 Tienes {dead_stock} productos sin movimiento y {low_stock} con stock bajo. Considera promociones para los primeros y reabastecer los segundos."
 
-            text_parts.append(f"{header}\n{message}")
+        elif any(word in prompt_lower for word in ['margen', 'ganancia', 'utilidad']):
+            margin = context_data.get('net_margin', 0)
+            if margin < 10:
+                return f"⚠️ Tu margen neto ({margin:.1f}%) está bajo. Revisa precios de compra y considera aumentar precios de venta en productos con alta demanda."
+            else:
+                return f"✅ Tu margen neto ({margin:.1f}%) es saludable. Continúa optimizando costos operativos."
 
-            # Actions si existen
-            if 'action' in rec and rec['action']:
-                text_parts.append(f"→ {rec['action']}")
+        elif any(word in prompt_lower for word in ['recomendación', 'consejo', 'sugerencia']):
+            return "🎯 Basado en tus datos: 1) Crea combos de productos complementarios 2) Implementa programa de referidos 3) Ofrece mantenimiento post-venta como servicio adicional."
 
-            text_parts.append("")  # Línea en blanco
-
-        return "\n".join(text_parts)
-
-    @staticmethod
-    def analyze_pricing_strategy(laptop, similar_laptops=None):
-        """
-        Analiza la estrategia de precio comparando con laptops similares
-
-        Args:
-            laptop: Laptop a analizar
-            similar_laptops: Lista de laptops similares (opcional)
-
-        Returns:
-            dict con análisis de precios
-        """
-        analysis = {
-            'position': 'unknown',
-            'recommendation': '',
-            'competitive_score': 0
-        }
-
-        if not similar_laptops:
-            return analysis
-
-        # Calcular precio promedio de similares
-        prices = [float(l.sale_price) for l in similar_laptops if l.sale_price]
-
-        if not prices:
-            return analysis
-
-        avg_price = sum(prices) / len(prices)
-        laptop_price = float(laptop.sale_price)
-
-        # Determinar posición
-        if laptop_price < avg_price * 0.9:
-            analysis['position'] = 'below_market'
-            analysis['recommendation'] = 'Precio por debajo del mercado. Podrías aumentar sin perder competitividad.'
-            analysis['competitive_score'] = 85
-        elif laptop_price > avg_price * 1.1:
-            analysis['position'] = 'above_market'
-            analysis[
-                'recommendation'] = 'Precio por encima del mercado. Considera reducir o destacar valor diferencial.'
-            analysis['competitive_score'] = 60
         else:
-            analysis['position'] = 'competitive'
-            analysis['recommendation'] = 'Precio competitivo dentro del rango de mercado.'
-            analysis['competitive_score'] = 100
-
-        analysis['market_average'] = round(avg_price, 2)
-        analysis['price_difference'] = round(laptop_price - avg_price, 2)
-        analysis['price_difference_percent'] = round(((laptop_price - avg_price) / avg_price) * 100, 2)
-
-        return analysis
-
-    @staticmethod
-    def predict_best_category(laptop):
-        """
-        Predice la mejor categoría basándose en especificaciones
-
-        Args:
-            laptop: Objeto laptop con especificaciones
-
-        Returns:
-            str: 'gamer', 'working', o 'home'
-        """
-        score_gamer = 0
-        score_working = 0
-        score_home = 0
-
-        # Analizar GPU
-        if laptop.graphics_card:
-            gpu_name = laptop.graphics_card.name.upper()
-            if 'RTX' in gpu_name or 'RX 6' in gpu_name or 'RX 7' in gpu_name:
-                score_gamer += 40
-            elif 'GTX' in gpu_name or 'MX' in gpu_name:
-                score_gamer += 20
-                score_working += 10
-            else:
-                score_home += 20
-                score_working += 10
-
-        # Analizar CPU
-        if laptop.processor:
-            cpu_name = laptop.processor.name.upper()
-            if 'I9' in cpu_name or 'RYZEN 9' in cpu_name:
-                score_gamer += 30
-                score_working += 30
-            elif 'I7' in cpu_name or 'RYZEN 7' in cpu_name:
-                score_gamer += 20
-                score_working += 25
-            elif 'I5' in cpu_name or 'RYZEN 5' in cpu_name:
-                score_working += 20
-                score_home += 15
-            else:
-                score_home += 25
-
-        # Analizar RAM - CORREGIDO: usa laptop.ram_type consistentemente
-        if laptop.ram_type:
-            try:
-                ram_name = laptop.ram_type.name.upper()
-                if '32GB' in ram_name or '64GB' in ram_name:
-                    score_gamer += 20
-                    score_working += 25
-                elif '16GB' in ram_name:
-                    score_working += 15
-                    score_gamer += 10
-                else:
-                    score_home += 20
-            except AttributeError:
-                pass  # Si no hay RAM, ignorar
-
-        # Analizar precio
-        if laptop.sale_price:
-            price = float(laptop.sale_price)
-            if price > 1200:
-                score_gamer += 15
-                score_working += 10
-            elif price > 800:
-                score_working += 15
-                score_gamer += 5
-            else:
-                score_home += 20
-
-        # Determinar categoría ganadora
-        scores = {
-            'gamer': score_gamer,
-            'working': score_working,
-            'home': score_home
-        }
-
-        best_category = max(scores, key=scores.get)
-        confidence = scores[best_category]
-
-        return {
-            'category': best_category,
-            'confidence': confidence,
-            'scores': scores
-        }
-
-    @staticmethod
-    def suggest_marketing_points(laptop):
-        """
-        Sugiere puntos clave para marketing
-
-        Args:
-            laptop: Objeto laptop
-
-        Returns:
-            list: Lista de puntos de marketing
-        """
-        points = []
-
-        # Especificaciones destacadas
-        if laptop.processor:
-            points.append(f"Procesador {laptop.processor.name}")
-
-        # CORREGIDO: usa laptop.ram_type consistentemente
-        if laptop.ram_type:
-            points.append(f"Memoria {laptop.ram_type.name}")
-
-        # CORREGIDO: usa laptop.storage_type consistentemente
-        if laptop.storage_type:
-            points.append(f"Almacenamiento {laptop.storage_type.name}")
-
-        if laptop.graphics_card:
-            points.append(f"Gráficos {laptop.graphics_card.name}")
-
-        if laptop.screen:
-            points.append(f"Pantalla {laptop.screen.name}")
-
-        # Características especiales
-        if laptop.npu:
-            points.append(f"🤖 NPU: {laptop.npu}")
-
-        if laptop.storage_upgradeable or laptop.ram_upgradeable:
-            points.append("🔧 Ampliable")
-
-        if laptop.condition == 'refurbished' and laptop.aesthetic_grade in ['A+', 'A']:
-            points.append("♻️ Como nuevo - Refurbished")
-
-        # Por categoría
-        if laptop.category == 'gamer':
-            points.append("🎮 Listo para gaming")
-        elif laptop.category == 'working':
-            points.append("💼 Productividad profesional")
-        elif laptop.category == 'home':
-            points.append("🏠 Perfecto para el hogar")
-
-        return points[:5]  # Máximo 5 puntos
+            return "🤖 Soy Luxera AI. Puedo ayudarte a analizar ventas, inventario, márgenes y darte recomendaciones estratégicas. ¿En qué área necesitas ayuda específicamente?"

@@ -56,6 +56,7 @@ def create_app(config_name='development'):
     from app.routes.expenses import bp as expenses_bp
     from app.routes.public import public_bp
     from app.routes.serial_api import serial_api
+    from app.routes.dashboard import dashboard_bp  # <--- Agregado
 
     app.register_blueprint(public_bp)
     app.register_blueprint(expenses_bp)
@@ -66,6 +67,7 @@ def create_app(config_name='development'):
     app.register_blueprint(catalog_api_bp)
     app.register_blueprint(invoices_bp)
     app.register_blueprint(serial_api)
+    app.register_blueprint(dashboard_bp)  # <--- Agregado
 
     # Configuración de CORS para APIs
     from flask_cors import CORS
