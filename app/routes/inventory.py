@@ -447,6 +447,7 @@ def laptops_list():
     min_price = request.args.get('min_price', type=float, default=0)
     max_price = request.args.get('max_price', type=float, default=0)
     search_query = request.args.get('q', '').strip()
+    stock_status = request.args.get('stock_status', 'in_stock')
     sort_by = request.args.get('sort_by', 'entry_date_desc')
 
     # Paginacion
@@ -499,6 +500,11 @@ def laptops_list():
     if is_featured_filter:
         query = query.filter(Laptop.is_featured == (is_featured_filter == '1'))
 
+    if stock_status == 'in_stock':
+        query = query.filter(Laptop.quantity > 0)
+    elif stock_status == 'out_of_stock':
+        query = query.filter(Laptop.quantity <= 0)
+
     if has_npu_filter:
         query = query.filter(Laptop.npu == (has_npu_filter == '1'))
 
@@ -525,6 +531,18 @@ def laptops_list():
         query = query.order_by(Laptop.quantity.desc())
     elif sort_by == 'quantity_asc':
         query = query.order_by(Laptop.quantity.asc())
+    elif sort_by == 'brand_asc':
+        query = query.join(Laptop.brand).order_by(Brand.name.asc())
+    elif sort_by == 'brand_desc':
+        query = query.join(Laptop.brand).order_by(Brand.name.desc())
+    elif sort_by == 'category_asc':
+        query = query.order_by(Laptop.category.asc())
+    elif sort_by == 'category_desc':
+        query = query.order_by(Laptop.category.desc())
+    elif sort_by == 'status_asc':
+        query = query.order_by(Laptop.is_published.asc(), Laptop.is_featured.asc())
+    elif sort_by == 'status_desc':
+        query = query.order_by(Laptop.is_published.desc(), Laptop.is_featured.desc())
     else:
         # Orden por defecto
         query = query.order_by(Laptop.entry_date.desc())
@@ -579,7 +597,8 @@ def laptops_list():
         min_db_price=min_db_price,
         max_db_price=max_db_price,
         search_query=search_query,
-        sort_by=sort_by
+        sort_by=sort_by,
+        stock_status=stock_status
     )
 
 

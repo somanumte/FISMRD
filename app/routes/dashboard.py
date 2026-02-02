@@ -541,9 +541,11 @@ def get_sales_trends(period='month'):
         }
 
 
-def get_brand_performance():
-    """Obtiene rendimiento por marca basado en ventas reales"""
-    # Filtrar solo marcas que tengan ventas reales en facturas
+def get_brand_performance(period='month'):
+    """Obtiene rendimiento por marca basado en ventas reales CON FILTRO TEMPORAL"""
+    start_date, end_date = get_date_range(period)
+
+    # Filtrar solo marcas que tengan ventas reales en facturas DEL PERÍODO
     brand_data = db.session.query(
         Brand.name,
         func.count(Laptop.id).label('product_count'),
@@ -557,13 +559,13 @@ def get_brand_performance():
         func.sum(InvoiceItem.quantity * Laptop.purchase_cost).label('total_cost')
     ).join(
         Laptop, Brand.id == Laptop.brand_id
-    ).outerjoin(
+    ).join(
         InvoiceItem, Laptop.id == InvoiceItem.laptop_id
-    ).outerjoin(
-        Invoice, and_(
-            InvoiceItem.invoice_id == Invoice.id,
-            Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
-        )
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)
     ).group_by(
         Brand.name
     ).having(
@@ -599,8 +601,10 @@ def get_brand_performance():
     }
 
 
-def get_condition_performance():
-    """Obtiene rendimiento por condición basado en ventas reales"""
+def get_condition_performance(period='month'):
+    """Obtiene rendimiento por condición basado en ventas reales CON FILTRO TEMPORAL"""
+    start_date, end_date = get_date_range(period)
+    
     data = db.session.query(
         Laptop.condition,
         func.sum(InvoiceItem.quantity).label('units_sold'),
@@ -611,7 +615,8 @@ def get_condition_performance():
     ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)  # FILTRO TEMPORAL
     ).group_by(
         Laptop.condition
     ).all()
@@ -649,8 +654,32 @@ def get_condition_performance():
     }
 
 
-def get_top_products(limit=10):
-    """Obtiene productos más vendidos y rentables"""
+def get_category_performance(period='month'):
+    """Obtiene rendimiento por categoría CON FILTRO TEMPORAL"""
+    start_date, end_date = get_date_range(period)
+    
+    category_data = db.session.query(
+        Laptop.category,
+        func.sum(InvoiceItem.quantity).label('units_sold'),
+        func.sum(InvoiceItem.line_total).label('revenue')
+    ).join(
+        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)  # FILTRO TEMPORAL
+    ).group_by(
+        Laptop.category
+    ).all()
+
+    return category_data
+
+
+def get_top_products(limit=10, period='month'):
+    """Obtiene productos más vendidos y rentables CON FILTRO TEMPORAL"""
+    start_date, end_date = get_date_range(period)
+
     # Productos más vendidos (por unidades)
     top_selling = db.session.query(
         Brand.name.label('brand_name'),
@@ -671,7 +700,8 @@ def get_top_products(limit=10):
     ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)  # FILTRO TEMPORAL
     ).group_by(
         Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
     ).order_by(
@@ -701,7 +731,8 @@ def get_top_products(limit=10):
     ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)  # FILTRO TEMPORAL
     ).group_by(
         Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
     ).order_by(
@@ -731,7 +762,8 @@ def get_top_products(limit=10):
     ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']),
+        Invoice.invoice_date.between(start_date, end_date)  # FILTRO TEMPORAL
     ).group_by(
         Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
     ).order_by(
@@ -869,148 +901,113 @@ def get_bcg_matrix_data(period='month'):
         elif market_share <= 5 and growth_rate > 10:
             quadrant = 'question_mark'
             color = CHART_COLORS['warning']
-            label = 'Oportunidad'
+            label = 'Interrogante'
         else:
             quadrant = 'dog'
-            color = CHART_COLORS['gray']
-            label = 'Riesgo'
+            color = CHART_COLORS['danger']
+            label = 'Perro'
 
         bcg_data.append({
             'name': product.display_name,
-            'category': product.category or 'Sin categoría',
             'brand': product.brand,
-            'x': round(market_share, 1),
-            'y': round(growth_rate, 1),
-            'z': revenue,
-            'color': color,
-            'label': label,
-            'quadrant': quadrant,
+            'category': product.category,
+            'stock': product.quantity,
             'units_sold': int(units_sold),
-            'margin': round(float(product.margin or 0), 1),
-            'profit': round(revenue * (float(product.margin or 0) / 100), 2)
+            'revenue': revenue,
+            'prev_revenue': prev_revenue,
+            'market_share': round(market_share, 2),
+            'growth_rate': round(growth_rate, 2),
+            'margin': round(float(product.margin or 0), 2),
+            'quadrant': quadrant,
+            'color': color,
+            'label': label
         })
 
-    # Análisis por cuadrante
-    quadrant_analysis = {}
+    # Resumen por cuadrante
+    quadrant_summary = {
+        'star': {'count': 0, 'revenue': 0, 'label': 'Estrellas'},
+        'cash_cow': {'count': 0, 'revenue': 0, 'label': 'Vacas Lecheras'},
+        'question_mark': {'count': 0, 'revenue': 0, 'label': 'Interrogantes'},
+        'dog': {'count': 0, 'revenue': 0, 'label': 'Perros'}
+    }
+
     for item in bcg_data:
-        quadrant = item['label']
-        if quadrant not in quadrant_analysis:
-            quadrant_analysis[quadrant] = {
-                'count': 0,
-                'total_sales': 0,
-                'total_profit': 0,
-                'avg_margin': 0,
-                'items': []
+        q = item['quadrant']
+        quadrant_summary[q]['count'] += 1
+        quadrant_summary[q]['revenue'] += item['revenue']
+
+    return {
+        'products': bcg_data,
+        'summary': quadrant_summary,
+        'matrix_data': [
+            {
+                'x': item['market_share'],
+                'y': item['growth_rate'],
+                'name': item['name'],
+                'quadrant': item['quadrant'],
+                'color': item['color'],
+                'revenue': item['revenue']
             }
-
-        quadrant_analysis[quadrant]['count'] += 1
-        quadrant_analysis[quadrant]['total_sales'] += item['z']
-        quadrant_analysis[quadrant]['total_profit'] += item['profit']
-        quadrant_analysis[quadrant]['items'].append(item['name'])
-
-    # Calcular márgenes promedio por cuadrante
-    for quadrant in quadrant_analysis:
-        if quadrant_analysis[quadrant]['count'] > 0:
-            items_in_quadrant = [item for item in bcg_data if item['label'] == quadrant]
-            if items_in_quadrant:
-                avg_margin = sum(item['margin'] for item in items_in_quadrant) / len(items_in_quadrant)
-                quadrant_analysis[quadrant]['avg_margin'] = round(avg_margin, 2)
-
-    return {
-        'matrix_data': bcg_data,
-        'quadrant_analysis': quadrant_analysis
+            for item in bcg_data if item['units_sold'] > 0
+        ]
     }
 
 
-def get_recent_activity():
-    """Obtiene actividad reciente"""
-    # Facturas recientes
-    recent_invoices = Invoice.query.order_by(
-        Invoice.created_at.desc()
-    ).limit(5).all()
-
-    # Laptops recientemente agregadas
-    recent_laptops = Laptop.query.order_by(
-        Laptop.created_at.desc()
-    ).limit(5).all()
-
-    # Clientes recientes
-    recent_customers = Customer.query.order_by(
-        Customer.created_at.desc()
-    ).limit(5).all()
-
-    return {
-        'invoices': recent_invoices,
-        'laptops': recent_laptops,
-        'customers': recent_customers
-    }
-
-
-def get_ai_insights(financial_data, inventory_data, sales_data, bcg_data):
-    """Genera insights usando IA"""
+def get_ai_insights(financial_data, inventory_data, sales_trends, bcg_data):
+    """Genera insights utilizando IA"""
     try:
-        ai_context = {
-            'financial': financial_data.get('metrics', {}),
-            'inventory': inventory_data.get('summary', {}),
-            'sales': sales_data,
-            'period': financial_data.get('period_label', 'Mes')
-        }
-
         # Generar reporte ejecutivo
         executive_report = AIService.generate_executive_report(
             financial_data.get('metrics', {}),
             inventory_data.get('summary', {}),
-            sales_data
+            sales_trends
         )
 
-        # Generar análisis BCG
-        bcg_analysis = AIService.generate_bcg_matrix_analysis(
-            bcg_data['matrix_data']
-        )
+        # Análisis BCG con IA
+        bcg_analysis = AIService.analyze_bcg_matrix(bcg_data.get('products', []))
 
-        # Generar alertas prioritarias
+        # Generar alertas basadas en datos
         alerts = []
-
-        # Alertas financieras
-        if financial_data.get('metrics', {}).get('net_margin', 0) < 10:
-            alerts.append({
-                'type': 'danger',
-                'icon': 'exclamation-circle',
-                'title': 'Margen Neto Bajo',
-                'message': f"El margen neto ({financial_data['metrics']['net_margin']:.1f}%) está por debajo del objetivo (10%).",
-                'action': 'Revisar precios y costos',
-                'link': 'dashboard.index'
-            })
 
         # Alertas de inventario
         if inventory_data.get('summary', {}).get('dead_stock_count', 0) > 5:
             alerts.append({
-                'type': 'warning',
-                'icon': 'exclamation-triangle',
-                'title': 'Stock Muerto Detectado',
-                'message': f"{inventory_data['summary']['dead_stock_count']} productos sin movimiento en 90 días.",
-                'action': 'Crear promoción de liquidación',
-                'link': 'inventory.laptops_list'
+                'type': 'danger',
+                'icon': 'skull-crossbones',
+                'title': 'Stock Muerto Alto',
+                'message': f"{inventory_data['summary']['dead_stock_count']} productos sin ventas en 90 días",
+                'action': 'Ver productos',
+                'link': 'laptops.index'
             })
 
         if inventory_data.get('summary', {}).get('low_stock_count', 0) > 3:
             alerts.append({
-                'type': 'info',
-                'icon': 'info-circle',
+                'type': 'warning',
+                'icon': 'exclamation-triangle',
                 'title': 'Stock Bajo',
-                'message': f"{inventory_data['summary']['low_stock_count']} productos necesitan reabastecimiento.",
-                'action': 'Ver inventario',
-                'link': 'inventory.laptops_list'
+                'message': f"{inventory_data['summary']['low_stock_count']} productos necesitan reabastecimiento",
+                'action': 'Revisar inventario',
+                'link': 'laptops.index'
             })
 
-        # Alertas de ventas
+        # Alertas financieras
+        if financial_data.get('metrics', {}).get('net_margin', 0) < 10:
+            alerts.append({
+                'type': 'warning',
+                'icon': 'chart-line',
+                'title': 'Margen Bajo',
+                'message': f"Margen neto actual: {financial_data['metrics']['net_margin']:.1f}%",
+                'action': 'Analizar precios',
+                'link': 'laptops.index'
+            })
+
         if financial_data.get('sales', {}).get('growth', 0) < 0:
             alerts.append({
                 'type': 'danger',
-                'icon': 'chart-line',
-                'title': 'Crecimiento Negativo',
-                'message': f"Ventas decrecieron {abs(financial_data['sales']['growth']):.1f}% vs período anterior.",
-                'action': 'Analizar tendencias',
+                'icon': 'chart-bar',
+                'title': 'Ventas en Descenso',
+                'message': f"Las ventas han caído {abs(financial_data['sales']['growth']):.1f}% vs período anterior",
+                'action': 'Ver tendencias',
                 'link': 'dashboard.index'
             })
 
@@ -1085,41 +1082,26 @@ def index(period='month'):
     if period not in PERIODS:
         period = 'month'
 
-    # Obtener todos los datos
+    # Obtener todos los datos CON FILTRO TEMPORAL
     financial_data = get_financial_metrics(period)
     inventory_data = get_inventory_analysis()
     sales_trends = get_sales_trends(period)
-    brand_performance = get_brand_performance()
-    top_products = get_top_products(10)
+    brand_performance = get_brand_performance(period)  # CON FILTRO TEMPORAL
+    top_products = get_top_products(10, period)  # CON FILTRO TEMPORAL
     bcg_data = get_bcg_matrix_data(period)
-    # recent_activity = get_recent_activity() (Removed from UI)
-    condition_performance = get_condition_performance()
+    condition_performance = get_condition_performance(period)  # CON FILTRO TEMPORAL
 
     # Generar insights con IA
     ai_insights = get_ai_insights(financial_data, inventory_data, sales_trends, bcg_data)
 
     # Preparar datos para el template
-    # Distribución por categoría REAL
-    category_distribution_data = db.session.query(
-        Laptop.category,
-        func.count(Laptop.id).label('products'),
-        func.sum(InvoiceItem.quantity).label('units_sold'),
-        func.sum(InvoiceItem.line_total).label('revenue')
-    ).join(
-        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
-    ).join(
-        Invoice, InvoiceItem.invoice_id == Invoice.id
-    ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
-    ).group_by(
-        Laptop.category
-    ).all()
+    # Distribución por categoría REAL CON FILTRO TEMPORAL
+    category_distribution_data = get_category_performance(period)
 
     category_distribution = []
     for cd in category_distribution_data:
         category_distribution.append({
             'category': cd.category,
-            'products': cd.products,
             'units_sold': int(cd.units_sold or 0),
             'revenue': float(cd.revenue or 0)
         })
@@ -1225,7 +1207,6 @@ def index(period='month'):
         'bcg_data': bcg_data,
         'bcg_matrix': json.dumps(bcg_data['matrix_data']),  # Para JavaScript
 
-
         # Clientes
         'active_customers': Customer.query.filter_by(is_active=True).count(),
         'total_customers': total_customers_count,
@@ -1324,6 +1305,9 @@ def refresh_data():
     financial_data = get_financial_metrics(period)
     inventory_data = get_inventory_analysis()
     sales_trends = get_sales_trends(period)
+    brand_performance = get_brand_performance(period)
+    condition_performance = get_condition_performance(period)
+    category_data = get_category_performance(period)
 
     return jsonify({
         'success': True,
@@ -1331,6 +1315,13 @@ def refresh_data():
             'financial': financial_data,
             'inventory': inventory_data['summary'],
             'sales_trends': sales_trends,
+            'brand_performance': brand_performance,
+            'condition_performance': condition_performance,
+            'category_data': {
+                'labels': [c.category for c in category_data],
+                'sales': [float(c.revenue or 0) for c in category_data],
+                'units': [int(c.units_sold or 0) for c in category_data]
+            },
             'timestamp': datetime.now().isoformat()
         }
     })

@@ -1,1659 +1,504 @@
-{% extends 'base.html' %}
-{% set hide_search = True %}
+{% extends "base.html" %}
 
-{% block title %}Inventario de Laptops{% endblock %}
-
-{% block extra_css %}
-<style>
-    :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --success: #10b981;
-        --danger: #ef4444;
-        --warning: #f59e0b;
-        --info: #3b82f6;
-        --dark: #1f2937;
-        --light: #f9fafb;
-    }
-
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background: #f9fafb;
-        overflow-x: hidden;
-        width: 100%;
-    }
-
-    /* HEADER Y ESTADÍSTICAS */
-    .page-header {
-        background: white;
-        padding: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-        width: 100%;
-    }
-
-    .header-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--dark);
-        line-height: 1.2;
-    }
-
-    .header-subtitle {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-top: 0.25rem;
-        display: block;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-        margin: 1rem 0;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        color: white;
-    }
-
-    .stat-icon.primary {
-        background: var(--primary);
-    }
-
-    .stat-icon.success {
-        background: var(--success);
-    }
-
-    .stat-icon.warning {
-        background: var(--warning);
-    }
-
-    .stat-icon.info {
-        background: var(--info);
-    }
-
-    .stat-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-        line-height: 1.2;
-    }
-
-    .stat-label {
-        font-size: 0.75rem;
-        color: #6b7280;
-        font-weight: 500;
-    }
-
-    /* BOTONES MÓVIL */
-    .mobile-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin: 1rem 0;
-    }
-
-    .mobile-action-btn {
-        padding: 1rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.9375rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        min-height: 56px;
-        -webkit-tap-highlight-color: transparent;
-        width: 100%;
-    }
-
-    .mobile-action-btn:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease;
-    }
-
-    .btn-invoice {
-        background: linear-gradient(135deg, var(--success), #059669);
-        color: white;
-    }
-
-    .btn-invoice:disabled {
-        background: #9ca3af;
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-    }
-
-    /* BARRA DE HERRAMIENTAS */
-    .toolbar {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-        margin: 1rem 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .toolbar-info {
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .toolbar-info strong {
-        color: var(--dark);
-    }
-
-    /* FILTROS MÓVIL - MODAL */
-    .filters-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        animation: fadeIn 0.2s ease-out;
-    }
-
-    .filters-modal.active {
-        display: block;
-    }
-
-    .filters-content {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 85%;
-        max-width: 400px;
-        background: white;
-        padding: 1rem;
-        overflow-y: auto;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        z-index: 1001;
-    }
-
-    .filters-modal.active .filters-content {
-        transform: translateX(0);
-    }
-
-    .filters-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
-    }
-
-    .filters-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .filters-body {
-        padding-bottom: 5rem;
-        /* Espacio para el botón sticky */
-    }
-
-    .filter-group {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .filter-group:last-child {
-        border-bottom: none;
-    }
-
-    .filter-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .filter-input,
-    .filter-select {
-        width: 100%;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border: 1px solid #e5e7eb;
-        font-size: 0.875rem;
-        background: white;
-        color: var(--dark);
-    }
-
-    .filter-input:focus,
-    .filter-select:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .price-range {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .price-input {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border: 1px solid #e5e7eb;
-        font-size: 0.875rem;
-        text-align: center;
-    }
-
-    .filters-footer {
-        position: sticky;
-        bottom: 0;
-        background: white;
-        padding: 1rem 0;
-        border-top: 1px solid #e5e7eb;
-        margin-top: 1rem;
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .filters-footer button {
-        flex: 1;
-        padding: 0.875rem;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.875rem;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .btn-apply {
-        background: var(--primary);
-        color: white;
-    }
-
-    .btn-apply:active {
-        background: var(--primary-dark);
-        transform: scale(0.98);
-    }
-
-    .btn-clear {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .btn-clear:active {
-        background: #e5e7eb;
-        transform: scale(0.98);
-    }
-
-    .filters-trigger {
-        position: fixed;
-        bottom: 5.5rem;
-        right: 1rem;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: var(--primary);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-        z-index: 999;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .filters-trigger:active {
-        transform: scale(0.95);
-    }
-
-    .filters-trigger .badge {
-        position: absolute;
-        top: -4px;
-        right: -4px;
-        background: var(--danger);
-        color: white;
-        font-size: 0.625rem;
-        padding: 2px 6px;
-        border-radius: 10px;
-        min-width: 18px;
-        text-align: center;
-    }
-
-    /* LISTADO DE LAPTOPS MÓVIL - CARDS */
-    .laptops-list-mobile {
-        display: none;
-        margin: 1rem 0;
-    }
-
-    .laptop-card {
-        background: white;
-        border-radius: 14px;
-        padding: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 0.75rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .laptop-card:active {
-        transform: scale(0.99);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .laptop-card-header {
-        display: flex;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-        align-items: flex-start;
-    }
-
-    .laptop-checkbox-mobile {
-        flex-shrink: 0;
-        width: 24px;
-        height: 24px;
-        border-radius: 6px;
-        border: 2px solid #d1d5db;
-        background: white;
-        cursor: pointer;
-        margin-top: 0.5rem;
-        -webkit-appearance: none;
-        appearance: none;
-        position: relative;
-    }
-
-    .laptop-checkbox-mobile:checked {
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .laptop-checkbox-mobile:checked::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 0.75rem;
-        font-weight: bold;
-    }
-
-    .laptop-image {
-        flex-shrink: 0;
-        width: 80px;
-        height: 80px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-    }
-
-    .laptop-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .laptop-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .laptop-name {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .laptop-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.375rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.625rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-    }
-
-    .badge-category {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .badge-status {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .badge-featured {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .badge-out-of-stock {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .badge-low-stock {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .laptop-details {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.125rem;
-    }
-
-    .detail-label {
-        font-size: 0.625rem;
-        color: #9ca3af;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-    }
-
-    .detail-value {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .detail-value.price {
-        color: var(--success);
-        font-size: 1rem;
-    }
-
-    .detail-value.stock-danger {
-        color: var(--danger);
-    }
-
-    .detail-value.stock-warning {
-        color: var(--warning);
-    }
-
-    .laptop-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid #f3f4f6;
-    }
-
-    .action-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f9fafb;
-        color: #6b7280;
-        border: 1px solid #e5e7eb;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .action-btn:active {
-        transform: scale(0.95);
-        background: #f3f4f6;
-    }
-
-    .action-btn.view {
-        color: var(--primary);
-    }
-
-    .action-btn.edit {
-        color: var(--info);
-    }
-
-    /* BOTÓN STICKY CREAR FACTURA */
-    .sticky-invoice-btn {
-        position: fixed;
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, var(--success), #059669);
-        color: white;
-        border-radius: 14px;
-        font-weight: 600;
-        font-size: 0.9375rem;
-        border: none;
-        box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 900;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        min-height: 56px;
-        transform: translateY(100px);
-        opacity: 0;
-    }
-
-    .sticky-invoice-btn.active {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    .sticky-invoice-btn:active {
-        transform: scale(0.98) translateY(0);
-    }
-
-    .selected-count {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.125rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-
-    /* PAGINACIÓN MÓVIL */
-    .mobile-pagination {
-        display: none;
-        margin: 1.5rem 0;
-        text-align: center;
-    }
-
-    .pagination-info {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 1rem;
-    }
-
-    .pagination-buttons {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .pagination-btn {
-        flex: 1;
-        padding: 1rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.875rem;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
-        min-height: 56px;
-    }
-
-    .pagination-btn.prev {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .pagination-btn.prev:active {
-        background: #e5e7eb;
-        transform: scale(0.98);
-    }
-
-    .pagination-btn.next {
-        background: var(--primary);
-        color: white;
-    }
-
-    .pagination-btn.next:active {
-        background: var(--primary-dark);
-        transform: scale(0.98);
-    }
-
-    .pagination-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* ESTILOS DE ESCRITORIO (se mantienen igual) */
-    .desktop-container {
-        display: block;
-    }
-
-    /* ANIMACIONES */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .animate-in {
-        animation: slideIn 0.3s ease-out;
-    }
-
-    /* MEDIA QUERIES */
-    @media (max-width: 767px) {
-        .page-header {
-            padding: 12px 16px;
-        }
-
-        .header-title {
-            font-size: 20px;
-        }
-
-        .stats-grid {
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .stat-card {
-            padding: 16px;
-            border-radius: 14px;
-            min-height: 120px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-        }
-
-        .desktop-only {
-            display: none !important;
-        }
-
-        .laptops-list-mobile {
-            display: block;
-        }
-
-        .mobile-pagination {
-            display: block;
-        }
-
-        /* Ocultar tabla en móvil */
-        .desktop-container {
-            display: none;
-        }
-    }
-
-    @media (min-width: 768px) and (max-width: 1023px) {
-        .stats-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
-
-        .filters-trigger {
-            display: none;
-        }
-
-        .mobile-actions {
-            flex-direction: row;
-        }
-
-        .mobile-action-btn {
-            min-height: 48px;
-        }
-    }
-
-    @media (min-width: 768px) {
-        .mobile-only {
-            display: none !important;
-        }
-
-        .filters-trigger {
-            display: none;
-        }
-
-        .sticky-invoice-btn {
-            display: none;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .stats-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 1.5rem;
-        }
-
-        .desktop-container {
-            display: block;
-        }
-
-        .laptops-list-mobile {
-            display: none;
-        }
-
-        .mobile-pagination {
-            display: none;
-        }
-    }
-
-    /* Estados vacíos */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #9ca3af;
-        background: white;
-        border-radius: 14px;
-        border: 1px solid #e5e7eb;
-        margin: 1rem 0;
-    }
-
-    .empty-state-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #d1d5db;
-    }
-
-    .empty-state-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #6b7280;
-        margin-bottom: 0.5rem;
-    }
-
-    .empty-state-description {
-        font-size: 0.875rem;
-        color: #9ca3af;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-</style>
-{% endblock %}
+{% block title %}Facturas{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- HEADER MÓVIL OPTIMIZADO -->
-    <header class="page-header">
-        <h1 class="header-title">
-            Inventario de Laptops
-            <span class="header-subtitle">Gestiona tu inventario de manera eficiente</span>
-        </h1>
-    </header>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="max-w-7xl mx-auto px-4">
-        <!-- ESTADÍSTICAS (2x2 en móvil, 4x1 en escritorio) -->
-        <div class="stats-grid">
-            <!-- Total SKUs -->
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon primary">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ stats.total }}</div>
-                <p class="stat-label">Total SKUs</p>
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Facturas
+                </h1>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">
+                    Gestiona todas tus facturas y comprobantes fiscales
+                </p>
             </div>
-
-            <!-- Valor Total Inventario -->
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon success">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                </div>
-                <div class="stat-value">${{ "{:,.0f}".format(stats.total_value) }}</div>
-                <p class="stat-label">Valor Total</p>
-            </div>
-
-            <!-- Stock Bajo -->
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ stats.low_stock }}</div>
-                <p class="stat-label">Stock Bajo</p>
-            </div>
-
-            <!-- Publicadas -->
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon info">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ stats.published if stats.published is defined else '—' }}</div>
-                <p class="stat-label">Publicadas</p>
-            </div>
-        </div>
-
-        <!-- BOTONES DE ACCIÓN MÓVIL -->
-        <div class="mobile-actions mobile-only">
-            <button id="create-invoice-btn-mobile" class="mobile-action-btn btn-invoice" disabled>
-                <i class="fas fa-file-invoice-dollar"></i>
-                Crear Factura (<span id="selected-count-mobile">0</span>)
-            </button>
-
-            {% if current_user.is_admin %}
-            <a href="{{ url_for('inventory.laptop_add') }}" class="mobile-action-btn btn-add">
-                <i class="fas fa-plus"></i>
-                Agregar Laptop
-            </a>
-            {% endif %}
-        </div>
-
-        <!-- BARRA DE HERRAMIENTAS -->
-        <div class="toolbar">
-            <div class="toolbar-info">
-                <strong>{{ pagination.total }}</strong> productos
-                <span class="desktop-only">
-                    • Mostrando <strong>{{ pagination.per_page * (pagination.page - 1) + 1 }}</strong>-<strong>{{
-                        [pagination.per_page * pagination.page, pagination.total]|min }}</strong>
-                </span>
-            </div>
-
-            <div class="toolbar-actions">
-                <button onclick="exportToCSV()" class="btn btn-outline desktop-only">
-                    <i class="fas fa-file-export"></i>
-                    Exportar CSV
-                </button>
-
-                <!-- FIXED: Corrección del error any() -->
-                <button class="filters-trigger mobile-only" id="filtersTrigger">
-                    <i class="fas fa-filter"></i>
-                    {% set filter_fields = ['search', 'brand', 'category', 'condition', 'store', 'min_price',
-                    'max_price'] %}
-                    {% set has_active_filters = False %}
-                    {% for field in filter_fields %}
-                    {% if request.args.get(field) %}
-                    {% set has_active_filters = True %}
-                    {% endif %}
-                    {% endfor %}
-                    {% if has_active_filters %}
-                    <span class="badge">!</span>
-                    {% endif %}
-                </button>
-            </div>
-        </div>
-
-        <!-- LISTADO MÓVIL - CARDS -->
-        <div class="laptops-list-mobile">
-            {% if laptops %}
-            {% for laptop in laptops %}
-            <div class="laptop-card animate-in" style="animation-delay: {{ loop.index * 0.05 }}s;">
-                <div class="laptop-card-header">
-                    <input type="checkbox" class="laptop-checkbox-mobile" data-laptop-id="{{ laptop.id }}"
-                        data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                        data-laptop-price="{{ laptop.sale_price }}"
-                        data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}">
-
-                    <div class="laptop-image">
-                        {% set cover_image = none %}
-                        {% for image in laptop.images if image.is_cover %}
-                        {% set cover_image = image %}
-                        {% endfor %}
-                        {% if not cover_image and laptop.images %}
-                        {% set cover_image = laptop.images[0] %}
-                        {% endif %}
-
-                        {% if cover_image %}
-                        <img src="{{ url_for('static', filename=cover_image.image_path) }}"
-                            alt="{{ cover_image.alt_text or laptop.display_name or (laptop.brand.name ~ ' ' ~ laptop.model.name) }}"
-                            loading="lazy"
-                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full flex items-center justify-center text-gray-400\'><i class=\'fas fa-laptop text-2xl\'></i></div>';">
-                        {% else %}
-                        <div class="h-full w-full flex items-center justify-center text-gray-400">
-                            <i class="fas fa-laptop text-2xl"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="laptop-info">
-                        <h3 class="laptop-name">{{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name
-                            if laptop.model else 'N/A' }}</h3>
-
-                        <div class="laptop-badges">
-                            <!-- Categoría -->
-                            {% if laptop.category == 'gaming' %}
-                            <span class="badge badge-category">🎮 Gaming</span>
-                            {% elif laptop.category == 'workstation' %}
-                            <span class="badge badge-category">💼 Workstation</span>
-                            {% else %}
-                            <span class="badge badge-category">💻 Laptop</span>
-                            {% endif %}
-
-                            <!-- Estado -->
-                            {% if laptop.is_published %}
-                            <span class="badge badge-status">Publicado</span>
-                            {% else %}
-                            <span class="badge badge-status" style="background:#f3f4f6;color:#6b7280;">Borrador</span>
-                            {% endif %}
-
-                            {% if laptop.is_featured %}
-                            <span class="badge badge-featured">Destacado</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="laptop-details">
-                    <!-- Precio -->
-                    <div class="detail-item">
-                        <span class="detail-label">Precio</span>
-                        <span class="detail-value price">${{ "{:,.0f}".format(laptop.sale_price) }}</span>
-                    </div>
-
-                    <!-- Stock -->
-                    <div class="detail-item">
-                        <span class="detail-label">Stock</span>
-                        {% if laptop.quantity <= 0 %} <span class="detail-value stock-danger">Sin stock</span>
-                            {% elif laptop.quantity <= laptop.min_alert %} <span class="detail-value stock-warning">{{
-                                laptop.quantity }} unidades</span>
-                                {% else %}
-                                <span class="detail-value">{{ laptop.quantity }} unidades</span>
-                                {% endif %}
-                    </div>
-                </div>
-
-                <div class="laptop-actions">
-                    <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}" class="action-btn view"
-                        title="Ver detalle">
-                        <i class="fas fa-eye"></i>
-                    </a>
-
-                    {% if current_user.is_admin %}
-                    <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}" class="action-btn edit"
-                        title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-laptop"></i>
-                </div>
-                <h3 class="empty-state-title">No hay laptops en el inventario</h3>
-                <p class="empty-state-description">Agrega la primera laptop para comenzar a gestionar tu inventario</p>
-                {% if current_user.is_admin %}
-                <a href="{{ url_for('inventory.laptop_add') }}" class="mobile-action-btn btn-add"
-                    style="margin-top: 1.5rem; max-width: 200px;">
-                    <i class="fas fa-plus"></i>
-                    Agregar Primera Laptop
+            <div class="flex gap-3">
+                <a href="{{ url_for('invoices.settings') }}"
+                   class="inline-flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Configuración
                 </a>
-                {% endif %}
+                <a href="{{ url_for('invoices.invoice_new') }}"
+                   class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Nueva Factura
+                </a>
             </div>
-            {% endif %}
         </div>
 
-        <!-- PAGINACIÓN MÓVIL -->
-        {% if pagination.pages > 1 %}
-        <div class="mobile-pagination">
-            <div class="pagination-info">
-                Página {{ pagination.page }} de {{ pagination.pages }}
+        <!-- Estadísticas por Estado -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Total</p>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white mt-1">{{ total_invoices }}</p>
+                    </div>
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="pagination-buttons">
-                {% if pagination.has_prev %}
-                <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}" class="pagination-btn prev">
-                    <i class="fas fa-arrow-left"></i>
-                    Anterior
-                </a>
-                {% else %}
-                <button class="pagination-btn prev" disabled>
-                    <i class="fas fa-arrow-left"></i>
-                    Anterior
-                </button>
-                {% endif %}
 
-                {% if pagination.has_next %}
-                <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}" class="pagination-btn next">
-                    Siguiente
-                    <i class="fas fa-arrow-right"></i>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Emitidas</p>
+                        <p class="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1">{{ status_counts.issued }}</p>
+                    </div>
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Pagadas</p>
+                        <p class="text-xl font-bold text-green-600 dark:text-green-400 mt-1">{{ status_counts.paid }}</p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Vencidas</p>
+                        <p class="text-xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">{{ status_counts.overdue }}</p>
+                    </div>
+                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Canceladas</p>
+                        <p class="text-xl font-bold text-red-600 dark:text-red-400 mt-1">{{ status_counts.cancelled }}</p>
+                    </div>
+                    <div class="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Monto Total</p>
+                        <p class="text-lg font-bold text-purple-600 dark:text-purple-400 mt-1 truncate" title="RD$ {{ '{:,.2f}'.format(total_amount|float) }}">
+                            RD$ {{ "{:,.0f}".format(total_amount|float) }}
+                        </p>
+                    </div>
+                    <div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- NUEVO: Estadísticas por Tipo de NCF -->
+        <!-- ============================================ -->
+        {% if ncf_type_counts %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Comprobantes por Tipo de NCF
+            </h3>
+            <div class="flex flex-wrap gap-2">
+                {% for ncf_code, count in ncf_type_counts.items() %}
+                <a href="{{ url_for('invoices.invoices_list', ncf_type=ncf_code) }}"
+                   class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors
+                          {% if ncf_type_filter == ncf_code %}
+                          bg-indigo-600 text-white
+                          {% else %}
+                          bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/30
+                          {% endif %}">
+                    <span class="font-bold mr-1">{{ ncf_code }}</span>
+                    {% if ncf_types and ncf_code in ncf_types %}
+                    <span class="hidden sm:inline mr-1">- {{ ncf_types[ncf_code].name }}</span>
+                    {% endif %}
+                    <span class="{% if ncf_type_filter == ncf_code %}bg-white/20{% else %}bg-indigo-100 dark:bg-indigo-900/50{% endif %} px-1.5 py-0.5 rounded-full text-xs">
+                        {{ count }}
+                    </span>
                 </a>
-                {% else %}
-                <button class="pagination-btn next" disabled>
-                    Siguiente
-                    <i class="fas fa-arrow-right"></i>
-                </button>
+                {% endfor %}
+
+                {% if ncf_type_filter %}
+                <a href="{{ url_for('invoices.invoices_list', q=search_query, status=status_filter, date_from=date_from, date_to=date_to) }}"
+                   class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Quitar filtro NCF
+                </a>
                 {% endif %}
             </div>
         </div>
         {% endif %}
 
-        <!-- MODAL DE FILTROS MÓVIL -->
-        <div class="filters-modal" id="filtersModal">
-            <div class="filters-content">
-                <div class="filters-header">
-                    <h2 class="filters-title">Filtros</h2>
-                    <button class="action-btn" id="closeFilters">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+        <!-- Filtros de Búsqueda -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                Filtros de Búsqueda
+            </h3>
 
-                <div class="filters-body">
-                    <form id="mobileFiltersForm" method="GET" action="{{ url_for('inventory.laptops_list') }}">
-                        <!-- Search -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-search"></i>
-                                Buscar
-                            </label>
-                            <input type="text" name="search" value="{{ request.args.get('search', '') }}"
-                                placeholder="Buscar laptops..." class="filter-input">
+            <form method="get" class="space-y-4">
+                <!-- Mantener filtro de tipo NCF si está activo -->
+                {% if ncf_type_filter %}
+                <input type="hidden" name="ncf_type" value="{{ ncf_type_filter }}">
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Buscar
+                        </label>
+                        <div class="relative">
+                            <input type="text"
+                                   name="q"
+                                   value="{{ search_query }}"
+                                   placeholder="Buscar por número, NCF, cliente..."
+                                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
                         </div>
+                    </div>
 
-                        <!-- Price Range -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-dollar-sign"></i>
-                                Rango de Precio
-                            </label>
-                            <div class="price-range">
-                                <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}"
-                                    placeholder="Mín" class="price-input">
-                                <span style="color: #9ca3af;">-</span>
-                                <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}"
-                                    placeholder="Máx" class="price-input">
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Estado
+                        </label>
+                        <select name="status" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Todos</option>
+                            <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Borrador</option>
+                            <option value="issued" {% if status_filter == 'issued' %}selected{% endif %}>Emitida</option>
+                            <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Pagada</option>
+                            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelada</option>
+                        </select>
+                    </div>
 
-                        <!-- Brand -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-tag"></i>
-                                Marca
-                            </label>
-                            <select name="brand" class="filter-select">
-                                <option value="">Todas las marcas</option>
-                                {% for brand in filter_form.brand_id.choices[1:] %}
-                                <option value="{{ brand[0] }}" {% if request.args.get('brand')==brand[0]|string
-                                    %}selected{% endif %}>{{ brand[1] }}</option>
+                    <!-- NUEVO: Filtro por Tipo de NCF -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Tipo NCF
+                        </label>
+                        <select name="ncf_type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Todos</option>
+                            {% if ncf_types %}
+                                {% for code, info in ncf_types.items() %}
+                                <option value="{{ code }}" {% if ncf_type_filter == code %}selected{% endif %}>
+                                    {{ code }} - {{ info.name }}
+                                </option>
                                 {% endfor %}
-                            </select>
-                        </div>
+                            {% else %}
+                                <option value="B01" {% if ncf_type_filter == 'B01' %}selected{% endif %}>B01 - Crédito Fiscal</option>
+                                <option value="B02" {% if ncf_type_filter == 'B02' %}selected{% endif %}>B02 - Consumo</option>
+                                <option value="B14" {% if ncf_type_filter == 'B14' %}selected{% endif %}>B14 - Regímenes Especiales</option>
+                                <option value="B15" {% if ncf_type_filter == 'B15' %}selected{% endif %}>B15 - Gubernamental</option>
+                                <option value="B16" {% if ncf_type_filter == 'B16' %}selected{% endif %}>B16 - Exportaciones</option>
+                            {% endif %}
+                        </select>
+                    </div>
 
-                        <!-- Category -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-layer-group"></i>
-                                Categoría
-                            </label>
-                            <select name="category" class="filter-select">
-                                <option value="">Todas</option>
-                                <option value="laptop" {% if request.args.get('category')=='laptop' %}selected{% endif
-                                    %}>💻 Laptop</option>
-                                <option value="workstation" {% if request.args.get('category')=='workstation'
-                                    %}selected{% endif %}>Workstation</option>
-                                <option value="gaming" {% if request.args.get('category')=='gaming' %}selected{% endif
-                                    %}>🎮 Gaming</option>
-                            </select>
-                        </div>
-
-                        <!-- Condition -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-check-circle"></i>
-                                Condición
-                            </label>
-                            <select name="condition" class="filter-select">
-                                <option value="">Todas</option>
-                                <option value="new" {% if request.args.get('condition')=='new' %}selected{% endif %}>
-                                    Nuevo</option>
-                                <option value="used" {% if request.args.get('condition')=='used' %}selected{% endif %}>
-                                    Usado</option>
-                                <option value="refurbished" {% if request.args.get('condition')=='refurbished'
-                                    %}selected{% endif %}>Reacondicionado</option>
-                            </select>
-                        </div>
-
-                        <!-- Store -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-store"></i>
-                                Tienda
-                            </label>
-                            <select name="store" class="filter-select">
-                                <option value="">Todas</option>
-                                {% for store in filter_form.store_id.choices[1:] %}
-                                <option value="{{ store[0] }}" {% if request.args.get('store')==store[0]|string
-                                    %}selected{% endif %}>{{ store[1] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Sorting -->
-                        <div class="filter-group">
-                            <label class="filter-label">
-                                <i class="fas fa-sort-amount-down"></i>
-                                Ordenar por
-                            </label>
-                            <select name="sort_by" class="filter-select">
-                                <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='entry_date_desc' %}selected{% endif %}>Más recientes</option>
-                                <option value="entry_date_asc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='entry_date_asc' %}selected{% endif %}>Más antiguos</option>
-                                <option value="sale_price_asc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='sale_price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                                <option value="sale_price_desc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='sale_price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                                <option value="name_asc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='name_asc' %}selected{% endif %}>Nombre A-Z</option>
-                                <option value="name_desc" {% if request.args.get('sort_by', 'entry_date_desc'
-                                    )=='name_desc' %}selected{% endif %}>Nombre Z-A</option>
-                            </select>
-                        </div>
-                    </form>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                            Filtrar
+                        </button>
+                        <a href="{{ url_for('invoices.invoices_list') }}"
+                           class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium text-center">
+                            Limpiar
+                        </a>
+                    </div>
                 </div>
 
-                <div class="filters-footer">
-                    <a href="{{ url_for('inventory.laptops_list') }}" class="btn-clear">
-                        Limpiar
-                    </a>
-                    <button type="submit" form="mobileFiltersForm" class="btn-apply">
-                        Aplicar Filtros
-                    </button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fecha Desde
+                        </label>
+                        <input type="date"
+                               name="date_from"
+                               value="{{ date_from }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Fecha Hasta
+                        </label>
+                        <input type="date"
+                               name="date_to"
+                               value="{{ date_to }}"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="flex items-end">
+                        <a href="{{ url_for('invoices.export_csv', q=search_query, status=status_filter, ncf_type=ncf_type_filter, date_from=date_from, date_to=date_to) }}"
+                           class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-center font-medium">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Exportar CSV
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
 
-        <!-- BOTÓN STICKY CREAR FACTURA -->
-        <button id="stickyInvoiceBtn" class="sticky-invoice-btn mobile-only">
-            <i class="fas fa-file-invoice-dollar"></i>
-            Crear Factura
-            <span class="selected-count" id="stickySelectedCount">0</span>
-        </button>
+        <!-- Indicador de filtro activo -->
+        {% if ncf_type_filter %}
+        <div class="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                <span class="text-sm text-indigo-700 dark:text-indigo-300">
+                    Mostrando solo comprobantes tipo
+                    <strong>{{ ncf_type_filter }}</strong>
+                    {% if ncf_types and ncf_type_filter in ncf_types %}
+                    ({{ ncf_types[ncf_type_filter].name }})
+                    {% endif %}
+                </span>
+            </div>
+            <a href="{{ url_for('invoices.invoices_list', q=search_query, status=status_filter, date_from=date_from, date_to=date_to) }}"
+               class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+                Ver todos
+            </a>
+        </div>
+        {% endif %}
 
-        <!-- CONTENIDO DE ESCRITORIO (se mantiene igual) -->
-        <div class="desktop-container">
-            <!-- Aquí va el contenido original de escritorio -->
-            <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <!-- Header original -->
-                    <div
-                        class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                                Inventario de Laptops
-                            </h1>
-                            <p class="mt-1 text-gray-600 dark:text-gray-400">
-                                Gestiona tu inventario de manera eficiente
-                            </p>
-                        </div>
+        <!-- Tabla de Facturas -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+            {% if invoices %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Factura
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                NCF / Tipo
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Fecha
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Cliente
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Total
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Estado
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for invoice in invoices %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ invoice.invoice_number }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ invoice.payment_method|title }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-gray-900 dark:text-white font-mono">
+                                        {{ invoice.ncf }}
+                                    </span>
+                                    <!-- Badge del tipo de NCF -->
+                                    {% if invoice.ncf_type %}
+                                    <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                        {% if invoice.ncf_type == 'B01' %}
+                                        bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
+                                        {% elif invoice.ncf_type == 'B02' %}
+                                        bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
+                                        {% elif invoice.ncf_type == 'B14' %}
+                                        bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400
+                                        {% elif invoice.ncf_type == 'B15' %}
+                                        bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400
+                                        {% else %}
+                                        bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                        {% endif %}
+                                    ">
+                                        {{ invoice.ncf_type }}
+                                        {% if invoice.ncf_type_name %}
+                                        <span class="hidden lg:inline ml-1">- {{ invoice.ncf_type_name }}</span>
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-gray-900 dark:text-white">
+                                        {{ invoice.invoice_date.strftime('%d/%m/%Y') }}
+                                    </span>
+                                    {% if invoice.due_date %}
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        Vence: {{ invoice.due_date.strftime('%d/%m/%Y') }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ invoice.customer.full_name }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ invoice.customer.id_number }}
+                                        {% if invoice.customer.id_type == 'rnc' %}
+                                        <span class="ml-1 text-blue-600 dark:text-blue-400">(RNC)</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    RD$ {{ "{:,.2f}".format(invoice.total|float) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if invoice.is_overdue %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">Vencida</span>
+                                {% elif invoice.status == 'draft' %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Borrador</span>
+                                {% elif invoice.status == 'issued' %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Emitida</span>
+                                {% elif invoice.status == 'paid' %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Pagada</span>
+                                {% elif invoice.status == 'cancelled' %}
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ url_for('invoices.invoice_detail', invoice_id=invoice.id) }}"
+                                       class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                       title="Ver detalle">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                    {% if invoice.status == 'draft' %}
+                                    <a href="{{ url_for('invoices.invoice_edit', invoice_id=invoice.id) }}"
+                                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                       title="Editar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                        <div class="flex space-x-3">
-                            <button id="create-invoice-btn"
-                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled>
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                                Crear Factura (<span id="selected-count">0</span>)
-                            </button>
-
-                            {% if current_user.is_admin %}
-                            <a href="{{ url_for('inventory.laptop_add') }}"
-                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Agregar Laptop
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Estadísticas Cards Desktop -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <!-- ... contenido de estadísticas desktop ... -->
-                        <!-- Nota: Ya tenemos las estadísticas en la versión móvil, pero para mantener consistencia -->
-                        <!-- puedes mantener estas o reutilizar el mismo bloque -->
-                    </div>
-
-                    <!-- CATALOG LAYOUT Desktop -->
-                    <div class="flex flex-col lg:flex-row gap-8 items-start">
-                        <!-- FILTERS SIDEBAR Desktop -->
-                        <aside
-                            class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm h-fit">
-                            <!-- ... contenido del sidebar desktop ... -->
-                        </aside>
-
-                        <!-- PRODUCT TABLE Desktop -->
-                        <div class="flex-1 w-full">
-                            <!-- ... contenido de la tabla desktop ... -->
-                        </div>
-                    </div>
+            <!-- Paginación (si existe) -->
+            {% if pagination %}
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        Mostrando <span class="font-medium">{{ pagination.page }}</span> de <span class="font-medium">{{ pagination.pages }}</span> páginas
+                        ({{ pagination.total }} facturas)
+                    </p>
+                    <nav class="flex gap-2">
+                        {% if pagination.has_prev %}
+                        <a href="{{ url_for('invoices.invoices_list', page=pagination.prev_num, q=search_query, status=status_filter, ncf_type=ncf_type_filter, date_from=date_from, date_to=date_to) }}"
+                           class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                            Anterior
+                        </a>
+                        {% endif %}
+                        {% if pagination.has_next %}
+                        <a href="{{ url_for('invoices.invoices_list', page=pagination.next_num, q=search_query, status=status_filter, ncf_type=ncf_type_filter, date_from=date_from, date_to=date_to) }}"
+                           class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                            Siguiente
+                        </a>
+                        {% endif %}
+                    </nav>
                 </div>
             </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Estado vacío -->
+            <div class="px-6 py-12 text-center">
+                <div class="text-gray-400">
+                    <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    {% if search_query or status_filter or ncf_type_filter or date_from or date_to %}
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">No se encontraron facturas</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No hay facturas que coincidan con los filtros aplicados.</p>
+                    <div class="mt-6">
+                        <a href="{{ url_for('invoices.invoices_list') }}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium">
+                            Limpiar filtros
+                        </a>
+                    </div>
+                    {% else %}
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">No hay facturas</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comienza creando tu primera factura.</p>
+                    <div class="mt-6">
+                        <a href="{{ url_for('invoices.invoice_new') }}"
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Nueva Factura
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Variables globales
-    let selectedLaptops = new Set();
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function () {
-        initMobileFilters();
-        initSelection();
-        initStickyButton();
-        initLazyLoading();
-    });
-
-    // FILTROS MÓVIL
-    function initMobileFilters() {
-        const filtersTrigger = document.getElementById('filtersTrigger');
-        const filtersModal = document.getElementById('filtersModal');
-        const closeFilters = document.getElementById('closeFilters');
-
-        if (filtersTrigger && filtersModal) {
-            filtersTrigger.addEventListener('click', () => {
-                filtersModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
-
-            closeFilters.addEventListener('click', () => {
-                filtersModal.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-
-            // Cerrar al hacer clic fuera
-            filtersModal.addEventListener('click', (e) => {
-                if (e.target === filtersModal) {
-                    filtersModal.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Prevenir envío doble del formulario
-            const form = document.getElementById('mobileFiltersForm');
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aplicando...';
-                    }
-                });
-            }
-        }
-    }
-
-    // SELECCIÓN DE LAPTOPS
-    function initSelection() {
-        const checkboxes = document.querySelectorAll('.laptop-checkbox-mobile');
-        const selectAllCheckbox = document.querySelector('#select-all');
-        const mobileInvoiceBtn = document.querySelector('#create-invoice-btn-mobile');
-        const stickyInvoiceBtn = document.querySelector('#stickyInvoiceBtn');
-
-        // Contadores
-        const mobileCount = document.querySelector('#selected-count-mobile');
-        const stickyCount = document.querySelector('#stickySelectedCount');
-        const desktopCount = document.querySelector('#selected-count');
-
-        function updateSelection() {
-            const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox-mobile:checked');
-            const count = selectedCheckboxes.length;
-
-            // Actualizar contadores
-            if (mobileCount) mobileCount.textContent = count;
-            if (stickyCount) stickyCount.textContent = count;
-            if (desktopCount) desktopCount.textContent = count;
-
-            // Actualizar botones móviles
-            if (mobileInvoiceBtn) {
-                mobileInvoiceBtn.disabled = count === 0;
-                mobileInvoiceBtn.querySelector('#selected-count-mobile').textContent = count;
-            }
-
-            // Actualizar botón sticky
-            if (stickyInvoiceBtn) {
-                if (count > 0) {
-                    stickyInvoiceBtn.classList.add('active');
-                } else {
-                    stickyInvoiceBtn.classList.remove('active');
-                }
-            }
-
-            // Actualizar selección global
-            selectedLaptops.clear();
-            selectedCheckboxes.forEach(checkbox => {
-                selectedLaptops.add(checkbox.dataset.laptopId);
-            });
-
-            // Actualizar checkbox "Seleccionar todos" (si existe)
-            if (selectAllCheckbox) {
-                const allCheckboxes = document.querySelectorAll('.laptop-checkbox-mobile');
-                selectAllCheckbox.checked = count > 0 && count === allCheckboxes.length;
-                selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
-            }
-
-            // Actualizar checkbox de escritorio (si existe)
-            const desktopCheckboxes = document.querySelectorAll('.laptop-checkbox');
-            desktopCheckboxes.forEach(cb => {
-                if (selectedLaptops.has(cb.value)) {
-                    cb.checked = true;
-                }
-            });
-
-            return count;
-        }
-
-        // Event listeners para checkboxes móviles
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelection);
-
-            // Simular clic en checkbox de escritorio correspondiente
-            checkbox.addEventListener('change', function () {
-                const desktopCheckbox = document.querySelector(`.laptop-checkbox[value="${this.dataset.laptopId}"]`);
-                if (desktopCheckbox) {
-                    desktopCheckbox.checked = this.checked;
-                }
-            });
-        });
-
-        // Event listener para "Seleccionar todos"
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function () {
-                const allCheckboxes = document.querySelectorAll('.laptop-checkbox-mobile, .laptop-checkbox');
-                allCheckboxes.forEach(cb => {
-                    cb.checked = this.checked;
-                });
-                updateSelection();
-            });
-        }
-
-        // Sincronizar desde escritorio
-        const desktopCheckboxes = document.querySelectorAll('.laptop-checkbox');
-        desktopCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const mobileCheckbox = document.querySelector(`.laptop-checkbox-mobile[data-laptop-id="${this.value}"]`);
-                if (mobileCheckbox) {
-                    mobileCheckbox.checked = this.checked;
-                }
-                updateSelection();
-            });
-        });
-
-        // Inicializar selección
-        updateSelection();
-    }
-
-    // BOTÓN STICKY
-    function initStickyButton() {
-        const stickyBtn = document.getElementById('stickyInvoiceBtn');
-        if (!stickyBtn) return;
-
-        let lastScrollTop = 0;
-        let isScrollingDown = false;
-        let scrollTimeout;
-
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            isScrollingDown = scrollTop > lastScrollTop;
-            lastScrollTop = scrollTop;
-
-            // Mostrar/ocultar con animación al hacer scroll
-            if (isScrollingDown && scrollTop > 100) {
-                stickyBtn.style.transform = 'translateY(100px)';
-                stickyBtn.style.opacity = '0';
-            } else {
-                if (selectedLaptops.size > 0) {
-                    stickyBtn.style.transform = 'translateY(0)';
-                    stickyBtn.style.opacity = '1';
-                }
-            }
-
-            // Clear timeout
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                if (selectedLaptops.size > 0 && !isScrollingDown) {
-                    stickyBtn.style.transform = 'translateY(0)';
-                    stickyBtn.style.opacity = '1';
-                }
-            }, 150);
-        });
-
-        // Evento para crear factura
-        stickyBtn.addEventListener('click', goToInvoiceForm);
-        const mobileInvoiceBtn = document.querySelector('#create-invoice-btn-mobile');
-        if (mobileInvoiceBtn) {
-            mobileInvoiceBtn.addEventListener('click', goToInvoiceForm);
-        }
-    }
-
-    // FUNCIÓN PARA IR AL FORMULARIO DE FACTURA
-    function goToInvoiceForm() {
-        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox-mobile:checked, .laptop-checkbox:checked');
-
-        if (selectedCheckboxes.length === 0) {
-            showNotification('Selecciona al menos una laptop', 'warning');
-            return;
-        }
-
-        const selectedLaptops = [];
-        selectedCheckboxes.forEach(checkbox => {
-            selectedLaptops.push({
-                id: checkbox.dataset.laptopId || checkbox.value,
-                name: checkbox.dataset.laptopName,
-                price: parseFloat(checkbox.dataset.laptopPrice || 0),
-                description: checkbox.dataset.laptopDescription
-            });
-        });
-
-        // Guardar en localStorage
-        localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
-
-        // Redirigir
-        window.location.href = "{{ url_for('invoices.invoice_new') }}";
-    }
-
-    // LAZY LOADING DE IMÁGENES
-    function initLazyLoading() {
-        const images = document.querySelectorAll('.laptop-image img');
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src || img.src;
-                    observer.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '100px 0px',
-            threshold: 0.1
-        });
-
-        images.forEach(img => {
-            if (img.complete) return;
-            imageObserver.observe(img);
-        });
-    }
-
-    // NOTIFICACIONES (igual que dashboard)
-    function showNotification(message, type = 'success') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 left-4 z-50 px-4 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500 text-white' : type === 'warning' ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white'} animate-in`;
-        notification.style.cssText = "position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 9999; padding: 0.75rem 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; " + (type === 'success' ? 'background-color: #10b981;' : type === 'warning' ? 'background-color: #f59e0b;' : 'background-color: #ef4444;');
-
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
-                    <span style="font-size: 0.875rem;">${message}</span>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateY(-10px)';
-                setTimeout(() => notification.remove(), 300);
-            }
-        }, 3000);
-    }
-
-    // EXPORTAR CSV (compatible con móvil)
-    function exportToCSV() {
-        const headers = ['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Precio', 'Stock', 'Estado'];
-        const rows = [];
-
-        // Obtener datos de las laptops visibles (móvil y escritorio)
-        const visibleLaptops = document.querySelectorAll('.laptop-card, .laptop-checkbox');
-
-        visibleLaptops.forEach(element => {
-            let name, brand, model, category, price, stock, status, id;
-
-            if (element.classList.contains('laptop-card')) {
-                // Modo móvil
-                const card = element;
-                name = card.querySelector('.laptop-name')?.textContent || '';
-                brand = name.split(' ')[0] || '';
-                model = name.replace(brand, '').trim();
-                category = card.querySelector('.badge-category')?.textContent || '';
-                price = card.querySelector('.detail-value.price')?.textContent?.replace('$', '').replace(/,/g, '') || '';
-                stock = card.querySelector('.detail-value:not(.price)')?.textContent || '';
-                status = card.querySelector('.badge-status')?.textContent || '';
-                id = card.querySelector('.laptop-checkbox-mobile')?.dataset.laptopId || '';
-            } else {
-                // Modo escritorio (checkbox)
-                const row = element.closest('tr');
-                if (row) {
-                    name = row.querySelector('h3')?.textContent || '';
-                    brand = row.querySelector('.text-xs div:nth-child(1)')?.textContent?.replace('CPU: ', '') || '';
-                    model = row.querySelector('.text-xs div:nth-child(2)')?.textContent?.replace('GPU: ', '') || '';
-                    category = row.querySelector('td:nth-child(4) span')?.textContent || '';
-                    price = row.querySelector('td:nth-child(5) div:first-child')?.textContent?.replace('$', '').replace(/,/g, '') || '';
-                    stock = row.querySelector('td:nth-child(6) span')?.textContent || '';
-                    status = row.querySelector('td:nth-child(7) span:first-child')?.textContent || '';
-                    id = element.value;
-                }
-            }
-
-            if (id) {
-                rows.push([id, name, brand, model, category, price, stock, status]);
-            }
-        });
-
-        if (rows.length === 0) {
-            showNotification('No hay datos para exportar', 'warning');
-            return;
-        }
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `inventario_laptops_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        showNotification('Exportación completada', 'success');
-    }
-
-    // Prevenir zoom en inputs en iOS
-    document.addEventListener('touchstart', function () { }, { passive: true });
-</script>
 {% endblock %}

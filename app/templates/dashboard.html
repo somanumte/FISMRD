@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard Premium - Luxera AI{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.css" rel="stylesheet">
@@ -8,22 +8,75 @@
     :root {
         --primary: #6366f1;
         --primary-dark: #4f46e5;
+        --primary-light: #a5b4fc;
         --success: #10b981;
+        --success-dark: #059669;
+        --success-light: #a7f3d0;
         --danger: #ef4444;
+        --danger-dark: #dc2626;
+        --danger-light: #fca5a5;
         --warning: #f59e0b;
+        --warning-dark: #d97706;
+        --warning-light: #fcd34d;
         --info: #3b82f6;
+        --info-dark: #2563eb;
+        --info-light: #93c5fd;
         --dark: #1f2937;
         --light: #f9fafb;
+
+        /* Light theme specific */
+        --bg-body: #f8fafc;
+        --bg-nav: #ffffff;
+        --bg-card: #ffffff;
+        --bg-hover: #f1f5f9;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border-color: #e2e8f0;
+        --border-light: #f1f5f9;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+        --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+    }
+
+    .dark {
+        /* Dark theme specific */
+        --bg-body: #0f172a;
+        --bg-nav: #1e293b;
+        --bg-card: #1e293b;
+        --bg-hover: #2d3748;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --border-light: #475569;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+        --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        --gradient-danger: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     }
 
     body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        background: #f9fafb;
+        background: var(--bg-body);
+        color: var(--text-primary);
         overflow-x: hidden;
         width: 100%;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .dashboard-layout {
@@ -36,7 +89,7 @@
     }
 
     .dashboard-main {
-        background: #f9fafb;
+        background: var(--bg-body);
         min-height: 100vh;
         width: 100%;
         position: relative;
@@ -45,8 +98,8 @@
     }
 
     .dashboard-header {
-        background: white;
-        border-bottom: 1px solid #e5e7eb;
+        background: var(--bg-nav);
+        border-bottom: 1px solid var(--border-color);
         padding: 1rem;
         position: sticky;
         top: 0;
@@ -55,21 +108,24 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 
     .header-title {
         font-size: 1.125rem;
         font-weight: 700;
-        color: var(--dark);
+        color: var(--text-primary);
         line-height: 1.2;
     }
 
     .header-subtitle {
         font-size: 0.75rem;
-        color: #6b7280;
+        color: var(--text-secondary);
         margin-top: 2px;
         display: block;
+        font-weight: 500;
     }
 
     .header-actions {
@@ -87,11 +143,12 @@
 
     .period-selector {
         display: flex;
-        background: #f3f4f6;
+        background: var(--bg-hover);
         border-radius: 10px;
         padding: 3px;
         flex-wrap: wrap;
         gap: 2px;
+        transition: background-color 0.3s ease;
     }
 
     .period-selector::-webkit-scrollbar {
@@ -102,7 +159,7 @@
         padding: 0.5rem 0.75rem;
         border: none;
         background: transparent;
-        color: #6b7280;
+        color: var(--text-secondary);
         font-weight: 500;
         border-radius: 8px;
         cursor: pointer;
@@ -114,13 +171,19 @@
     }
 
     .period-btn:hover {
-        background: #e5e7eb;
+        background: var(--bg-hover);
+        color: var(--text-primary);
     }
 
     .period-btn.active {
-        background: white;
+        background: var(--bg-card);
         color: var(--primary);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
+        font-weight: 600;
+    }
+
+    .dark .period-selector {
+        background: var(--bg-hover);
     }
 
     .dashboard-container {
@@ -152,20 +215,20 @@
     }
 
     .metric-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
         height: 100%;
     }
 
     .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
         border-color: var(--primary);
     }
 
@@ -175,46 +238,53 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        height: 4px;
+        background: var(--gradient-primary);
+        opacity: 0.8;
     }
 
     .metric-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
     }
 
     .metric-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.25rem;
         color: white;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.3s ease;
+    }
+
+    .metric-card:hover .metric-icon {
+        transform: scale(1.1);
     }
 
     .metric-icon.primary {
-        background: var(--primary);
+        background: var(--gradient-primary);
     }
 
     .metric-icon.success {
-        background: var(--success);
+        background: var(--gradient-success);
     }
 
     .metric-icon.warning {
-        background: var(--warning);
+        background: var(--gradient-warning);
     }
 
     .metric-icon.danger {
-        background: var(--danger);
+        background: var(--gradient-danger);
     }
 
     .metric-icon.info {
-        background: var(--info);
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     }
 
     .metric-trend {
@@ -223,166 +293,233 @@
         gap: 0.25rem;
         font-size: 0.75rem;
         font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        background: var(--bg-hover);
     }
 
     .trend-up {
         color: var(--success);
+        background: rgba(16, 185, 129, 0.1);
     }
 
     .trend-down {
         color: var(--danger);
+        background: rgba(239, 68, 68, 0.1);
     }
 
     .trend-neutral {
-        color: #6b7280;
+        color: var(--text-secondary);
+        background: var(--bg-hover);
     }
 
     .metric-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
         line-height: 1.2;
+        letter-spacing: -0.5px;
     }
 
     .metric-label {
-        font-size: 0.8125rem;
-        color: #6b7280;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
         font-weight: 500;
-        line-height: 1.3;
+        line-height: 1.4;
         display: flex;
         align-items: center;
         gap: 0.25rem;
+        margin-bottom: 0.25rem;
     }
 
     .metric-subtext {
-        font-size: 0.6875rem;
-        color: #9ca3af;
+        font-size: 0.75rem;
+        color: var(--text-muted);
         margin-top: 0.125rem;
         line-height: 1.2;
+        font-weight: 400;
     }
 
     .section {
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .section-title {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: var(--dark);
+        color: var(--text-primary);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        letter-spacing: -0.5px;
     }
 
     .section-title-icon {
-        width: 28px;
-        height: 28px;
-        background: var(--primary);
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        background: var(--gradient-primary);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 0.875rem;
+        font-size: 1rem;
+        box-shadow: var(--shadow-sm);
     }
 
     .chart-container {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .chart-container:hover {
+        box-shadow: var(--shadow-lg);
     }
 
     .chart-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .chart-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--dark);
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
         line-height: 1.3;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        font-weight: 500;
-        font-size: 0.8125rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.875rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.375rem;
-        min-height: 40px;
+        gap: 0.5rem;
+        min-height: 44px;
         -webkit-tap-highlight-color: transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+
+    .btn:focus:not(:active)::after {
+        animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+        }
+        20% {
+            transform: scale(25, 25);
+            opacity: 0.3;
+        }
+        100% {
+            opacity: 0;
+            transform: scale(40, 40);
+        }
     }
 
     .btn-primary {
-        background: var(--primary);
+        background: var(--gradient-primary);
         color: white;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
     }
 
     .btn-primary:hover {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
     }
 
     .btn-outline {
         background: transparent;
         color: var(--primary);
-        border: 1px solid var(--primary);
+        border: 2px solid var(--primary);
     }
 
     .btn-outline:hover {
-        background: rgba(99, 102, 241, 0.1);
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
     }
 
     .btn-icon {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         padding: 0;
         justify-content: center;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+    }
+
+    .btn-icon:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        border-color: var(--primary);
     }
 
     .data-table-container {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
     }
 
     .data-table {
         width: 100%;
-        background: white;
-        border-radius: 8px;
+        background: var(--bg-card);
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         min-width: 600px;
     }
 
     .data-table th {
-        background: #f9fafb;
-        padding: 0.75rem;
+        background: var(--bg-hover);
+        padding: 1rem;
         text-align: left;
-        font-weight: 600;
-        color: #374151;
-        border-bottom: 1px solid #e5e7eb;
+        font-weight: 700;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -390,100 +527,105 @@
     }
 
     .data-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid #f3f4f6;
-        color: #6b7280;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-light);
+        color: var(--text-secondary);
         font-size: 0.875rem;
+        transition: background-color 0.2s ease;
     }
 
-    .data-table tr:hover {
-        background: #f9fafb;
+    .data-table tr:hover td {
+        background: var(--bg-hover);
     }
 
     .badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.25rem 0.5rem;
+        padding: 0.375rem 0.75rem;
         border-radius: 9999px;
-        font-size: 0.6875rem;
-        font-weight: 600;
+        font-size: 0.75rem;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         white-space: nowrap;
+        box-shadow: var(--shadow-sm);
     }
 
     .badge-success {
-        background: #d1fae5;
-        color: #065f46;
+        background: var(--gradient-success);
+        color: white;
     }
 
     .badge-warning {
-        background: #fef3c7;
-        color: #92400e;
+        background: var(--gradient-warning);
+        color: white;
     }
 
     .badge-danger {
-        background: #fee2e2;
-        color: #991b1b;
+        background: var(--gradient-danger);
+        color: white;
     }
 
     .badge-info {
-        background: #dbeafe;
-        color: #1e40af;
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        color: white;
     }
 
     .alert {
-        padding: 0.875rem;
-        border-radius: 10px;
-        margin-bottom: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
         display: flex;
         align-items: flex-start;
-        gap: 0.5rem;
+        gap: 0.75rem;
         border-left: 4px solid;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
     }
 
     .alert-danger {
-        background: #fef2f2;
         border-left-color: var(--danger);
-        color: #991b1b;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
+        color: var(--text-primary);
     }
 
     .alert-warning {
-        background: #fffbeb;
         border-left-color: var(--warning);
-        color: #92400e;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+        color: var(--text-primary);
     }
 
     .alert-info {
-        background: #eff6ff;
         border-left-color: var(--info);
-        color: #1e40af;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+        color: var(--text-primary);
     }
 
     .alert-success {
-        background: #f0fdf4;
         border-left-color: var(--success);
-        color: #166534;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+        color: var(--text-primary);
     }
 
     .charts-grid {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     @media (min-width: 1024px) {
         .charts-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+            gap: 2rem;
         }
     }
 
     .info-icon {
-        color: #9ca3af;
+        color: var(--text-muted);
         cursor: help;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         transition: color 0.2s;
         position: relative;
     }
@@ -496,17 +638,20 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem;
-        background: #f9fafb;
-        border-radius: 10px;
-        margin-bottom: 0.5rem;
-        transition: all 0.2s;
-        border: 1px solid transparent;
+        padding: 1rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
     }
 
     .list-item:hover {
-        background: #f3f4f6;
-        border-color: #e5e7eb;
+        transform: translateX(4px);
+        background: var(--bg-hover);
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
     }
 
     @keyframes fadeIn {
@@ -514,7 +659,6 @@
             opacity: 0;
             transform: translateY(8px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
@@ -522,32 +666,216 @@
     }
 
     .animate-in {
-        animation: fadeIn 0.25s ease-out;
+        animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .loader {
-        border: 2px solid #f3f4f6;
-        border-top: 2px solid var(--primary);
+        border: 3px solid var(--bg-hover);
+        border-top: 3px solid var(--primary);
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     .empty-state {
         text-align: center;
-        padding: 2rem 1rem;
-        color: #9ca3af;
+        padding: 3rem 1rem;
+        color: var(--text-secondary);
+    }
+
+    /* Performance Grid Styles (from the existing code) */
+    .performance-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .performance-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .performance-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    .performance-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .performance-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
+
+    .performance-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+
+    .performance-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .performance-title-group h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .performance-title-group p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .performance-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .performance-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .performance-item:hover {
+        background: var(--bg-card);
+        border-color: var(--border-color);
+        transform: translateX(4px);
+    }
+
+    .performance-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .performance-item-name {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+
+    .performance-item-sub {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .performance-item-value {
+        text-align: right;
+        margin-left: 1rem;
+        min-width: 70px;
+    }
+
+    .performance-main-val {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .performance-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    /* Colors for performance cards */
+    .bg-sales {
+        background: linear-gradient(135deg, rgba(234, 88, 12, 0.15) 0%, rgba(234, 88, 12, 0.05) 100%);
+        color: #ea580c;
+    }
+
+    .dark .bg-sales {
+        background: linear-gradient(135deg, rgba(234, 88, 12, 0.2) 0%, rgba(234, 88, 12, 0.1) 100%);
+        color: #fdba74;
+    }
+
+    .text-sales {
+        color: #ea580c;
+    }
+
+    .dark .text-sales {
+        color: #fdba74;
+    }
+
+    .bg-profit {
+        background: linear-gradient(135deg, rgba(5, 150, 105, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+        color: #059669;
+    }
+
+    .dark .bg-profit {
+        background: linear-gradient(135deg, rgba(5, 150, 105, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%);
+        color: #6ee7b7;
+    }
+
+    .text-profit {
+        color: #059669;
+    }
+
+    .dark .text-profit {
+        color: #6ee7b7;
+    }
+
+    .bg-revenue {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(79, 70, 229, 0.05) 100%);
+        color: #4f46e5;
+    }
+
+    .dark .bg-revenue {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(79, 70, 229, 0.1) 100%);
+        color: #a5b4fc;
+    }
+
+    .text-revenue {
+        color: #4f46e5;
+    }
+
+    .dark .text-revenue {
+        color: #a5b4fc;
     }
 
     /* Optimizaciones específicas para móvil */
@@ -613,7 +941,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Ajuste para Salud Financiera: 2 recuadros por línea */
         .metrics-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 12px;
@@ -771,7 +1098,6 @@
             height: 16px;
         }
 
-        /* Gestión de Inventario: 2 recuadros por línea */
         .grid.mb-6[style*="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))"] {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 12px;
@@ -791,7 +1117,6 @@
             grid-template-columns: 1fr !important;
         }
 
-        /* Optimización específica para el grid de actividades recientes */
         .section .grid[style*="grid-template-columns: 1fr"] {
             gap: 1rem !important;
         }
@@ -832,7 +1157,6 @@
             font-size: 10px;
         }
 
-        /* Ajustar para pantallas muy pequeñas */
         @media (max-width: 360px) {
             .metrics-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
@@ -867,7 +1191,6 @@
             }
         }
 
-        /* Prevenir zoom en inputs en iOS */
         input,
         select,
         textarea {
@@ -904,7 +1227,6 @@
             margin: 0 auto;
         }
 
-        /* Ajuste para Desktop: Salud Financiera en una sola línea horizontal */
         .metrics-grid {
             grid-template-columns: repeat(4, 1fr) !important;
             gap: 1.5rem;
@@ -938,6 +1260,17 @@
             display: inline-flex !important;
         }
     }
+
+    /* Smooth transitions for theme switching */
+    .metric-card,
+    .chart-container,
+    .performance-card,
+    .alert,
+    .btn,
+    .data-table,
+    .list-item {
+        transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
 </style>
 {% endblock %}
 
@@ -949,7 +1282,7 @@
         <header class="dashboard-header">
             <div>
                 <h1 class="header-title">
-                    Dashboard Premium
+                    Dashboard
                     <span class="header-subtitle">{{ financial_data.period_label }}</span>
                 </h1>
             </div>
@@ -1089,7 +1422,7 @@
 
             <!-- Gráficos principales -->
             <div class="charts-grid">
-                <!-- Tendencia de Ventas - REEMPLAZADO CON VERSIÓN DE OLD -->
+                <!-- Tendencia de Ventas -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <div>
@@ -1124,7 +1457,7 @@
                                 <i class="fas fa-info-circle info-icon"
                                     title="Compara el volumen de ventas (barras) y el margen promedio (línea) por marca. Solo muestra marcas con ventas reales en el período."></i>
                             </h3>
-                            <span style="font-size: 0.875rem; color: #6b7280;">Ventas vs Margen</span>
+                            <span style="font-size: 0.875rem; color: var(--text-secondary);">Ventas vs Margen</span>
                         </div>
                     </div>
                     <div id="brandChart" style="height: 300px;"></div>
@@ -1256,241 +1589,13 @@
                             ${{ "{:,.0f}".format(inventory_data.summary.potential_profit) }}
                         </div>
                         <p class="metric-label">Potencial de Ganancia</p>
-                        <p class="metric-subtext">Valor de venta: ${{
-                            "{:,.0f}".format(inventory_data.summary.inventory_sale_value) }}</p>
+                        <p class="metric-subtext">Valor de venta: ${{ "{:,.0f}".format(inventory_data.summary.inventory_sale_value) }}</p>
                     </div>
                 </div>
 
             </div>
 
-
-            <!-- Rendimiento de Productos (Rediseñado) - AJUSTADO PARA RESPONSIVO -->
-            <style>
-                /* Grid principal de rendimiento de productos */
-                .performance-grid {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 1.5rem;
-                }
-
-                @media (min-width: 768px) {
-                    .performance-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                    }
-                }
-
-                @media (min-width: 1024px) {
-                    .performance-grid {
-                        grid-template-columns: repeat(3, 1fr);
-                    }
-                }
-
-                .performance-card {
-                    background: white;
-                    border-radius: 16px;
-                    padding: 1.5rem;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
-                    display: flex;
-                    flex-direction: column;
-                    height: 100%;
-                }
-
-                .performance-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-                }
-
-                .performance-card-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 1.5rem;
-                    gap: 1rem;
-                }
-
-                .performance-icon-box {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.25rem;
-                }
-
-                .performance-title-group h3 {
-                    margin: 0;
-                    font-size: 1.1rem;
-                    font-weight: 700;
-                    color: #1a1a1a;
-                }
-
-                .performance-title-group p {
-                    margin: 0;
-                    font-size: 0.75rem;
-                    color: #6b7280;
-                    font-weight: 500;
-                }
-
-                .performance-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    flex: 1;
-                }
-
-                .performance-item {
-                    display: flex;
-                    align-items: center;
-                    padding: 0.75rem;
-                    border-radius: 12px;
-                    background: #f9fafb;
-                    border: 1px solid #f3f4f6;
-                    transition: background 0.2s ease;
-                }
-
-                .performance-item:hover {
-                    background: #f3f4f6;
-                }
-
-                .performance-item-info {
-                    flex: 1;
-                    min-width: 0;
-                }
-
-                .performance-item-name {
-                    font-weight: 600;
-                    font-size: 0.875rem;
-                    color: #111827;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    margin: 0;
-                }
-
-                .performance-item-sub {
-                    font-size: 0.7rem;
-                    color: #6b7280;
-                    margin-top: 2px;
-                }
-
-                .performance-item-value {
-                    text-align: right;
-                    margin-left: 1rem;
-                    min-width: 70px;
-                }
-
-                .performance-main-val {
-                    font-weight: 700;
-                    font-size: 1.05rem;
-                    margin: 0;
-                    line-height: 1;
-                }
-
-                .performance-label {
-                    font-size: 0.65rem;
-                    color: #9ca3af;
-                    text-transform: uppercase;
-                    font-weight: 600;
-                    margin-top: 4px;
-                }
-
-                /* Colors */
-                .bg-sales {
-                    background: #fff7ed;
-                    color: #ea580c;
-                }
-
-                .text-sales {
-                    color: #ea580c;
-                }
-
-                .bg-profit {
-                    background: #ecfdf5;
-                    color: #059669;
-                }
-
-                .text-profit {
-                    color: #059669;
-                }
-
-                .bg-revenue {
-                    background: #eef2ff;
-                    color: #4f46e5;
-                }
-
-                .text-revenue {
-                    color: #4f46e5;
-                }
-
-                /* Ajustes para móvil */
-                @media (max-width: 767px) {
-                    .performance-grid {
-                        gap: 1rem;
-                    }
-
-                    .performance-card {
-                        padding: 1.25rem;
-                        border-radius: 14px;
-                    }
-
-                    .performance-card-header {
-                        margin-bottom: 1.25rem;
-                    }
-
-                    .performance-icon-box {
-                        width: 42px;
-                        height: 42px;
-                        font-size: 1.1rem;
-                    }
-
-                    .performance-title-group h3 {
-                        font-size: 1rem;
-                    }
-
-                    .performance-title-group p {
-                        font-size: 0.7rem;
-                    }
-
-                    .performance-item {
-                        padding: 0.625rem;
-                    }
-
-                    .performance-item-name {
-                        font-size: 0.8125rem;
-                    }
-
-                    .performance-item-sub {
-                        font-size: 0.65rem;
-                    }
-
-                    .performance-item-value {
-                        margin-left: 0.75rem;
-                        min-width: 65px;
-                    }
-
-                    .performance-main-val {
-                        font-size: 0.95rem;
-                    }
-
-                    .performance-label {
-                        font-size: 0.6rem;
-                    }
-                }
-
-                /* Ajustes para tablet */
-                @media (min-width: 768px) and (max-width: 1023px) {
-                    .performance-grid {
-                        gap: 1.25rem;
-                    }
-
-                    .performance-card {
-                        padding: 1.375rem;
-                    }
-                }
-            </style>
-
+            <!-- Rendimiento de Productos -->
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">
@@ -1501,7 +1606,6 @@
                     </h2>
                 </div>
 
-                <!-- Cambié la clase de metrics-grid a performance-grid -->
                 <div class="performance-grid">
                     <!-- Más Vendidos -->
                     <div class="performance-card">
@@ -1546,8 +1650,7 @@
                             <div class="performance-item">
                                 <div class="performance-item-info">
                                     <p class="performance-item-name">{{ item.brand }} {{ item.model }}</p>
-                                    <p class="performance-item-sub">Margen: <strong>{{ "%.1f"|format(item.margin)
-                                            }}%</strong></p>
+                                    <p class="performance-item-sub">Margen: <strong>{{ "%.1f"|format(item.margin) }} %</strong></p>
                                 </div>
                                 <div class="performance-item-value">
                                     <p class="performance-main-val text-profit">${{ "{:,.0f}".format(item.profit) }}</p>
@@ -1577,8 +1680,7 @@
                                     <p class="performance-item-sub">Surtido: {{ item.units_sold }} vendidos</p>
                                 </div>
                                 <div class="performance-item-value">
-                                    <p class="performance-main-val text-revenue">${{ "{:,.0f}".format(item.profit) }}
-                                    </p>
+                                    <p class="performance-main-val text-revenue">${{ "{:,.0f}".format(item.profit) }}</p>
                                     <p class="performance-label">TOTAL</p>
                                 </div>
                             </div>
@@ -1592,20 +1694,19 @@
             <div class="section">
                 {% if alerts %}
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3"
-                        style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.75rem;">
-                        Alertas Prioritarias</h3>
-                    <div class="space-y-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <h3 class="text-lg font-semibold mb-3" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                        Alertas Prioritarias
+                    </h3>
+                    <div class="space-y-2" style="display: flex; flex-direction: column; gap: 0.75rem;">
                         {% for alert in alerts %}
                         <div class="alert alert-{{ alert.type }}">
                             <i class="fas fa-{{ alert.icon }} mt-1"></i>
                             <div class="flex-1">
-                                <h4 class="font-semibold" style="font-weight: 600;">{{ alert.title }}</h4>
-                                <p class="text-sm mt-1" style="font-size: 0.875rem; margin-top: 0.25rem;">{{
-                                    alert.message }}</p>
+                                <h4 class="font-semibold" style="font-weight: 600; color: var(--text-primary);">{{ alert.title }}</h4>
+                                <p class="text-sm mt-1" style="font-size: 0.875rem; margin-top: 0.25rem; color: var(--text-secondary);">{{ alert.message }}</p>
                                 <a href="{{ url_for(alert.link) if alert.link else '#' }}"
                                     class="text-sm font-medium mt-2 inline-block"
-                                    style="font-size: 0.875rem; font-weight: 500; margin-top: 0.5rem; display: inline-block; color: inherit;">
+                                    style="font-size: 0.875rem; font-weight: 500; margin-top: 0.5rem; display: inline-block; color: var(--primary);">
                                     {{ alert.action }} →
                                 </a>
                             </div>
@@ -1617,29 +1718,23 @@
 
                 {% if insights %}
                 <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3"
-                        style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.75rem;">
-                        Insights de IA</h3>
-                    <div class="grid"
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    <h3 class="text-lg font-semibold mb-3" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                        Insights de IA
+                    </h3>
+                    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
                         {% for insight in insights %}
-                        <div class="bg-white p-4 rounded-lg border shadow-sm"
-                            style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid {{ chart_colors[insight.type] if insight.type in chart_colors else '#e5e7eb' }}; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                            <div class="flex items-center gap-3 mb-3"
-                                style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white"
-                                    style="width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; background-color: {{ chart_colors[insight.type] if insight.type in chart_colors else '#6b7280' }}; display: flex; align-items: center; justify-content: center; color: white;">
+                        <div class="performance-card">
+                            <div class="performance-card-header">
+                                <div class="performance-icon-box" style="background: {{ chart_colors[insight.type] if insight.type in chart_colors else 'var(--gradient-primary)' }};">
                                     <i class="fas fa-{{ insight.icon }}"></i>
                                 </div>
-                                <h4 class="font-semibold text-gray-900" style="font-weight: 600; color: #111827;">{{
-                                    insight.title }}</h4>
+                                <div class="performance-title-group">
+                                    <h3>{{ insight.title }}</h3>
+                                    <p>Análisis inteligente</p>
+                                </div>
                             </div>
-                            <p class="text-gray-700 mb-3"
-                                style="color: #374151; font-size: 0.875rem; margin-bottom: 0.75rem;">{{ insight.message
-                                }}</p>
-                            <p class="text-sm text-gray-600 italic"
-                                style="font-size: 0.75rem; color: #4b5563; font-style: italic;">💡 {{ insight.suggestion
-                                }}</p>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; line-height: 1.5;">{{ insight.message }}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-top: auto;">💡 {{ insight.suggestion }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -1692,7 +1787,7 @@
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 left-4 z-50 px-4 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'} animate-in`;
-        notification.style.cssText = "position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 50; padding: 0.75rem 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; " + (type === 'success' ? 'background-color: #10b981;' : 'background-color: #ef4444;');
+        notification.style.cssText = "position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 50; padding: 0.75rem 1rem; border-radius: 0.5rem; box-shadow: var(--shadow-lg); color: white; " + (type === 'success' ? 'background: var(--gradient-success);' : 'background: var(--gradient-danger);');
 
         notification.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -1740,12 +1835,12 @@
     // Gráficos con DATOS REALES
     function initializeCharts() {
         const commonGrid = {
-            borderColor: '#f1f5f9',
+            borderColor: 'var(--border-light)',
             strokeDashArray: 4,
             padding: { top: 0, right: 0, bottom: 0, left: 10 }
         };
 
-        // Gráfico de Ventas - REEMPLAZADO CON VERSIÓN DE OLD
+        // Gráfico de Ventas
         if (document.querySelector("#salesChart") && salesTrends) {
             const salesData = typeof salesTrends === 'string' ? JSON.parse(salesTrends) : salesTrends;
 
@@ -1773,7 +1868,9 @@
                             pan: false,
                             reset: true
                         }
-                    }
+                    },
+                    background: 'transparent',
+                    foreColor: 'var(--text-secondary)'
                 },
                 stroke: {
                     width: [0, 3],
@@ -1793,7 +1890,7 @@
                     categories: salesData.labels,
                     labels: {
                         style: {
-                            colors: '#6b7280',
+                            colors: 'var(--text-secondary)',
                             fontSize: '12px'
                         }
                     }
@@ -1802,7 +1899,7 @@
                     title: {
                         text: 'Ventas ($)',
                         style: {
-                            color: '#6b7280',
+                            color: 'var(--text-secondary)',
                             fontSize: '12px'
                         }
                     },
@@ -1811,7 +1908,7 @@
                             return '$' + (value / 1000).toFixed(0) + 'k';
                         },
                         style: {
-                            colors: '#6b7280',
+                            colors: 'var(--text-secondary)',
                             fontSize: '12px'
                         }
                     }
@@ -1820,7 +1917,7 @@
                     title: {
                         text: 'Ganancia ($)',
                         style: {
-                            color: '#6b7280',
+                            color: 'var(--text-secondary)',
                             fontSize: '12px'
                         }
                     },
@@ -1829,7 +1926,7 @@
                             return '$' + (value / 1000).toFixed(0) + 'k';
                         },
                         style: {
-                            colors: '#6b7280',
+                            colors: 'var(--text-secondary)',
                             fontSize: '12px'
                         }
                     }
@@ -1837,6 +1934,7 @@
                 tooltip: {
                     shared: true,
                     intersect: false,
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
                     y: {
                         formatter: function (value) {
                             return '$' + value.toLocaleString('en-US', {
@@ -1854,10 +1952,13 @@
                         width: 12,
                         height: 12,
                         radius: 6
+                    },
+                    labels: {
+                        colors: 'var(--text-secondary)'
                     }
                 },
                 grid: {
-                    borderColor: '#e5e7eb',
+                    borderColor: 'var(--border-light)',
                     strokeDashArray: 4,
                     padding: {
                         top: 40,
@@ -1885,30 +1986,53 @@
                 chart: {
                     height: 300,
                     type: 'line',
-                    toolbar: { show: false }
+                    toolbar: { show: false },
+                    background: 'transparent',
+                    foreColor: 'var(--text-secondary)'
                 },
                 stroke: { width: [0, 3], curve: 'smooth' },
                 colors: [chartColors.primary, chartColors.success],
                 fill: { opacity: [0.85, 1] },
                 xaxis: {
                     categories: brandPerformance.brands || [],
-                    labels: { rotate: -45 }
+                    labels: {
+                        rotate: -45,
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 },
                 yaxis: [{
                     title: { text: 'Ventas ($)' },
                     labels: {
                         formatter: function (val) {
                             return '$' + (val / 1000).toFixed(0) + 'k';
+                        },
+                        style: {
+                            colors: 'var(--text-secondary)'
                         }
                     }
                 }, {
                     opposite: true,
                     title: { text: 'Margen (%)' },
                     min: 0,
-                    max: 100
+                    max: 100,
+                    labels: {
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 }],
-                legend: { position: 'top' },
-                grid: commonGrid
+                legend: {
+                    position: 'top',
+                    labels: {
+                        colors: 'var(--text-secondary)'
+                    }
+                },
+                grid: commonGrid,
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                }
             });
             brandChart.render();
         }
@@ -1928,28 +2052,51 @@
                 chart: {
                     height: 280,
                     type: 'line',
-                    toolbar: { show: false }
+                    toolbar: { show: false },
+                    background: 'transparent',
+                    foreColor: 'var(--text-secondary)'
                 },
                 stroke: { width: [0, 3], curve: 'smooth' },
                 colors: [chartColors.primary, chartColors.success],
                 fill: { opacity: [0.85, 1] },
                 xaxis: {
                     categories: categoryChartData.labels || [],
-                    labels: { rotate: -45 }
+                    labels: {
+                        rotate: -45,
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 },
                 yaxis: [{
                     title: { text: 'Ventas ($)' },
                     labels: {
                         formatter: function (val) {
                             return '$' + (val / 1000).toFixed(0) + 'k';
+                        },
+                        style: {
+                            colors: 'var(--text-secondary)'
                         }
                     }
                 }, {
                     opposite: true,
-                    title: { text: 'Unidades' }
+                    title: { text: 'Unidades' },
+                    labels: {
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 }],
-                legend: { position: 'top' },
-                grid: commonGrid
+                legend: {
+                    position: 'top',
+                    labels: {
+                        colors: 'var(--text-secondary)'
+                    }
+                },
+                grid: commonGrid,
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                }
             });
             categoryChart.render();
         }
@@ -1969,30 +2116,53 @@
                 chart: {
                     height: 280,
                     type: 'line',
-                    toolbar: { show: false }
+                    toolbar: { show: false },
+                    background: 'transparent',
+                    foreColor: 'var(--text-secondary)'
                 },
                 stroke: { width: [0, 3], curve: 'smooth' },
                 colors: [chartColors.primary, chartColors.success],
                 fill: { opacity: [0.85, 1] },
                 xaxis: {
                     categories: conditionPerformance.conditions || [],
-                    labels: { rotate: -45 }
+                    labels: {
+                        rotate: -45,
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 },
                 yaxis: [{
                     title: { text: 'Ventas ($)' },
                     labels: {
                         formatter: function (val) {
                             return '$' + (val / 1000).toFixed(0) + 'k';
+                        },
+                        style: {
+                            colors: 'var(--text-secondary)'
                         }
                     }
                 }, {
                     opposite: true,
                     title: { text: 'Margen (%)' },
                     min: 0,
-                    max: 100
+                    max: 100,
+                    labels: {
+                        style: {
+                            colors: 'var(--text-secondary)'
+                        }
+                    }
                 }],
-                legend: { position: 'top' },
-                grid: commonGrid
+                legend: {
+                    position: 'top',
+                    labels: {
+                        colors: 'var(--text-secondary)'
+                    }
+                },
+                grid: commonGrid,
+                tooltip: {
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                }
             });
             conditionChart.render();
         }
@@ -2016,5 +2186,15 @@
             })));
         }
     }
+
+    // Update chart themes when theme changes
+    document.addEventListener('themeChanged', function() {
+        setTimeout(() => {
+            if (salesChart) salesChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });
+            if (brandChart) brandChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });
+            if (categoryChart) categoryChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });
+            if (conditionChart) conditionChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });
+        }, 100);
+    });
 </script>
 {% endblock %}

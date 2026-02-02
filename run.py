@@ -45,7 +45,7 @@ if __name__ == '__main__':
     print("\n" + "=" * 60)
     print("🚀 INICIANDO SERVIDOR LUXERA")
     print("=" * 60)
-    print(f"🔗 URL: http://10.0.0.86:5000")
+    print(f"🔗 URL: http://10.0.0.92:5000")
     print("=" * 60)
     print("📚 Comandos CLI disponibles:")
     print("   flask setup-fresh     - ⚠️ Reinicia TODO + 50 laptops")
