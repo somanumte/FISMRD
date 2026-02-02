@@ -1,0 +1,22 @@
+--- Running get_brand_performance ---
+Brand: Dell
+Sales: $100,000.00
+Margin: 50.0%
+
+Full Data:
+{
+  "brands": [
+    "Dell",
+    "MSI"
+  ],
+  "sales": [
+    100000.0,
+    52224.0
+  ],
+  "margins": [
+    50.0,
+    16.7
+  ],
+  "top_brand": "Dell",
+  "top_margin": 50.0
+}

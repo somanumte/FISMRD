@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Estado de Resultados - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-label {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        height: 500px;
+    }
+
+    .text-green {
+        color: #10b981;
+    }
+
+    .text-red {
+        color: #ef4444;
+    }
+
+    .text-blue {
+        color: #3b82f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>📊 Estado de Resultados (P&L)</h1>
+        <p>Ingresos y Gastos del Año Actual</p>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-value text-green" id="totalIncome">$0.00</div>
+            <div class="kpi-label">Ingresos Totales (Ventas)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value text-red" id="totalExpenses">$0.00</div>
+            <div class="kpi-label">Gastos Operativos</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value text-blue" id="netProfit">$0.00</div>
+            <div class="kpi-label">Utilidad Neta</div>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <canvas id="pnlChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_financial_pnl') }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const d = data.data;
+                    document.getElementById('totalIncome').innerText = '$' + d.totals.income.toLocaleString();
+                    document.getElementById('totalExpenses').innerText = '$' + d.totals.expenses.toLocaleString();
+                    document.getElementById('netProfit').innerText = '$' + d.totals.profit.toLocaleString();
+
+                    new Chart(document.getElementById('pnlChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: d.months,
+                            datasets: [
+                                { label: 'Ingresos', data: d.income, backgroundColor: '#10b981', borderRadius: 4 },
+                                { label: 'Gastos', data: d.expenses, backgroundColor: '#ef4444', borderRadius: 4 },
+                                { label: 'Utilidad', data: d.profit, type: 'line', borderColor: '#3b82f6', tension: 0.4, borderWidth: 2, pointRadius: 4 }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'Comportamiento Mensual' }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { display: true, drawBorder: false }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Cliente - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .customer-profile {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+        border-left: 3px solid #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+        padding-left: 1.5rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -2.4rem;
+        top: 0.5rem;
+        width: 16px;
+        height: 16px;
+        background: #6366f1;
+        border-radius: 50%;
+        border: 3px solid white;
+    }
+
+    .timeline-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .timeline-date {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="customer-profile">
+        <div class="profile-avatar">{{ customer.first_name[0] if customer.first_name else customer.company_name[0] }}
+        </div>
+        <div>
+            <h1 class="text-2xl font-bold">{{ customer.full_name }}</h1>
+            <p class="text-gray-600">{{ customer.email }} | {{ customer.phone_primary }}</p>
+            <p class="text-sm text-gray-500 mt-1">Cliente desde: {{ customer.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+    </div>
+
+    <h2 class="text-xl font-bold mb-6">Historial de Actividad</h2>
+    <div class="timeline" id="timelineContainer">
+        <!-- Timeline items -->
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_customers_history', customer_id=customer.id) }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('timelineContainer');
+                    data.data.forEach(item => {
+                        container.innerHTML += `<div class="timeline-item">
+                            <div class="timeline-card">
+                                <div class="timeline-date">${item.date}</div>
+                                <h3 class="font-bold text-lg">${item.description}</h3>
+                                <p class="text-gray-600">Monto: <span class="text-green-600 font-bold">$${item.amount.toLocaleString()}</span></p>
+                                <span class="text-sm bg-gray-100 px-2 py-1 rounded mt-2 inline-block">${item.status}</span>
+                            </div>
+                        </div>`;
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Ventas por Método de Pago - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+        background: white;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-primary {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .filter-input {
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>💳 Ventas por Método de Pago</h1>
+    </div>
+
+    <div class="filters-card">
+        <label>Inicio: <input type="date" id="startDate" class="filter-input" value="{{ start_date }}"></label>
+        <label>Fin: <input type="date" id="endDate" class="filter-input" value="{{ end_date }}"></label>
+        <button class="btn-primary" onclick="loadReport()">Actualizar</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="paymentChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    let chart = null;
+
+    document.addEventListener('DOMContentLoaded', loadReport);
+
+    function loadReport() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        fetch(`{{ url_for('reports.api_sales_by_payment_method') }}?start_date=${start}&end_date=${end}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const ctx = document.getElementById('paymentChart').getContext('2d');
+                    if (chart) chart.destroy();
+
+                    chart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: data.data.labels,
+                            datasets: [{
+                                data: data.data.values,
+                                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+            });
+    }
+</script>
+{% endblock %}

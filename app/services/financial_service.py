@@ -70,12 +70,13 @@ class FinancialService:
             }
 
     @staticmethod
-    def calculate_financial_metrics(period_data: List[Dict]) -> Dict:
+    def calculate_financial_metrics(period_data: List[Dict], inventory_value: float = None) -> Dict:
         """
         Calcula métricas financieras complejas para un período
 
         Args:
             period_data: Lista de diccionarios con ventas, costos, gastos
+            inventory_value: Valor actual del inventario (opcional para rotación real)
 
         Returns:
             dict con todas las métricas financieras
@@ -86,6 +87,7 @@ class FinancialService:
                     'total_sales': 0,
                     'total_cogs': 0,
                     'total_expenses': 0,
+                    'invoice_count': 0,
                     'gross_profit': 0,
                     'net_profit': 0,
                     'gross_margin': 0,
@@ -99,6 +101,7 @@ class FinancialService:
             total_sales = sum(item.get('sales', 0) for item in period_data)
             total_cogs = sum(item.get('cogs', 0) for item in period_data)
             total_expenses = sum(item.get('expenses', 0) for item in period_data)
+            invoice_count = sum(item.get('invoice_count', 0) for item in period_data)
 
             gross_profit = total_sales - total_cogs
             net_profit = gross_profit - total_expenses
@@ -110,15 +113,17 @@ class FinancialService:
             contribution_margin_ratio = gross_margin / 100 if gross_margin > 0 else 0
             break_even_point = total_expenses / contribution_margin_ratio if contribution_margin_ratio > 0 else 0
 
-            # Rotación de inventario (simplificado)
-            avg_inventory_value = total_cogs * 0.3  # Suposición: inventario = 30% COGS
-            inventory_turnover = total_sales / avg_inventory_value if avg_inventory_value > 0 else 0
+            # Rotación de inventario
+            # Si no se provee valor de inventario, usamos una estimación basada en COGS (30%)
+            avg_inv = inventory_value if inventory_value is not None else (total_cogs * 0.3)
+            inventory_turnover = total_sales / avg_inv if avg_inv > 0 else 0
             avg_inventory_days = 365 / inventory_turnover if inventory_turnover > 0 else 0
 
             return {
                 'total_sales': round(total_sales, 2),
                 'total_cogs': round(total_cogs, 2),
                 'total_expenses': round(total_expenses, 2),
+                'invoice_count': int(invoice_count),
                 'gross_profit': round(gross_profit, 2),
                 'net_profit': round(net_profit, 2),
                 'gross_margin': round(gross_margin, 2),

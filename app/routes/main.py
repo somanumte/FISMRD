@@ -127,7 +127,7 @@ def api_dashboard_stats():
         Invoice.status.in_(['paid', 'completed'])
     ).all()
 
-    revenue = sum(float(inv.total) for inv in invoices)
+    revenue = sum(float(inv.subtotal) for inv in invoices)
 
     return jsonify({
         'success': True,
@@ -151,34 +151,7 @@ def api_dashboard_stats():
 # RUTAS DE ADMIN (COMPATIBILIDAD)
 # ============================================
 
-@main_bp.route('/admin')
-@login_required
-def admin_panel():
-    """
-    Panel de administración
-    """
-    if not current_user.is_admin:
-        abort(403)
-
-    # Obtener estadísticas de usuarios
-    total_users = User.query.count()
-    active_users = User.query.filter_by(is_active=True).count()
-    admin_users = User.query.filter_by(is_admin=True).count()
-
-    # Usuarios recientes (últimos 10 registrados)
-    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
-
-    # Obtener la fecha actual para el pie de página
-    now = datetime.now()
-
-    return render_template(
-        'admin/panel.html',
-        total_users=total_users,
-        active_users=active_users,
-        admin_users=admin_users,
-        recent_users=recent_users,
-        now=now
-    )
+# Admin panel route moved to app/routes/admin.py
 
 
 @main_bp.route('/admin/users')
@@ -195,6 +168,50 @@ def admin_users():
     return render_template(
         'admin/users.html',
         users=users
+    )
+
+
+@main_bp.route('/admin/catalogs')
+@login_required
+def admin_catalogs():
+    """
+    Gestión unificada de catálogos
+    """
+    if not (current_user.is_admin or current_user.has_permission('inventory.view')):
+        abort(403)
+
+    return render_template('admin/catalogs.html')
+
+
+@main_bp.route('/admin/catalogs/<catalog_type>/<int:item_id>')
+@login_required
+def catalog_detail(catalog_type, item_id):
+    """
+    Vista detallada para Brands (con Models) o Stores (con Locations)
+    """
+    if not (current_user.is_admin or current_user.has_permission('inventory.view')):
+        abort(403)
+
+    # Map catalog types to models
+    from app.models.laptop import Brand, LaptopModel, Store, Location
+
+    catalog_map = {
+        'brands': {'model': Brand, 'child_model': LaptopModel, 'child_name': 'Modelos', 'child_type': 'models'},
+        'stores': {'model': Store, 'child_model': Location, 'child_name': 'Ubicaciones', 'child_type': 'locations'}
+    }
+
+    if catalog_type not in catalog_map:
+        abort(404)
+
+    config = catalog_map[catalog_type]
+    parent_item = config['model'].query.get_or_404(item_id)
+
+    return render_template(
+        'admin/catalog_detail.html',
+        catalog_type=catalog_type,
+        parent_item=parent_item,
+        child_model_name=config['child_name'],
+        child_type=config['child_type']
     )
 
 

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Estado del Sistema - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .status-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .status-item:last-child {
+        border-bottom: none;
+    }
+
+    .status-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .status-value {
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .badge-ok {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .badge-err {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>🖥️ Estado del Sistema</h1>
+        <p>Métricas de salud y estadísticas generales</p>
+    </div>
+
+    <div class="status-grid">
+        <!-- System Health -->
+        <div class="status-card">
+            <h3>Salud del Sistema</h3>
+            <div class="status-item">
+                <span class="status-label">Base de Datos</span>
+                <span class="status-value" id="dbStatus">Comprobando...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Hora del Servidor</span>
+                <span class="status-value" id="sysTime">...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Versión</span>
+                <span class="status-value" id="version">...</span>
+            </div>
+        </div>
+
+        <!-- Data Counts -->
+        <div class="status-card">
+            <h3>Volumen de Datos</h3>
+            <div class="status-item">
+                <span class="status-label">Facturas Emitidas</span>
+                <span class="status-value" id="countInvoices">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Clientes Registrados</span>
+                <span class="status-value" id="countCustomers">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Productos en Catálogo</span>
+                <span class="status-value" id="countProducts">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Seriales Rastreados</span>
+                <span class="status-value" id="countSerials">0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_operational_status') }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const d = data.data;
+
+                    // Health
+                    const dbEl = document.getElementById('dbStatus');
+                    dbEl.innerText = d.db_status;
+                    dbEl.className = 'status-value ' + (d.db_status === 'Online' ? 'badge-ok' : 'badge-err');
+
+                    document.getElementById('sysTime').innerText = new Date(d.system_time).toLocaleTimeString();
+                    document.getElementById('version').innerText = d.version;
+
+                    // Counts
+                    document.getElementById('countInvoices').innerText = d.stats.invoices.toLocaleString();
+                    document.getElementById('countCustomers').innerText = d.stats.customers.toLocaleString();
+                    document.getElementById('countProducts').innerText = d.stats.products.toLocaleString();
+                    document.getElementById('countSerials').innerText = d.stats.serials.toLocaleString();
+                }
+            });
+    });
+</script>
+{% endblock %}

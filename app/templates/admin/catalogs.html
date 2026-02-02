@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+{% set hide_search = True %}
+
+{% block title %}Gestión de Catálogos | LuxeraRD{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Container */
+    .catalog-container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* Modern Grid Layout */
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Sidebar */
+    .catalog-sidebar {
+        background: var(--surface-primary);
+        border: 1px solid var(--border-subtle);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        position: sticky;
+        top: 90px;
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+    }
+
+    .sidebar-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-sub);
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+    }
+
+    .catalog-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        color: var(--text-sub);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        margin-bottom: 0.375rem;
+        font-weight: 500;
+        font-size: 0.9375rem;
+        position: relative;
+    }
+
+    .catalog-nav-item:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        transform: translateX(4px);
+    }
+
+    .catalog-nav-item.active {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(59, 130, 246, 0.12));
+        color: #7C3AED;
+        font-weight: 600;
+    }
+
+    .catalog-nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: linear-gradient(180deg, #7C3AED, #3B82F6);
+        border-radius: 0 2px 2px 0;
+    }
+
+    .catalog-nav-item i {
+        width: 1.25rem;
+        text-align: center;
+        font-size: 1.125rem;
+    }
+
+    /* Main Content Card */
+    .catalog-card {
+        background: var(--surface-primary);
+        border: 1px solid var(--border-subtle);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .catalog-header {
+        padding: 1.75rem 2rem;
+        border-bottom: 1px solid var(--border-subtle);
+        background: linear-gradient(180deg, var(--surface-primary) 0%, var(--bg-body) 100%);
+    }
+
+    .catalog-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 0.375rem;
+    }
+
+    .catalog-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-sub);
+    }
+
+    /* Toolbar */
+    .catalog-toolbar {
+        padding: 1.5rem 2rem;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 1rem;
+        align-items: center;
+        background: var(--bg-body);
+    }
+
+    .search-wrapper {
+        position: relative;
+        max-width: 400px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        background: var(--surface-primary);
+        border: 1.5px solid var(--border-subtle);
+        border-radius: 0.75rem;
+        color: var(--text-main);
+        font-size: 0.9375rem;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: #7C3AED;
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-sub);
+        font-size: 0.9375rem;
+    }
+
+    /* Table */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .catalog-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .catalog-table thead {
+        background: var(--bg-body);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .catalog-table th {
+        padding: 1rem 2rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-sub);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .catalog-table td {
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid var(--border-subtle);
+        color: var(--text-main);
+        font-size: 0.9375rem;
+    }
+
+    .catalog-table tbody tr {
+        transition: background-color 0.15s;
+    }
+
+    .catalog-table tbody tr:hover {
+        background: var(--surface-hover);
+    }
+
+    .catalog-table tbody tr.clickable {
+        cursor: pointer;
+    }
+
+    .catalog-table tbody tr.clickable:hover {
+        background: linear-gradient(90deg, rgba(124, 58, 237, 0.04), transparent);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.025em;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+    }
+
+    .status-badge.inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
+    }
+
+    .status-badge i {
+        font-size: 0.5rem;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-sub);
+        transition: all 0.2s;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        transform: scale(1.1);
+    }
+
+    .action-btn.edit:hover {
+        color: #7C3AED;
+        background: rgba(124, 58, 237, 0.1);
+    }
+
+    .action-btn.delete:hover {
+        color: #EF4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .action-btn.restore:hover {
+        color: #10B981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .action-btn.merge:hover {
+        color: #F59E0B;
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background: var(--surface-primary);
+        border: 1px solid var(--border-subtle);
+        border-radius: 1rem;
+        width: 100%;
+        max-width: 500px;
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-backdrop.active .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Mobile */
+    @media (max-width: 1024px) {
+        .catalog-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .catalog-sidebar {
+            display: none;
+        }
+
+        .mobile-nav-select {
+            display: block !important;
+        }
+
+        .catalog-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .catalog-table th,
+        .catalog-table td {
+            padding: 1rem;
+        }
+    }
+
+    @media (min-width: 1025px) {
+        .mobile-nav-select {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-container">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="font-heading text-4xl font-bold text-[var(--text-main)] mb-2">Gestión de Catálogos</h1>
+        <p class="text-[var(--text-sub)] text-lg">Administra las listas auxiliares del sistema de inventario.</p>
+    </div>
+
+    <!-- Mobile Selector -->
+    <select id="mobileCatalogSelect"
+        class="mobile-nav-select w-full px-4 py-3 bg-[var(--surface-primary)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-main)] mb-6"
+        onchange="loadCatalog(this.value)">
+    </select>
+
+    <div class="catalog-grid">
+        <!-- Sidebar -->
+        <aside class="catalog-sidebar custom-scrollbar">
+            <div class="sidebar-title">Catálogos</div>
+            <nav id="catalogNav"></nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="catalog-card">
+            <!-- Header -->
+            <div class="catalog-header">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="currentCatalogTitle" class="catalog-title">Cargando...</h2>
+                        <p id="catalogStats" class="catalog-subtitle">0 registros</p>
+                    </div>
+                    <button onclick="openModal('create')"
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 font-medium">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="catalog-toolbar">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar..." class="search-input">
+                </div>
+
+                <label class="flex items-center gap-2.5 text-sm text-[var(--text-sub)] cursor-pointer select-none">
+                    <input type="checkbox" id="showInactiveCheck"
+                        class="form-checkbox rounded text-purple-600 border-[var(--border-subtle)] bg-[var(--bg-body)] focus:ring-purple-500 w-4 h-4">
+                    <span class="font-medium">Mostrar inactivos</span>
+                </label>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrapper">
+                <table class="catalog-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Nombre</th>
+                            <th style="width: 140px;">Estado</th>
+                            <th style="width: 180px;" class="text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalogTableBody"></tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden py-16 text-center">
+                    <div
+                        class="w-20 h-20 bg-[var(--surface-hover)] rounded-2xl flex items-center justify-center mx-auto mb-5 text-[var(--text-sub)]">
+                        <i class="fa-solid fa-inbox text-3xl"></i>
+                    </div>
+                    <p class="text-[var(--text-main)] font-semibold text-lg mb-1">No se encontraron registros</p>
+                    <p class="text-[var(--text-sub)]">Intenta ajustar los filtros o agrega un nuevo elemento.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="py-16 text-center">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-purple-600 mb-4"></i>
+                    <p class="text-[var(--text-sub)] font-medium">Cargando datos...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <p class="text-sm text-[var(--text-sub)] font-medium" id="paginationInfo">Página 1</p>
+                <div class="flex gap-2">
+                    <button id="prevPageBtn"
+                        class="px-4 py-2 rounded-lg border border-[var(--border-subtle)] text-[var(--text-main)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button id="nextPageBtn"
+                        class="px-4 py-2 rounded-lg border border-[var(--border-subtle)] text-[var(--text-main)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create/Edit -->
+<div id="itemModal" class="modal-backdrop">
+    <div class="modal-content p-7">
+        <h3 id="modalTitle" class="font-heading text-2xl font-bold text-[var(--text-main)] mb-6">Nuevo Elemento</h3>
+
+        <form id="itemForm" class="space-y-5">
+            <input type="hidden" id="itemId">
+
+            <div>
+                <label class="block text-sm font-semibold text-[var(--text-sub)] mb-2">Nombre <span
+                        class="text-red-500">*</span></label>
+                <input type="text" id="itemName" name="name" required
+                    class="w-full px-4 py-3 bg-[var(--bg-body)] border-1.5 border-[var(--border-subtle)] rounded-xl text-[var(--text-main)] focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all">
+            </div>
+
+            <div id="dynamicFields" class="space-y-5"></div>
+
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-[var(--border-subtle)]">
+                <button type="button" onclick="closeModal()"
+                    class="px-5 py-2.5 rounded-xl text-[var(--text-sub)] hover:text-[var(--text-main)] hover:bg-[var(--surface-hover)] transition-all font-medium">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg shadow-purple-500/25">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Merge -->
+<div id="mergeModal" class="modal-backdrop">
+    <div class="modal-content p-7">
+        <h3 class="font-heading text-2xl font-bold text-[var(--text-main)] mb-2">Fusionar Registros</h3>
+        <p class="text-sm text-[var(--text-sub)] mb-6">Mueve todos los items asociados al registro origen hacia el
+            destino y borra el origen.</p>
+
+        <form id="mergeForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-[var(--text-sub)] mb-2">Registro Origen (Será
+                    eliminado)</label>
+                <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[var(--text-main)] font-semibold"
+                    id="mergeSourceName">--</div>
+                <input type="hidden" id="mergeSourceId">
+            </div>
+
+            <div class="flex justify-center my-3">
+                <i class="fa-solid fa-arrow-down text-3xl text-[var(--text-sub)]"></i>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-[var(--text-sub)] mb-2">Registro Destino
+                    (Conservado)</label>
+                <select id="mergeTargetSelect"
+                    class="w-full px-4 py-3 bg-[var(--bg-body)] border-1.5 border-[var(--border-subtle)] rounded-xl text-[var(--text-main)] focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all">
+                    <option value="">Seleccionar destino...</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-[var(--border-subtle)]">
+                <button type="button" onclick="document.getElementById('mergeModal').classList.remove('active')"
+                    class="px-5 py-2.5 rounded-xl text-[var(--text-sub)] hover:text-[var(--text-main)] hover:bg-[var(--surface-hover)] transition-all font-medium">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/25">
+                    Fusionar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/catalog_manager.js') }}"></script>
+{% endblock %}

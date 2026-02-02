@@ -5,10 +5,12 @@
 
 from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
+from app.utils.decorators import permission_required
 from app import db
-from app.models.laptop import Laptop, Brand
+from app.models.laptop import Laptop, Brand, LaptopModel
 from app.models.customer import Customer
-from app.models.invoice import Invoice, InvoiceItem
+from app.models.invoice import Invoice, InvoiceItem, InvoiceSettings
+from app.models.expense import Expense
 from app.services.financial_service import FinancialService
 from app.services.ai_service import AIService
 from sqlalchemy import func, desc, and_, or_, extract, case
@@ -121,58 +123,105 @@ def get_financial_metrics(period='month'):
 
     # Ventas del período actual
     current_sales = db.session.query(
-        func.sum(Invoice.total).label('total_sales'),
+        func.sum(Invoice.subtotal).label('total_sales'),
         func.count(Invoice.id).label('invoice_count'),
         func.sum(
             case(
-                (Invoice.status.in_(['paid', 'completed']), Invoice.total),
+                (Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending']), Invoice.subtotal),
                 else_=0
             )
         ).label('paid_sales')
     ).filter(
         Invoice.invoice_date.between(start_date, end_date),
-        Invoice.status.in_(['issued', 'paid', 'completed'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
     ).first()
 
     # Ventas período anterior
     previous_sales = db.session.query(
-        func.sum(Invoice.total).label('total_sales')
+        func.sum(Invoice.subtotal).label('total_sales'),
+        func.count(Invoice.id).label('invoice_count')
     ).filter(
         Invoice.invoice_date.between(prev_start, prev_end),
-        Invoice.status.in_(['issued', 'paid', 'completed'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
     ).first()
 
-    # Costos (simplificado: 65% de ventas)
+    # Costos Reales (COGS)
+    # Suma de (cantidad * costo_compra) de todos los items en facturas pagadas/completadas
+    current_cogs_query = db.session.query(
+        func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).join(
+        Laptop, InvoiceItem.laptop_id == Laptop.id
+    ).filter(
+        Invoice.invoice_date.between(start_date, end_date),
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    )
+    current_cogs = float(current_cogs_query.scalar() or 0)
+
+    previous_cogs_query = db.session.query(
+        func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).join(
+        Laptop, InvoiceItem.laptop_id == Laptop.id
+    ).filter(
+        Invoice.invoice_date.between(prev_start, prev_end),
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    )
+    previous_cogs = float(previous_cogs_query.scalar() or 0)
+
+    # Gastos Operativos Reales
+    # Suma de gastos pagados en el período
+    current_expenses_query = db.session.query(
+        func.sum(Expense.amount)
+    ).filter(
+        Expense.paid_date.between(start_date, end_date),
+        Expense.is_paid == True
+    )
+    current_expenses = float(current_expenses_query.scalar() or 0)
+
+    previous_expenses_query = db.session.query(
+        func.sum(Expense.amount)
+    ).filter(
+        Expense.paid_date.between(prev_start, prev_end),
+        Expense.is_paid == True
+    )
+    previous_expenses = float(previous_expenses_query.scalar() or 0)
+
+    # Ventas
     current_sales_value = float(current_sales.total_sales or 0)
     previous_sales_value = float(previous_sales.total_sales or 0)
 
-    current_cogs = current_sales_value * 0.65
-    previous_cogs = previous_sales_value * 0.65
-
-    # Gastos operativos (simplificado: 20% de ventas)
-    current_expenses = current_sales_value * 0.20
-    previous_expenses = previous_sales_value * 0.20
-
-    # Calcular métricas financieras
+    # Calcular métricas financieras con datos reales
     current_data = [{
-        'sales': float(current_sales_value),
-        'cogs': float(current_cogs),
-        'expenses': float(current_expenses)
+        'sales': current_sales_value,
+        'cogs': current_cogs,
+        'expenses': current_expenses,
+        'invoice_count': current_sales.invoice_count or 0
     }]
 
     previous_data = [{
-        'sales': float(previous_sales_value),
-        'cogs': float(previous_cogs),
-        'expenses': float(previous_expenses)
+        'sales': previous_sales_value,
+        'cogs': previous_cogs,
+        'expenses': previous_expenses,
+        'invoice_count': previous_sales.invoice_count or 0
     }]
 
-    financial_metrics = FinancialService.calculate_financial_metrics(current_data)
+    # Valor Inventario Real (actual) para cálculo de rotación
+    inventory_value = db.session.query(
+        func.sum(Laptop.purchase_cost * Laptop.quantity)
+    ).scalar() or 0
+
+    financial_metrics = FinancialService.calculate_financial_metrics(current_data, float(inventory_value))
 
     # Calcular tendencias
     growth_sales = calculate_growth(current_sales_value, previous_sales_value)
+    
+    previous_metrics = FinancialService.calculate_financial_metrics(previous_data, float(inventory_value))
     growth_profit = calculate_growth(
         financial_metrics.get('net_profit', 0),
-        FinancialService.calculate_financial_metrics(previous_data).get('net_profit', 0)
+        previous_metrics.get('net_profit', 0)
     )
 
     return {
@@ -248,10 +297,10 @@ def get_inventory_analysis():
     # Rotación de inventario (simplificada)
     last_30_days = date.today() - timedelta(days=30)
     sales_last_30 = db.session.query(
-        func.sum(Invoice.total)
+        func.sum(Invoice.subtotal)
     ).filter(
         Invoice.invoice_date >= last_30_days,
-        Invoice.status.in_(['paid', 'completed'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
     ).scalar() or 0
 
     avg_inventory_value = inventory_value  # Simplificación
@@ -287,35 +336,61 @@ def get_sales_trends(period='month'):
         # Por hora para hoy
         hours = []
         sales_data = []
+        profit_data = []
+        
         for i in range(24):
             hour_start = datetime.combine(start_date, datetime.min.time()) + timedelta(hours=i)
             hour_end = hour_start + timedelta(hours=1)
 
             sales = db.session.query(
-                func.sum(Invoice.total)
+                func.sum(Invoice.subtotal)
             ).filter(
                 Invoice.created_at >= hour_start,
                 Invoice.created_at < hour_end,
-                Invoice.status.in_(['issued', 'paid', 'completed'])
+                Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+            ).scalar() or 0
+            
+            # Ganancia horaria aproximada (Subtotal - Costo)
+            # Solo para facturas pagadas/completadas para ser cautos
+            cogs = db.session.query(
+                func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+            ).join(
+                Invoice, InvoiceItem.invoice_id == Invoice.id
+            ).join(
+                Laptop, InvoiceItem.laptop_id == Laptop.id
+            ).filter(
+                Invoice.created_at >= hour_start,
+                Invoice.created_at < hour_end,
+                Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
             ).scalar() or 0
 
             hours.append(hour_start.strftime('%H:%M'))
             sales_data.append(float(sales))
+            profit_data.append(float(sales) - float(cogs))
 
         return {
             'labels': hours,
-            'datasets': [{
-                'label': 'Ventas por Hora',
-                'data': sales_data,
-                'color': CHART_COLORS['primary']
-            }]
+            'datasets': [
+                {
+                    'label': 'Ventas',
+                    'data': sales_data,
+                    'color': CHART_COLORS['primary'],
+                    'type': 'bar'
+                },
+                {
+                    'label': 'Ganancia',
+                    'data': profit_data,
+                    'color': CHART_COLORS['success'],
+                    'type': 'line'
+                }
+            ]
         }
 
     elif period == 'week':
         # Por día para la semana
         days = []
         sales_data = []
-        previous_data = []
+        profit_data = []
 
         for i in range(7):
             day = start_date + timedelta(days=i)
@@ -324,37 +399,42 @@ def get_sales_trends(period='month'):
 
             # Ventas actuales
             sales = db.session.query(
-                func.sum(Invoice.total)
+                func.sum(Invoice.subtotal)
             ).filter(
                 Invoice.invoice_date == day,
-                Invoice.status.in_(['issued', 'paid', 'completed'])
+                Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
             ).scalar() or 0
 
-            # Ventas del año anterior (simplificado)
-            prev_year_day = day.replace(year=day.year - 1)
-            prev_sales = db.session.query(
-                func.sum(Invoice.total)
+            # COGS del día
+            cogs = db.session.query(
+                func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+            ).join(
+                Invoice, InvoiceItem.invoice_id == Invoice.id
+            ).join(
+                Laptop, InvoiceItem.laptop_id == Laptop.id
             ).filter(
-                Invoice.invoice_date == prev_year_day,
-                Invoice.status.in_(['issued', 'paid', 'completed'])
+                Invoice.invoice_date == day,
+                Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
             ).scalar() or 0
 
             days.append(day.strftime('%a'))
             sales_data.append(float(sales))
-            previous_data.append(float(prev_sales))
+            profit_data.append(float(sales) - float(cogs))
 
         return {
             'labels': days,
             'datasets': [
                 {
-                    'label': 'Ventas Actuales',
+                    'label': 'Ventas',
                     'data': sales_data,
-                    'color': CHART_COLORS['primary']
+                    'color': CHART_COLORS['primary'],
+                    'type': 'bar'
                 },
                 {
-                    'label': 'Año Anterior',
-                    'data': previous_data,
-                    'color': CHART_COLORS['gray']
+                    'label': 'Ganancia',
+                    'data': profit_data,
+                    'color': CHART_COLORS['success'],
+                    'type': 'line'
                 }
             ]
         }
@@ -370,14 +450,27 @@ def get_sales_trends(period='month'):
             current_day = start_date
             while current_day <= end_date:
                 sales = db.session.query(
-                    func.sum(Invoice.total)
+                    func.sum(Invoice.subtotal)
                 ).filter(
                     Invoice.invoice_date == current_day,
-                    Invoice.status.in_(['issued', 'paid', 'completed'])
+                    Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
                 ).scalar() or 0
 
-                # Calcular ganancia (simplificado: 35% de margen)
-                profit = float(sales) * 0.35
+                # Calcular ganancia (Ventas - Costos)
+                # Nota: Calcular beneficio diario exacto es complejo sin asignar gastos diarios.
+                # Usaremos (Ventas - COGS) para beneficio bruto aproximado en gráficos diarios.
+                cogs = db.session.query(
+                    func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+                ).join(
+                    Invoice, InvoiceItem.invoice_id == Invoice.id
+                ).join(
+                    Laptop, InvoiceItem.laptop_id == Laptop.id
+                ).filter(
+                    Invoice.invoice_date == current_day,
+                    Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+                ).scalar() or 0
+                
+                profit = float(sales) - float(cogs)
 
                 months.append(current_day.strftime('%d/%m'))
                 sales_data.append(float(sales))
@@ -394,13 +487,33 @@ def get_sales_trends(period='month'):
                     month_end = end_date
 
                 sales = db.session.query(
-                    func.sum(Invoice.total)
+                    func.sum(Invoice.subtotal)
                 ).filter(
                     Invoice.invoice_date.between(current_month, month_end),
-                    Invoice.status.in_(['issued', 'paid', 'completed'])
+                    Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
                 ).scalar() or 0
 
-                profit = float(sales) * 0.35
+                # COGS del mes
+                cogs = db.session.query(
+                    func.sum(InvoiceItem.quantity * Laptop.purchase_cost)
+                ).join(
+                    Invoice, InvoiceItem.invoice_id == Invoice.id
+                ).join(
+                    Laptop, InvoiceItem.laptop_id == Laptop.id
+                ).filter(
+                    Invoice.invoice_date.between(current_month, month_end),
+                    Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+                ).scalar() or 0
+
+                # Gastos del mes
+                expenses = db.session.query(
+                    func.sum(Expense.amount)
+                ).filter(
+                    Expense.paid_date.between(current_month, month_end),
+                    Expense.is_paid == True
+                ).scalar() or 0
+
+                profit = float(sales) - float(cogs) - float(expenses)
 
                 months.append(current_month.strftime('%b'))
                 sales_data.append(float(sales))
@@ -441,13 +554,7 @@ def get_brand_performance():
             )
         ).label('total_stock'),
         func.sum(InvoiceItem.quantity * InvoiceItem.unit_price).label('sale_value'),
-        func.avg(
-            case(
-                (InvoiceItem.unit_price > 0,
-                 (InvoiceItem.unit_price - Laptop.purchase_cost) / InvoiceItem.unit_price * 100),
-                else_=0
-            )
-        ).label('avg_margin')
+        func.sum(InvoiceItem.quantity * Laptop.purchase_cost).label('total_cost')
     ).join(
         Laptop, Brand.id == Laptop.brand_id
     ).outerjoin(
@@ -455,7 +562,7 @@ def get_brand_performance():
     ).outerjoin(
         Invoice, and_(
             InvoiceItem.invoice_id == Invoice.id,
-            Invoice.status.in_(['issued', 'paid', 'completed'])
+            Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
         )
     ).group_by(
         Brand.name
@@ -471,8 +578,17 @@ def get_brand_performance():
 
     for brand in brand_data:
         brands.append(brand.name)
-        sales.append(float(brand.sale_value or 0))
-        margins.append(float(brand.avg_margin or 0))
+        revenue = float(brand.sale_value or 0)
+        cost = float(brand.total_cost or 0)
+        
+        # Cálculo de margen ponderado: (Ventas Totales - Costo Total) / Ventas Totales
+        if revenue > 0:
+            margin = ((revenue - cost) / revenue) * 100
+        else:
+            margin = 0
+            
+        sales.append(revenue)
+        margins.append(round(margin, 1))
 
     return {
         'brands': brands,
@@ -483,11 +599,62 @@ def get_brand_performance():
     }
 
 
+def get_condition_performance():
+    """Obtiene rendimiento por condición basado en ventas reales"""
+    data = db.session.query(
+        Laptop.condition,
+        func.sum(InvoiceItem.quantity).label('units_sold'),
+        func.sum(InvoiceItem.quantity * InvoiceItem.unit_price).label('revenue'),
+        func.sum(InvoiceItem.quantity * Laptop.purchase_cost).label('total_cost')
+    ).join(
+        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).group_by(
+        Laptop.condition
+    ).all()
+
+    conditions = []
+    sales = []
+    margins = []
+    
+    # Mapping for nice labels
+    condition_labels = {
+        'new': 'Nuevo',
+        'used': 'Usado',
+        'refurbished': 'Reacondicionado',
+        'open_box': 'Open Box'
+    }
+
+    for item in data:
+        label = condition_labels.get(item.condition, item.condition.capitalize())
+        conditions.append(label)
+        revenue = float(item.revenue or 0)
+        cost = float(item.total_cost or 0)
+        
+        if revenue > 0:
+            margin = ((revenue - cost) / revenue) * 100
+        else:
+            margin = 0
+            
+        sales.append(revenue)
+        margins.append(round(margin, 1))
+
+    return {
+        'conditions': conditions,
+        'sales': sales,
+        'margins': margins
+    }
+
+
 def get_top_products(limit=10):
     """Obtiene productos más vendidos y rentables"""
     # Productos más vendidos (por unidades)
     top_selling = db.session.query(
-        Laptop.display_name,
+        Brand.name.label('brand_name'),
+        LaptopModel.name.label('model_name'),
         Laptop.sku,
         Laptop.category,
         func.sum(InvoiceItem.quantity).label('units_sold'),
@@ -498,18 +665,23 @@ def get_top_products(limit=10):
     ).join(
         InvoiceItem, Laptop.id == InvoiceItem.laptop_id
     ).join(
+        Brand, Laptop.brand_id == Brand.id
+    ).join(
+        LaptopModel, Laptop.model_id == LaptopModel.id
+    ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
     ).group_by(
-        Laptop.id, Laptop.display_name, Laptop.sku, Laptop.category
+        Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
     ).order_by(
         desc('units_sold')
     ).limit(limit).all()
 
-    # Productos más rentables (por margen)
+    # Productos más rentables (por margen porcentual)
     top_profitable = db.session.query(
-        Laptop.display_name,
+        Brand.name.label('brand_name'),
+        LaptopModel.name.label('model_name'),
         Laptop.sku,
         Laptop.category,
         func.sum(InvoiceItem.quantity).label('units_sold'),
@@ -523,11 +695,45 @@ def get_top_products(limit=10):
     ).join(
         InvoiceItem, Laptop.id == InvoiceItem.laptop_id
     ).join(
+        Brand, Laptop.brand_id == Brand.id
+    ).join(
+        LaptopModel, Laptop.model_id == LaptopModel.id
+    ).join(
         Invoice, InvoiceItem.invoice_id == Invoice.id
     ).filter(
-        Invoice.status.in_(['issued', 'paid', 'completed'])
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
     ).group_by(
-        Laptop.id, Laptop.display_name, Laptop.sku, Laptop.category
+        Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
+    ).order_by(
+        desc('margin')
+    ).limit(limit).all()
+
+    # Productos con mayores ganancias (por valor absoluto)
+    top_revenue = db.session.query(
+        Brand.name.label('brand_name'),
+        LaptopModel.name.label('model_name'),
+        Laptop.sku,
+        Laptop.category,
+        func.sum(InvoiceItem.quantity * InvoiceItem.unit_price).label('revenue'),
+        func.sum(InvoiceItem.quantity).label('units_sold'),
+        func.avg(
+            (InvoiceItem.unit_price - Laptop.purchase_cost) / InvoiceItem.unit_price * 100
+        ).label('margin'),
+        func.sum(
+            InvoiceItem.quantity * (InvoiceItem.unit_price - Laptop.purchase_cost)
+        ).label('total_profit')
+    ).join(
+        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
+    ).join(
+        Brand, Laptop.brand_id == Brand.id
+    ).join(
+        LaptopModel, Laptop.model_id == LaptopModel.id
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).group_by(
+        Laptop.id, Brand.name, LaptopModel.name, Laptop.sku, Laptop.category
     ).order_by(
         desc('total_profit')
     ).limit(limit).all()
@@ -535,7 +741,8 @@ def get_top_products(limit=10):
     return {
         'top_selling': [
             {
-                'name': item.display_name,
+                'brand': item.brand_name,
+                'model': item.model_name,
                 'sku': item.sku,
                 'category': item.category,
                 'units_sold': item.units_sold or 0,
@@ -547,7 +754,8 @@ def get_top_products(limit=10):
         ],
         'top_profitable': [
             {
-                'name': item.display_name,
+                'brand': item.brand_name,
+                'model': item.model_name,
                 'sku': item.sku,
                 'category': item.category,
                 'units_sold': item.units_sold or 0,
@@ -556,56 +764,109 @@ def get_top_products(limit=10):
                 'profit': float(item.total_profit or 0)
             }
             for item in top_profitable
+        ],
+        'top_revenue': [
+            {
+                'brand': item.brand_name,
+                'model': item.model_name,
+                'sku': item.sku,
+                'category': item.category,
+                'units_sold': item.units_sold or 0,
+                'revenue': float(item.revenue or 0),
+                'margin': float(item.margin or 0),
+                'profit': float(item.total_profit or 0)
+            }
+            for item in top_revenue
         ]
     }
 
 
-def get_bcg_matrix_data():
-    """Genera datos para matriz BCG"""
-    # Obtener productos con sus métricas
+def get_bcg_matrix_data(period='month'):
+    """Genera datos para matriz BCG con crecimiento real"""
+    start_date, end_date = get_date_range(period)
+    prev_start, prev_end = get_previous_period(start_date, end_date)
+
+    # Ventas periodo actual por producto (con margen promedio)
+    current_sales_query = db.session.query(
+        InvoiceItem.laptop_id.label('id'),
+        func.sum(InvoiceItem.quantity).label('units_sold'),
+        func.sum(InvoiceItem.line_total).label('revenue'),
+        func.avg(
+            (InvoiceItem.unit_price - Laptop.purchase_cost) / InvoiceItem.unit_price * 100
+        ).label('avg_margin')
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).join(
+        Laptop, InvoiceItem.laptop_id == Laptop.id
+    ).filter(
+        Invoice.invoice_date.between(start_date, end_date),
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).group_by(InvoiceItem.laptop_id).subquery()
+
+    # Ventas periodo anterior por producto
+    prev_sales_query = db.session.query(
+        InvoiceItem.laptop_id.label('id'),
+        func.sum(InvoiceItem.line_total).label('revenue')
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.invoice_date.between(prev_start, prev_end),
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).group_by(InvoiceItem.laptop_id).subquery()
+
+    # Query principal combinando todo
     products_data = db.session.query(
         Laptop.display_name,
         Laptop.category,
         Brand.name.label('brand'),
         Laptop.quantity,
-        func.coalesce(
-            func.sum(InvoiceItem.quantity), 0
-        ).label('units_sold'),
-        func.coalesce(
-            func.sum(InvoiceItem.quantity * InvoiceItem.unit_price), 0
-        ).label('revenue'),
-        func.avg(
-            (InvoiceItem.unit_price - Laptop.purchase_cost) / InvoiceItem.unit_price * 100
-        ).label('margin')
+        func.coalesce(current_sales_query.c.units_sold, 0).label('units_sold'),
+        func.coalesce(current_sales_query.c.revenue, 0).label('revenue'),
+        func.coalesce(prev_sales_query.c.revenue, 0).label('prev_revenue'),
+        func.coalesce(current_sales_query.c.avg_margin, 0).label('margin')
     ).join(
         Brand, Laptop.brand_id == Brand.id
     ).outerjoin(
-        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
+        current_sales_query, Laptop.id == current_sales_query.c.id
     ).outerjoin(
-        Invoice, and_(
-            InvoiceItem.invoice_id == Invoice.id,
-            Invoice.status.in_(['issued', 'paid', 'completed'])
-        )
+        prev_sales_query, Laptop.id == prev_sales_query.c.id
     ).group_by(
-        Laptop.id, Laptop.display_name, Laptop.category, Brand.name, Laptop.quantity
+        Laptop.id, Laptop.display_name, Laptop.category, Brand.name, Laptop.quantity,
+        current_sales_query.c.units_sold, current_sales_query.c.revenue, prev_sales_query.c.revenue,
+        current_sales_query.c.avg_margin
     ).all()
+
+    # Total de unidades vendidas (para market share)
+    total_market_units = sum(float(p.units_sold or 0) for p in products_data)
 
     # Preparar datos para análisis BCG
     bcg_data = []
     for product in products_data:
-        market_share = (product.units_sold or 0) * 2  # Simplificado
-        growth_rate = 12  # Suposición: 12% crecimiento anual
+        units_sold = float(product.units_sold or 0)
+        revenue = float(product.revenue or 0)
+        prev_revenue = float(product.prev_revenue or 0)
+        
+        # Market Share relativo (porcentaje de ventas totales del catálogo)
+        market_share = (units_sold / total_market_units * 100) if total_market_units > 0 else 0
+        
+        # Tasa de crecimiento REAL
+        if prev_revenue > 0:
+            growth_rate = ((revenue - prev_revenue) / prev_revenue) * 100
+        else:
+            growth_rate = 100 if revenue > 0 else 0
 
-        # Determinar cuadrante BCG
-        if market_share > 15 and growth_rate > 10:
+        # Determinar cuadrante BCG (ajustado a umbrales reales)
+        # Market Share > 5% es alto (asumiendo muchos productos)
+        # Growth > 10% es alto
+        if market_share > 5 and growth_rate > 10:
             quadrant = 'star'
             color = CHART_COLORS['primary']
             label = 'Estrella'
-        elif market_share > 15 and growth_rate <= 10:
+        elif market_share > 5 and growth_rate <= 10:
             quadrant = 'cash_cow'
             color = CHART_COLORS['success']
             label = 'Vaca Lechera'
-        elif market_share <= 15 and growth_rate > 10:
+        elif market_share <= 5 and growth_rate > 10:
             quadrant = 'question_mark'
             color = CHART_COLORS['warning']
             label = 'Oportunidad'
@@ -618,15 +879,15 @@ def get_bcg_matrix_data():
             'name': product.display_name,
             'category': product.category or 'Sin categoría',
             'brand': product.brand,
-            'x': market_share,  # Participación de mercado
-            'y': growth_rate,  # Tasa de crecimiento
-            'z': float(product.revenue or 0),  # Tamaño (ventas) - Convertido a float
+            'x': round(market_share, 1),
+            'y': round(growth_rate, 1),
+            'z': revenue,
             'color': color,
             'label': label,
             'quadrant': quadrant,
-            'units_sold': product.units_sold or 0,
-            'margin': float(product.margin or 0),
-            'profit': float(float(product.revenue or 0) * float(product.margin or 0) / 100)  # Convertido a float
+            'units_sold': int(units_sold),
+            'margin': round(float(product.margin or 0), 1),
+            'profit': round(revenue * (float(product.margin or 0) / 100), 2)
         })
 
     # Análisis por cuadrante
@@ -685,10 +946,9 @@ def get_recent_activity():
     }
 
 
-def get_ai_insights(financial_data, inventory_data, sales_data):
+def get_ai_insights(financial_data, inventory_data, sales_data, bcg_data):
     """Genera insights usando IA"""
     try:
-        # Preparar datos para IA
         ai_context = {
             'financial': financial_data.get('metrics', {}),
             'inventory': inventory_data.get('summary', {}),
@@ -705,7 +965,7 @@ def get_ai_insights(financial_data, inventory_data, sales_data):
 
         # Generar análisis BCG
         bcg_analysis = AIService.generate_bcg_matrix_analysis(
-            get_bcg_matrix_data()['matrix_data']
+            bcg_data['matrix_data']
         )
 
         # Generar alertas prioritarias
@@ -818,6 +1078,7 @@ def get_ai_insights(financial_data, inventory_data, sales_data):
 @dashboard_bp.route('/')
 @dashboard_bp.route('/<period>')
 @login_required
+@permission_required('dashboard.view')
 def index(period='month'):
     """Dashboard principal"""
     # Validar período
@@ -830,14 +1091,88 @@ def index(period='month'):
     sales_trends = get_sales_trends(period)
     brand_performance = get_brand_performance()
     top_products = get_top_products(10)
-    bcg_data = get_bcg_matrix_data()
-    recent_activity = get_recent_activity()
+    bcg_data = get_bcg_matrix_data(period)
+    # recent_activity = get_recent_activity() (Removed from UI)
+    condition_performance = get_condition_performance()
 
     # Generar insights con IA
-    ai_insights = get_ai_insights(financial_data, inventory_data, sales_trends)
+    ai_insights = get_ai_insights(financial_data, inventory_data, sales_trends, bcg_data)
+
+    # Preparar datos para el template
+    # Distribución por categoría REAL
+    category_distribution_data = db.session.query(
+        Laptop.category,
+        func.count(Laptop.id).label('products'),
+        func.sum(InvoiceItem.quantity).label('units_sold'),
+        func.sum(InvoiceItem.line_total).label('revenue')
+    ).join(
+        InvoiceItem, Laptop.id == InvoiceItem.laptop_id
+    ).join(
+        Invoice, InvoiceItem.invoice_id == Invoice.id
+    ).filter(
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).group_by(
+        Laptop.category
+    ).all()
+
+    category_distribution = []
+    for cd in category_distribution_data:
+        category_distribution.append({
+            'category': cd.category,
+            'products': cd.products,
+            'units_sold': int(cd.units_sold or 0),
+            'revenue': float(cd.revenue or 0)
+        })
+
+    # Preparar datos de categoría para gráficos
+    category_chart_data = {
+        'labels': [c['category'] for c in category_distribution],
+        'sales': [c['revenue'] for c in category_distribution],
+        'units': [c['units_sold'] for c in category_distribution]
+    }
+
+    # Tasa de conversión REAL
+    total_customers_count = Customer.query.count()
+    customers_with_invoices = db.session.query(func.count(func.distinct(Invoice.customer_id))).scalar() or 0
+    conversion_rate = (customers_with_invoices / total_customers_count * 100) if total_customers_count > 0 else 0
+
+    # Crecimiento de nuevos clientes
+    new_customers_previous = Customer.query.filter(
+        Customer.created_at.between(
+            financial_data['dates']['previous']['start'],
+            financial_data['dates']['previous']['end']
+        )
+    ).count()
+
+    new_customers_current = Customer.query.filter(
+        Customer.created_at >= financial_data['dates']['current']['start']
+    ).count()
+
+    customer_growth = calculate_growth(new_customers_current, new_customers_previous)
+
+    # Indicadores de crecimiento REALES
+    orders_previous = db.session.query(func.count(Invoice.id)).filter(
+        Invoice.invoice_date.between(
+            financial_data['dates']['previous']['start'],
+            financial_data['dates']['previous']['end']
+        ),
+        Invoice.status.in_(['issued', 'paid', 'completed', 'overdue', 'pending'])
+    ).scalar() or 0
+    
+    orders_growth = calculate_growth(financial_data['metrics'].get('invoice_count', 0), orders_previous)
+
+    # Obtener configuración
+    settings = InvoiceSettings.get_settings()
+    
+    # Calcular promedio diario REAL
+    days_in_period = (financial_data['dates']['current']['end'] - financial_data['dates']['current']['start']).days + 1
+    avg_daily_sales = financial_data['sales']['current'] / days_in_period if days_in_period > 0 else 0
 
     # Preparar datos para el template
     context = {
+        # Configuración global
+        'settings': settings,
+
         # Información del usuario y período
         'current_user': current_user,
         'current_period': period,
@@ -872,34 +1207,30 @@ def index(period='month'):
         # Datos de ventas y tendencias
         'sales_trends': sales_trends,
         'daily_sales': json.dumps(sales_trends),  # Para JavaScript
-        'avg_daily_sales': financial_data['sales']['current'] / 30 if period == 'month' else financial_data['sales'][
-                                                                                                 'current'] / 7,
+        'avg_daily_sales': avg_daily_sales,
 
-        # Datos de marcas
+        # Datos de marcas y condición
         'brand_performance': brand_performance,
+        'condition_performance': condition_performance,
+        'category_chart_data': category_chart_data,
         'top_brand': brand_performance['top_brand'],
         'top_brand_margin': brand_performance['top_margin'],
 
         # Productos
         'top_products': top_products['top_selling'],
         'top_profitable': top_products['top_profitable'],
+        'top_revenue': top_products['top_revenue'],
 
         # Matriz BCG
         'bcg_data': bcg_data,
         'bcg_matrix': json.dumps(bcg_data['matrix_data']),  # Para JavaScript
 
-        # Actividad reciente
-        'recent_invoices': recent_activity['invoices'],
-        'recent_laptops': recent_activity['laptops'],
-        'recent_customers': recent_activity['customers'],
 
         # Clientes
         'active_customers': Customer.query.filter_by(is_active=True).count(),
-        'total_customers': Customer.query.count(),
-        'new_customers_current': Customer.query.filter(
-            Customer.created_at >= financial_data['dates']['current']['start']
-        ).count(),
-        'conversion_rate': 15.5,  # Placeholder
+        'total_customers': total_customers_count,
+        'new_customers_current': new_customers_current,
+        'conversion_rate': round(conversion_rate, 1),
 
         # Insights de IA
         'ai_insights': ai_insights,
@@ -916,52 +1247,27 @@ def index(period='month'):
                 'class': financial_data['sales']['trend']['class']
             },
             'orders': {
-                'text': "+8.3%",
-                'icon': 'arrow-up',
-                'color': 'green',
-                'class': 'positive'
+                'text': f"{orders_growth}%",
+                'icon': get_trend_icon(orders_growth)['icon'],
+                'color': get_trend_icon(orders_growth)['color'],
+                'class': get_trend_icon(orders_growth)['class']
             },
             'profit': {
-                'text': "+15.2%",
-                'icon': 'arrow-up',
-                'color': 'green',
-                'class': 'positive'
+                'text': f"{financial_data['trends'].get('net_profit', {}).get('change_percent', 0)}%",
+                'icon': 'arrow-up' if financial_data['trends'].get('net_profit', {}).get('change_percent', 0) > 0 else 'arrow-down',
+                'color': 'green' if financial_data['trends'].get('net_profit', {}).get('change_percent', 0) > 0 else 'red',
+                'class': 'positive' if financial_data['trends'].get('net_profit', {}).get('change_percent', 0) > 0 else 'negative'
             },
             'customers': {
-                'text': f"+{calculate_growth(ai_insights.get('new_customers', 0), 0)}%",
-                'icon': 'arrow-up',
-                'color': 'green',
-                'class': 'positive'
+                'text': f"{customer_growth}%",
+                'icon': get_trend_icon(customer_growth)['icon'],
+                'color': get_trend_icon(customer_growth)['color'],
+                'class': get_trend_icon(customer_growth)['class']
             }
         },
 
         # Distribución por categoría
-        'category_distribution': [
-            {
-                'category': 'Gaming',
-                'products': 15,
-                'units_sold': 45,
-                'revenue': 85000
-            },
-            {
-                'category': 'Empresarial',
-                'products': 22,
-                'units_sold': 38,
-                'revenue': 120000
-            },
-            {
-                'category': 'Workstation',
-                'products': 8,
-                'units_sold': 12,
-                'revenue': 65000
-            },
-            {
-                'category': 'Básica',
-                'products': 35,
-                'units_sold': 85,
-                'revenue': 45000
-            }
-        ],
+        'category_distribution': category_distribution,
 
         # Colores para gráficos
         'chart_colors': CHART_COLORS
@@ -972,6 +1278,7 @@ def index(period='month'):
 
 @dashboard_bp.route('/api/chat', methods=['POST'])
 @login_required
+@permission_required('dashboard.view')
 def chat_api():
     """API para chatbot IA"""
     try:
@@ -1009,6 +1316,7 @@ def chat_api():
 
 @dashboard_bp.route('/api/refresh-data')
 @login_required
+@permission_required('dashboard.view')
 def refresh_data():
     """API para refrescar datos del dashboard"""
     period = request.args.get('period', 'month')
@@ -1028,8 +1336,19 @@ def refresh_data():
     })
 
 
+@dashboard_bp.route('/api/sales-trends')
+@login_required
+@permission_required('dashboard.view')
+def sales_trends_api():
+    """API para obtener tendencias de ventas"""
+    period = request.args.get('period', 'month')
+    sales_trends = get_sales_trends(period)
+    return jsonify(sales_trends)
+
+
 @dashboard_bp.route('/api/generate-report')
 @login_required
+@permission_required('dashboard.view')
 def generate_report():
     """Genera reporte ejecutivo completo"""
     try:

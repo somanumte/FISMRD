@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+{% set hide_search = True %}
+
+{% block title %}Configuración de Equipo | AdminPanel{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    Configuración de Equipo
+                </h1>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">
+                    Gestiona los miembros de tu organización, asigna roles específicos y controla los permisos de acceso
+                    a la plataforma.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <!-- Tab Switcher -->
+                <div class="bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-300 dark:border-gray-600 flex">
+                    <button onclick="switchTab('users')" id="tab-users-btn"
+                        class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white">
+                        <i class="fas fa-users text-base"></i>
+                        Usuarios
+                    </button>
+                    <button onclick="switchTab('roles')" id="tab-roles-btn"
+                        class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-lock text-base"></i>
+                        Roles
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Usuarios Activos</p>
+                        <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" id="active-users-count">0
+                        </p>
+                    </div>
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
+                        <i class="fas fa-user-check text-indigo-600 dark:text-indigo-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Total Usuarios</p>
+                        <p class="text-xl font-bold text-blue-600 dark:text-blue-400 mt-1" id="total-users-count">0</p>
+                    </div>
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                        <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Total Roles</p>
+                        <p class="text-xl font-bold text-green-600 dark:text-green-400 mt-1" id="total-roles-count">0
+                        </p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                        <i class="fas fa-lock text-green-600 dark:text-green-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Último Acceso</p>
+                        <p class="text-lg font-bold text-purple-600 dark:text-purple-400 mt-1 truncate"
+                            id="last-access">Hoy</p>
+                    </div>
+                    <div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
+                        <i class="fas fa-history text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Búsqueda y Acciones -->
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <i class="fas fa-search mr-2 text-indigo-600"></i>
+                Buscar y Filtrar
+            </h2>
+
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <div class="relative flex-1 w-full">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" id="searchInput"
+                        class="w-full pl-10 pr-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="Buscar...">
+                </div>
+
+                <button onclick="openCreateModal()"
+                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    <i class="fas fa-plus mr-2"></i>
+                    <span id="createBtnText">Añadir Usuario</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- --- USERS VIEW --- -->
+        <div id="content-users" class="tab-content">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-900">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Miembro
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Rol(es)
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Estado
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Último Acceso
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"
+                            class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- JS Populated -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-400">Cargando usuarios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- --- ROLES VIEW --- -->
+        <div id="content-roles" class="tab-content hidden">
+            <div id="rolesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JS Populated -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Includes for Drawers/Modals -->
+{% include "admin/modals/user_modal.html" %}
+{% include "admin/modals/role_modal.html" %}
+
+<script>
+    // State
+    let currentTab = 'users';
+    let usersData = [];
+    let rolesData = [];
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUsers();
+        loadRoles();
+
+        // Search Listener
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            if (currentTab === 'users') renderUsers(usersData, e.target.value);
+            else renderRoles(rolesData, e.target.value);
+        });
+    });
+
+    // --- Tab Logic ---
+    function switchTab(tab) {
+        currentTab = tab;
+        const usersBtn = document.getElementById('tab-users-btn');
+        const rolesBtn = document.getElementById('tab-roles-btn');
+        const usersContent = document.getElementById('content-users');
+        const rolesContent = document.getElementById('content-roles');
+        const createText = document.getElementById('createBtnText');
+        const searchInput = document.getElementById('searchInput');
+
+        if (tab === 'users') {
+            usersBtn.className = "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white";
+            rolesBtn.className = "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+            usersContent.classList.remove('hidden');
+            rolesContent.classList.add('hidden');
+            createText.textContent = "Añadir Usuario";
+            searchInput.placeholder = "Buscar por nombre o email...";
+        } else {
+            rolesBtn.className = "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white";
+            usersBtn.className = "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+            rolesContent.classList.remove('hidden');
+            usersContent.classList.add('hidden');
+            createText.textContent = "Crear Nuevo Rol";
+            searchInput.placeholder = "Buscar roles...";
+        }
+    }
+
+    // --- Action Button Logic ---
+    function openCreateModal() {
+        if (currentTab === 'users') openUserModal();
+        else openRoleModal();
+    }
+
+    async function editUser(id) {
+        try {
+            const res = await fetch(`/admin/api/users/${id}`);
+            const data = await res.json();
+            openUserModal(data);
+        } catch (e) { console.error(e); }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('¿Estás seguro de que deseas desactivar este usuario?')) return;
+        try {
+            const res = await fetch(`/admin/api/users/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadUsers();
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Error al desactivar usuario');
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function editRole(id) {
+        const role = rolesData.find(r => r.id === id);
+        if (role) openRoleModal(role);
+    }
+
+    async function deleteRole(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar este rol?')) return;
+        try {
+            const res = await fetch(`/admin/api/roles/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadRoles();
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Error al eliminar rol');
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // --- Loaders ---
+    async function loadUsers() {
+        try {
+            const res = await fetch('/admin/api/users');
+            usersData = await res.json();
+            renderUsers(usersData);
+            updateStats();
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadRoles() {
+        try {
+            const res = await fetch('/admin/api/roles');
+            rolesData = await res.json();
+            // Also expose for modals
+            window.allRoles = rolesData;
+            renderRoles(rolesData);
+            updateStats();
+        } catch (e) { console.error(e); }
+    }
+
+    // --- Update Statistics ---
+    function updateStats() {
+        const activeUsers = usersData.filter(u => u.is_active).length;
+        document.getElementById('active-users-count').textContent = activeUsers;
+        document.getElementById('total-users-count').textContent = usersData.length;
+        document.getElementById('total-roles-count').textContent = rolesData.length;
+    }
+
+    // --- Renderers ---
+    function renderUsers(users, search = '') {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+
+        const filtered = users.filter(u =>
+            u.username.toLowerCase().includes(search.toLowerCase()) ||
+            (u.full_name && u.full_name.toLowerCase().includes(search.toLowerCase())) ||
+            u.email.toLowerCase().includes(search.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">No se encontraron usuarios</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors";
+
+            // Random Gradient for Avatar based on ID (deterministic)
+            const gradients = [
+                'bg-gradient-to-br from-indigo-400 to-purple-500',
+                'bg-gradient-to-br from-emerald-400 to-teal-500',
+                'bg-gradient-to-br from-blue-400 to-cyan-500',
+                'bg-gradient-to-br from-amber-400 to-orange-500',
+                'bg-gradient-to-br from-pink-400 to-rose-500'
+            ];
+            const bgClass = gradients[user.id % gradients.length];
+            const initial = (user.full_name || user.username).charAt(0).toUpperCase();
+
+            // Roles Badges
+            let rolesHtml = user.roles.map(r => {
+                let badgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+                if (r.toLowerCase().includes('admin')) badgeClass = "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300";
+                else if (r.toLowerCase().includes('editor')) badgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
+                else if (r.toLowerCase().includes('auditor')) badgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
+
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${badgeClass} mr-1 mb-1">${r}</span>`;
+            }).join('');
+
+            if (!rolesHtml) rolesHtml = '<span class="text-xs text-gray-400 italic">Sin rol</span>';
+
+            const statusHtml = user.is_active
+                ? `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Activo</span>`
+                : `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">Inactivo</span>`;
+
+            // Last Login
+            let lastLogin = "Nunca";
+            if (user.last_login) {
+                const d = new Date(user.last_login);
+                lastLogin = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full ${bgClass} flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
+                            ${initial}
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-semibold text-gray-900 dark:text-white">${user.full_name || user.username}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${user.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                   <div class="flex flex-wrap">${rolesHtml}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${statusHtml}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    ${lastLogin}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="editUser(${user.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-1.5" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1.5" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderRoles(roles, search = '') {
+        const grid = document.getElementById('rolesGrid');
+        grid.innerHTML = '';
+
+        const filtered = roles.filter(r => r.display_name.toLowerCase().includes(search.toLowerCase()));
+
+        filtered.forEach(role => {
+            let colorClass = "border-l-4 border-gray-500";
+            if (role.name.toLowerCase().includes('admin')) colorClass = "border-l-4 border-indigo-500";
+            else if (role.name.toLowerCase().includes('manager')) colorClass = "border-l-4 border-emerald-500";
+            else if (role.name.toLowerCase().includes('auditor')) colorClass = "border-l-4 border-amber-500";
+            else if (role.name.toLowerCase().includes('user')) colorClass = "border-l-4 border-gray-500";
+
+            const div = document.createElement('div');
+            div.className = `bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow duration-300 ${colorClass}`;
+
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">${role.display_name}</h3>
+                    <div class="flex gap-1">
+                        <button onclick="editRole(${role.id})" class="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-md transition-colors" title="Editar">
+                            <i class="fas fa-edit text-sm"></i>
+                        </button>
+                        ${!role.is_system_role ? `
+                        <button onclick="deleteRole(${role.id})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-md transition-colors" title="Eliminar">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>` : ''}
+                    </div>
+                </div>
+                
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed min-h-[40px]">
+                    ${role.description || 'Sin descripción.'}
+                </p>
+
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-shield-alt mr-1.5"></i>
+                        ${role.permission_count || 0} permisos
+                    </div>
+                    <button onclick="editRole(${role.id})" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
+                        Configurar
+                        <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            `;
+            grid.appendChild(div);
+        });
+
+        // Add "New Role" card at the end
+        const newCard = document.createElement('button');
+        newCard.onclick = () => openRoleModal();
+        newCard.className = "border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-500 hover:border-indigo-400 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all duration-300 min-h-[180px]";
+        newCard.innerHTML = `
+            <div class="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-3 transition-colors">
+                <i class="fas fa-plus text-lg"></i>
+            </div>
+            <span class="font-semibold text-sm">Definir Nuevo Rol</span>
+        `;
+        grid.appendChild(newCard);
+    }
+</script>
+{% endblock %}

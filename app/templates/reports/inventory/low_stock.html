@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Bajo - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.3);
+    }
+
+    .report-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .alert-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .alert-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-icon {
+        font-size: 3rem;
+    }
+
+    .alert-info h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .alert-info p {
+        color: #6b7280;
+    }
+
+    .products-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--status-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+    }
+
+    .product-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .product-card.critical {
+        --status-color: #ef4444;
+        background: linear-gradient(to right, #fef2f2 0%, white 10%);
+    }
+
+    .product-card.low {
+        --status-color: #f59e0b;
+        background: linear-gradient(to right, #fffbeb 0%, white 10%);
+    }
+
+    .product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .product-info h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .product-sku {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-badge.critical {
+        background: #ef4444;
+        color: white;
+    }
+
+    .status-badge.low {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .product-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .stat-value.danger {
+        color: #ef4444;
+    }
+
+    .stat-value.warning {
+        color: #f59e0b;
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #ef4444;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Header -->
+    <div class="report-header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
+            <span>/</span>
+            <span>Stock Bajo</span>
+        </div>
+        <h1>⚠️ Productos con Stock Bajo</h1>
+    </div>
+
+    <!-- Alert Card -->
+    <div class="alert-card">
+        <div class="alert-header">
+            <div class="alert-icon">🚨</div>
+            <div class="alert-info">
+                <h2 id="alertTitle">Cargando...</h2>
+                <p>Productos que requieren reabastecimiento urgente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+        <div style="text-align: center; padding: 3rem; color: #6b7280;">
+            Cargando productos...
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        loadReport();
+    });
+
+    function loadReport() {
+        showLoading();
+
+        fetch('{{ url_for("reports.api_inventory_low_stock") }}')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    updateAlert(result.data.total_count);
+                    displayProducts(result.data.products);
+                } else {
+                    alert('Error al cargar el reporte: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar el reporte');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+    }
+
+    function updateAlert(count) {
+        const alertTitle = document.getElementById('alertTitle');
+        if (count === 0) {
+            alertTitle.textContent = '✅ No hay productos con stock bajo';
+        } else if (count === 1) {
+            alertTitle.textContent = `⚠️ ${count} producto requiere atención`;
+        } else {
+            alertTitle.textContent = `⚠️ ${count} productos requieren atención`;
+        }
+    }
+
+    function displayProducts(products) {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = '';
+
+        if (products.length === 0) {
+            grid.innerHTML = `
+            <div style="text-align: center; padding: 3rem; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">
+                    ¡Excelente!
+                </h3>
+                <p style="color: #6b7280;">
+                    Todos los productos tienen stock suficiente
+                </p>
+            </div>
+        `;
+            return;
+        }
+
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = `product-card ${product.status}`;
+
+            card.innerHTML = `
+            <div class="product-header">
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    <div class="product-sku">SKU: ${product.sku}</div>
+                </div>
+                <div class="status-badge ${product.status}">
+                    ${product.status === 'critical' ? '🔴 CRÍTICO' : '🟡 BAJO'}
+                </div>
+            </div>
+            <div class="product-stats">
+                <div class="stat">
+                    <div class="stat-label">Stock Actual</div>
+                    <div class="stat-value ${product.current_stock === 0 ? 'danger' : 'warning'}">
+                        ${product.current_stock}
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Mínimo</div>
+                    <div class="stat-value">${product.min_alert}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Faltante</div>
+                    <div class="stat-value danger">${product.missing}</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Valor Unit.</div>
+                    <div class="stat-value">${formatCurrency(product.value)}</div>
+                </div>
+            </div>
+        `;
+
+            grid.appendChild(card);
+        });
+    }
+
+    function formatCurrency(value) {
+        return '$' + parseFloat(value).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+</script>
+{% endblock %}

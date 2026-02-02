@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Movimientos de Inventario - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .btn-primary {
+        background: #0ea5e9;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .filter-input {
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-created {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-sold {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-status_change {
+        background: #fef3c7;
+        color: #92400e;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>📦 Historial de Movimientos</h1>
+    </div>
+
+    <div class="filters-card">
+        <label>Inicio: <input type="date" id="startDate" class="filter-input" value="{{ start_date }}"></label>
+        <label>Fin: <input type="date" id="endDate" class="filter-input" value="{{ end_date }}"></label>
+        <button class="btn-primary" onclick="loadReport()">Actualizar</button>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Serial</th>
+                    <th>Producto</th>
+                    <th>De</th>
+                    <th>A</th>
+                    <th>Usuario</th>
+                    <th>Detalles</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadReport);
+
+    function loadReport() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        fetch(`{{ url_for('reports.api_inventory_movements') }}?start_date=${start}&end_date=${end}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('reportTableBody');
+                tbody.innerHTML = '';
+                if (data.success) {
+                    data.data.forEach(item => {
+                        const badgeClass = `badge-${item.type}`;
+                        tbody.innerHTML += `<tr>
+                            <td>${item.date}</td>
+                            <td><span class="badge ${badgeClass}">${item.type}</span></td>
+                            <td class="font-mono">${item.serial}</td>
+                            <td>${item.product}</td>
+                            <td>${item.from || '-'}</td>
+                            <td>${item.to || '-'}</td>
+                            <td>${item.user}</td>
+                            <td>${item.description || ''}</td>
+                        </tr>`;
+                    });
+                }
+            });
+    }
+</script>
+{% endblock %}

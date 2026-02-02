@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Valoración de Inventario - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .card h3 {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card .value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1f2937;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>💰 Valoración de Inventario Actual</h1>
+    </div>
+
+    <div class="summary-cards">
+        <div class="card">
+            <h3>Costo Total (Inversión)</h3>
+            <div class="value" id="totalCost">$0.00</div>
+        </div>
+        <div class="card">
+            <h3>Valor de Venta (Proyectado)</h3>
+            <div class="value" id="totalValue">$0.00</div>
+        </div>
+        <div class="card">
+            <h3>Ganancia Potencial</h3>
+            <div class="value" id="totalProfit" style="color: #10b981;">$0.00</div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Marca</th>
+                    <th>Costo Total</th>
+                    <th>Valor Venta</th>
+                    <th>Margen Potencial</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_inventory_valuation') }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('totalCost').textContent = formatCurrency(data.data.total_cost);
+                    document.getElementById('totalValue').textContent = formatCurrency(data.data.total_value);
+                    document.getElementById('totalProfit').textContent = formatCurrency(data.data.total_value - data.data.total_cost);
+
+                    const tbody = document.getElementById('reportTableBody');
+                    data.data.items.forEach(item => {
+                        tbody.innerHTML += `<tr>
+                            <td>${item.brand}</td>
+                            <td>${formatCurrency(item.cost)}</td>
+                            <td>${formatCurrency(item.value)}</td>
+                            <td style="color: #10b981;">${formatCurrency(item.profit)}</td>
+                        </tr>`;
+                    });
+                }
+            });
+    });
+
+    function formatCurrency(val) {
+        return '$' + val.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    }
+</script>
+{% endblock %}

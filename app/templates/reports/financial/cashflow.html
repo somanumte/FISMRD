@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Flujo de Caja - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        height: 600px;
+    }
+
+    .balance-badge {
+        background: white;
+        color: #0284c7;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>💸 Flujo de Caja</h1>
+        <p>Evolución de la liquidez en los últimos 12 meses</p>
+        <div id="currentBalance" class="balance-badge">Saldo Actual: Cargando...</div>
+    </div>
+
+    <div class="chart-card">
+        <canvas id="cashflowChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_financial_cashflow') }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const ctx = document.getElementById('cashflowChart').getContext('2d');
+
+                    document.getElementById('currentBalance').innerText = 'Flujo Acumulado: $' + data.data.current_balance.toLocaleString();
+
+                    // Gradient Fill
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(14, 165, 233, 0.5)');
+                    gradient.addColorStop(1, 'rgba(14, 165, 233, 0.0)');
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.data.labels,
+                            datasets: [{
+                                label: 'Flujo de Caja Acumulado',
+                                data: data.data.values,
+                                borderColor: '#0ea5e9',
+                                backgroundColor: gradient,
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#ffffff',
+                                pointBorderColor: '#0ea5e9',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    callbacks: {
+                                        label: function (context) {
+                                            return '$' + context.parsed.y.toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    grid: { borderDash: [5, 5] }
+                                },
+                                x: {
+                                    grid: { display: false }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

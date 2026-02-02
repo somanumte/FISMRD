@@ -33,32 +33,137 @@ def admin_required(f):
     return decorated_function
 
 
-def permission_required(permission):
+def permission_required(permission, audit_action=None, audit_module=None):
     """
-    Decorador que verifica permisos específicos
-    (Para uso futuro cuando se implementen permisos granulares)
+    Decorador que verifica permisos específicos usando el sistema RBAC
+    
+    Args:
+        permission: Nombre del permiso requerido (ej: 'inventory.delete')
+        audit_action: Acción a registrar en auditoría (opcional)
+        audit_module: Módulo para auditoría (opcional, se infiere del permiso)
 
     Uso:
-        @app.route('/inventory/delete')
+        @app.route('/inventory/delete/<int:id>', methods=['DELETE'])
         @login_required
-        @permission_required('inventory.delete')
-        def delete_item():
+        @permission_required('inventory.delete', audit_action='delete_laptop', audit_module='inventory')
+        def delete_laptop(id):
             ...
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Verificar autenticación
+            if not current_user.is_authenticated:
+                if request.is_json:
+                    return jsonify({'error': 'No autenticado'}), 401
+                abort(401, description="Debes iniciar sesión")
+
+            # Verificar permiso usando el sistema RBAC
+            if not current_user.has_permission(permission):
+                # Registrar intento de acceso denegado
+                from app.services.audit_service import AuditService
+                
+                module = audit_module or permission.split('.')[0]
+                AuditService.log_permission_denied(
+                    permission_name=permission,
+                    module=module
+                )
+
+                if request.is_json:
+                    return jsonify({
+                        'error': 'Permiso denegado',
+                        'required_permission': permission
+                    }), 403
+
+                abort(403, description=f"No tienes permiso: {permission}")
+
+            # Ejecutar función
+            result = f(*args, **kwargs)
+
+            # Registrar acción en auditoría (si se especificó)
+            if audit_action and audit_module:
+                from app.services.audit_service import AuditService
+                AuditService.log_action(
+                    action=audit_action,
+                    module=audit_module
+                )
+
+            return result
+
+        return decorated_function
+
+    return decorator
+
+
+def any_permission_required(*permission_names, audit_action=None, audit_module=None):
+    """
+    Decorador que requiere AL MENOS UNO de los permisos especificados
 
     Args:
-        permission: Nombre del permiso requerido
+        *permission_names: Lista de nombres de permisos
+        audit_action: Acción a registrar en auditoría (opcional)
+        audit_module: Módulo para auditoría (opcional)
+
+    Uso:
+        @any_permission_required('inventory.view_list', 'inventory.view_detail')
+        def view_inventory():
+            ...
     """
 
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                abort(403, description="Debes iniciar sesión")
+                abort(401)
 
-            # Por ahora, solo verificamos si es admin
-            # En el futuro aquí se verificaría current_user.has_permission(permission)
-            if not current_user.is_admin:
-                abort(403, description=f"No tienes permiso: {permission}")
+            if not current_user.has_any_permission(*permission_names):
+                from app.services.audit_service import AuditService
+                
+                module = audit_module or permission_names[0].split('.')[0]
+                AuditService.log_permission_denied(
+                    permission_name=f"any_of({', '.join(permission_names)})",
+                    module=module
+                )
+                abort(403, description=f"Requiere uno de: {', '.join(permission_names)}")
+
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+
+def all_permissions_required(*permission_names, audit_action=None, audit_module=None):
+    """
+    Decorador que requiere TODOS los permisos especificados
+
+    Args:
+        *permission_names: Lista de nombres de permisos
+        audit_action: Acción a registrar en auditoría (opcional)
+        audit_module: Módulo para auditoría (opcional)
+
+    Uso:
+        @all_permissions_required('invoices.create', 'invoices.assign_ncf')
+        def create_invoice():
+            ...
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                abort(401)
+
+            if not current_user.has_all_permissions(*permission_names):
+                from app.services.audit_service import AuditService
+                
+                module = audit_module or permission_names[0].split('.')[0]
+                AuditService.log_permission_denied(
+                    permission_name=f"all_of({', '.join(permission_names)})",
+                    module=module
+                )
+                abort(403, description=f"Requiere todos: {', '.join(permission_names)}")
 
             return f(*args, **kwargs)
 

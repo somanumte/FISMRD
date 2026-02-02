@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes y Análisis - FISMRD{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --report-blue: #3b82f6;
+        --report-green: #10b981;
+        --report-purple: #8b5cf6;
+        --report-yellow: #f59e0b;
+        --report-red: #ef4444;
+        --report-gray: #6b7280;
+    }
+
+    .reports-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .reports-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    }
+
+    .reports-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .reports-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .search-box {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1rem 1.5rem 1rem 3.5rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 1rem center;
+        background-size: 1.5rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--category-color);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        border-color: var(--category-color);
+    }
+
+    .category-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .category-card.blue {
+        --category-color: var(--report-blue);
+    }
+
+    .category-card.green {
+        --category-color: var(--report-green);
+    }
+
+    .category-card.purple {
+        --category-color: var(--report-purple);
+    }
+
+    .category-card.yellow {
+        --category-color: var(--report-yellow);
+    }
+
+    .category-card.red {
+        --category-color: var(--report-red);
+    }
+
+    .category-card.gray {
+        --category-color: var(--report-gray);
+    }
+
+    .category-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-count {
+        display: inline-block;
+        background: var(--category-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .category-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .reports-list {
+        display: none;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    .reports-list.active {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .report-item {
+        padding: 0.75rem 1rem;
+        margin: 0.5rem 0;
+        background: #f9fafb;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+
+    .report-item:hover {
+        background: #f3f4f6;
+        transform: translateX(5px);
+    }
+
+    .report-item a {
+        color: #374151;
+        text-decoration: none;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .report-badge {
+        background: var(--category-color);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stats-section {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        border-radius: 12px;
+        border: 2px solid #f3f4f6;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .quick-access {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .quick-access h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quick-link {
+        display: block;
+        padding: 1rem 1.5rem;
+        background: #f9fafb;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        text-decoration: none;
+        color: #374151;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .quick-link:hover {
+        background: #667eea;
+        color: white;
+        border-left-color: #4c51bf;
+        transform: translateX(5px);
+    }
+
+    @media (max-width: 768px) {
+        .reports-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <!-- Header -->
+    <div class="reports-header">
+        <h1>📊 Reportes y Análisis</h1>
+        <p>Centro de inteligencia de negocios - {{ total_reports }} reportes disponibles</p>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" class="search-input" id="reportSearch"
+            placeholder="Buscar reportes... (ej: ventas, inventario, clientes)">
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_reports }}</div>
+                <div class="stat-label">Reportes Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Categorías</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Reportes DGII</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Exportaciones</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="categories-grid">
+        {% for category in categories %}
+        <div class="category-card {{ category.color }}" data-category="{{ category.id }}">
+            <div class="category-icon">{{ category.icon }}</div>
+            <div class="category-title">
+                {{ category.name }}
+                <span class="category-count">{{ category.count }}</span>
+            </div>
+            <div class="category-description">{{ category.description }}</div>
+
+            <!-- Reports List (will be populated dynamically) -->
+            <div class="reports-list" id="reports-{{ category.id }}">
+                <!-- Reports will be loaded here -->
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Access -->
+    <div class="quick-access">
+        <h3>⚡ Acceso Rápido</h3>
+        <a href="{{ url_for('reports.sales_summary') }}" class="quick-link">
+            📈 Resumen de Ventas del Mes
+        </a>
+        <a href="{{ url_for('reports.inventory_low_stock') }}" class="quick-link">
+            ⚠️ Productos con Stock Bajo
+        </a>
+        <a href="{{ url_for('reports.ncf_summary') }}" class="quick-link">
+            📋 Reporte NCF (DGII)
+        </a>
+        <a href="{{ url_for('reports.sales_by_product') }}" class="quick-link">
+            🏆 Top Productos Vendidos
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Reports data by category
+    const reportsData = {
+        sales: [
+            { name: 'Resumen de Ventas por Período', url: '{{ url_for("reports.sales_summary") }}', badge: 'Popular' },
+            { name: 'Ventas por Producto', url: '{{ url_for("reports.sales_by_product") }}', badge: 'Top' },
+            { name: 'Ventas por Cliente', url: '{{ url_for("reports.sales_by_customer") }}', badge: 'Nuevo' },
+            { name: 'Ventas por Método de Pago', url: '{{ url_for("reports.sales_by_payment_method") }}' },
+            { name: 'Ventas por Usuario/Vendedor', url: '{{ url_for("reports.sales_by_user") }}' },
+            { name: 'Ventas por Tienda/Ubicación', url: '#', badge: 'Próximamente' },
+            { name: 'Análisis de Tendencias', url: '{{ url_for("reports.sales_trends") }}' },
+            { name: 'Facturas Pendientes de Pago', url: '{{ url_for("reports.pending_invoices") }}', badge: 'Urgente' },
+            { name: 'Análisis de Descuentos', url: '#', badge: 'Próximamente' }
+        ],
+        inventory: [
+            { name: 'Estado Actual del Inventario', url: '{{ url_for("reports.inventory_current_status") }}', badge: 'Popular' },
+            { name: 'Productos con Stock Bajo', url: '{{ url_for("reports.inventory_low_stock") }}', badge: 'Alerta' },
+            { name: 'Movimientos de Inventario', url: '{{ url_for("reports.inventory_movements") }}' },
+            { name: 'Análisis de Rotación', url: '{{ url_for("reports.inventory_turnover") }}' },
+            { name: 'Valoración del Inventario', url: '{{ url_for("reports.inventory_valuation") }}' },
+            { name: 'Reporte de Seriales', url: '{{ url_for("reports.inventory_serials") }}', badge: 'Trazabilidad' }
+        ],
+        customers: [
+            { name: 'Base de Clientes', url: '{{ url_for("reports.customers_overview") }}', badge: 'Popular' },
+            { name: 'Clientes Más Valiosos', url: '{{ url_for("reports.customers_most_valuable") }}', badge: 'Top' },
+            { name: 'Análisis de Retención', url: '{{ url_for("reports.customers_retention") }}' },
+            { name: 'Historial por Cliente', url: '#' }
+        ],
+        financial: [
+            { name: 'Estado de Resultados (P&L)', url: '{{ url_for("reports.financial_pnl") }}', badge: 'Importante' },
+            { name: 'Flujo de Caja', url: '{{ url_for("reports.financial_cashflow") }}' },
+            { name: 'Análisis de Gastos', url: '{{ url_for("reports.financial_expenses") }}' }
+        ],
+        ncf: [
+            { name: 'Resumen de NCF Emitidos', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII' },
+            { name: 'Reporte 606 (Compras)', url: '{{ url_for("reports.ncf_606") }}', badge: 'DGII' },
+            { name: 'Reporte 607 (Ventas)', url: '{{ url_for("reports.ncf_607") }}', badge: 'DGII' },
+            { name: 'Control de Secuencias NCF', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII' }
+        ],
+        operational: [
+            { name: 'Actividad de Usuarios', url: '{{ url_for("reports.operational_activity") }}' },
+            { name: 'Estado del Sistema', url: '{{ url_for("reports.operational_status") }}' },
+            { name: 'Errores y Excepciones', url: '#' }
+        ]
+    };
+
+    // Toggle category reports
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function (e) {
+            const categoryId = this.dataset.category;
+            const reportsList = document.getElementById(`reports-${categoryId}`);
+
+            // Toggle active state
+            reportsList.classList.toggle('active');
+
+            // Load reports if not loaded
+            if (reportsList.classList.contains('active') && reportsList.children.length === 0) {
+                loadReports(categoryId, reportsList);
+            }
+        });
+    });
+
+    function loadReports(categoryId, container) {
+        const reports = reportsData[categoryId] || [];
+
+        reports.forEach(report => {
+            const item = document.createElement('div');
+            item.className = 'report-item';
+
+            const link = document.createElement('a');
+            link.href = report.url;
+            link.textContent = report.name;
+
+            item.appendChild(link);
+
+            if (report.badge) {
+                const badge = document.createElement('span');
+                badge.className = 'report-badge';
+                badge.textContent = report.badge;
+                item.appendChild(badge);
+            }
+
+            container.appendChild(item);
+        });
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('reportSearch');
+    searchInput.addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+
+        document.querySelectorAll('.category-card').forEach(card => {
+            const categoryName = card.querySelector('.category-title').textContent.toLowerCase();
+            const categoryDesc = card.querySelector('.category-description').textContent.toLowerCase();
+
+            if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory
 import os
 
 # Importar extensiones desde módulo separado
-from app.extensions import db, login_manager, bcrypt
+from app.extensions import db, login_manager, bcrypt, migrate
 
 
 def create_app(config_name='development'):
@@ -21,6 +21,7 @@ def create_app(config_name='development'):
     db.init_app(app)
     login_manager.init_app(app)
     bcrypt.init_app(app)
+    migrate.init_app(app, db)
 
     # Configurar Flask-Login
     login_manager.login_view = 'auth.login'
@@ -29,6 +30,9 @@ def create_app(config_name='development'):
 
     # User loader para Flask-Login
     from app.models.user import User
+    
+    # Importar modelos RBAC para registro en SQLAlchemy/Migraciones
+    from app.models import rbac
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -37,6 +41,36 @@ def create_app(config_name='development'):
     # Registrar context processors desde módulo separado
     from app.utils.context_processors import register_context_processors
     register_context_processors(app)
+    
+    # --- SEGURIDAD: Validar sesión en cada request ---
+    from flask import request, redirect, url_for, session
+    from flask_login import current_user, logout_user
+    from app.utils.session_manager import validate_session
+    
+    @app.before_request
+    def check_valid_session():
+        # Si el usuario está logueado pero no tiene una sesión válida en DB
+        if current_user.is_authenticated:
+            # RUTAS EXCLUIDAS: No validar sesión en estas rutas para evitar bucles infinitos
+            # o porque son necesarias antes de validar (como logout)
+            excluded_endpoints = ['auth.login', 'auth.logout', 'static', 'favicon']
+            
+            # Verificar si el endpoint actual está excluido
+            is_excluded = False
+            if not request.endpoint:
+                is_excluded = True # Si no hay endpoint, es probablemente un error o ruta especial
+            else:
+                for endpoint in excluded_endpoints:
+                    if endpoint in request.endpoint:
+                        is_excluded = True
+                        break
+            
+            if not is_excluded:
+                if not validate_session():
+                    logout_user()
+                    session.clear()
+                    # Opcional: flash('Tu sesión ha expirado.', 'warning')
+                    return redirect(url_for('auth.login'))
 
     @app.route('/favicon.ico')
     def favicon():
@@ -56,7 +90,9 @@ def create_app(config_name='development'):
     from app.routes.expenses import bp as expenses_bp
     from app.routes.public import public_bp
     from app.routes.serial_api import serial_api
-    from app.routes.dashboard import dashboard_bp  # <--- Agregado
+    from app.routes.dashboard import dashboard_bp
+    from app.routes.reports import reports_bp
+    from app.routes.admin import admin_bp  # <--- Agregado
 
     app.register_blueprint(public_bp)
     app.register_blueprint(expenses_bp)
@@ -67,7 +103,9 @@ def create_app(config_name='development'):
     app.register_blueprint(catalog_api_bp)
     app.register_blueprint(invoices_bp)
     app.register_blueprint(serial_api)
-    app.register_blueprint(dashboard_bp)  # <--- Agregado
+    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(reports_bp)
+    app.register_blueprint(admin_bp)  # <--- Agregado
 
     # Configuración de CORS para APIs
     from flask_cors import CORS

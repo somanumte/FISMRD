@@ -1,4 +1,4 @@
-Directorio: C:\Users\felix\PycharmProjects\FISMRD
+Directorio: C:\Users\F3LIX\.gemini\antigravity\FISMRD
 ==================================================
 
 .
@@ -10,19 +10,27 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   └── laptop_forms.py
 │   ├── models/
 │   │   ├── __init__.py
+│   │   ├── audit_log.py
 │   │   ├── customer.py
 │   │   ├── expense.py
 │   │   ├── invoice.py
 │   │   ├── laptop.py
 │   │   ├── mixins.py
+│   │   ├── permission.py
+│   │   ├── rbac.py
+│   │   ├── rbac_associations.py
+│   │   ├── rbac_user_methods.py
+│   │   ├── role.py
 │   │   ├── serial.py
-│   │   └── user.py
+│   │   ├── user.py
+│   │   └── user_session.py
 │   ├── routes/
 │   │   ├── api/
 │   │   │   ├── __init__.py
 │   │   │   ├── catalog_api.py
 │   │   │   └── customers.py
 │   │   ├── __init__.py
+│   │   ├── admin.py
 │   │   ├── auth.py
 │   │   ├── dashboard.py
 │   │   ├── expenses.py
@@ -30,16 +38,21 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   ├── invoices.py
 │   │   ├── main.py
 │   │   ├── public.py
+│   │   ├── reports.py
 │   │   └── serial_api.py
 │   ├── services/
 │   │   ├── __init__.py
 │   │   ├── ai_service.py
+│   │   ├── audit_service.py
 │   │   ├── catalog_service.py
 │   │   ├── dgii_service.py
 │   │   ├── financial_service.py
 │   │   ├── inventory_service.py
 │   │   ├── invoice_inventory_service.py
+│   │   ├── permission_service.py
+│   │   ├── role_service.py
 │   │   ├── serial_service.py
+│   │   ├── session_service.py
 │   │   └── sku_service.py
 │   ├── static/
 │   │   ├── css/
@@ -50,9 +63,9 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   │   └── default-laptop.jpg
 │   │   ├── img/
 │   │   ├── js/
-│   │   │   ├── inventory/
-│   │   │   │   └── price-slider.js
 │   │   │   ├── barcode_scanner.js
+│   │   │   ├── catalog_detail.js
+│   │   │   ├── catalog_manager.js
 │   │   │   ├── expenses-api.js
 │   │   │   ├── laptop_form.js
 │   │   │   ├── laptop_form_submit.js
@@ -60,13 +73,24 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   │   ├── theme.js
 │   │   │   └── zoho-expenses.js
 │   │   ├── logos/
+│   │   │   └── logo_20260125_202221.jpg
 │   │   ├── uploads/
 │   │   │   └── laptops/
 │   │   └── favicon.ico
 │   ├── templates/
 │   │   ├── admin/
+│   │   │   ├── modals/
+│   │   │   │   ├── role_modal.html
+│   │   │   │   └── user_modal.html
+│   │   │   ├── access_control.html
+│   │   │   ├── audit_log.html
+│   │   │   ├── catalog_detail.html
+│   │   │   ├── catalogs.html
+│   │   │   ├── layout.html
 │   │   │   ├── panel.html
-│   │   │   └── users.html
+│   │   │   ├── roles_list.html
+│   │   │   ├── users.html
+│   │   │   └── users_list.html
 │   │   ├── auth/
 │   │   │   ├── login.html
 │   │   │   └── register.html
@@ -100,6 +124,39 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   │   ├── contact.html
 │   │   │   ├── home.html
 │   │   │   └── product_datail.html
+│   │   ├── reports/
+│   │   │   ├── customers/
+│   │   │   │   ├── history.html
+│   │   │   │   ├── most_valuable.html
+│   │   │   │   ├── overview.html
+│   │   │   │   └── retention.html
+│   │   │   ├── financial/
+│   │   │   │   ├── cashflow.html
+│   │   │   │   ├── expenses.html
+│   │   │   │   └── pnl.html
+│   │   │   ├── inventory/
+│   │   │   │   ├── current_status.html
+│   │   │   │   ├── low_stock.html
+│   │   │   │   ├── movements.html
+│   │   │   │   ├── serials.html
+│   │   │   │   ├── turnover.html
+│   │   │   │   └── valuation.html
+│   │   │   ├── ncf/
+│   │   │   │   ├── report_606.html
+│   │   │   │   ├── report_607.html
+│   │   │   │   └── summary.html
+│   │   │   ├── operational/
+│   │   │   │   ├── activity.html
+│   │   │   │   └── status.html
+│   │   │   ├── sales/
+│   │   │   │   ├── by_customer.html
+│   │   │   │   ├── by_payment_method.html
+│   │   │   │   ├── by_product.html
+│   │   │   │   ├── by_user.html
+│   │   │   │   ├── pending.html
+│   │   │   │   ├── summary.html
+│   │   │   │   └── trends.html
+│   │   │   └── index.html
 │   │   ├── base.html
 │   │   ├── dashboard.html
 │   │   ├── expenses_list.html
@@ -110,7 +167,9 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   │   ├── decorators.py
 │   │   ├── dominican_validators.py
 │   │   ├── logging_config.py
+│   │   ├── security.py
 │   │   ├── seeds.py
+│   │   ├── session_manager.py
 │   │   └── validators.py
 │   ├── __init__.py
 │   ├── cli.py
@@ -119,17 +178,37 @@ Directorio: C:\Users\felix\PycharmProjects\FISMRD
 │   └── luxera.log
 ├── migrations/
 │   ├── versions/
+│   │   ├── 28f32325c06a_merge_heads.py
+│   │   ├── add_rbac_tables.py
 │   │   ├── add_serial_tracking.py
+│   │   ├── b44c0b0bf280_add_rbac_cols_to_user.py
 │   │   └── e006d822bd38_inicio_limpio.py
+│   ├── add_settings_columns.py
 │   ├── alembic.ini
 │   ├── env.py
 │   ├── Migrate_ncf_sequences.py
 │   ├── README
 │   └── script.py.mako
+├── tests/
+│   ├── test_rbac_core.py
+│   ├── test_route_protection.py
+│   └── test_security.py
+├── check_dell_margin.py
 ├── config.py
+├── debug_dashboard_logic.py
+├── debug_expenses.py
+├── debug_output.txt
+├── debug_rbac_user.py
+├── debug_test.py
+├── debug_users_simple.py
+├── dell_margin_report.txt
 ├── generate_tree.bat
 ├── generate_tree.py
+├── output.txt
 ├── requirements.txt
 ├── run.py
 ├── run_migration.py
+├── run_tests.py
+├── seed_rbac.py
+├── test_output.txt
 └── tree_simple.txt

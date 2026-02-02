@@ -4,751 +4,2477 @@
 
 {% block extra_css %}
 <style>
-    /* Variables CSS para consistencia con catalog */
+    /* ========================================
+       CSS VARIABLES - Consistente con Dashboard
+       ======================================== */
     :root {
-        --font-body: 'Outfit', sans-serif;
-        --font-heading: 'Space Grotesk', sans-serif;
-        --primary: #7c3aed;
-        --primary-dark: #6d28d9;
-        --primary-light: #2563eb;
-        --bg-body: #f8fafc;
-        --bg-nav: rgba(255, 255, 255, 0.9);
-        --bg-footer: #ffffff;
-        --text-main: #0f172a;
-        --text-sub: #64748b;
-        --border-subtle: #e2e8f0;
-        --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-        --card-bg: #ffffff;
-        --surface: #f1f5f9;
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --primary-light: #818cf8;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --dark: #1f2937;
+        --light: #f9fafb;
+        --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --bg-body: #f9fafb;
+        --bg-card: #ffffff;
+        --text-main: #1f2937;
+        --text-sub: #6b7280;
+        --border-subtle: #e5e7eb;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 14px;
+        --radius-xl: 16px;
     }
 
     [data-theme="dark"] {
-        --bg-body: #050505;
-        --bg-nav: rgba(20, 20, 20, 0.85);
-        --bg-footer: #0a0a0a;
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
         --text-main: #f8fafc;
         --text-sub: #94a3b8;
-        --border-subtle: #262626;
-        --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-        --card-bg: #121212;
-        --surface: #1e1e1e;
+        --border-subtle: #334155;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
-    .range-slider-container {
-        position: relative;
+    /* ========================================
+       BASE STYLES
+       ======================================== */
+    body {
+        margin: 0;
+        font-family: var(--font-body);
+        background: var(--bg-body);
+        overflow-x: hidden;
         width: 100%;
-        height: 24px;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        border-radius: 9999px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
-    .range-slider-track {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        left: 0;
-        right: 0;
-        height: 4px;
-        border-radius: 9999px;
-        background-color: var(--border-subtle);
-        pointer-events: none;
-    }
-
-    .range-slider-progress {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 4px;
-        background: linear-gradient(to right, var(--primary), var(--primary-light));
-        border-radius: 9999px;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .range-input {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+    .inventory-layout {
+        min-height: 100vh;
         width: 100%;
-        height: 24px;
-        -webkit-appearance: none;
-        pointer-events: none;
-        background: none;
-        z-index: 2;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* ========================================
+       HEADER SECTION
+       ======================================== */
+    .inventory-header {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .header-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1.2;
         margin: 0;
     }
 
-    .range-input::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        pointer-events: auto;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 2px solid var(--primary);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    .header-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-sub);
+        margin-top: 4px;
+    }
+
+    /* ========================================
+       METRICS GRID - Igual que Dashboard
+       ======================================== */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .metric-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-subtle);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
+
+    .metric-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+
+    .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+
+    .metric-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .metric-icon.primary {
+        background: var(--primary);
+    }
+
+    .metric-icon.success {
+        background: var(--success);
+    }
+
+    .metric-icon.warning {
+        background: var(--warning);
+    }
+
+    .metric-icon.info {
+        background: var(--info);
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
+    }
+
+    .metric-label {
+        font-size: 0.8125rem;
+        color: var(--text-sub);
+        font-weight: 500;
+        line-height: 1.3;
+    }
+
+    /* ========================================
+       HEADER BUTTONS
+       ======================================== */
+    .header-buttons {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
         cursor: pointer;
         transition: all 0.2s ease;
-    }
-
-    .range-input::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
-    }
-
-    .range-input::-moz-range-thumb {
-        pointer-events: auto;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 2px solid var(--primary);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        cursor: pointer;
         border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 48px;
+        -webkit-tap-highlight-color: transparent;
+        text-decoration: none;
+    }
+
+    .btn:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success), #059669);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--primary);
+        border: 1.5px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    /* ========================================
+       MAIN CONTAINER
+       ======================================== */
+    .inventory-container {
+        padding: 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-bottom: 100px;
+    }
+
+    /* ========================================
+       TOOLBAR
+       ======================================== */
+    .toolbar {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .toolbar-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-info p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-sub);
+    }
+
+    .toolbar-info strong {
+        color: var(--text-main);
+    }
+
+    .toolbar-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+        min-height: 40px;
+    }
+
+    /* ========================================
+       FILTER MODAL (MOBILE)
+       ======================================== */
+    .filter-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .filter-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .filter-modal {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 85%;
+        max-width: 360px;
+        height: 100%;
+        background: var(--bg-card);
+        z-index: 999;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .filter-modal.active {
+        right: 0;
+    }
+
+    .filter-modal-header {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .filter-modal-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .filter-close-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg-body);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-sub);
         transition: all 0.2s ease;
     }
 
-    .range-input::-moz-range-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+    .filter-close-btn:hover {
+        background: var(--border-subtle);
+        color: var(--text-main);
     }
 
-    .filter-chip {
+    .filter-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-modal-footer {
+        padding: 1rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        gap: 0.75rem;
+        flex-shrink: 0;
+        background: var(--bg-card);
+    }
+
+    .filter-modal-footer .btn {
+        flex: 1;
+    }
+
+    /* Filter Form Styles */
+    .filter-section {
+        margin-bottom: 1.25rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .filter-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .filter-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.75rem;
+    }
+
+    .filter-label svg {
+        width: 16px;
+        height: 16px;
+        color: var(--primary);
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--border-subtle);
+        background: var(--bg-body);
+        color: var(--text-main);
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        transition: all 0.2s ease;
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .price-range-inputs {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .price-range-inputs input {
+        flex: 1;
+    }
+
+    .price-range-inputs span {
+        color: var(--text-sub);
+        font-weight: 500;
+    }
+
+    /* Floating Filter Button (Mobile) */
+    .filter-fab {
+        position: fixed;
+        bottom: 90px;
+        right: 16px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 50;
         transition: all 0.3s ease;
     }
 
-    .filter-chip:hover {
-        transform: translateY(-2px);
+    .filter-fab:active {
+        transform: scale(0.95);
+    }
+
+    .filter-fab svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .filter-fab-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--danger);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ========================================
+       SIDEBAR (DESKTOP)
+       ======================================== */
+    .sidebar-filters {
+        width: 280px;
+        flex-shrink: 0;
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        border: 1px solid var(--border-subtle);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .clear-filters-link {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .clear-filters-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ========================================
+       CONTENT LAYOUT
+       ======================================== */
+    .content-layout {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+    }
+
+    .main-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* ========================================
+       LAPTOP TABLE (DESKTOP)
+       ======================================== */
+    .table-container {
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-subtle);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .data-table th {
+        background: var(--bg-body);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-sub);
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        color: var(--text-main);
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+
+    .data-table tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+        background: rgba(99, 102, 241, 0.04);
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Table Checkbox */
+    .table-checkbox {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        border: 2px solid var(--border-subtle);
+        cursor: pointer;
+        accent-color: var(--primary);
+    }
+
+    /* Laptop Info Cell */
+    .laptop-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .laptop-image {
+        width: 80px;
+        height: 60px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: var(--bg-body);
+        flex-shrink: 0;
+    }
+
+    .laptop-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .laptop-image:hover img {
+        transform: scale(1.1);
+    }
+
+    .laptop-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .laptop-image-placeholder svg {
+        width: 32px;
+        height: 32px;
+        color: white;
+    }
+
+    .laptop-details h3 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .laptop-specs {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.75rem;
+        color: var(--text-sub);
+    }
+
+    .laptop-specs span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    /* Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+    }
+
+    .badge-gaming {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+
+    .badge-workstation {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .badge-laptop {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-info {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .badge-secondary {
+        background: var(--bg-body);
+        color: var(--text-sub);
+    }
+
+    /* Price */
+    .price-main {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .price-discount {
+        font-size: 0.75rem;
+        color: var(--success);
+        margin-top: 2px;
+    }
+
+    /* Status Column */
+    .status-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+        border: none;
+        background: var(--bg-body);
+        color: var(--text-sub);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* ========================================
+       LAPTOP CARDS (MOBILE)
+       ======================================== */
+    .laptop-cards-mobile {
+        display: none;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .laptop-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-subtle);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .laptop-card:active {
+        transform: scale(0.99);
+    }
+
+    .laptop-card.selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .card-checkbox {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        border: 2px solid var(--border-subtle);
+        cursor: pointer;
+        accent-color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .card-image {
+        width: 64px;
+        height: 48px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: var(--bg-body);
+        flex-shrink: 0;
+    }
+
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-image-placeholder svg {
+        width: 24px;
+        height: 24px;
+        color: white;
+    }
+
+    .card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .card-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin: 0 0 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-price {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .card-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        padding: 0 1rem 0.75rem;
+    }
+
+    .card-expand-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg-body);
+        border: none;
+        border-top: 1px solid var(--border-subtle);
+        color: var(--text-sub);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .card-expand-btn:hover {
+        background: var(--border-subtle);
+        color: var(--text-main);
+    }
+
+    .card-expand-btn svg {
+        width: 16px;
+        height: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-expand-btn.expanded svg {
+        transform: rotate(180deg);
+    }
+
+    .card-details {
+        display: none;
+        padding: 1rem;
+        background: var(--bg-body);
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .card-details.expanded {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.8125rem;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--text-sub);
+        font-weight: 500;
+    }
+
+    .detail-value {
+        color: var(--text-main);
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .card-actions .action-btn {
+        flex: 1;
+        height: 44px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        gap: 0.5rem;
+        width: auto;
+    }
+
+    .card-actions .action-btn span {
+        display: inline;
+    }
+
+    /* ========================================
+       PAGINATION
+       ======================================== */
+    .pagination-container {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        margin-top: 1rem;
+        border: 1px solid var(--border-subtle);
+    }
+
+    .pagination-desktop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .pagination-info {
+        font-size: 0.875rem;
+        color: var(--text-sub);
+    }
+
+    .pagination-info strong {
+        color: var(--text-main);
+    }
+
+    .pagination-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .pagination-mobile {
+        display: none;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .pagination-indicator {
+        text-align: center;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .pagination-nav {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .pagination-nav .btn {
+        flex: 1;
+    }
+
+    /* ========================================
+       STICKY INVOICE BUTTON (MOBILE)
+       ======================================== */
+    .sticky-invoice-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-subtle);
+        padding: 1rem;
+        z-index: 60;
+        display: none;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sticky-invoice-bar.visible {
+        transform: translateY(0);
+    }
+
+    .sticky-invoice-bar .btn {
+        width: 100%;
+    }
+
+    .selection-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+    }
+
+    /* ========================================
+       EMPTY STATE
+       ======================================== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-sub);
+    }
+
+    .empty-state svg {
+        width: 64px;
+        height: 64px;
+        color: var(--border-subtle);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.9375rem;
+    }
+
+    /* ========================================
+       ANIMATIONS
+       ======================================== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .animate-fade-in {
-        animation: fade-in 0.6s ease-out;
+        animation: fadeIn 0.3s ease-out;
     }
 
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* ========================================
+       MOBILE RESPONSIVE STYLES (< 768px)
+       ======================================== */
+    @media (max-width: 767px) {
+
+        /* Header */
+        .inventory-header {
+            padding: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.8125rem;
+        }
+
+        /* Metrics Grid - 2x2 */
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.75rem;
+        }
+
+        .metric-card {
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            min-height: auto;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 0.875rem;
+        }
+
+        .metric-value {
+            font-size: 1.375rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+        }
+
+        /* Header Buttons - Full Width */
+        .header-buttons {
+            flex-direction: column;
+        }
+
+        .header-buttons .btn {
+            width: 100%;
+        }
+
+        /* Hide desktop elements */
+        .sidebar-filters,
+        .table-container,
+        .pagination-desktop,
+        .desktop-only {
+            display: none !important;
+        }
+
+        /* Show mobile elements */
+        .laptop-cards-mobile,
+        .filter-fab,
+        .pagination-mobile {
+            display: flex;
+        }
+
+        .sticky-invoice-bar {
+            display: block;
+        }
+
+        /* Container */
+        .inventory-container {
+            padding: 1rem;
+            padding-bottom: 120px;
+        }
+
+        .content-layout {
+            flex-direction: column;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 0.875rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .toolbar-info {
+            justify-content: center;
+        }
+
+        .toolbar-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Button sizing for touch */
+        .btn {
+            min-height: 48px;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.9375rem;
+            border-radius: var(--radius-md);
+        }
+
+        .btn-sm {
+            min-height: 44px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Filter FAB adjustment */
+        .filter-fab {
+            bottom: 100px;
+        }
+
+        .sticky-invoice-bar.visible~.filter-fab {
+            bottom: 100px;
+        }
     }
 
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
+    /* ========================================
+       TABLET STYLES (768px - 1023px)
+       ======================================== */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .sidebar-filters {
+            display: none;
+        }
+
+        .filter-fab {
+            display: flex;
+        }
+
+        .laptop-cards-mobile {
+            display: none;
+        }
+
+        .table-container {
+            display: block;
+        }
+
+        .content-layout {
+            flex-direction: column;
+        }
     }
 
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    /* ========================================
+       DESKTOP STYLES (>= 1024px)
+       ======================================== */
+    @media (min-width: 1024px) {
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            padding: 1.25rem;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+        }
+
+        .header-buttons {
+            flex-direction: row;
+        }
+
+        .filter-fab,
+        .filter-overlay,
+        .filter-modal,
+        .laptop-cards-mobile,
+        .pagination-mobile,
+        .sticky-invoice-bar,
+        .mobile-only {
+            display: none !important;
+        }
+
+        .sidebar-filters,
+        .table-container,
+        .pagination-desktop {
+            display: block;
+        }
+
+        .content-layout {
+            flex-direction: row;
+        }
+    }
+
+    /* ========================================
+       DARK MODE ADJUSTMENTS
+       ======================================== */
+    [data-theme="dark"] .metric-card::before {
+        background: linear-gradient(90deg, var(--primary-light), var(--primary));
+    }
+
+    [data-theme="dark"] .laptop-card.selected {
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    [data-theme="dark"] .badge-gaming {
+        background: rgba(124, 58, 237, 0.2);
+        color: #c4b5fd;
+    }
+
+    [data-theme="dark"] .badge-workstation {
+        background: rgba(37, 99, 235, 0.2);
+        color: #93c5fd;
+    }
+
+    [data-theme="dark"] .badge-laptop {
+        background: rgba(22, 163, 74, 0.2);
+        color: #86efac;
+    }
+
+    [data-theme="dark"] .badge-success {
+        background: rgba(22, 163, 74, 0.2);
+        color: #86efac;
+    }
+
+    [data-theme="dark"] .badge-warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fcd34d;
+    }
+
+    [data-theme="dark"] .badge-danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+    }
+
+    /* Prevent zoom on iOS inputs */
+    @supports (-webkit-touch-callout: none) {
+
+        input,
+        select,
+        textarea {
+            font-size: 16px !important;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="inventory-layout">
+    <!-- HEADER -->
+    <header class="inventory-header">
+        <div class="header-content">
+            <h1 class="header-title">Inventario de Laptops</h1>
+            <p class="header-subtitle">Gestiona tu inventario de manera eficiente</p>
 
-        <!-- Header: Título y Botones -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    Inventario de Laptops
-                </h1>
-                <p class="mt-1 text-gray-600 dark:text-gray-400">
-                    Gestiona tu inventario de manera eficiente
-                </p>
+            <!-- METRICS GRID (2x2 en móvil, 4 cols en desktop) -->
+            <div class="metrics-grid">
+                <!-- Total SKUs -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon primary">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value">{{ stats.total }}</div>
+                    <div class="metric-label">Total SKUs</div>
+                </div>
+
+                <!-- Valor Total -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon success">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" style="color: var(--success);">${{ "{:,.0f}".format(stats.total_value) }}
+                    </div>
+                    <div class="metric-label">Valor Total</div>
+                </div>
+
+                <!-- Stock Bajo -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon warning">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" style="color: var(--warning);">{{ stats.low_stock }}</div>
+                    <div class="metric-label">Stock Bajo</div>
+                </div>
+
+                <!-- Publicadas -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon info">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" style="color: var(--info);">{{ stats.published if stats.published is
+                        defined else '—' }}</div>
+                    <div class="metric-label">Publicadas</div>
+                </div>
             </div>
 
-            <div class="flex space-x-3">
-                <!-- Botón para crear factura con laptops seleccionadas -->
-                <button id="create-invoice-btn"
-                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled>
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            <!-- HEADER BUTTONS -->
+            <div class="header-buttons">
+                <button id="create-invoice-btn" class="btn btn-success" disabled>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
                     </svg>
-                    Crear Factura (<span id="selected-count">0</span>)
+                    <span>Crear Factura</span>
+                    <span class="selection-count desktop-only">(<span id="selected-count">0</span>)</span>
                 </button>
 
                 {% if current_user.is_admin %}
-                <a href="{{ url_for('inventory.laptop_add') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                <a href="{{ url_for('inventory.laptop_add') }}" class="btn btn-primary">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Agregar Laptop
+                    <span>Agregar Laptop</span>
                 </a>
                 {% endif %}
             </div>
         </div>
+    </header>
 
-        <!-- Estadísticas Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Laptops -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total SKUs</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats.total }}</p>
-                    </div>
-                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                </div>
+    <!-- MAIN CONTAINER -->
+    <div class="inventory-container">
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="toolbar-info">
+                <p><strong>{{ pagination.total }}</strong> Productos</p>
+                <span class="desktop-only" style="color: var(--border-subtle);">|</span>
+                <p class="desktop-only">
+                    Mostrando <strong>{{ pagination.per_page * (pagination.page - 1) + 1 }}</strong> -
+                    <strong>{{ [pagination.per_page * pagination.page, pagination.total]|min }}</strong>
+                </p>
             </div>
-
-            <!-- Valor Total Inventario -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Valor Total Inventario</p>
-                        <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">${{ "{:,.2f}".format(stats.total_value) }}</p>
-                    </div>
-                    <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stock Bajo -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Stock Bajo</p>
-                        <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{{ stats.low_stock }}</p>
-                    </div>
-                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Publicadas -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicadas</p>
-                        <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{{ stats.published if stats.published is defined else '—' }}</p>
-                    </div>
-                    <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="toolbar-actions">
+                <button onclick="exportToCSV()" class="btn btn-outline btn-sm">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    <span>Exportar CSV</span>
+                </button>
             </div>
         </div>
 
-        <!-- CATALOG LAYOUT -->
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
-            <!-- FILTERS SIDEBAR - Versión simple sin Alpine.js -->
-            <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm h-fit">
-                <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Filtros</h3>
-                    <a href="{{ url_for('inventory.laptops_list') }}" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Limpiar</a>
+        <!-- CONTENT LAYOUT -->
+        <div class="content-layout">
+            <!-- SIDEBAR FILTERS (DESKTOP) -->
+            <aside class="sidebar-filters">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">Filtros</h3>
+                    <a href="{{ url_for('inventory.laptops_list') }}" class="clear-filters-link">Limpiar</a>
                 </div>
 
-                <!-- Filtros básicos con formulario -->
-                <form method="GET" action="{{ url_for('inventory.laptops_list') }}" class="space-y-4">
+                <form method="GET" action="{{ url_for('inventory.laptops_list') }}" id="desktop-filter-form">
                     <!-- Search -->
-                    <div class="relative">
-                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Buscar laptops..."
-                               class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 transition-all">
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            Buscar
+                        </label>
+                        <input type="text" name="search" value="{{ request.args.get('search', '') }}"
+                            placeholder="Buscar laptops..." class="filter-input">
                     </div>
 
                     <!-- Price Range -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
                             </svg>
                             Rango de Precio
-                        </h4>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}" placeholder="Mín" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                                <span class="text-gray-500">-</span>
-                                <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}" placeholder="Máx" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            </div>
+                        </label>
+                        <div class="price-range-inputs">
+                            <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}"
+                                placeholder="Mín" class="filter-input">
+                            <span>-</span>
+                            <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}"
+                                placeholder="Máx" class="filter-input">
                         </div>
                     </div>
 
-                    <!-- Brand Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    <!-- Brand -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                                </path>
                             </svg>
                             Marca
-                        </h4>
-                        <select name="brand" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                        </label>
+                        <select name="brand" class="filter-select">
                             <option value="">Todas</option>
                             {% for brand in filter_form.brand_id.choices[1:] %}
-                                <option value="{{ brand[0] }}" {% if request.args.get('brand') == brand[0]|string %}selected{% endif %}>{{ brand[1] }}</option>
+                            <option value="{{ brand[0] }}" {% if request.args.get('brand')==brand[0]|string %}selected{%
+                                endif %}>{{ brand[1] }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <!-- Category Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    <!-- Category -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                </path>
                             </svg>
                             Categoría
-                        </h4>
-                        <select name="category" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                        </label>
+                        <select name="category" class="filter-select">
                             <option value="">Todas</option>
-                            <option value="laptop" {% if request.args.get('category') == 'laptop' %}selected{% endif %}>💻 Laptop</option>
-                            <option value="workstation" {% if request.args.get('category') == 'workstation' %}selected{% endif %}>Workstation</option>
-                            <option value="gaming" {% if request.args.get('category') == 'gaming' %}selected{% endif %}>Gaming</option>
+                            <option value="laptop" {% if request.args.get('category')=='laptop' %}selected{% endif %}>💻
+                                Laptop</option>
+                            <option value="workstation" {% if request.args.get('category')=='workstation' %}selected{%
+                                endif %}>Workstation</option>
+                            <option value="gaming" {% if request.args.get('category')=='gaming' %}selected{% endif %}>
+                                Gaming</option>
                         </select>
                     </div>
 
-                    <!-- Condition Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <!-- Condition -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             Condición
-                        </h4>
-                        <select name="condition" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                        </label>
+                        <select name="condition" class="filter-select">
                             <option value="">Todas</option>
-                            <option value="new" {% if request.args.get('condition') == 'new' %}selected{% endif %}>Nuevo</option>
-                            <option value="used" {% if request.args.get('condition') == 'used' %}selected{% endif %}>Usado</option>
-                            <option value="refurbished" {% if request.args.get('condition') == 'refurbished' %}selected{% endif %}>Reacondicionado</option>
+                            <option value="new" {% if request.args.get('condition')=='new' %}selected{% endif %}>Nuevo
+                            </option>
+                            <option value="used" {% if request.args.get('condition')=='used' %}selected{% endif %}>Usado
+                            </option>
+                            <option value="refurbished" {% if request.args.get('condition')=='refurbished' %}selected{%
+                                endif %}>Reacondicionado</option>
                         </select>
                     </div>
 
-                    <!-- Store Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    <!-- Store -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                </path>
                             </svg>
                             Tienda
-                        </h4>
-                        <select name="store" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                        </label>
+                        <select name="store" class="filter-select">
                             <option value="">Todas</option>
                             {% for store in filter_form.store_id.choices[1:] %}
-                                <option value="{{ store[0] }}" {% if request.args.get('store') == store[0]|string %}selected{% endif %}>{{ store[1] }}</option>
+                            <option value="{{ store[0] }}" {% if request.args.get('store')==store[0]|string %}selected{%
+                                endif %}>{{ store[1] }}</option>
                             {% endfor %}
                         </select>
                     </div>
 
-                    <!-- Sorting -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                    <!-- Sort -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                             </svg>
                             Ordenar por
-                        </h4>
-                        <select name="sort_by" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'entry_date_desc' %}selected{% endif %}>Más recientes</option>
-                            <option value="entry_date_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'entry_date_asc' %}selected{% endif %}>Más antiguos</option>
-                            <option value="sale_price_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'sale_price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                            <option value="sale_price_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'sale_price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                            <option value="name_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'name_asc' %}selected{% endif %}>Nombre A-Z</option>
-                            <option value="name_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'name_desc' %}selected{% endif %}>Nombre Z-A</option>
+                        </label>
+                        <select name="sort_by" class="filter-select">
+                            <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                )=='entry_date_desc' %}selected{% endif %}>Más recientes</option>
+                            <option value="entry_date_asc" {% if request.args.get('sort_by')=='entry_date_asc'
+                                %}selected{% endif %}>Más antiguos</option>
+                            <option value="sale_price_asc" {% if request.args.get('sort_by')=='sale_price_asc'
+                                %}selected{% endif %}>Precio: Menor a Mayor</option>
+                            <option value="sale_price_desc" {% if request.args.get('sort_by')=='sale_price_desc'
+                                %}selected{% endif %}>Precio: Mayor a Menor</option>
+                            <option value="name_asc" {% if request.args.get('sort_by')=='name_asc' %}selected{% endif
+                                %}>Nombre A-Z</option>
+                            <option value="name_desc" {% if request.args.get('sort_by')=='name_desc' %}selected{% endif
+                                %}>Nombre Z-A</option>
                         </select>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2 pt-2">
-                        <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-lg py-2 px-4 hover:bg-indigo-700 transition-colors text-sm font-medium">
-                            Aplicar
-                        </button>
-                        <a href="{{ url_for('inventory.laptops_list') }}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg py-2 px-4 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium text-center">
-                            Limpiar
-                        </a>
+                    <!-- Buttons -->
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button type="submit" class="btn btn-primary btn-sm" style="flex: 1;">Aplicar</button>
+                        <a href="{{ url_for('inventory.laptops_list') }}" class="btn btn-outline btn-sm"
+                            style="flex: 1; text-align: center;">Limpiar</a>
                     </div>
                 </form>
             </aside>
 
-            <!-- PRODUCT TABLE -->
-            <div class="flex-1 w-full">
-                <!-- Toolbar -->
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <!-- Info -->
-                    <div class="flex items-center gap-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            <span class="text-gray-900 dark:text-white font-bold">{{ pagination.total }}</span> Productos
-                        </p>
-                        <div class="hidden md:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Mostrando <span class="font-bold">{{ pagination.per_page * (pagination.page - 1) + 1 }}</span> -
-                            <span class="font-bold">{{ [pagination.per_page * pagination.page, pagination.total]|min }}</span>
-                        </p>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-3">
-                        <button onclick="exportToCSV()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
-                            Exportar CSV
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tabla de Laptops -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- DESKTOP TABLE -->
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <th style="width: 50px;">
+                                        <input type="checkbox" id="select-all" class="table-checkbox">
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" colspan="2">Laptop</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                                    <th colspan="2">Laptop</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th style="text-align: right;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody>
                                 {% if laptops %}
-                                    {% for laptop in laptops %}
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors animate-fade-in">
-                                        <!-- Checkbox de selección -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <input type="checkbox"
-                                                   name="selected_laptop"
-                                                   value="{{ laptop.id }}"
-                                                   data-laptop-id="{{ laptop.id }}"
-                                                   data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                                   data-laptop-price="{{ laptop.sale_price }}"
-                                                   data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
-                                                   class="laptop-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                        </td>
+                                {% for laptop in laptops %}
+                                <tr class="animate-fade-in">
+                                    <td>
+                                        <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                            data-laptop-id="{{ laptop.id }}"
+                                            data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                            data-laptop-price="{{ laptop.sale_price }}"
+                                            data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                            class="laptop-checkbox table-checkbox">
+                                    </td>
+                                    <td>
+                                        <div class="laptop-info">
+                                            <div class="laptop-image">
+                                                {% set cover_image = none %}
+                                                {% for image in laptop.images if image.is_cover %}
+                                                {% set cover_image = image %}
+                                                {% endfor %}
+                                                {% if not cover_image and laptop.images %}
+                                                {% set cover_image = laptop.images[0] %}
+                                                {% endif %}
 
-                                        <!-- Laptop Info con Imagen -->
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-4">
-                                                <!-- Imagen de portada o placeholder -->
-                                                <div class="flex-shrink-0 h-20 w-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 shadow-sm">
-                                                    {% set cover_image = none %}
-                                                    {% for image in laptop.images if image.is_cover %}
-                                                        {% set cover_image = image %}
-                                                    {% endfor %}
-                                                    {% if not cover_image and laptop.images %}
-                                                        {% set cover_image = laptop.images[0] %}
-                                                    {% endif %}
-
-                                                    {% if cover_image %}
-                                                        <img
-                                                            src="{{ url_for('static', filename=cover_image.image_path) }}"
-                                                            alt="{{ cover_image.alt_text or laptop.display_name or (laptop.brand.name ~ ' ' ~ laptop.model.name) }}"
-                                                            class="h-full w-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
-                                                            onclick="window.location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'"
-                                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-10 h-10 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';"
-                                                        >
-                                                    {% else %}
-                                                        <!-- Placeholder cuando no hay imagen -->
-                                                        <div class="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                                            </svg>
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-
-                                                <!-- Informacion de la laptop -->
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                                            {{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}
-                                                        </h3>
-                                                    </div>
-                                                    <div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
-                                                        <div class="flex flex-col gap-1 mt-1">
-                                                            <div class="truncate">CPU: {{ laptop.processor.name[:25] if laptop.processor else 'N/A' }}</div>
-                                                            <div class="truncate">GPU: {{ laptop.graphics_card.name[:25] if laptop.graphics_card else 'N/A' }}</div>
-                                                            <div class="truncate">RAM: {{ laptop.ram.name[:20] if laptop.ram else 'N/A' }}</div>
-                                                            <div class="truncate">SSD: {{ laptop.storage.name[:20] if laptop.storage else 'N/A' }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <!-- Espacio adicional para mantener el colspan=2 -->
-                                        <td class="hidden md:table-cell"></td>
-
-                                        <!-- Categoría -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {% if laptop.category == 'gaming' %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                                                    Gaming
-                                                </span>
-                                            {% elif laptop.category == 'workstation' %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                    Workstation
-                                                </span>
-                                            {% else %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                    💻 Laptop
-                                                </span>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Precio - CAMBIADO A FORMATO DE MILES -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 dark:text-white font-semibold">${{ "{:,.2f}".format(laptop.sale_price) }}</div>
-                                            {% if laptop.discount_price %}
-                                            <div class="text-xs text-green-600 dark:text-green-400">Descuento: ${{ "{:,.2f}".format(laptop.discount_price) }}</div>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Stock -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {% if laptop.quantity <= 0 %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                                    Sin stock
-                                                </span>
-                                            {% elif laptop.quantity <= laptop.min_alert %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                                                    {{ laptop.quantity }} unidades
-                                                </span>
-                                            {% else %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                    {{ laptop.quantity }} unidades
-                                                </span>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Estado (Publicado/Destacado) -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex flex-col space-y-1">
-                                                {% if laptop.is_published %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                        Publicado
-                                                    </span>
+                                                {% if cover_image %}
+                                                <img src="{{ url_for('static', filename=cover_image.image_path) }}"
+                                                    alt="{{ cover_image.alt_text or laptop.display_name or (laptop.brand.name ~ ' ' ~ laptop.model.name) }}"
+                                                    loading="lazy"
+                                                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'laptop-image-placeholder\'><svg fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';">
                                                 {% else %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                                        Borrador
-                                                    </span>
-                                                {% endif %}
-                                                {% if laptop.is_featured %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                                                        Destacado
-                                                    </span>
+                                                <div class="laptop-image-placeholder">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
                                                 {% endif %}
                                             </div>
-                                        </td>
-
-                                        <!-- Acciones -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3" title="Ver detalle">
-                                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            <div class="laptop-details">
+                                                <h3>{{ laptop.brand.name if laptop.brand else 'N/A' }} {{
+                                                    laptop.model.name if laptop.model else 'N/A' }}</h3>
+                                                <div class="laptop-specs">
+                                                    <span>CPU: {{ laptop.processor.name[:30] if laptop.processor else
+                                                        'N/A' }}</span>
+                                                    <span>GPU: {{ laptop.graphics_card.name[:30] if laptop.graphics_card
+                                                        else 'N/A' }}</span>
+                                                    <span>RAM: {{ laptop.ram.name[:25] if laptop.ram else 'N/A'
+                                                        }}</span>
+                                                    <span>SSD: {{ laptop.storage.name[:25] if laptop.storage else 'N/A'
+                                                        }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        {% if laptop.category == 'gaming' %}
+                                        <span class="badge badge-gaming">Gaming</span>
+                                        {% elif laptop.category == 'workstation' %}
+                                        <span class="badge badge-workstation">Workstation</span>
+                                        {% else %}
+                                        <span class="badge badge-laptop">💻 Laptop</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="price-main">${{ "{:,.2f}".format(laptop.sale_price) }}</div>
+                                        {% if laptop.discount_price %}
+                                        <div class="price-discount">Descuento: ${{
+                                            "{:,.2f}".format(laptop.discount_price) }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if laptop.quantity <= 0 %} <span class="badge badge-danger">Sin stock</span>
+                                            {% elif laptop.quantity <= laptop.min_alert %} <span
+                                                class="badge badge-warning">{{ laptop.quantity }} uds</span>
+                                                {% else %}
+                                                <span class="badge badge-success">{{ laptop.quantity }} uds</span>
+                                                {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="status-badges">
+                                            {% if laptop.is_published %}
+                                            <span class="badge badge-success">Publicado</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">Borrador</span>
+                                            {% endif %}
+                                            {% if laptop.is_featured %}
+                                            <span class="badge badge-warning">Destacado</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
+                                                class="action-btn" title="Ver detalle">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
                                                 </svg>
                                             </a>
                                             {% if current_user.is_admin %}
-                                            <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Editar">
-                                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                                                class="action-btn" title="Editar">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                    </path>
                                                 </svg>
                                             </a>
                                             {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
                                 {% else %}
-                                    <tr>
-                                        <td colspan="8" class="px-6 py-12 text-center">
-                                            <div class="text-gray-400">
-                                                <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                                </svg>
-                                                <p class="text-lg font-medium">No hay laptops en el inventario</p>
-                                                <p class="mt-1 text-sm">Agrega la primera laptop para comenzar</p>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                                </path>
+                                            </svg>
+                                            <h3>No hay laptops en el inventario</h3>
+                                            <p>Agrega la primera laptop para comenzar</p>
+                                        </div>
+                                    </td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    <!-- Paginación -->
-                    {% if pagination.pages > 1 %}
-                    <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-gray-700 dark:text-gray-300">
-                                Mostrando <span class="font-medium">{{ pagination.per_page * (pagination.page - 1) + 1 }}</span> a
-                                <span class="font-medium">{{ [pagination.per_page * pagination.page, pagination.total]|min }}</span> de
-                                <span class="font-medium">{{ pagination.total }}</span> resultados
-                            </div>
-                            <div class="flex space-x-2">
-                                {% if pagination.has_prev %}
-                                <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                                    Anterior
-                                </a>
+                <!-- MOBILE CARDS -->
+                <div class="laptop-cards-mobile">
+                    {% if laptops %}
+                    {% for laptop in laptops %}
+                    <div class="laptop-card animate-fade-in" data-laptop-id="{{ laptop.id }}">
+                        <div class="card-header">
+                            <input type="checkbox" value="{{ laptop.id }}" data-laptop-id="{{ laptop.id }}"
+                                data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                data-laptop-price="{{ laptop.sale_price }}"
+                                data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                class="laptop-checkbox-mobile card-checkbox">
+
+                            <div class="card-image">
+                                {% set cover_image = none %}
+                                {% for image in laptop.images if image.is_cover %}
+                                {% set cover_image = image %}
+                                {% endfor %}
+                                {% if not cover_image and laptop.images %}
+                                {% set cover_image = laptop.images[0] %}
                                 {% endif %}
-                                {% if pagination.has_next %}
-                                <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                    Siguiente
+
+                                {% if cover_image %}
+                                <img src="{{ url_for('static', filename=cover_image.image_path) }}"
+                                    alt="{{ cover_image.alt_text or laptop.display_name }}" loading="lazy">
+                                {% else %}
+                                <div class="card-image-placeholder">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-info">
+                                <h3 class="card-title">{{ laptop.brand.name if laptop.brand else 'N/A' }} {{
+                                    laptop.model.name if laptop.model else 'N/A' }}</h3>
+                                <div class="card-price">${{ "{:,.2f}".format(laptop.sale_price) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="card-badges">
+                            {% if laptop.category == 'gaming' %}
+                            <span class="badge badge-gaming">Gaming</span>
+                            {% elif laptop.category == 'workstation' %}
+                            <span class="badge badge-workstation">Workstation</span>
+                            {% else %}
+                            <span class="badge badge-laptop">💻 Laptop</span>
+                            {% endif %}
+
+                            {% if laptop.quantity <= 0 %} <span class="badge badge-danger">Sin stock</span>
+                                {% elif laptop.quantity <= laptop.min_alert %} <span class="badge badge-warning">{{
+                                    laptop.quantity }} uds</span>
+                                    {% else %}
+                                    <span class="badge badge-success">{{ laptop.quantity }} uds</span>
+                                    {% endif %}
+
+                                    {% if laptop.is_published %}
+                                    <span class="badge badge-info">Publicado</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">Borrador</span>
+                                    {% endif %}
+                        </div>
+
+                        <button class="card-expand-btn" onclick="toggleCardDetails(this)">
+                            <span>Ver detalles</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <div class="card-details">
+                            <div class="detail-row">
+                                <span class="detail-label">CPU</span>
+                                <span class="detail-value">{{ laptop.processor.name if laptop.processor else 'N/A'
+                                    }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">GPU</span>
+                                <span class="detail-value">{{ laptop.graphics_card.name if laptop.graphics_card else
+                                    'N/A' }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">RAM</span>
+                                <span class="detail-value">{{ laptop.ram.name if laptop.ram else 'N/A' }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Almacenamiento</span>
+                                <span class="detail-value">{{ laptop.storage.name if laptop.storage else 'N/A' }}</span>
+                            </div>
+                            {% if laptop.discount_price %}
+                            <div class="detail-row">
+                                <span class="detail-label">Precio con descuento</span>
+                                <span class="detail-value" style="color: var(--success);">${{
+                                    "{:,.2f}".format(laptop.discount_price) }}</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="card-actions">
+                                <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
+                                    class="action-btn btn-primary">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                    <span>Ver</span>
+                                </a>
+                                {% if current_user.is_admin %}
+                                <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                                    class="action-btn btn-outline">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg>
+                                    <span>Editar</span>
                                 </a>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                            </path>
+                        </svg>
+                        <h3>No hay laptops en el inventario</h3>
+                        <p>Agrega la primera laptop para comenzar</p>
+                    </div>
                     {% endif %}
                 </div>
+
+                <!-- PAGINATION -->
+                {% if pagination.pages > 1 %}
+                <div class="pagination-container">
+                    <!-- Desktop Pagination -->
+                    <div class="pagination-desktop">
+                        <div class="pagination-info">
+                            Mostrando <strong>{{ pagination.per_page * (pagination.page - 1) + 1 }}</strong> a
+                            <strong>{{ [pagination.per_page * pagination.page, pagination.total]|min }}</strong> de
+                            <strong>{{ pagination.total }}</strong> resultados
+                        </div>
+                        <div class="pagination-buttons">
+                            {% if pagination.has_prev %}
+                            <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}"
+                                class="btn btn-outline btn-sm">Anterior</a>
+                            {% endif %}
+                            {% if pagination.has_next %}
+                            <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}"
+                                class="btn btn-primary btn-sm">Siguiente</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Mobile Pagination -->
+                    <div class="pagination-mobile">
+                        <div class="pagination-indicator">
+                            Página {{ pagination.page }} de {{ pagination.pages }}
+                        </div>
+                        <div class="pagination-nav">
+                            {% if pagination.has_prev %}
+                            <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}"
+                                class="btn btn-outline">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Anterior
+                            </a>
+                            {% else %}
+                            <button class="btn btn-outline" disabled>
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Anterior
+                            </button>
+                            {% endif %}
+
+                            {% if pagination.has_next %}
+                            <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}"
+                                class="btn btn-primary">
+                                Siguiente
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                            {% else %}
+                            <button class="btn btn-primary" disabled>
+                                Siguiente
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
+    </div>
+
+    <!-- FLOATING FILTER BUTTON (MOBILE) -->
+    <button class="filter-fab" id="filter-fab" onclick="openFilterModal()" aria-label="Abrir filtros">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+            </path>
+        </svg>
+        <span class="filter-fab-badge" id="filter-badge" style="display: none;">0</span>
+    </button>
+
+    <!-- FILTER MODAL (MOBILE) -->
+    <div class="filter-overlay" id="filter-overlay" onclick="closeFilterModal()"></div>
+    <div class="filter-modal" id="filter-modal">
+        <div class="filter-modal-header">
+            <h3 class="filter-modal-title">Filtros</h3>
+            <button class="filter-close-btn" onclick="closeFilterModal()" aria-label="Cerrar filtros">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="filter-modal-body">
+            <form method="GET" action="{{ url_for('inventory.laptops_list') }}" id="mobile-filter-form">
+                <!-- Search -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Buscar
+                    </label>
+                    <input type="text" name="search" value="{{ request.args.get('search', '') }}"
+                        placeholder="Buscar laptops..." class="filter-input">
+                </div>
+
+                <!-- Price Range -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                        Rango de Precio
+                    </label>
+                    <div class="price-range-inputs">
+                        <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}"
+                            placeholder="Mín" class="filter-input">
+                        <span>-</span>
+                        <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}"
+                            placeholder="Máx" class="filter-input">
+                    </div>
+                </div>
+
+                <!-- Brand -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                            </path>
+                        </svg>
+                        Marca
+                    </label>
+                    <select name="brand" class="filter-select">
+                        <option value="">Todas las marcas</option>
+                        {% for brand in filter_form.brand_id.choices[1:] %}
+                        <option value="{{ brand[0] }}" {% if request.args.get('brand')==brand[0]|string %}selected{%
+                            endif %}>{{ brand[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                            </path>
+                        </svg>
+                        Categoría
+                    </label>
+                    <select name="category" class="filter-select">
+                        <option value="">Todas las categorías</option>
+                        <option value="laptop" {% if request.args.get('category')=='laptop' %}selected{% endif %}>💻
+                            Laptop</option>
+                        <option value="workstation" {% if request.args.get('category')=='workstation' %}selected{% endif
+                            %}>Workstation</option>
+                        <option value="gaming" {% if request.args.get('category')=='gaming' %}selected{% endif %}>Gaming
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Condition -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Condición
+                    </label>
+                    <select name="condition" class="filter-select">
+                        <option value="">Todas las condiciones</option>
+                        <option value="new" {% if request.args.get('condition')=='new' %}selected{% endif %}>Nuevo
+                        </option>
+                        <option value="used" {% if request.args.get('condition')=='used' %}selected{% endif %}>Usado
+                        </option>
+                        <option value="refurbished" {% if request.args.get('condition')=='refurbished' %}selected{%
+                            endif %}>Reacondicionado</option>
+                    </select>
+                </div>
+
+                <!-- Store -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
+                        </svg>
+                        Tienda
+                    </label>
+                    <select name="store" class="filter-select">
+                        <option value="">Todas las tiendas</option>
+                        {% for store in filter_form.store_id.choices[1:] %}
+                        <option value="{{ store[0] }}" {% if request.args.get('store')==store[0]|string %}selected{%
+                            endif %}>{{ store[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Sort -->
+                <div class="filter-section">
+                    <label class="filter-label">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                        </svg>
+                        Ordenar por
+                    </label>
+                    <select name="sort_by" class="filter-select">
+                        <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc'
+                            )=='entry_date_desc' %}selected{% endif %}>Más recientes</option>
+                        <option value="entry_date_asc" {% if request.args.get('sort_by')=='entry_date_asc' %}selected{%
+                            endif %}>Más antiguos</option>
+                        <option value="sale_price_asc" {% if request.args.get('sort_by')=='sale_price_asc' %}selected{%
+                            endif %}>Precio: Menor a Mayor</option>
+                        <option value="sale_price_desc" {% if request.args.get('sort_by')=='sale_price_desc'
+                            %}selected{% endif %}>Precio: Mayor a Menor</option>
+                        <option value="name_asc" {% if request.args.get('sort_by')=='name_asc' %}selected{% endif %}>
+                            Nombre A-Z</option>
+                        <option value="name_desc" {% if request.args.get('sort_by')=='name_desc' %}selected{% endif %}>
+                            Nombre Z-A</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-modal-footer">
+            <a href="{{ url_for('inventory.laptops_list') }}" class="btn btn-outline">Limpiar</a>
+            <button type="submit" form="mobile-filter-form" class="btn btn-primary">Aplicar Filtros</button>
+        </div>
+    </div>
+
+    <!-- STICKY INVOICE BAR (MOBILE) -->
+    <div class="sticky-invoice-bar" id="sticky-invoice-bar">
+        <button id="mobile-invoice-btn" class="btn btn-success" onclick="goToInvoiceForm()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
+            </svg>
+            <span>Crear Factura</span>
+            <span class="selection-count">(<span id="mobile-selected-count">0</span>)</span>
+        </button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Función para exportar a CSV
-function exportToCSV() {
-    const headers = ['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Precio', 'Stock', 'Estado'];
-    const rows = [];
-
-    // Obtener datos de las laptops visibles
-    document.querySelectorAll('.laptop-checkbox').forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        if (row) {
-            const name = row.querySelector('h3')?.textContent || '';
-            const brand = row.querySelector('.text-xs div:nth-child(1)')?.textContent?.replace('CPU: ', '') || '';
-            const model = row.querySelector('.text-xs div:nth-child(2)')?.textContent?.replace('GPU: ', '') || '';
-            const category = row.querySelector('td:nth-child(4) span')?.textContent || '';
-            const price = row.querySelector('td:nth-child(5) div:first-child')?.textContent?.replace('$', '') || '';
-            const stock = row.querySelector('td:nth-child(6) span')?.textContent || '';
-            const status = row.querySelector('td:nth-child(7) span:first-child')?.textContent || '';
-
-            rows.push([
-                checkbox.value,
-                name,
-                brand,
-                model,
-                category,
-                price,
-                stock,
-                status
-            ]);
-        }
-    });
-
-    if (rows.length === 0) {
-        alert('No hay datos para exportar');
-        return;
+    // ========================================
+    // FILTER MODAL FUNCTIONS
+    // ========================================
+    function openFilterModal() {
+        document.getElementById('filter-overlay').classList.add('active');
+        document.getElementById('filter-modal').classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'inventario_laptops.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-}
-
-// Inicializar selección de checkboxes
-document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('select-all');
-    const laptopCheckboxes = document.querySelectorAll('.laptop-checkbox');
-    const createInvoiceBtn = document.getElementById('create-invoice-btn');
-    const selectedCountSpan = document.getElementById('selected-count');
-
-    // Función para actualizar el contador y estado del botón
-    function updateSelection() {
-        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
-        const count = selectedCheckboxes.length;
-
-        // Actualizar contador
-        selectedCountSpan.textContent = count;
-
-        // Habilitar/deshabilitar botón
-        createInvoiceBtn.disabled = count === 0;
-
-        // Actualizar el checkbox "Seleccionar todos"
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = count > 0 && count === laptopCheckboxes.length;
-            selectAllCheckbox.indeterminate = count > 0 && count < laptopCheckboxes.length;
-        }
-
-        return selectedCheckboxes;
+    function closeFilterModal() {
+        document.getElementById('filter-overlay').classList.remove('active');
+        document.getElementById('filter-modal').classList.remove('active');
+        document.body.style.overflow = '';
     }
 
-    // Función para obtener los datos de las laptops seleccionadas
-    function getSelectedLaptops() {
-        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
-        const selectedLaptops = [];
+    // Count active filters and update badge
+    function updateFilterBadge() {
+        const params = new URLSearchParams(window.location.search);
+        let count = 0;
 
-        selectedCheckboxes.forEach(checkbox => {
-            selectedLaptops.push({
-                id: checkbox.dataset.laptopId,
-                name: checkbox.dataset.laptopName,
-                price: parseFloat(checkbox.dataset.laptopPrice),
-                description: checkbox.dataset.laptopDescription
-            });
+        ['search', 'min_price', 'max_price', 'brand', 'category', 'condition', 'store'].forEach(param => {
+            if (params.get(param)) count++;
         });
 
-        return selectedLaptops;
+        const badge = document.getElementById('filter-badge');
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
-    // Función para redirigir al formulario de factura
-    function goToInvoiceForm() {
-        const selectedLaptops = getSelectedLaptops();
+    // ========================================
+    // CARD EXPAND/COLLAPSE
+    // ========================================
+    function toggleCardDetails(button) {
+        const card = button.closest('.laptop-card');
+        const details = card.querySelector('.card-details');
 
-        if (selectedLaptops.length === 0) {
-            alert('Por favor, selecciona al menos una laptop');
+        button.classList.toggle('expanded');
+        details.classList.toggle('expanded');
+
+        // Update button text
+        const textSpan = button.querySelector('span');
+        if (details.classList.contains('expanded')) {
+            textSpan.textContent = 'Ocultar detalles';
+        } else {
+            textSpan.textContent = 'Ver detalles';
+        }
+    }
+
+    // ========================================
+    // CSV EXPORT
+    // ========================================
+    function exportToCSV() {
+        const headers = ['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Precio', 'Stock', 'Estado'];
+        const rows = [];
+
+        // Get data from both desktop checkboxes and mobile checkboxes
+        const checkboxes = document.querySelectorAll('.laptop-checkbox, .laptop-checkbox-mobile');
+        const processedIds = new Set();
+
+        checkboxes.forEach(checkbox => {
+            const laptopId = checkbox.dataset.laptopId;
+            if (processedIds.has(laptopId)) return;
+            processedIds.add(laptopId);
+
+            rows.push([
+                laptopId,
+                checkbox.dataset.laptopName,
+                '', // Brand (extracted from name)
+                '', // Model (extracted from name)
+                '', // Category
+                checkbox.dataset.laptopPrice,
+                '', // Stock
+                '' // Status
+            ]);
+        });
+
+        if (rows.length === 0) {
+            alert('No hay datos para exportar');
             return;
         }
 
-        // Guardar en localStorage para usar en el formulario de factura
-        localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
 
-        // Redirigir al formulario de factura
-        window.location.href = "{{ url_for('invoices.invoice_new') }}";
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'inventario_laptops.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     }
 
-    // Event listeners
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            laptopCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
+    // ========================================
+    // SELECTION MANAGEMENT
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const desktopCheckboxes = document.querySelectorAll('.laptop-checkbox');
+        const mobileCheckboxes = document.querySelectorAll('.laptop-checkbox-mobile');
+        const createInvoiceBtn = document.getElementById('create-invoice-btn');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const mobileSelectedCountSpan = document.getElementById('mobile-selected-count');
+        const stickyInvoiceBar = document.getElementById('sticky-invoice-bar');
+
+        // Sync checkboxes between desktop and mobile
+        function syncCheckboxes(sourceCheckbox) {
+            const laptopId = sourceCheckbox.dataset.laptopId;
+            const isChecked = sourceCheckbox.checked;
+
+            // Sync all checkboxes with the same laptop ID
+            document.querySelectorAll(`[data-laptop-id="${laptopId}"]`).forEach(cb => {
+                cb.checked = isChecked;
             });
-            updateSelection();
-        });
-    }
 
-    laptopCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelection);
+            // Update card visual state
+            const card = document.querySelector(`.laptop-card[data-laptop-id="${laptopId}"]`);
+            if (card) {
+                card.classList.toggle('selected', isChecked);
+            }
+        }
+
+        // Update selection count and button states
+        function updateSelection() {
+            // Count unique selected laptops
+            const selectedIds = new Set();
+            document.querySelectorAll('.laptop-checkbox:checked, .laptop-checkbox-mobile:checked').forEach(cb => {
+                selectedIds.add(cb.dataset.laptopId);
+            });
+
+            const count = selectedIds.size;
+
+            // Update counters
+            if (selectedCountSpan) selectedCountSpan.textContent = count;
+            if (mobileSelectedCountSpan) mobileSelectedCountSpan.textContent = count;
+
+            // Enable/disable invoice button
+            if (createInvoiceBtn) createInvoiceBtn.disabled = count === 0;
+
+            // Show/hide sticky bar on mobile
+            if (stickyInvoiceBar) {
+                if (count > 0) {
+                    stickyInvoiceBar.classList.add('visible');
+                } else {
+                    stickyInvoiceBar.classList.remove('visible');
+                }
+            }
+
+            // Update select all checkbox state
+            if (selectAllCheckbox) {
+                const totalCheckboxes = desktopCheckboxes.length;
+                selectAllCheckbox.checked = count > 0 && count === totalCheckboxes;
+                selectAllCheckbox.indeterminate = count > 0 && count < totalCheckboxes;
+            }
+
+            return count;
+        }
+
+        // Get selected laptops data
+        function getSelectedLaptops() {
+            const selectedIds = new Set();
+            const selectedLaptops = [];
+
+            document.querySelectorAll('.laptop-checkbox:checked, .laptop-checkbox-mobile:checked').forEach(checkbox => {
+                const laptopId = checkbox.dataset.laptopId;
+                if (!selectedIds.has(laptopId)) {
+                    selectedIds.add(laptopId);
+                    selectedLaptops.push({
+                        id: laptopId,
+                        name: checkbox.dataset.laptopName,
+                        price: parseFloat(checkbox.dataset.laptopPrice),
+                        description: checkbox.dataset.laptopDescription
+                    });
+                }
+            });
+
+            return selectedLaptops;
+        }
+
+        // Navigate to invoice form
+        window.goToInvoiceForm = function () {
+            const selectedLaptops = getSelectedLaptops();
+
+            if (selectedLaptops.length === 0) {
+                alert('Por favor, selecciona al menos una laptop');
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+
+            // Redirect to invoice form
+            window.location.href = "{{ url_for('invoices.invoice_new') }}";
+        };
+
+        // Event listeners for select all
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = this.checked;
+                desktopCheckboxes.forEach(cb => {
+                    cb.checked = isChecked;
+                    syncCheckboxes(cb);
+                });
+                updateSelection();
+            });
+        }
+
+        // Event listeners for desktop checkboxes
+        desktopCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                syncCheckboxes(this);
+                updateSelection();
+            });
+        });
+
+        // Event listeners for mobile checkboxes
+        mobileCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                syncCheckboxes(this);
+                updateSelection();
+            });
+        });
+
+        // Event listener for create invoice button
+        if (createInvoiceBtn) {
+            createInvoiceBtn.addEventListener('click', goToInvoiceForm);
+        }
+
+        // Initialize
+        updateSelection();
+        updateFilterBadge();
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeFilterModal();
+            }
+        });
     });
 
-    if (createInvoiceBtn) {
-        createInvoiceBtn.addEventListener('click', goToInvoiceForm);
+    // Debounce function for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
-
-    // Inicializar el estado de selección
-    updateSelection();
-});
 </script>
 {% endblock %}

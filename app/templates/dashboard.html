@@ -5,7 +5,6 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.css" rel="stylesheet">
 <style>
-    /* Variables CSS modernas */
     :root {
         --primary: #6366f1;
         --primary-dark: #4f46e5;
@@ -15,110 +14,103 @@
         --info: #3b82f6;
         --dark: #1f2937;
         --light: #f9fafb;
-        --sidebar-width: 250px;
-        --header-height: 64px;
     }
 
-    /* Layout principal */
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: #f9fafb;
+        overflow-x: hidden;
+        width: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
     .dashboard-layout {
         display: grid;
         grid-template-columns: 1fr;
         min-height: 100vh;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
-    /* Sidebar moderna */
-    .dashboard-sidebar {
-        background: linear-gradient(180deg, var(--dark) 0%, #111827 100%);
-        color: white;
-        position: fixed;
-        width: var(--sidebar-width);
-        height: 100vh;
-        overflow-y: auto;
-        z-index: 50;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .sidebar-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar-nav {
-        padding: 1rem 0;
-    }
-
-    .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem;
-        color: #9ca3af;
-        text-decoration: none;
-        transition: all 0.2s;
-        border-left: 3px solid transparent;
-    }
-
-    .nav-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
-        border-left-color: var(--primary);
-    }
-
-    .nav-item.active {
-        background: rgba(99, 102, 241, 0.1);
-        color: white;
-        border-left-color: var(--primary);
-    }
-
-    .nav-icon {
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Contenido principal */
     .dashboard-main {
         background: #f9fafb;
         min-height: 100vh;
+        width: 100%;
+        position: relative;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .dashboard-header {
         background: white;
         border-bottom: 1px solid #e5e7eb;
-        padding: 1rem 2rem;
+        padding: 1rem;
         position: sticky;
         top: 0;
         z-index: 40;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        width: 100%;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--dark);
+        line-height: 1.2;
+    }
+
+    .header-subtitle {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 2px;
+        display: block;
     }
 
     .header-actions {
         display: flex;
-        gap: 1rem;
+        gap: 0.5rem;
         align-items: center;
+        flex-shrink: 0;
+    }
+
+    .period-selector-mobile {
+        width: 100%;
+        margin-top: 0.5rem;
+        display: none;
     }
 
     .period-selector {
         display: flex;
         background: #f3f4f6;
-        border-radius: 8px;
-        padding: 4px;
+        border-radius: 10px;
+        padding: 3px;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+
+    .period-selector::-webkit-scrollbar {
+        display: none;
     }
 
     .period-btn {
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.75rem;
         border: none;
         background: transparent;
         color: #6b7280;
         font-weight: 500;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-decoration: none;
     }
 
     .period-btn:hover {
@@ -131,48 +123,49 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    /* Contenedor principal */
     .dashboard-container {
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
+        padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
-    /* Grid de métricas */
     .metrics-grid {
         display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
     @media (min-width: 768px) {
         .metrics-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
         }
     }
 
     @media (min-width: 1024px) {
         .metrics-grid {
             grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
         }
     }
 
-    /* Tarjetas de métricas */
     .metric-card {
         background: white;
         border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .metric-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         border-color: var(--primary);
     }
 
@@ -182,7 +175,7 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
+        height: 3px;
         background: linear-gradient(90deg, var(--primary), var(--primary-dark));
     }
 
@@ -190,187 +183,153 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
 
     .metric-icon {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         color: white;
     }
 
-    .metric-icon.primary { background: var(--primary); }
-    .metric-icon.success { background: var(--success); }
-    .metric-icon.warning { background: var(--warning); }
-    .metric-icon.danger { background: var(--danger); }
+    .metric-icon.primary {
+        background: var(--primary);
+    }
+
+    .metric-icon.success {
+        background: var(--success);
+    }
+
+    .metric-icon.warning {
+        background: var(--warning);
+    }
+
+    .metric-icon.danger {
+        background: var(--danger);
+    }
+
+    .metric-icon.info {
+        background: var(--info);
+    }
 
     .metric-trend {
         display: flex;
         align-items: center;
         gap: 0.25rem;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         font-weight: 600;
     }
 
-    .trend-up { color: var(--success); }
-    .trend-down { color: var(--danger); }
-    .trend-neutral { color: #6b7280; }
+    .trend-up {
+        color: var(--success);
+    }
+
+    .trend-down {
+        color: var(--danger);
+    }
+
+    .trend-neutral {
+        color: #6b7280;
+    }
 
     .metric-value {
-        font-size: 2rem;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: var(--dark);
-        margin-bottom: 0.5rem;
-        line-height: 1;
+        margin-bottom: 0.25rem;
+        line-height: 1.2;
     }
 
     .metric-label {
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         color: #6b7280;
         font-weight: 500;
+        line-height: 1.3;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 
     .metric-subtext {
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         color: #9ca3af;
-        margin-top: 0.25rem;
+        margin-top: 0.125rem;
+        line-height: 1.2;
     }
 
-    /* Secciones */
     .section {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .section-title {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--dark);
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .section-title-icon {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         background: var(--primary);
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
+        font-size: 0.875rem;
     }
 
-    /* Gráficos */
     .chart-container {
         background: white;
         border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .chart-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
     }
 
     .chart-title {
-        font-size: 1.125rem;
+        font-size: 1rem;
         font-weight: 600;
         color: var(--dark);
+        line-height: 1.3;
     }
 
-    /* Reporte IA - AHORA COMPACTADO */
-    .ai-report-card {
-        background: linear-gradient(135deg, var(--dark) 0%, #374151 100%);
-        color: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .ai-report-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    .ai-report-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
-    }
-
-    .ai-report-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    .ai-report-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .ai-report-content {
-        position: relative;
-        z-index: 1;
-        line-height: 1.6;
-        white-space: pre-line;
-        margin-top: 1.5rem;
-        max-height: 500px;
-        overflow-y: auto;
-        transition: all 0.3s ease;
-        padding-right: 1rem;
-    }
-
-    .ai-report-content.collapsed {
-        max-height: 0;
-        margin-top: 0;
-        overflow: hidden;
-    }
-
-    /* Botones */
     .btn {
-        padding: 0.625rem 1.25rem;
-        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
         font-weight: 500;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         cursor: pointer;
         transition: all 0.2s;
         border: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.375rem;
+        min-height: 40px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-primary {
@@ -394,18 +353,32 @@
         background: rgba(99, 102, 241, 0.1);
     }
 
-    /* Tablas */
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .data-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
     .data-table {
         width: 100%;
         background: white;
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        min-width: 600px;
     }
 
     .data-table th {
         background: #f9fafb;
-        padding: 1rem;
+        padding: 0.75rem;
         text-align: left;
         font-weight: 600;
         color: #374151;
@@ -413,28 +386,30 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        white-space: nowrap;
     }
 
     .data-table td {
-        padding: 1rem;
+        padding: 0.75rem;
         border-bottom: 1px solid #f3f4f6;
         color: #6b7280;
+        font-size: 0.875rem;
     }
 
     .data-table tr:hover {
         background: #f9fafb;
     }
 
-    /* Badges */
     .badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.25rem 0.75rem;
+        padding: 0.25rem 0.5rem;
         border-radius: 9999px;
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        white-space: nowrap;
     }
 
     .badge-success {
@@ -457,14 +432,13 @@
         color: #1e40af;
     }
 
-    /* Alertas */
     .alert {
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
+        padding: 0.875rem;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
         display: flex;
         align-items: flex-start;
-        gap: 0.75rem;
+        gap: 0.5rem;
         border-left: 4px solid;
     }
 
@@ -492,179 +466,477 @@
         color: #166534;
     }
 
-    /* Grid de gráficos */
     .charts-grid {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     @media (min-width: 1024px) {
         .charts-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
         }
     }
 
-    /* Chatbot */
-    .chatbot-toggle {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: var(--primary);
-        color: white;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-        z-index: 100;
-        transition: all 0.3s;
-    }
-
-    .chatbot-toggle:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
-    }
-
-    .chatbot-window {
-        position: fixed;
-        bottom: 5rem;
-        right: 2rem;
-        width: 350px;
-        height: 500px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .chatbot-header {
-        background: var(--primary);
-        color: white;
-        padding: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .chatbot-messages {
-        flex: 1;
-        padding: 1rem;
-        overflow-y: auto;
-        background: #f9fafb;
-    }
-
-    .chatbot-input {
-        padding: 1rem;
-        border-top: 1px solid #e5e7eb;
-        background: white;
-    }
-
-    .message {
-        margin-bottom: 1rem;
-        max-width: 80%;
-    }
-
-    .message-user {
-        margin-left: auto;
-        background: var(--primary);
-        color: white;
-        padding: 0.75rem 1rem;
-        border-radius: 12px 12px 0 12px;
-    }
-
-    .message-bot {
-        margin-right: auto;
-        background: white;
-        color: #374151;
-        padding: 0.75rem 1rem;
-        border-radius: 12px 12px 12px 0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Animaciones */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-in {
-        animation: fadeIn 0.3s ease-out;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .dashboard-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .dashboard-main {
-            margin-left: 0;
-        }
-
-        .dashboard-header {
-            padding: 1rem;
-        }
-
-        .dashboard-container {
-            padding: 1rem;
-        }
-
-        .chatbot-window {
-            width: calc(100% - 2rem);
-            right: 1rem;
-            left: 1rem;
-        }
-    }
-
-    /* Loader */
-    .loader {
-        border: 3px solid #f3f4f6;
-        border-top: 3px solid var(--primary);
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Empty states */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #9ca3af;
-    }
-
-    .empty-state-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    /* Icono de información */
     .info-icon {
         color: #9ca3af;
         cursor: help;
-        font-size: 0.875rem;
-        margin-left: 0.25rem;
+        font-size: 0.75rem;
         transition: color 0.2s;
+        position: relative;
     }
 
     .info-icon:hover {
         color: var(--primary);
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .list-item:hover {
+        background: #f3f4f6;
+        border-color: #e5e7eb;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-in {
+        animation: fadeIn 0.25s ease-out;
+    }
+
+    .loader {
+        border: 2px solid #f3f4f6;
+        border-top: 2px solid var(--primary);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #9ca3af;
+    }
+
+    /* Optimizaciones específicas para móvil */
+    @media (max-width: 767px) {
+        .dashboard-header {
+            padding: 12px 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            width: 100%;
+            order: 1;
+            line-height: 1.3;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            width: 100%;
+            order: 3;
+            margin-top: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .refresh-btn {
+            display: none !important;
+        }
+
+        .period-selector-mobile {
+            display: block;
+            order: 2;
+        }
+
+        .period-selector-desktop {
+            display: none;
+        }
+
+        .period-selector {
+            padding: 4px;
+            gap: 2px;
+        }
+
+        .period-btn {
+            padding: 8px 10px;
+            font-size: 13px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex: 1 1 auto;
+        }
+
+        .dashboard-container {
+            padding: 16px;
+            padding-bottom: 80px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Ajuste para Salud Financiera: 2 recuadros por línea */
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            padding: 16px;
+            border-radius: 14px;
+            min-height: 140px;
+        }
+
+        .metric-card:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        .metric-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .metric-subtext {
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .charts-grid {
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 20px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            line-height: 1.3;
+        }
+
+        .chart-header span {
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .chart-container {
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+
+        #salesChart,
+        #brandChart,
+        #categoryChart,
+        #conditionChart {
+            height: 260px !important;
+        }
+
+        .apexcharts-canvas {
+            touch-action: pan-y pinch-zoom;
+        }
+
+        .btn {
+            min-height: 48px;
+            padding: 14px 20px;
+            font-size: 15px;
+            border-radius: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        .list-item {
+            padding: 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+        }
+
+        .list-item:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        .grid {
+            gap: 12px !important;
+        }
+
+        .grid-cols-1,
+        .grid-cols-2,
+        .grid-cols-3,
+        .grid-cols-4 {
+            gap: 12px;
+        }
+
+        .lg\:col-span-2 {
+            grid-column: span 1;
+        }
+
+        .data-table-container {
+            margin: 0 -16px;
+            width: calc(100% + 32px);
+        }
+
+        .data-table {
+            min-width: 700px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-icon {
+            font-size: 14px;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Gestión de Inventario: 2 recuadros por línea */
+        .grid.mb-6[style*="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))"] {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px;
+        }
+
+        .grid.mb-6[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px;
+        }
+
+        .grid[style*="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+            gap: 16px;
+        }
+
+        .grid[style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Optimización específica para el grid de actividades recientes */
+        .section .grid[style*="grid-template-columns: 1fr"] {
+            gap: 1rem !important;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .chart-container {
+            margin-bottom: 0;
+            padding: 14px;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .data-table-container {
+            margin: 0;
+            width: 100%;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .data-table {
+            min-width: 100%;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .chart-title {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .data-table th,
+        .section .grid[style*="grid-template-columns: 1fr"] .data-table td {
+            padding: 10px 8px;
+            font-size: 12px;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .data-table th {
+            font-size: 11px;
+            padding: 10px;
+        }
+
+        .section .grid[style*="grid-template-columns: 1fr"] .badge {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        /* Ajustar para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .period-btn {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .metric-card {
+                min-height: 130px;
+                padding: 14px;
+            }
+
+            .metric-value {
+                font-size: 20px;
+            }
+
+            .section .grid[style*="grid-template-columns: 1fr"] .data-table {
+                min-width: 600px;
+            }
+
+            .section .grid[style*="grid-template-columns: 1fr"] .data-table th,
+            .section .grid[style*="grid-template-columns: 1fr"] .data-table td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .section .grid[style*="grid-template-columns: 1fr"] .chart-title {
+                font-size: 14px;
+            }
+        }
+
+        /* Prevenir zoom en inputs en iOS */
+        input,
+        select,
+        textarea {
+            font-size: 16px;
+        }
+
+        .hidden-xs {
+            display: none !important;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .dashboard-container {
+            padding: 1.25rem;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .period-selector-mobile {
+            display: none;
+        }
+
+        .period-selector-desktop {
+            display: flex;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Ajuste para Desktop: Salud Financiera en una sola línea horizontal */
+        .metrics-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 1.5rem;
+        }
+
+        .period-selector-mobile {
+            display: none;
+        }
+
+        .period-selector-desktop {
+            display: flex;
+        }
+
+        .dashboard-header {
+            padding: 1rem 2rem;
+            flex-wrap: nowrap;
+        }
+
+        .header-title {
+            width: auto;
+            order: 1;
+        }
+
+        .header-actions {
+            width: auto;
+            order: 2;
+            margin-top: 0;
+        }
+
+        .refresh-btn {
+            display: inline-flex !important;
+        }
     }
 </style>
 {% endblock %}
@@ -673,37 +945,44 @@
 <div class="dashboard-layout">
     <!-- Contenido principal -->
     <main class="dashboard-main">
-        <!-- Header -->
+        <!-- Header optimizado para móvil -->
         <header class="dashboard-header">
             <div>
-                <h1 class="text-xl font-bold text-gray-900">
+                <h1 class="header-title">
                     Dashboard Premium
-                    <span class="text-sm font-normal text-gray-500 ml-2">{{ period_label }}</span>
+                    <span class="header-subtitle">{{ financial_data.period_label }}</span>
                 </h1>
             </div>
 
-            <div class="header-actions">
-                <!-- Selector de período -->
+            <!-- Selector de período móvil -->
+            <div class="period-selector-mobile">
                 <div class="period-selector">
-                    {% for period_key, period_label in periods.items() %}
-                    <button class="period-btn {% if current_period == period_key %}active{% endif %}"
-                            onclick="window.location.href='{{ url_for('dashboard.index', period=period_key) }}'">
-                        {{ period_label }}
-                    </button>
+                    {% for key, label in periods.items() %}
+                    <a href="{{ url_for('dashboard.index', period=key) }}"
+                        class="period-btn {% if current_period == key %}active{% endif %}">
+                        {{ label.replace('Este ', '').replace('Esta ', '') }}
+                    </a>
                     {% endfor %}
                 </div>
+            </div>
 
-                <!-- Botón de actualizar -->
-                <button onclick="refreshDashboard()" class="btn btn-outline">
+            <div class="header-actions">
+                <!-- Botón de actualizar (oculto en móvil) -->
+                <button onclick="refreshDashboard()" class="btn btn-outline btn-icon refresh-btn">
                     <i class="fas fa-sync-alt"></i>
-                    Actualizar
                 </button>
 
-                <!-- Botón de reporte -->
-                <button onclick="generateReport()" class="btn btn-primary" id="generateReportBtn">
-                    <i class="fas fa-file-alt"></i>
-                    Reporte
-                </button>
+                <!-- Selector de período desktop -->
+                <div class="period-selector-desktop">
+                    <div class="period-selector">
+                        {% for key, label in periods.items() %}
+                        <a href="{{ url_for('dashboard.index', period=key) }}"
+                            class="period-btn {% if current_period == key %}active{% endif %}">
+                            {{ label }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -727,16 +1006,20 @@
                             <div class="metric-icon primary">
                                 <i class="fas fa-dollar-sign"></i>
                             </div>
-                            <div class="metric-trend {{ growth_indicators.revenue.class }}">
-                                <i class="fas {{ growth_indicators.revenue.icon }}"></i>
-                                <span>{{ growth_indicators.revenue.text }}</span>
+                            <div class="metric-trend trend-{{ financial_data.sales.trend.class }}">
+                                <i class="fas {{ financial_data.sales.trend.icon }}"></i>
+                                <span>{{ "%.1f"|format(financial_data.sales.growth) }}%</span>
                             </div>
                         </div>
                         <div class="metric-value">
-                            ${{ "{:,.2f}".format(revenue_current) }}
+                            ${{ "{:,.0f}".format(financial_data.sales.current) }}
                         </div>
-                        <p class="metric-label">Ventas Totales</p>
-                        <p class="metric-subtext">Período {{ period_label }}</p>
+                        <p class="metric-label">
+                            Ventas Totales
+                            <i class="fas fa-info-circle info-icon"
+                                title="Ingresos brutos generados en el período seleccionado."></i>
+                        </p>
+                        <p class="metric-subtext">Período {{ financial_data.period_label }}</p>
                     </div>
 
                     <!-- Utilidad Neta -->
@@ -745,16 +1028,43 @@
                             <div class="metric-icon success">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
-                            <div class="metric-trend {{ growth_indicators.profit.class }}">
-                                <i class="fas {{ growth_indicators.profit.icon }}"></i>
+                            <div
+                                class="metric-trend trend-{{ 'up' if growth_indicators.profit.class == 'positive' else 'down' if growth_indicators.profit.class == 'negative' else 'neutral' }}">
+                                <i class="fas fa-{{ growth_indicators.profit.icon }}"></i>
                                 <span>{{ growth_indicators.profit.text }}</span>
                             </div>
                         </div>
                         <div class="metric-value">
-                            ${{ "{:,.2f}".format(net_profit_current) }}
+                            ${{ "{:,.0f}".format(net_profit_current) }}
                         </div>
-                        <p class="metric-label">Utilidad Neta</p>
-                        <p class="metric-subtext">Margen: {{ net_margin_current|round(1) }}%</p>
+                        <p class="metric-label">
+                            Utilidad Neta
+                            <i class="fas fa-info-circle info-icon"
+                                title="Ganancia real después de restar costos de productos y gastos operativos."></i>
+                        </p>
+                        <p class="metric-subtext">Margen: {{ "%.1f"|format(net_margin_current) }}%</p>
+                    </div>
+
+                    <!-- Transacciones -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon info">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="metric-trend trend-{{ growth_indicators.orders.class }}">
+                                <i class="fas fa-{{ growth_indicators.orders.icon }}"></i>
+                                <span>{{ growth_indicators.orders.text }}</span>
+                            </div>
+                        </div>
+                        <div class="metric-value">
+                            {{ orders_current }}
+                        </div>
+                        <p class="metric-label">
+                            Transacciones
+                            <i class="fas fa-info-circle info-icon"
+                                title="Número total de facturas emitidas y activas en el período."></i>
+                        </p>
+                        <p class="metric-subtext">Este {{ current_period }}</p>
                     </div>
 
                     <!-- Punto de Equilibrio -->
@@ -765,45 +1075,38 @@
                             </div>
                         </div>
                         <div class="metric-value">
-                            ${{ "{:,.2f}".format(break_even_point) }}
+                            ${{ "{:,.0f}".format(break_even_point) }}
                         </div>
-                        <p class="metric-label">Punto de Equilibrio</p>
+                        <p class="metric-label">
+                            Punto de Equilibrio
+                            <i class="fas fa-info-circle info-icon"
+                                title="Monto de ventas necesario para cubrir todos los costos y gastos operativos."></i>
+                        </p>
                         <p class="metric-subtext">Cobertura de gastos operativos</p>
-                    </div>
-
-                    <!-- Rotación de Inventario -->
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <div class="metric-icon info">
-                                <i class="fas fa-sync-alt"></i>
-                            </div>
-                        </div>
-                        <div class="metric-value">
-                            {{ inventory_turnover|round(1) }}x
-                        </div>
-                        <p class="metric-label">Rotación de Inventario</p>
-                        <p class="metric-subtext">{{ avg_inventory_days|round(0) }} días promedio</p>
                     </div>
                 </div>
             </div>
 
             <!-- Gráficos principales -->
             <div class="charts-grid">
-                <!-- Tendencia de Ventas -->
+                <!-- Tendencia de Ventas - REEMPLAZADO CON VERSIÓN DE OLD -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <div>
                             <h3 class="chart-title">
                                 Tendencia de Ventas
-                                <i class="fas fa-info-circle info-icon" title="Muestra la evolución de ventas y ganancias a lo largo del tiempo. Las barras representan ventas y la línea la ganancia neta."></i>
+                                <i class="fas fa-info-circle info-icon"
+                                    title="Muestra la evolución de ventas y ganancias a lo largo del tiempo. Las barras representan ventas y la línea la ganancia neta."></i>
                             </h3>
-                            <div class="flex gap-2 text-sm mt-1">
-                                <span class="flex items-center gap-1">
-                                    <span class="w-3 h-3 bg-primary rounded-full"></span>
+                            <div style="display: flex; gap: 0.5rem; font-size: 0.875rem; margin-top: 0.25rem;">
+                                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                    <span
+                                        style="width: 12px; height: 12px; background-color: var(--primary); border-radius: 50%;"></span>
                                     Ventas
                                 </span>
-                                <span class="flex items-center gap-1">
-                                    <span class="w-3 h-3 bg-success rounded-full"></span>
+                                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                    <span
+                                        style="width: 12px; height: 12px; background-color: var(--success); border-radius: 50%;"></span>
                                     Ganancia
                                 </span>
                             </div>
@@ -818,88 +1121,41 @@
                         <div>
                             <h3 class="chart-title">
                                 Rendimiento por Marca
-                                <i class="fas fa-info-circle info-icon" title="Compara el volumen de ventas (barras) y el margen promedio (línea) por marca. Solo muestra marcas con ventas reales en el período."></i>
+                                <i class="fas fa-info-circle info-icon"
+                                    title="Compara el volumen de ventas (barras) y el margen promedio (línea) por marca. Solo muestra marcas con ventas reales en el período."></i>
                             </h3>
-                            <span class="text-sm text-gray-500">Ventas vs Margen</span>
+                            <span style="font-size: 0.875rem; color: #6b7280;">Ventas vs Margen</span>
                         </div>
                     </div>
                     <div id="brandChart" style="height: 300px;"></div>
                 </div>
-            </div>
 
-            <!-- Matriz BCG y Productos -->
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <div class="section-title-icon">
-                            <i class="fas fa-chart-network"></i>
+                <!-- Rendimiento por Categoría -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">
+                                Rendimiento por Categoría
+                                <i class="fas fa-info-circle info-icon"
+                                    title="Análisis de ventas y unidades por categorías de productos."></i>
+                            </h3>
                         </div>
-                        Estrategia de Productos
-                    </h2>
+                    </div>
+                    <div id="categoryChart" style="height: 280px;"></div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <!-- Matriz BCG -->
-                    <div class="lg:col-span-2">
-                        <div class="chart-container">
-                            <div class="chart-header">
-                                <div>
-                                    <h3 class="chart-title">
-                                        Matriz BCG
-                                        <i class="fas fa-info-circle info-icon" title="Clasifica productos por participación de mercado (eje X) y tasa de crecimiento (eje Y). El tamaño del punto indica volumen de ventas."></i>
-                                    </h3>
-                                    <div class="flex gap-4 text-xs mt-1">
-                                        <span class="flex items-center gap-1">
-                                            <span class="w-3 h-3 bg-primary rounded-full"></span>
-                                            Estrella
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <span class="w-3 h-3 bg-success rounded-full"></span>
-                                            Vaca Lechera
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <span class="w-3 h-3 bg-warning rounded-full"></span>
-                                            Oportunidad
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
-                                            Riesgo
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="bcgChart" style="height: 400px;"></div>
-                        </div>
-                    </div>
-
-                    <!-- Top Productos Rentables -->
-                    <div class="chart-container">
-                        <div class="chart-header">
+                <!-- Rendimiento por Condición -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div>
                             <h3 class="chart-title">
-                                Top Productos (Profit)
-                                <i class="fas fa-info-circle info-icon" title="Productos con mayor ganancia total. Basado en ventas reales y márgenes calculados."></i>
+                                Rendimiento por Condición
+                                <i class="fas fa-info-circle info-icon"
+                                    title="Comparativa de rendimiento entre productos nuevos, usados y reacondicionados."></i>
                             </h3>
-                            <a href="{{ url_for('inventory.laptops_list') }}" class="text-sm text-primary hover:underline">
-                                Ver todos
-                            </a>
-                        </div>
-                        <div class="space-y-4">
-                            {% for product in top_profitable[:5] %}
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ product.name }}</p>
-                                    <p class="text-sm text-gray-500">{{ product.category }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-bold text-gray-900">${{ "{:,.0f}".format(product.profit) }}</p>
-                                    <p class="text-sm {{ 'text-success' if product.margin > 20 else 'text-warning' if product.margin > 10 else 'text-danger' }}">
-                                        {{ product.margin|round(1) }}% margen
-                                    </p>
-                                </div>
-                            </div>
-                            {% endfor %}
                         </div>
                     </div>
+                    <div id="conditionChart" style="height: 280px;"></div>
                 </div>
             </div>
 
@@ -914,7 +1170,8 @@
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="grid mb-6"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
                     <!-- Valor en Bodega -->
                     <div class="metric-card">
                         <div class="metric-header">
@@ -923,7 +1180,7 @@
                             </div>
                         </div>
                         <div class="metric-value">
-                            ${{ "{:,.2f}".format(inventory_value) }}
+                            ${{ "{:,.0f}".format(inventory_data.summary.inventory_value) }}
                         </div>
                         <p class="metric-label">Valor en Bodega</p>
                         <p class="metric-subtext">Costo total del inventario</p>
@@ -937,7 +1194,7 @@
                             </div>
                         </div>
                         <div class="metric-value">
-                            {{ total_available }}
+                            {{ inventory_data.summary.available_stock }}
                         </div>
                         <p class="metric-label">Stock Disponible</p>
                         <p class="metric-subtext">Unidades listas para vender</p>
@@ -951,7 +1208,7 @@
                             </div>
                         </div>
                         <div class="metric-value">
-                            {{ low_stock_count }}
+                            {{ inventory_data.summary.low_stock_count }}
                         </div>
                         <p class="metric-label">Stock Bajo</p>
                         <p class="metric-subtext">Requiere reabastecimiento</p>
@@ -965,148 +1222,364 @@
                             </div>
                         </div>
                         <div class="metric-value">
-                            {{ dead_stock_count }}
+                            {{ inventory_data.summary.dead_stock_count }}
                         </div>
                         <p class="metric-label">Stock Muerto</p>
                         <p class="metric-subtext">Sin movimiento en 90 días</p>
                     </div>
                 </div>
 
-                <!-- Alertas -->
-                {% if alerts %}
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Alertas Prioritarias</h3>
-                    <div class="space-y-3">
-                        {% for alert in alerts %}
-                        <div class="alert alert-{{ alert.type }}">
-                            <i class="fas fa-{{ alert.icon }} mt-1"></i>
-                            <div class="flex-1">
-                                <h4 class="font-semibold">{{ alert.title }}</h4>
-                                <p class="text-sm mt-1">{{ alert.message }}</p>
-                                {% if alert.link %}
-                                <a href="{{ url_for(alert.link) }}" class="text-sm font-medium mt-2 inline-block">
-                                    {{ alert.action }} →
-                                </a>
-                                {% endif %}
+                <!-- Rotación de Inventario -->
+                <div class="grid mb-6"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon info">
+                                <i class="fas fa-sync-alt"></i>
                             </div>
                         </div>
-                        {% endfor %}
+                        <div class="metric-value">
+                            {{ "%.1f"|format(inventory_data.summary.turnover) }}x
+                        </div>
+                        <p class="metric-label">Rotación de Inventario</p>
+                        <p class="metric-subtext">{{ "%.0f"|format(inventory_data.summary.avg_days) }} días promedio
+                        </p>
                     </div>
-                </div>
-                {% endif %}
 
-                <!-- Insights de IA -->
-                {% if insights %}
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Insights de IA</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {% for insight in insights %}
-                        <div class="bg-white p-4 rounded-lg border {{ 'border-success' if insight.type == 'success' else 'border-warning' if insight.type == 'warning' else 'border-info' }} shadow-sm">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 rounded-lg {{ 'bg-success' if insight.type == 'success' else 'bg-warning' if insight.type == 'warning' else 'bg-info' }} flex items-center justify-center text-white">
-                                    <i class="fas fa-{{ insight.icon }}"></i>
-                                </div>
-                                <h4 class="font-semibold text-gray-900">{{ insight.title }}</h4>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon success">
+                                <i class="fas fa-chart-line"></i>
                             </div>
-                            <p class="text-gray-700 mb-3">{{ insight.message }}</p>
-                            <p class="text-sm text-gray-600 italic">💡 {{ insight.suggestion }}</p>
                         </div>
-                        {% endfor %}
+                        <div class="metric-value">
+                            ${{ "{:,.0f}".format(inventory_data.summary.potential_profit) }}
+                        </div>
+                        <p class="metric-label">Potencial de Ganancia</p>
+                        <p class="metric-subtext">Valor de venta: ${{
+                            "{:,.0f}".format(inventory_data.summary.inventory_sale_value) }}</p>
                     </div>
                 </div>
-                {% endif %}
+
             </div>
 
-            <!-- Actividad Reciente -->
+
+            <!-- Rendimiento de Productos (Rediseñado) - AJUSTADO PARA RESPONSIVO -->
+            <style>
+                /* Grid principal de rendimiento de productos */
+                .performance-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                }
+
+                @media (min-width: 768px) {
+                    .performance-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+
+                @media (min-width: 1024px) {
+                    .performance-grid {
+                        grid-template-columns: repeat(3, 1fr);
+                    }
+                }
+
+                .performance-card {
+                    background: white;
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                }
+
+                .performance-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+                }
+
+                .performance-card-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                    gap: 1rem;
+                }
+
+                .performance-icon-box {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.25rem;
+                }
+
+                .performance-title-group h3 {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    color: #1a1a1a;
+                }
+
+                .performance-title-group p {
+                    margin: 0;
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                    font-weight: 500;
+                }
+
+                .performance-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    flex: 1;
+                }
+
+                .performance-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.75rem;
+                    border-radius: 12px;
+                    background: #f9fafb;
+                    border: 1px solid #f3f4f6;
+                    transition: background 0.2s ease;
+                }
+
+                .performance-item:hover {
+                    background: #f3f4f6;
+                }
+
+                .performance-item-info {
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .performance-item-name {
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    color: #111827;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin: 0;
+                }
+
+                .performance-item-sub {
+                    font-size: 0.7rem;
+                    color: #6b7280;
+                    margin-top: 2px;
+                }
+
+                .performance-item-value {
+                    text-align: right;
+                    margin-left: 1rem;
+                    min-width: 70px;
+                }
+
+                .performance-main-val {
+                    font-weight: 700;
+                    font-size: 1.05rem;
+                    margin: 0;
+                    line-height: 1;
+                }
+
+                .performance-label {
+                    font-size: 0.65rem;
+                    color: #9ca3af;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    margin-top: 4px;
+                }
+
+                /* Colors */
+                .bg-sales {
+                    background: #fff7ed;
+                    color: #ea580c;
+                }
+
+                .text-sales {
+                    color: #ea580c;
+                }
+
+                .bg-profit {
+                    background: #ecfdf5;
+                    color: #059669;
+                }
+
+                .text-profit {
+                    color: #059669;
+                }
+
+                .bg-revenue {
+                    background: #eef2ff;
+                    color: #4f46e5;
+                }
+
+                .text-revenue {
+                    color: #4f46e5;
+                }
+
+                /* Ajustes para móvil */
+                @media (max-width: 767px) {
+                    .performance-grid {
+                        gap: 1rem;
+                    }
+
+                    .performance-card {
+                        padding: 1.25rem;
+                        border-radius: 14px;
+                    }
+
+                    .performance-card-header {
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .performance-icon-box {
+                        width: 42px;
+                        height: 42px;
+                        font-size: 1.1rem;
+                    }
+
+                    .performance-title-group h3 {
+                        font-size: 1rem;
+                    }
+
+                    .performance-title-group p {
+                        font-size: 0.7rem;
+                    }
+
+                    .performance-item {
+                        padding: 0.625rem;
+                    }
+
+                    .performance-item-name {
+                        font-size: 0.8125rem;
+                    }
+
+                    .performance-item-sub {
+                        font-size: 0.65rem;
+                    }
+
+                    .performance-item-value {
+                        margin-left: 0.75rem;
+                        min-width: 65px;
+                    }
+
+                    .performance-main-val {
+                        font-size: 0.95rem;
+                    }
+
+                    .performance-label {
+                        font-size: 0.6rem;
+                    }
+                }
+
+                /* Ajustes para tablet */
+                @media (min-width: 768px) and (max-width: 1023px) {
+                    .performance-grid {
+                        gap: 1.25rem;
+                    }
+
+                    .performance-card {
+                        padding: 1.375rem;
+                    }
+                }
+            </style>
+
             <div class="section">
                 <div class="section-header">
                     <h2 class="section-title">
                         <div class="section-title-icon">
-                            <i class="fas fa-history"></i>
+                            <i class="fas fa-medal"></i>
                         </div>
-                        Actividad Reciente
+                        Rendimiento de Productos
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Facturas Recientes -->
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3 class="chart-title">
-                                Facturas Recientes
-                                <i class="fas fa-info-circle info-icon" title="Últimas facturas generadas con su estado y monto total."></i>
-                            </h3>
-                            <a href="{{ url_for('invoices.invoices_list') }}" class="text-sm text-primary hover:underline">
-                                Ver todas
-                            </a>
+                <!-- Cambié la clase de metrics-grid a performance-grid -->
+                <div class="performance-grid">
+                    <!-- Más Vendidos -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <div class="performance-icon-box bg-sales">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="performance-title-group">
+                                <h3>Más Vendidos</h3>
+                                <p>Por volumen de unidades</p>
+                            </div>
                         </div>
-                        <div class="space-y-3">
-                            {% for invoice in recent_invoices %}
-                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ invoice.invoice_number }}</p>
-                                    <p class="text-sm text-gray-500">{{ invoice.customer_name if invoice.customer_name else 'Cliente' }}</p>
+                        <div class="performance-list">
+                            {% for item in top_products[:4] %}
+                            <div class="performance-item">
+                                <div class="performance-item-info">
+                                    <p class="performance-item-name">{{ item.brand }} {{ item.model }}</p>
+                                    <p class="performance-item-sub">SKU: {{ item.sku }} • {{ item.category }}</p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="font-bold text-gray-900">${{ "{:,.2f}".format(invoice.total) }}</p>
-                                    <span class="badge {{ 'badge-success' if invoice.status == 'paid' else 'badge-warning' if invoice.status == 'issued' else 'badge-info' }}">
-                                        {{ invoice.status|title }}
-                                    </span>
+                                <div class="performance-item-value">
+                                    <p class="performance-main-val text-sales">{{ item.units_sold }}</p>
+                                    <p class="performance-label">UNIDADES</p>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <!-- Laptops Recientes -->
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3 class="chart-title">
-                                Laptops Agregadas
-                                <i class="fas fa-info-circle info-icon" title="Últimos productos agregados al inventario con su precio y stock disponible."></i>
-                            </h3>
-                            <a href="{{ url_for('inventory.laptops_list') }}" class="text-sm text-primary hover:underline">
-                                Ver inventario
-                            </a>
+                    <!-- Más Rentables -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <div class="performance-icon-box bg-profit">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="performance-title-group">
+                                <h3>Más Rentables</h3>
+                                <p>Por porcentaje de margen</p>
+                            </div>
                         </div>
-                        <div class="space-y-3">
-                            {% for laptop in recent_laptops %}
-                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ laptop.display_name }}</p>
-                                    <p class="text-sm text-gray-500">{{ laptop.brand.name if laptop.brand else 'Sin marca' }}</p>
+                        <div class="performance-list">
+                            {% for item in top_profitable[:4] %}
+                            <div class="performance-item">
+                                <div class="performance-item-info">
+                                    <p class="performance-item-name">{{ item.brand }} {{ item.model }}</p>
+                                    <p class="performance-item-sub">Margen: <strong>{{ "%.1f"|format(item.margin)
+                                            }}%</strong></p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="font-bold text-gray-900">${{ "{:,.2f}".format(laptop.sale_price) }}</p>
-                                    <p class="text-sm text-gray-500">{{ laptop.quantity }} unidades</p>
+                                <div class="performance-item-value">
+                                    <p class="performance-main-val text-profit">${{ "{:,.0f}".format(item.profit) }}</p>
+                                    <p class="performance-label">GANANCIA</p>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <!-- Clientes Recientes -->
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3 class="chart-title">
-                                Clientes Nuevos
-                                <i class="fas fa-info-circle info-icon" title="Clientes registrados recientemente en el sistema."></i>
-                            </h3>
-                            <a href="{{ url_for('customers.customers_list') }}" class="text-sm text-primary hover:underline">
-                                Ver clientes
-                            </a>
+                    <!-- Mayores Ganancias -->
+                    <div class="performance-card">
+                        <div class="performance-card-header">
+                            <div class="performance-icon-box bg-revenue">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="performance-title-group">
+                                <h3>Mayores Ganancias</h3>
+                                <p>Ganancia bruta acumulada</p>
+                            </div>
                         </div>
-                        <div class="space-y-3">
-                            {% for customer in recent_customers %}
-                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ customer.full_name }}</p>
-                                    <p class="text-sm text-gray-500">{{ customer.email }}</p>
+                        <div class="performance-list">
+                            {% for item in top_revenue[:4] %}
+                            <div class="performance-item">
+                                <div class="performance-item-info">
+                                    <p class="performance-item-name">{{ item.brand }} {{ item.model }}</p>
+                                    <p class="performance-item-sub">Surtido: {{ item.units_sold }} vendidos</p>
                                 </div>
-                                <div class="text-right">
-                                    <span class="badge {{ 'badge-success' if customer.is_active else 'badge-danger' }}">
-                                        {{ 'Activo' if customer.is_active else 'Inactivo' }}
-                                    </span>
+                                <div class="performance-item-value">
+                                    <p class="performance-main-val text-revenue">${{ "{:,.0f}".format(item.profit) }}
+                                    </p>
+                                    <p class="performance-label">TOTAL</p>
                                 </div>
                             </div>
                             {% endfor %}
@@ -1115,125 +1588,93 @@
                 </div>
             </div>
 
-            <!-- Reporte IA - MOVIDO AL FINAL Y COMPACTADO -->
-            <div class="ai-report-card animate-in" onclick="toggleAIReport()">
-                <div class="ai-report-header">
-                    <div>
-                        <h2 class="ai-report-title">
-                            <i class="fas fa-robot"></i>
-                            Reporte Inteligente Luxera AI
-                            <span id="aiReportToggle" class="ml-2 text-gray-300 text-sm">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        </h2>
-                        <p class="text-gray-300 mt-1">Análisis ejecutivo generado en tiempo real (click para expandir)</p>
+            <!-- Alertas y Insights -->
+            <div class="section">
+                {% if alerts %}
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3"
+                        style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.75rem;">
+                        Alertas Prioritarias</h3>
+                    <div class="space-y-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        {% for alert in alerts %}
+                        <div class="alert alert-{{ alert.type }}">
+                            <i class="fas fa-{{ alert.icon }} mt-1"></i>
+                            <div class="flex-1">
+                                <h4 class="font-semibold" style="font-weight: 600;">{{ alert.title }}</h4>
+                                <p class="text-sm mt-1" style="font-size: 0.875rem; margin-top: 0.25rem;">{{
+                                    alert.message }}</p>
+                                <a href="{{ url_for(alert.link) if alert.link else '#' }}"
+                                    class="text-sm font-medium mt-2 inline-block"
+                                    style="font-size: 0.875rem; font-weight: 500; margin-top: 0.5rem; display: inline-block; color: inherit;">
+                                    {{ alert.action }} →
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <button onclick="event.stopPropagation(); refreshAIReport()" class="btn btn-primary">
-                        <i class="fas fa-sync-alt"></i>
-                        Actualizar
-                    </button>
                 </div>
-                <div class="ai-report-content collapsed" id="aiReportContent">
-                    {{ executive_report|safe }}
+                {% endif %}
+
+                {% if insights %}
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3"
+                        style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.75rem;">
+                        Insights de IA</h3>
+                    <div class="grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                        {% for insight in insights %}
+                        <div class="bg-white p-4 rounded-lg border shadow-sm"
+                            style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid {{ chart_colors[insight.type] if insight.type in chart_colors else '#e5e7eb' }}; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div class="flex items-center gap-3 mb-3"
+                                style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white"
+                                    style="width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; background-color: {{ chart_colors[insight.type] if insight.type in chart_colors else '#6b7280' }}; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-{{ insight.icon }}"></i>
+                                </div>
+                                <h4 class="font-semibold text-gray-900" style="font-weight: 600; color: #111827;">{{
+                                    insight.title }}</h4>
+                            </div>
+                            <p class="text-gray-700 mb-3"
+                                style="color: #374151; font-size: 0.875rem; margin-bottom: 0.75rem;">{{ insight.message
+                                }}</p>
+                            <p class="text-sm text-gray-600 italic"
+                                style="font-size: 0.75rem; color: #4b5563; font-style: italic;">💡 {{ insight.suggestion
+                                }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </main>
-</div>
-
-<!-- Chatbot -->
-<button id="chatbotToggle" class="chatbot-toggle">
-    <i class="fas fa-robot"></i>
-</button>
-
-<div id="chatbotWindow" class="chatbot-window" style="display: none;">
-    <div class="chatbot-header">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-robot"></i>
-            <span class="font-bold">Luxera AI Assistant</span>
-        </div>
-        <button id="closeChatbot" class="text-white hover:text-gray-300">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="chatbot-messages" id="chatMessages">
-        <div class="message message-bot">
-            ¡Hola! Soy Luxera AI. Puedo ayudarte a analizar tus ventas, inventario y darte recomendaciones. ¿En qué puedo ayudarte?
-        </div>
-    </div>
-    <div class="chatbot-input">
-        <div class="flex gap-2">
-            <input type="text" id="chatInput" placeholder="Escribe tu pregunta..."
-                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-primary">
-            <button id="sendMessage" class="btn btn-primary">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/min/moment.min.js"></script>
 <script>
+    // Datos reales desde Flask
+    const salesTrends = {{ daily_sales | safe }};
+    const brandPerformance = {{ brand_performance | tojson | safe }};
+    const conditionPerformance = {{ condition_performance | tojson | safe }};
+    const categoryChartData = {{ category_chart_data | tojson | safe }};
+    const chartColors = {{ chart_colors | tojson | safe }};
+
     // Configuración global
-    const API_BASE = '/dashboard/api';
-    let salesChart, brandChart, bcgChart;
-    let aiReportExpanded = false;
+    let salesChart, brandChart, categoryChart, conditionChart;
 
     // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-        // Chatbot toggle
-        document.getElementById('chatbotToggle').addEventListener('click', function() {
-            const chatbot = document.getElementById('chatbotWindow');
-            chatbot.style.display = chatbot.style.display === 'none' ? 'flex' : 'none';
-        });
-
-        document.getElementById('closeChatbot').addEventListener('click', function() {
-            document.getElementById('chatbotWindow').style.display = 'none';
-        });
-
-        // Enviar mensaje al chatbot
-        document.getElementById('sendMessage').addEventListener('click', sendMessage);
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        // Inicializar gráficos
+    document.addEventListener('DOMContentLoaded', function () {
         initializeCharts();
-
-        // Actualizar hora actual
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 60000);
     });
 
     // Funciones de utilidad
-    function updateCurrentTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        const dateString = now.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-
-        const timeElement = document.getElementById('currentTime');
-        if (timeElement) {
-            timeElement.textContent = `${timeString} (${dateString})`;
-        }
-    }
-
     function formatCurrency(value) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
+        if (value >= 1000) {
+            return '$' + (value / 1000).toFixed(1) + 'k';
+        }
+        return '$' + value.toFixed(0);
     }
 
     function showLoading(button) {
@@ -1249,443 +1690,80 @@
     }
 
     function showNotification(message, type = 'success') {
-        // Crear notificación
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${
-            type === 'success' ? 'bg-green-500 text-white' :
-            type === 'error' ? 'bg-red-500 text-white' :
-            'bg-blue-500 text-white'
-        }`;
+        notification.className = `fixed top-4 right-4 left-4 z-50 px-4 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'} animate-in`;
+        notification.style.cssText = "position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 50; padding: 0.75rem 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: white; " + (type === 'success' ? 'background-color: #10b981;' : 'background-color: #ef4444;');
+
         notification.innerHTML = `
-            <div class="flex items-center gap-3">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                        <span style="font-size: 0.875rem;">${message}</span>
+                    </div>
+                </div>
+            `;
 
         document.body.appendChild(notification);
 
-        // Remover después de 3 segundos
         setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => notification.remove(), 300);
+            if (notification.parentNode) {
+                notification.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-10px)';
+                setTimeout(() => notification.remove(), 300);
+            }
         }, 3000);
     }
 
     // Funciones del dashboard
     function refreshDashboard() {
-        const button = event.target;
+        const button = event.target.closest('.btn');
         const originalText = showLoading(button);
 
-        fetch(`${API_BASE}/refresh-data?period={{ current_period }}`)
+        fetch('/dashboard/api/refresh-data?period={{ current_period }}')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    updateCharts(data.data);
+                    hideLoading(button, originalText);
+                    showNotification('Datos actualizados correctamente');
                 } else {
-                    showNotification('Error al actualizar datos', 'error');
+                    throw new Error('Error al actualizar datos');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error de conexión', 'error');
-            })
-            .finally(() => {
                 hideLoading(button, originalText);
+                showNotification('Error al actualizar datos: ' + error.message, 'error');
             });
     }
 
-    function generateReport() {
-        const button = document.getElementById('generateReportBtn');
-        const originalText = showLoading(button);
-
-        fetch(`${API_BASE}/generate-report?period={{ current_period }}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('aiReportContent').innerHTML = data.report;
-                    showNotification(`Reporte generado para ${data.period}`);
-                } else {
-                    showNotification('Error al generar reporte', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error de conexión', 'error');
-            })
-            .finally(() => {
-                hideLoading(button, originalText);
-            });
-    }
-
-    function refreshAIReport() {
-        const button = event.target;
-        const originalText = showLoading(button);
-
-        fetch(`${API_BASE}/generate-report?period={{ current_period }}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('aiReportContent').innerHTML = data.report;
-                    showNotification('Reporte actualizado');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                hideLoading(button, originalText);
-            });
-    }
-
-    // Toggle para reporte AI
-    function toggleAIReport() {
-        const content = document.getElementById('aiReportContent');
-        const toggleIcon = document.getElementById('aiReportToggle').querySelector('i');
-
-        if (aiReportExpanded) {
-            content.classList.add('collapsed');
-            toggleIcon.className = 'fas fa-chevron-down';
-        } else {
-            content.classList.remove('collapsed');
-            toggleIcon.className = 'fas fa-chevron-up';
-        }
-
-        aiReportExpanded = !aiReportExpanded;
-    }
-
-    // Chatbot
-    function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        // Agregar mensaje del usuario
-        addMessage(message, 'user');
-        input.value = '';
-
-        // Mostrar typing indicator
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'message message-bot';
-        typingIndicator.innerHTML = `
-            <div class="flex gap-1">
-                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></span>
-                <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-300"></span>
-            </div>
-        `;
-        document.getElementById('chatMessages').appendChild(typingIndicator);
-
-        // Enviar a la API
-        fetch(`${API_BASE}/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Remover typing indicator
-            typingIndicator.remove();
-
-            if (data.success) {
-                addMessage(data.response, 'bot');
-            } else {
-                addMessage('Lo siento, hubo un error procesando tu mensaje.', 'bot');
-            }
-        })
-        .catch(error => {
-            typingIndicator.remove();
-            addMessage('Error de conexión. Intenta de nuevo.', 'bot');
-        });
-    }
-
-    function addMessage(text, sender) {
-        const messagesDiv = document.getElementById('chatMessages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message message-${sender}`;
-        messageDiv.textContent = text;
-        messagesDiv.appendChild(messageDiv);
-
-        // Scroll al final
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    // Gráficos - CONFIGURACIÓN CORREGIDA PARA EVITAR INTERFERENCIA
+    // Gráficos con DATOS REALES
     function initializeCharts() {
-        // Gráfico de ventas - CONFIGURACIÓN MEJORADA
-        const salesData = JSON.parse('{{ daily_sales|safe }}');
-        salesChart = new ApexCharts(document.querySelector("#salesChart"), {
-            series: [{
-                name: 'Ventas',
-                type: 'column',
-                data: salesData.datasets[0].data
-            }, {
-                name: 'Ganancia',
-                type: 'line',
-                data: salesData.datasets[1] ? salesData.datasets[1].data : []
-            }],
-            chart: {
-                height: 300,
-                type: 'line',
-                toolbar: {
-                    show: false,
-                    tools: {
-                        download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: false,
-                        reset: true
-                    }
-                }
-            },
-            stroke: {
-                width: [0, 3],
-                curve: 'smooth'
-            },
-            colors: [salesData.datasets[0].color, salesData.datasets[1]?.color || '#10b981'],
-            dataLabels: {
-                enabled: false
-            },
-            markers: {
-                size: 0,
-                hover: {
-                    size: 6
-                }
-            },
-            xaxis: {
-                categories: salesData.labels,
-                labels: {
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                }
-            },
-            yaxis: [{
-                title: {
-                    text: 'Ventas ($)',
-                    style: {
-                        color: '#6b7280',
-                        fontSize: '12px'
-                    }
-                },
-                labels: {
-                    formatter: function(value) {
-                        return '$' + (value / 1000).toFixed(0) + 'k';
-                    },
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                }
-            }, {
-                opposite: true,
-                title: {
-                    text: 'Ganancia ($)',
-                    style: {
-                        color: '#6b7280',
-                        fontSize: '12px'
-                    }
-                },
-                labels: {
-                    formatter: function(value) {
-                        return '$' + (value / 1000).toFixed(0) + 'k';
-                    },
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                }
-            }],
-            tooltip: {
-                shared: true,
-                intersect: false,
-                y: {
-                    formatter: function(value) {
-                        return '$' + value.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
-                    }
-                }
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right',
-                fontSize: '12px',
-                markers: {
-                    width: 12,
-                    height: 12,
-                    radius: 6
-                }
-            },
-            grid: {
-                borderColor: '#e5e7eb',
-                strokeDashArray: 4,
-                padding: {
-                    top: 40,
-                    right: 10,
-                    bottom: 0,
-                    left: 10
-                }
-            }
-        });
-        salesChart.render();
-
-        // Gráfico de marcas - CONFIGURACIÓN MEJORADA
-        const brandData = {
-            brands: {{ brand_performance.brands|tojson }},
-            sales: {{ brand_performance.sales|tojson }},
-            margins: {{ brand_performance.margins|tojson }}
+        const commonGrid = {
+            borderColor: '#f1f5f9',
+            strokeDashArray: 4,
+            padding: { top: 0, right: 0, bottom: 0, left: 10 }
         };
 
-        brandChart = new ApexCharts(document.querySelector("#brandChart"), {
-            series: [{
-                name: 'Ventas',
-                type: 'bar',
-                data: brandData.sales
-            }, {
-                name: 'Margen %',
-                type: 'line',
-                data: brandData.margins
-            }],
-            chart: {
-                height: 300,
-                type: 'line',
-                toolbar: {
-                    show: false,
-                    tools: {
-                        download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: false,
-                        reset: true
-                    }
-                }
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '60%',
-                    borderRadius: 4
-                }
-            },
-            stroke: {
-                width: [0, 3],
-                curve: 'smooth'
-            },
-            colors: ['#6366f1', '#f59e0b'],
-            dataLabels: {
-                enabled: false
-            },
-            markers: {
-                size: 4,
-                hover: {
-                    size: 6
-                }
-            },
-            xaxis: {
-                categories: brandData.brands,
-                labels: {
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                }
-            },
-            yaxis: [{
-                title: {
-                    text: 'Ventas ($)',
-                    style: {
-                        color: '#6b7280',
-                        fontSize: '12px'
-                    }
-                },
-                labels: {
-                    formatter: function(value) {
-                        return '$' + (value / 1000).toFixed(0) + 'k';
-                    },
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                }
-            }, {
-                opposite: true,
-                title: {
-                    text: 'Margen (%)',
-                    style: {
-                        color: '#6b7280',
-                        fontSize: '12px'
-                    }
-                },
-                labels: {
-                    formatter: function(value) {
-                        return value.toFixed(0) + '%';
-                    },
-                    style: {
-                        colors: '#6b7280',
-                        fontSize: '12px'
-                    }
-                },
-                min: 0,
-                max: 40
-            }],
-            tooltip: {
-                shared: true,
-                intersect: false,
-                y: [{
-                    formatter: function(value) {
-                        return '$' + value.toLocaleString('en-US', {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        });
-                    }
+        // Gráfico de Ventas - REEMPLAZADO CON VERSIÓN DE OLD
+        if (document.querySelector("#salesChart") && salesTrends) {
+            const salesData = typeof salesTrends === 'string' ? JSON.parse(salesTrends) : salesTrends;
+
+            salesChart = new ApexCharts(document.querySelector("#salesChart"), {
+                series: [{
+                    name: 'Ventas',
+                    type: 'column',
+                    data: salesData.datasets[0].data
                 }, {
-                    formatter: function(value) {
-                        return value.toFixed(1) + '%';
-                    }
-                }]
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'right'
-            },
-            grid: {
-                borderColor: '#e5e7eb',
-                strokeDashArray: 4,
-                padding: {
-                    top: 20,
-                    right: 10,
-                    bottom: 0,
-                    left: 10
-                }
-            }
-        });
-        brandChart.render();
-
-        // Gráfico de matriz BCG - CONFIGURACIÓN MEJORADA
-        const bcgData = JSON.parse('{{ bcg_matrix|safe }}');
-
-        if (bcgData && bcgData.length > 0) {
-            bcgChart = new ApexCharts(document.querySelector("#bcgChart"), {
-                series: bcgData.map(item => ({
-                    name: item.name,
-                    data: [[item.x, item.y, item.z]]
-                })),
+                    name: 'Ganancia',
+                    type: 'line',
+                    data: salesData.datasets[1] ? salesData.datasets[1].data : []
+                }],
                 chart: {
-                    height: 400,
-                    type: 'bubble',
+                    height: 300,
+                    type: 'line',
                     toolbar: {
-                        show: true,
+                        show: false,
                         tools: {
                             download: true,
                             selection: true,
@@ -1697,168 +1775,246 @@
                         }
                     }
                 },
+                stroke: {
+                    width: [0, 3],
+                    curve: 'smooth'
+                },
+                colors: [salesData.datasets[0].color, salesData.datasets[1]?.color || '#10b981'],
                 dataLabels: {
                     enabled: false
                 },
-                fill: {
-                    opacity: 0.8,
-                    type: 'solid'
+                markers: {
+                    size: 0,
+                    hover: {
+                        size: 6
+                    }
                 },
-                colors: bcgData.map(item => item.color),
                 xaxis: {
-                    title: {
-                        text: 'Participación de Mercado (%)',
-                        style: {
-                            color: '#6b7280',
-                            fontSize: '12px'
-                        }
-                    },
-                    min: 0,
-                    max: 100,
-                    tickAmount: 5,
+                    categories: salesData.labels,
                     labels: {
-                        formatter: function(value) {
-                            return value + '%';
-                        },
                         style: {
                             colors: '#6b7280',
                             fontSize: '12px'
                         }
                     }
                 },
-                yaxis: {
+                yaxis: [{
                     title: {
-                        text: 'Tasa de Crecimiento (%)',
+                        text: 'Ventas ($)',
                         style: {
                             color: '#6b7280',
                             fontSize: '12px'
                         }
                     },
-                    min: 0,
-                    max: 40,
-                    tickAmount: 4,
                     labels: {
-                        formatter: function(value) {
-                            return value + '%';
+                        formatter: function (value) {
+                            return '$' + (value / 1000).toFixed(0) + 'k';
                         },
                         style: {
                             colors: '#6b7280',
                             fontSize: '12px'
                         }
                     }
-                },
+                }, {
+                    opposite: true,
+                    title: {
+                        text: 'Ganancia ($)',
+                        style: {
+                            color: '#6b7280',
+                            fontSize: '12px'
+                        }
+                    },
+                    labels: {
+                        formatter: function (value) {
+                            return '$' + (value / 1000).toFixed(0) + 'k';
+                        },
+                        style: {
+                            colors: '#6b7280',
+                            fontSize: '12px'
+                        }
+                    }
+                }],
                 tooltip: {
-                    custom: function({ seriesIndex, dataPointIndex, w }) {
-                        const item = bcgData[seriesIndex];
-                        return `
-                            <div class="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
-                                <p class="font-bold text-gray-800">${item.name}</p>
-                                <p class="text-xs text-gray-500 mb-2">${item.label}</p>
-                                <div class="text-xs space-y-1">
-                                    <p>Participación: <span class="font-semibold">${item.x}%</span></p>
-                                    <p>Crecimiento: <span class="font-semibold">${item.y}%</span></p>
-                                    <p>Ventas: <span class="font-semibold text-green-600">$${formatCurrency(item.z)}</span></p>
-                                    <p>Margen: <span class="font-semibold">${item.margin?.toFixed(1) || 'N/A'}%</span></p>
-                                </div>
-                            </div>
-                        `;
+                    shared: true,
+                    intersect: false,
+                    y: {
+                        formatter: function (value) {
+                            return '$' + value.toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
                     }
                 },
                 legend: {
-                    show: false
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    fontSize: '12px',
+                    markers: {
+                        width: 12,
+                        height: 12,
+                        radius: 6
+                    }
                 },
                 grid: {
                     borderColor: '#e5e7eb',
                     strokeDashArray: 4,
                     padding: {
-                        top: 20,
+                        top: 40,
                         right: 10,
                         bottom: 0,
                         left: 10
-                    },
-                    xaxis: {
-                        lines: {
-                            show: true
-                        }
-                    },
-                    yaxis: {
-                        lines: {
-                            show: true
-                        }
                     }
-                },
-                annotations: {
-                    xaxis: [{
-                        x: 50,
-                        strokeDashArray: 4,
-                        borderColor: '#9ca3af',
-                        label: {
-                            borderColor: '#9ca3af',
-                            style: {
-                                color: '#6b7280',
-                                background: '#f9fafb',
-                                fontSize: '12px'
-                            },
-                            text: 'Alta Participación'
-                        }
-                    }],
-                    yaxis: [{
-                        y: 20,
-                        strokeDashArray: 4,
-                        borderColor: '#9ca3af',
-                        label: {
-                            borderColor: '#9ca3af',
-                            style: {
-                                color: '#6b7280',
-                                background: '#f9fafb',
-                                fontSize: '12px'
-                            },
-                            text: 'Alto Crecimiento'
-                        }
-                    }]
                 }
             });
-            bcgChart.render();
+            salesChart.render();
+        }
+
+        // Gráfico de Marcas
+        if (document.querySelector("#brandChart") && brandPerformance && brandPerformance.brands && brandPerformance.brands.length > 0) {
+            brandChart = new ApexCharts(document.querySelector("#brandChart"), {
+                series: [{
+                    name: 'Ventas',
+                    type: 'bar',
+                    data: brandPerformance.sales || []
+                }, {
+                    name: 'Margen %',
+                    type: 'line',
+                    data: brandPerformance.margins || []
+                }],
+                chart: {
+                    height: 300,
+                    type: 'line',
+                    toolbar: { show: false }
+                },
+                stroke: { width: [0, 3], curve: 'smooth' },
+                colors: [chartColors.primary, chartColors.success],
+                fill: { opacity: [0.85, 1] },
+                xaxis: {
+                    categories: brandPerformance.brands || [],
+                    labels: { rotate: -45 }
+                },
+                yaxis: [{
+                    title: { text: 'Ventas ($)' },
+                    labels: {
+                        formatter: function (val) {
+                            return '$' + (val / 1000).toFixed(0) + 'k';
+                        }
+                    }
+                }, {
+                    opposite: true,
+                    title: { text: 'Margen (%)' },
+                    min: 0,
+                    max: 100
+                }],
+                legend: { position: 'top' },
+                grid: commonGrid
+            });
+            brandChart.render();
+        }
+
+        // Gráfico de Categorías
+        if (document.querySelector("#categoryChart") && categoryChartData && categoryChartData.labels && categoryChartData.labels.length > 0) {
+            categoryChart = new ApexCharts(document.querySelector("#categoryChart"), {
+                series: [{
+                    name: 'Ventas',
+                    type: 'bar',
+                    data: categoryChartData.sales || []
+                }, {
+                    name: 'Unidades',
+                    type: 'line',
+                    data: categoryChartData.units || []
+                }],
+                chart: {
+                    height: 280,
+                    type: 'line',
+                    toolbar: { show: false }
+                },
+                stroke: { width: [0, 3], curve: 'smooth' },
+                colors: [chartColors.primary, chartColors.success],
+                fill: { opacity: [0.85, 1] },
+                xaxis: {
+                    categories: categoryChartData.labels || [],
+                    labels: { rotate: -45 }
+                },
+                yaxis: [{
+                    title: { text: 'Ventas ($)' },
+                    labels: {
+                        formatter: function (val) {
+                            return '$' + (val / 1000).toFixed(0) + 'k';
+                        }
+                    }
+                }, {
+                    opposite: true,
+                    title: { text: 'Unidades' }
+                }],
+                legend: { position: 'top' },
+                grid: commonGrid
+            });
+            categoryChart.render();
+        }
+
+        // Gráfico de Condición
+        if (document.querySelector("#conditionChart") && conditionPerformance && conditionPerformance.conditions && conditionPerformance.conditions.length > 0) {
+            conditionChart = new ApexCharts(document.querySelector("#conditionChart"), {
+                series: [{
+                    name: 'Ventas',
+                    type: 'bar',
+                    data: conditionPerformance.sales || []
+                }, {
+                    name: 'Margen %',
+                    type: 'line',
+                    data: conditionPerformance.margins || []
+                }],
+                chart: {
+                    height: 280,
+                    type: 'line',
+                    toolbar: { show: false }
+                },
+                stroke: { width: [0, 3], curve: 'smooth' },
+                colors: [chartColors.primary, chartColors.success],
+                fill: { opacity: [0.85, 1] },
+                xaxis: {
+                    categories: conditionPerformance.conditions || [],
+                    labels: { rotate: -45 }
+                },
+                yaxis: [{
+                    title: { text: 'Ventas ($)' },
+                    labels: {
+                        formatter: function (val) {
+                            return '$' + (val / 1000).toFixed(0) + 'k';
+                        }
+                    }
+                }, {
+                    opposite: true,
+                    title: { text: 'Margen (%)' },
+                    min: 0,
+                    max: 100
+                }],
+                legend: { position: 'top' },
+                grid: commonGrid
+            });
+            conditionChart.render();
         }
     }
 
-    // Actualizar gráficos al cambiar período
-    function updateCharts(period) {
-        fetch(`${API_BASE}/sales-trends?period=${period}`)
-            .then(response => response.json())
-            .then(data => {
-                salesChart.updateSeries([{
-                    data: data.datasets[0].data
-                }, {
-                    data: data.datasets[1]?.data || []
-                }]);
-                salesChart.updateOptions({
-                    xaxis: {
-                        categories: data.labels
-                    }
-                });
+    // Función para actualizar gráficos
+    function updateCharts(newData) {
+        if (salesChart && newData.sales_trends) {
+            // Actualizar etiquetas del eje X
+            salesChart.updateOptions({
+                xaxis: {
+                    categories: newData.sales_trends.labels
+                }
             });
-    }
 
-    // Exportar datos
-    function exportData() {
-        const data = {
-            financial: {{ financial_data|tojson }},
-            inventory: {{ inventory_data.summary|tojson }},
-            timestamp: new Date().toISOString()
-        };
-
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `luxera-dashboard-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        showNotification('Datos exportados exitosamente');
+            // Actualizar series
+            salesChart.updateSeries(newData.sales_trends.datasets.map(dataset => ({
+                name: dataset.label,
+                type: dataset.type || 'line',
+                data: dataset.data
+            })));
+        }
     }
 </script>
 {% endblock %}

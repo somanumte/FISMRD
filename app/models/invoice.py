@@ -398,9 +398,14 @@ class Invoice(TimestampMixin, db.Model):
     # ===== MÉTODOS =====
 
     def calculate_totals(self):
-        """Calcula los totales de la factura"""
+        """Calcula los totales de la factura usando la tasa de impuesto configurada"""
         self.subtotal = sum(item.line_total for item in self.items)
-        self.tax_amount = self.subtotal * Decimal('0.18')
+        
+        # Obtener configuración actual
+        settings = InvoiceSettings.get_settings()
+        tax_rate_decimal = getattr(settings, 'tax_rate', Decimal('18.00')) / Decimal('100')
+        
+        self.tax_amount = self.subtotal * tax_rate_decimal
         self.total = self.subtotal + self.tax_amount
 
     def to_dict(self):
@@ -569,6 +574,18 @@ class InvoiceSettings(db.Model):
     company_address = db.Column(db.Text, nullable=True)
     company_phone = db.Column(db.String(20), nullable=True)
     company_email = db.Column(db.String(120), nullable=True)
+
+    # Configuración de Impuestos y Moneda (NUEVO)
+    tax_rate = db.Column(db.Numeric(5, 2), nullable=False, default=18.00)  # Porcentaje (ej: 18.00)
+    tax_name = db.Column(db.String(20), nullable=False, default='ITBIS')   # Nombre (ej: ITBIS, IVA)
+    currency_symbol = db.Column(db.String(5), nullable=False, default='RD$')
+
+    # Información Bancaria y Pie de Página (NUEVO)
+    bank_details = db.Column(db.Text, nullable=True)  # Información de cuentas
+    invoice_footer = db.Column(db.Text, nullable=True) # Mensaje al pie
+
+    # Personalización (NUEVO)
+    brand_color = db.Column(db.String(7), nullable=False, default='#4f46e5') # Hex color
 
     # Configuración de NCF (legacy - mantener para compatibilidad)
     ncf_prefix = db.Column(db.String(3), nullable=False, default='B02')

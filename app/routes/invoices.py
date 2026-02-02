@@ -8,6 +8,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file
 from flask_login import login_required, current_user
 from app import db
+from app.utils.decorators import admin_required, permission_required, any_permission_required
 from app.models.invoice import (
     Invoice, InvoiceItem, InvoiceSettings, NCFSequence,
     NCF_TYPES, NCF_SALES_TYPES, get_ncf_types_for_sales,
@@ -43,6 +44,7 @@ invoices_bp = Blueprint(
 
 @invoices_bp.route('/')
 @login_required
+@permission_required('invoices.list')
 def invoices_list():
     """
     Lista de todas las facturas con bÃƒÂºsqueda y filtros
@@ -116,9 +118,13 @@ def invoices_list():
     for ncf_type in NCF_SALES_TYPES:
         ncf_type_counts[ncf_type] = sum(1 for inv in invoices if inv.ncf_type == ncf_type)
 
+    # Obtener configuración
+    settings = InvoiceSettings.get_settings()
+
     return render_template(
         'invoices/invoices_list.html',
         invoices=invoices,
+        settings=settings,
         search_query=search_query,
         status_filter=status_filter,
         ncf_type_filter=ncf_type_filter,
@@ -138,6 +144,7 @@ def invoices_list():
 
 @invoices_bp.route('/new', methods=['GET'])
 @login_required
+@permission_required('invoices.create')
 def invoice_new():
     """
     Mostrar formulario para crear nueva factura
@@ -197,6 +204,7 @@ def invoice_new():
 
 @invoices_bp.route('/create', methods=['POST'])
 @login_required
+@permission_required('invoices.create')
 def invoice_create():
     """
     Procesar creaciÃƒÂ³n de nueva factura
@@ -400,6 +408,7 @@ def invoice_create():
 
 @invoices_bp.route('/<int:invoice_id>')
 @login_required
+@permission_required('invoices.view')
 def invoice_detail(invoice_id):
     """
     Ver detalle de una factura
@@ -434,6 +443,7 @@ def invoice_detail(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/edit', methods=['GET'])
 @login_required
+@permission_required('invoices.edit')
 def invoice_edit(invoice_id):
     """
     Mostrar formulario para editar factura
@@ -494,6 +504,7 @@ def invoice_edit(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/update', methods=['POST'])
 @login_required
+@permission_required('invoices.edit')
 def invoice_update(invoice_id):
     """
     Actualizar factura existente
@@ -611,6 +622,7 @@ def invoice_update(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/status', methods=['POST'])
 @login_required
+@permission_required('invoices.edit')
 def invoice_change_status(invoice_id):
     """
     Cambiar estado de factura
@@ -685,6 +697,7 @@ def invoice_change_status(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/delete', methods=['POST'])
 @login_required
+@permission_required('invoices.delete')
 def invoice_delete(invoice_id):
     """
     Eliminar factura
@@ -723,6 +736,7 @@ def invoice_delete(invoice_id):
 
 @invoices_bp.route('/export/csv')
 @login_required
+@permission_required('invoices.export')
 def export_csv():
     """
     Exportar facturas a CSV
@@ -813,15 +827,14 @@ def export_csv():
 
 @invoices_bp.route('/settings', methods=['GET'])
 @login_required
+@admin_required
 def settings():
     """
     Mostrar configuraciÃƒÂ³n de facturaciÃƒÂ³n
 
     URL: /invoices/settings
     """
-    if not current_user.is_admin:
-        flash('No tienes permiso para acceder a esta pÃƒÂ¡gina', 'error')
-        return redirect(url_for('invoices.invoices_list'))
+    # Verificacion eliminada por decorador
 
     settings = InvoiceSettings.get_settings()
 
@@ -843,15 +856,14 @@ def settings():
 
 @invoices_bp.route('/settings/update', methods=['POST'])
 @login_required
+@admin_required
 def settings_update():
     """
     Actualizar configuraciÃƒÂ³n de facturaciÃƒÂ³n
 
     URL: /invoices/settings/update (POST)
     """
-    if not current_user.is_admin:
-        flash('No tienes permiso para realizar esta acciÃƒÂ³n', 'error')
-        return redirect(url_for('invoices.invoices_list'))
+    # Verificacion eliminada por decorador
 
     settings = InvoiceSettings.get_settings()
 
@@ -863,6 +875,16 @@ def settings_update():
         settings.company_email = request.form.get('company_email', '').strip()
         settings.invoice_prefix = request.form.get('invoice_prefix', 'INV').strip().upper()
         settings.default_terms = request.form.get('default_terms', '').strip()
+
+        # Configuración de Impuestos y Moneda (NUEVO)
+        settings.tax_name = request.form.get('tax_name', 'ITBIS').strip()
+        settings.tax_rate = Decimal(request.form.get('tax_rate', '18.00'))
+        settings.currency_symbol = request.form.get('currency_symbol', 'RD$').strip()
+        
+        # Configuración Visual y Bancaria (NUEVO)
+        settings.bank_details = request.form.get('bank_details', '').strip()
+        settings.invoice_footer = request.form.get('invoice_footer', '').strip()
+        settings.brand_color = request.form.get('brand_color', '#4f46e5').strip()
 
         # Legacy: mantener ncf_prefix para compatibilidad
         settings.ncf_prefix = request.form.get('ncf_prefix', 'B02').strip().upper()
@@ -886,14 +908,14 @@ def settings_update():
 
 @invoices_bp.route('/settings/ncf-sequence/<ncf_type>/update', methods=['POST'])
 @login_required
+@admin_required
 def update_ncf_sequence(ncf_type):
     """
     Actualizar una secuencia de NCF especÃƒÂ­fica
 
     URL: /invoices/settings/ncf-sequence/<tipo>/update (POST)
     """
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+    # Verificacion eliminada por decorador
 
     if ncf_type not in NCF_TYPES:
         return jsonify({'success': False, 'message': f'Tipo de NCF "{ncf_type}" no vÃƒÂ¡lido'}), 400
@@ -942,6 +964,7 @@ def update_ncf_sequence(ncf_type):
 
 @invoices_bp.route('/api/ncf/suggest/<int:customer_id>')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_suggest_ncf_type(customer_id):
     """
     API para sugerir el tipo de NCF basado en el cliente
@@ -987,6 +1010,7 @@ def api_suggest_ncf_type(customer_id):
 
 @invoices_bp.route('/api/ncf/types')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_get_ncf_types():
     """
     API para obtener los tipos de NCF disponibles para ventas
@@ -1019,6 +1043,7 @@ def api_get_ncf_types():
 
 @invoices_bp.route('/api/ncf/validate', methods=['POST'])
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_validate_ncf():
     """
     API para validar un NCF ingresado manualmente
@@ -1073,6 +1098,7 @@ def api_validate_ncf():
 
 @invoices_bp.route('/api/customers/search')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_search_customers():
     """
     API para buscar clientes (autocompletar)
@@ -1120,6 +1146,7 @@ def api_search_customers():
 
 @invoices_bp.route('/api/laptops/search')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_search_laptops():
     """
     API para buscar laptops (autocompletar)
@@ -1154,6 +1181,7 @@ def api_search_laptops():
 
 @invoices_bp.route('/api/laptops/<int:laptop_id>')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 def api_get_laptop_details(laptop_id):
     """
     API para obtener detalles completos de una laptop por ID
@@ -1183,14 +1211,14 @@ def api_get_laptop_details(laptop_id):
 
 @invoices_bp.route('/settings/upload-logo', methods=['POST'])
 @login_required
+@admin_required
 def upload_logo():
     """
     Subir logo para facturas
 
     URL: /invoices/settings/upload-logo (POST)
     """
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+    # Verificacion eliminada por decorador
 
     settings = InvoiceSettings.get_settings()
 
@@ -1268,14 +1296,14 @@ def upload_logo():
 
 @invoices_bp.route('/settings/remove-logo', methods=['POST'])
 @login_required
+@admin_required
 def remove_logo():
     """
     Eliminar logo actual
 
     URL: /invoices/settings/remove-logo (POST)
     """
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+    # Verificacion eliminada por decorador
 
     settings = InvoiceSettings.get_settings()
 

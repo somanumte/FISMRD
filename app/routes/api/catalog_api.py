@@ -1,45 +1,82 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# API DE CATÁLOGOS - Endpoints para Select2
+# API DE CATÁLOGOS - Endpoints para Select2 y Gestión
 # ============================================
 # Actualizado al nuevo modelo de datos
+# Incluye ExpenseCategory y lógica de gestión completa
 
-from flask import Blueprint, request, jsonify
-from flask_login import login_required
+from flask import Blueprint, request, current_app
+from flask_login import login_required, current_user
 from app import db
 from app.models.laptop import (
     Brand, LaptopModel, Processor, OperatingSystem,
     Screen, GraphicsCard, Storage, Ram, Store, Location, Supplier
 )
+from app.models.expense import ExpenseCategory
+from app.services.catalog_service import CatalogService
 from app.utils.decorators import admin_required, json_response, handle_exceptions
-from sqlalchemy import or_
 
 # Crear Blueprint
 catalog_api_bp = Blueprint('catalog_api', __name__, url_prefix='/api/catalog')
 
 
+# ===== MAPPING DE MODELOS =====
+CATALOG_MODELS = {
+    'brands': Brand,
+    'models': LaptopModel,
+    'processors': Processor,
+    'operating-systems': OperatingSystem,
+    'screens': Screen,
+    'graphics-cards': GraphicsCard,
+    'storage': Storage,
+    'ram': Ram,
+    'stores': Store,
+    'locations': Location,
+    'suppliers': Supplier,
+    'expense-categories': ExpenseCategory
+}
+
+CATALOG_NAMES = {
+    'brands': 'Marca',
+    'models': 'Modelo',
+    'processors': 'Procesador',
+    'operating-systems': 'Sistema Operativo',
+    'screens': 'Pantalla',
+    'graphics-cards': 'Tarjeta Gráfica',
+    'storage': 'Almacenamiento',
+    'ram': 'Memoria RAM',
+    'stores': 'Tienda',
+    'locations': 'Ubicación',
+    'suppliers': 'Proveedor',
+    'expense-categories': 'Categoría de Gasto'
+}
+
+
 # ===== FUNCIÓN HELPER GENÉRICA =====
 
-def get_catalog_items(model, search_term='', page=1, page_size=20):
+def get_catalog_items(model, search_term='', page=1, page_size=20, filters=None):
     """
     Función genérica para obtener items de catálogo con búsqueda y paginación
-
-    Args:
-        model: Modelo de SQLAlchemy (Brand, Processor, etc.)
-        search_term: Término de búsqueda
-        page: Página actual
-        page_size: Items por página
-
-    Returns:
-        dict: Respuesta en formato Select2
     """
-    # Query base
-    query = model.query.filter_by(is_active=True)
+    # Query base (incluir inactivos si se solicita explícitamente, pero por defecto solo activos para select2)
+    # Para gestión, querremos ver todos probablemente, o filtrarlos.
+    # Vamos a permitir pasar 'active_only' en request
+    active_only = request.args.get('active_only', 'true') == 'true'
+    
+    query = model.query
+    if active_only and hasattr(model, 'is_active'):
+        query = query.filter_by(is_active=True)
 
     # Búsqueda
     if search_term:
         search_pattern = f'%{search_term}%'
         query = query.filter(model.name.ilike(search_pattern))
+
+    # Filtros adicionales (e.g. brand_id para models)
+    if filters:
+        for key, value in filters.items():
+            if hasattr(model, key) and value:
+                query = query.filter(getattr(model, key) == value)
 
     # Ordenar por nombre
     query = query.order_by(model.name)
@@ -51,11 +88,31 @@ def get_catalog_items(model, search_term='', page=1, page_size=20):
     offset = (page - 1) * page_size
     items = query.offset(offset).limit(page_size).all()
 
-    # Formatear para Select2
-    results = [
-        {'id': item.id, 'text': item.name}
-        for item in items
-    ]
+    # Formatear
+    results = []
+    for item in items:
+        item_dict = {'id': item.id, 'text': item.name}
+        
+        # Campos extra comunes
+        if hasattr(item, 'is_active'):
+            item_dict['is_active'] = item.is_active
+            
+        # Campos específicos por tipo
+        if isinstance(item, LaptopModel):
+            item_dict['brand_id'] = item.brand_id
+            item_dict['brand_name'] = item.brand.name if item.brand else None
+        elif isinstance(item, Location):
+            item_dict['store_id'] = item.store_id
+            item_dict['store_name'] = item.store_ref.name if item.store_ref else None
+        elif isinstance(item, ExpenseCategory):
+            item_dict['color'] = item.color
+            item_dict['description'] = item.description
+        elif isinstance(item, Supplier):
+            item_dict['contact_name'] = item.contact_name
+            item_dict['phone'] = item.phone
+            item_dict['email'] = item.email
+            
+        results.append(item_dict)
 
     # Determinar si hay más páginas
     has_more = (offset + page_size) < total
@@ -64,699 +121,260 @@ def get_catalog_items(model, search_term='', page=1, page_size=20):
         'results': results,
         'pagination': {
             'more': has_more
-        }
+        },
+        'total': total
     }
 
 
-def create_catalog_item(model, name, **extra_fields):
+def create_catalog_item_generic(model, data, model_name_str):
     """
-    Crea un nuevo item en el catálogo
-
-    Args:
-        model: Modelo de SQLAlchemy
-        name: Nombre del nuevo item
-        **extra_fields: Campos adicionales para el modelo
-
-    Returns:
-        tuple: (item, created) donde created es True si fue creado
+    Crea un nuevo item genérico
     """
-    # Verificar si ya existe
+    if not data or 'name' not in data:
+        return {'error': 'El nombre es requerido'}, 400
+
+    name = data['name'].strip()
+
+    if not name:
+        return {'error': 'El nombre no puede estar vacío'}, 400
+
+    # Verificar existencia
     existing = model.query.filter(
         db.func.lower(model.name) == name.lower()
     ).first()
 
     if existing:
-        return existing, False
+        if hasattr(existing, 'is_active') and not existing.is_active:
+             return {'error': f'El {model_name_str} "{name}" ya existe pero está inactivo. Usa la opción de reactivar.'}, 409
+        return {'error': f'El {model_name_str} "{name}" ya existe'}, 409
 
-    # Crear nuevo
-    new_item = model(name=name.strip(), **extra_fields)
+    # Campos extra permitidos según modelo
+    extra_fields = {}
+    
+    # Modelos con dependencias
+    if model == LaptopModel:
+        if 'brand_id' not in data:
+            return {'error': 'La marca es requerida para crear un modelo'}, 400
+        extra_fields['brand_id'] = data.get('brand_id')
+        
+    elif model == Location:
+        if 'store_id' not in data:
+            return {'error': 'La tienda es requerida para crear una ubicación'}, 400
+        extra_fields['store_id'] = data.get('store_id')
+        
+    elif model == Supplier:
+        for field in ['contact_name', 'email', 'phone', 'address', 'website', 'notes']:
+            if field in data:
+                extra_fields[field] = data[field]
+                
+    elif model == ExpenseCategory:
+        for field in ['color', 'description']:
+            if field in data:
+                extra_fields[field] = data[field]
+    
+    elif model == Store:
+        for field in ['address', 'phone']:
+            if field in data:
+                extra_fields[field] = data[field]
+
+    # Crear
+    new_item = model(name=name, **extra_fields)
+    # Asignar is_active si el modelo lo tiene (ExpenseCategory no hereda de CatalogMixin pero lo revisaré)
+    if hasattr(new_item, 'is_active'):
+        new_item.is_active = True
+        
     db.session.add(new_item)
     db.session.commit()
 
-    return new_item, True
+    return {
+        'id': new_item.id,
+        'text': new_item.name,
+        'created': True,
+        'message': f'{model_name_str} "{new_item.name}" creado exitosamente'
+    }, 201
 
 
-# ===== ENDPOINTS PARA CADA CATÁLOGO =====
+# ===== ENDPOINTS GENÉRICOS (ROUTING POR TIPO) =====
 
-# ===== BRANDS =====
-
-@catalog_api_bp.route('/brands', methods=['GET'])
+@catalog_api_bp.route('/<catalog_type>', methods=['GET'])
 @login_required
 @json_response
 @handle_exceptions
-def get_brands():
-    """GET: Obtener lista de marcas"""
+def list_catalog_items(catalog_type):
+    """Listar items de cualquier catálogo"""
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
+
+    model = CATALOG_MODELS[catalog_type]
     search = request.args.get('q', '')
     page = request.args.get('page', 1, type=int)
+    
+    # Filtros específicos - convertir a int
+    filters = {}
+    if catalog_type == 'models':
+        brand_id = request.args.get('brand_id', type=int)
+        if brand_id:
+            filters['brand_id'] = brand_id
+    elif catalog_type == 'locations':
+        store_id = request.args.get('store_id', type=int)
+        if store_id:
+            filters['store_id'] = store_id
 
-    return get_catalog_items(Brand, search, page)
+    return get_catalog_items(model, search, page, filters=filters)
 
 
-@catalog_api_bp.route('/brands', methods=['POST'])
+@catalog_api_bp.route('/<catalog_type>', methods=['POST'])
 @login_required
 @admin_required
 @json_response
 @handle_exceptions
-def create_brand():
-    """POST: Crear nueva marca"""
+def create_catalog_item_endpoint(catalog_type):
+    """Crear item en cualquier catálogo"""
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
+
+    model = CATALOG_MODELS[catalog_type]
+    model_name_str = CATALOG_NAMES.get(catalog_type, 'Item')
     data = request.get_json()
 
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    if len(name) > 100:
-        return {'error': 'El nombre es demasiado largo (máximo 100 caracteres)'}, 400
-
-    brand, created = create_catalog_item(Brand, name)
-
-    if created:
-        return {
-            'id': brand.id,
-            'text': brand.name,
-            'created': True,
-            'message': f'Marca "{brand.name}" creada exitosamente'
-        }, 201
-    else:
-        return {
-            'id': brand.id,
-            'text': brand.name,
-            'created': False,
-            'message': f'La marca "{brand.name}" ya existe'
-        }, 200
+    return create_catalog_item_generic(model, data, model_name_str)
 
 
-# ===== LAPTOP MODELS =====
-
-@catalog_api_bp.route('/models', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_models():
-    """GET: Obtener lista de modelos"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-    brand_id = request.args.get('brand_id', type=int)
-
-    query = LaptopModel.query.filter_by(is_active=True)
-
-    if brand_id:
-        query = query.filter_by(brand_id=brand_id)
-
-    if search:
-        query = query.filter(LaptopModel.name.ilike(f'%{search}%'))
-
-    query = query.order_by(LaptopModel.name)
-
-    total = query.count()
-    page_size = 20
-    offset = (page - 1) * page_size
-    items = query.offset(offset).limit(page_size).all()
-
-    results = [{'id': item.id, 'text': item.name} for item in items]
-
-    return {
-        'results': results,
-        'pagination': {'more': (offset + page_size) < total}
-    }
-
-
-@catalog_api_bp.route('/models', methods=['POST'])
+@catalog_api_bp.route('/<catalog_type>/<int:id>', methods=['PUT'])
 @login_required
 @admin_required
 @json_response
 @handle_exceptions
-def create_model():
-    """POST: Crear nuevo modelo"""
+def update_catalog_item(catalog_type, id):
+    """Actualizar item de cualquier catálogo"""
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
+
+    model = CATALOG_MODELS[catalog_type]
+    item = model.query.get_or_404(id)
     data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-    brand_id = data.get('brand_id')
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    if len(name) > 200:
-        return {'error': 'El nombre es demasiado largo (máximo 200 caracteres)'}, 400
-
-    extra_fields = {'brand_id': brand_id} if brand_id else {}
-    model, created = create_catalog_item(LaptopModel, name, **extra_fields)
-
-    return {
-        'id': model.id,
-        'text': model.name,
-        'created': created,
-        'message': f'Modelo "{model.name}" {"creado" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== PROCESSORS =====
-
-@catalog_api_bp.route('/processors', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_processors():
-    """GET: Obtener lista de procesadores"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Processor, search, page)
-
-
-@catalog_api_bp.route('/processors', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_processor():
-    """POST: Crear nuevo procesador"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    processor, created = create_catalog_item(Processor, name)
-
-    return {
-        'id': processor.id,
-        'text': processor.name,
-        'created': created,
-        'message': f'Procesador "{processor.name}" {"creado" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== OPERATING SYSTEMS =====
-
-@catalog_api_bp.route('/operating-systems', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_operating_systems():
-    """GET: Obtener lista de sistemas operativos"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(OperatingSystem, search, page)
-
-
-@catalog_api_bp.route('/operating-systems', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_operating_system():
-    """POST: Crear nuevo sistema operativo"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    os, created = create_catalog_item(OperatingSystem, name)
-
-    return {
-        'id': os.id,
-        'text': os.name,
-        'created': created,
-        'message': f'Sistema operativo "{os.name}" {"creado" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== SCREENS =====
-
-@catalog_api_bp.route('/screens', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_screens():
-    """GET: Obtener lista de pantallas"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Screen, search, page)
-
-
-@catalog_api_bp.route('/screens', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_screen():
-    """POST: Crear nueva pantalla"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    screen, created = create_catalog_item(Screen, name)
-
-    return {
-        'id': screen.id,
-        'text': screen.name,
-        'created': created,
-        'message': f'Pantalla "{screen.name}" {"creada" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== GRAPHICS CARDS =====
-
-@catalog_api_bp.route('/graphics-cards', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_graphics_cards():
-    """GET: Obtener lista de tarjetas gráficas"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(GraphicsCard, search, page)
-
-
-@catalog_api_bp.route('/graphics-cards', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_graphics_card():
-    """POST: Crear nueva tarjeta gráfica"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    gpu, created = create_catalog_item(GraphicsCard, name)
-
-    return {
-        'id': gpu.id,
-        'text': gpu.name,
-        'created': created,
-        'message': f'Tarjeta gráfica "{gpu.name}" {"creada" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== STORAGE =====
-
-@catalog_api_bp.route('/storage', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_storage():
-    """GET: Obtener lista de tipos de almacenamiento"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Storage, search, page)
-
-
-@catalog_api_bp.route('/storage', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_storage():
-    """POST: Crear nuevo tipo de almacenamiento"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    storage, created = create_catalog_item(Storage, name)
-
-    return {
-        'id': storage.id,
-        'text': storage.name,
-        'created': created,
-        'message': f'Almacenamiento "{storage.name}" {"creado" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== RAM =====
-
-@catalog_api_bp.route('/ram', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_ram():
-    """GET: Obtener lista de tipos de RAM"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Ram, search, page)
-
-
-@catalog_api_bp.route('/ram', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_ram():
-    """POST: Crear nuevo tipo de RAM"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    ram, created = create_catalog_item(Ram, name)
-
-    return {
-        'id': ram.id,
-        'text': ram.name,
-        'created': created,
-        'message': f'RAM "{ram.name}" {"creada" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== STORES =====
-
-@catalog_api_bp.route('/stores', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_stores():
-    """GET: Obtener lista de tiendas"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Store, search, page)
-
-
-@catalog_api_bp.route('/stores', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_store():
-    """POST: Crear nueva tienda"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    store, created = create_catalog_item(Store, name)
-
-    return {
-        'id': store.id,
-        'text': store.name,
-        'created': created,
-        'message': f'Tienda "{store.name}" {"creada" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== LOCATIONS =====
-
-@catalog_api_bp.route('/locations', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_locations():
-    """GET: Obtener lista de ubicaciones"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-    store_id = request.args.get('store_id', type=int)
-
-    query = Location.query.filter_by(is_active=True)
-
-    if store_id:
-        query = query.filter_by(store_id=store_id)
-
-    if search:
-        query = query.filter(Location.name.ilike(f'%{search}%'))
-
-    query = query.order_by(Location.name)
-
-    total = query.count()
-    page_size = 20
-    offset = (page - 1) * page_size
-    items = query.offset(offset).limit(page_size).all()
-
-    results = [{'id': item.id, 'text': item.name} for item in items]
-
-    return {
-        'results': results,
-        'pagination': {'more': (offset + page_size) < total}
-    }
-
-
-@catalog_api_bp.route('/locations', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_location():
-    """POST: Crear nueva ubicación"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-    store_id = data.get('store_id')
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    extra_fields = {'store_id': store_id} if store_id else {}
-    location, created = create_catalog_item(Location, name, **extra_fields)
-
-    return {
-        'id': location.id,
-        'text': location.name,
-        'created': created,
-        'message': f'Ubicación "{location.name}" {"creada" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-# ===== SUPPLIERS =====
-
-@catalog_api_bp.route('/suppliers', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_suppliers():
-    """GET: Obtener lista de proveedores"""
-    search = request.args.get('q', '')
-    page = request.args.get('page', 1, type=int)
-
-    return get_catalog_items(Supplier, search, page)
-
-
-@catalog_api_bp.route('/suppliers', methods=['POST'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def create_supplier():
-    """POST: Crear nuevo proveedor"""
-    data = request.get_json()
-
-    if not data or 'name' not in data:
-        return {'error': 'El nombre es requerido'}, 400
-
-    name = data['name'].strip()
-
-    if not name:
-        return {'error': 'El nombre no puede estar vacío'}, 400
-
-    # Campos adicionales opcionales
-    extra_fields = {}
-    if data.get('contact_name'):
-        extra_fields['contact_name'] = data['contact_name'].strip()
-    if data.get('email'):
-        extra_fields['email'] = data['email'].strip()
-    if data.get('phone'):
-        extra_fields['phone'] = data['phone'].strip()
-
-    supplier, created = create_catalog_item(Supplier, name, **extra_fields)
-
-    return {
-        'id': supplier.id,
-        'text': supplier.name,
-        'created': created,
-        'message': f'Proveedor "{supplier.name}" {"creado" if created else "ya existe"}'
-    }, 201 if created else 200
-
-
-@catalog_api_bp.route('/suppliers/<int:id>', methods=['GET'])
-@login_required
-@json_response
-@handle_exceptions
-def get_supplier_detail(id):
-    """GET: Obtener detalle de un proveedor"""
-    supplier = Supplier.query.get_or_404(id)
-
-    return {
-        'id': supplier.id,
-        'name': supplier.name,
-        'contact_name': supplier.contact_name,
-        'email': supplier.email,
-        'phone': supplier.phone,
-        'address': supplier.address,
-        'website': supplier.website,
-        'notes': supplier.notes,
-        'is_active': supplier.is_active
-    }
-
-
-@catalog_api_bp.route('/suppliers/<int:id>', methods=['PUT'])
-@login_required
-@admin_required
-@json_response
-@handle_exceptions
-def update_supplier(id):
-    """PUT: Actualizar proveedor"""
-    supplier = Supplier.query.get_or_404(id)
-    data = request.get_json()
-
+    
     if 'name' in data:
-        supplier.name = data['name'].strip()
-    if 'contact_name' in data:
-        supplier.contact_name = data['contact_name'].strip() if data['contact_name'] else None
-    if 'email' in data:
-        supplier.email = data['email'].strip() if data['email'] else None
-    if 'phone' in data:
-        supplier.phone = data['phone'].strip() if data['phone'] else None
-    if 'address' in data:
-        supplier.address = data['address'].strip() if data['address'] else None
-    if 'website' in data:
-        supplier.website = data['website'].strip() if data['website'] else None
-    if 'notes' in data:
-        supplier.notes = data['notes'].strip() if data['notes'] else None
-    if 'is_active' in data:
-        supplier.is_active = data['is_active']
+        new_name = data['name'].strip()
+        if new_name and new_name != item.name:
+            # Check duplicates
+            existing = model.query.filter(
+                db.func.lower(model.name) == new_name.lower(),
+                model.id != id
+            ).first()
+            if existing:
+                return {'error': f'Ya existe otro registro con el nombre "{new_name}"'}, 409
+            item.name = new_name
+
+    # Campos extra
+    if catalog_type == 'suppliers':
+        if 'contact_name' in data: item.contact_name = data['contact_name']
+        if 'email' in data: item.email = data['email']
+        if 'phone' in data: item.phone = data['phone']
+        if 'address' in data: item.address = data['address']
+        if 'website' in data: item.website = data['website']
+        if 'notes' in data: item.notes = data['notes']
+        
+    elif catalog_type == 'expense-categories':
+        if 'color' in data: item.color = data['color']
+        if 'description' in data: item.description = data['description']
+        
+    elif catalog_type == 'stores':
+        if 'address' in data: item.address = data['address']
+        if 'phone' in data: item.phone = data['phone']
 
     db.session.commit()
-
+    
     return {
-        'id': supplier.id,
-        'text': supplier.name,
-        'message': f'Proveedor "{supplier.name}" actualizado exitosamente'
+        'id': item.id,
+        'text': item.name,
+        'message': 'Actualizado exitosamente'
     }
 
 
-# ===== ENDPOINT DE BÚSQUEDA GLOBAL =====
-
-@catalog_api_bp.route('/search', methods=['GET'])
+@catalog_api_bp.route('/<catalog_type>/<int:id>', methods=['DELETE'])
 @login_required
+@admin_required
 @json_response
 @handle_exceptions
-def global_search():
+def deactivate_catalog_item(catalog_type, id):
+    """Desactivar (Soft Delete) item"""
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
+
+    model = CATALOG_MODELS[catalog_type]
+    
+    # ExpenseCategory no tiene is_active por defecto en el modelo original?
+    # Vamos a asumir que sí o lo manejaremos.
+    # Si no tiene is_active, no podemos desactivarlo.
+    if not hasattr(model, 'is_active'):
+        # Para ExpenseCategory, si no tiene is_active, tal vez borrado físico si no hay relaciones?
+        # Por seguridad, solo permitiremos is_active.
+        return {'error': 'Este catálogo no soporta desactivación'}, 400
+
+    if CatalogService.deactivate_item(model, id):
+        return {'message': 'Elemento desactivado exitosamente'}
+    
+    return {'error': 'No se pudo desactivar el elemento'}, 400
+
+
+@catalog_api_bp.route('/<catalog_type>/<int:id>/reactivate', methods=['POST'])
+@login_required
+@admin_required
+@json_response
+@handle_exceptions
+def reactivate_catalog_item(catalog_type, id):
+    """Reactivar item"""
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
+
+    model = CATALOG_MODELS[catalog_type]
+    
+    if CatalogService.reactivate_item(model, id):
+        return {'message': 'Elemento reactivado exitosamente'}
+    
+    return {'error': 'No se pudo reactivar el elemento'}, 400
+
+
+@catalog_api_bp.route('/<catalog_type>/merge', methods=['POST'])
+@login_required
+@admin_required
+@json_response
+@handle_exceptions
+def merge_catalog_items(catalog_type):
     """
-    Búsqueda global en todos los catálogos
-    Útil para autocompletado general
+    Fusionar dos items
+    Payload: { "source_id": 1, "target_id": 2 }
     """
-    search = request.args.get('q', '').strip()
-    catalog = request.args.get('catalog', 'all')
+    if catalog_type not in CATALOG_MODELS:
+        return {'error': 'Tipo de catálogo no válido'}, 404
 
-    if not search:
-        return {'results': []}, 200
+    data = request.get_json()
+    source_id = data.get('source_id')
+    target_id = data.get('target_id')
 
-    results = {}
+    if not source_id or not target_id:
+        return {'error': 'Se requieren source_id y target_id'}, 400
 
-    catalogs = {
-        'brands': Brand,
-        'models': LaptopModel,
-        'processors': Processor,
-        'os': OperatingSystem,
-        'screens': Screen,
-        'gpus': GraphicsCard,
-        'storage': Storage,
-        'ram': Ram,
-        'stores': Store,
-        'locations': Location,
-        'suppliers': Supplier
+    if source_id == target_id:
+        return {'error': 'No se puede fusionar un elemento consigo mismo'}, 400
+
+    model = CATALOG_MODELS[catalog_type]
+    
+    count = CatalogService.merge_items(model, source_id, target_id)
+    
+    return {
+        'message': f'Fusión completada. {count} registros actualizados.',
+        'updated_count': count
     }
 
-    if catalog == 'all':
-        for cat_name, model in catalogs.items():
-            items = model.query.filter(
-                model.name.ilike(f'%{search}%'),
-                model.is_active == True
-            ).limit(5).all()
 
-            results[cat_name] = [
-                {'id': item.id, 'text': item.name}
-                for item in items
-            ]
-    else:
-        if catalog in catalogs:
-            model = catalogs[catalog]
-            items = model.query.filter(
-                model.name.ilike(f'%{search}%'),
-                model.is_active == True
-            ).limit(20).all()
-
-            results[catalog] = [
-                {'id': item.id, 'text': item.name}
-                for item in items
-            ]
-
-    return {'results': results}, 200
-
-
-# ===== ESTADÍSTICAS DE CATÁLOGOS =====
+# ===== ESTADÍSTICAS GLOBAL =====
 
 @catalog_api_bp.route('/stats', methods=['GET'])
 @login_required
 @json_response
 @handle_exceptions
 def catalog_stats():
-    """
-    Obtiene estadísticas de todos los catálogos
-    """
-    stats = {
-        'brands': Brand.query.filter_by(is_active=True).count(),
-        'models': LaptopModel.query.filter_by(is_active=True).count(),
-        'processors': Processor.query.filter_by(is_active=True).count(),
-        'operating_systems': OperatingSystem.query.filter_by(is_active=True).count(),
-        'screens': Screen.query.filter_by(is_active=True).count(),
-        'graphics_cards': GraphicsCard.query.filter_by(is_active=True).count(),
-        'storage': Storage.query.filter_by(is_active=True).count(),
-        'ram': Ram.query.filter_by(is_active=True).count(),
-        'stores': Store.query.filter_by(is_active=True).count(),
-        'locations': Location.query.filter_by(is_active=True).count(),
-        'suppliers': Supplier.query.filter_by(is_active=True).count()
-    }
-
-    return stats
+    """Obtiene estadísticas de todos los catálogos"""
+    return CatalogService.get_catalog_stats()

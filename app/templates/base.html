@@ -1,27 +1,15 @@
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth" data-theme="auto">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}LuxeraRD - Sistema profesional de gestión de inventario de laptops empresarial{% endblock %}">
-    <meta name="keywords" content="inventario, laptops, gestión, empresarial, LuxeraRD">
-    <meta name="author" content="LuxeraRD">
-    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="LuxeraRD - Sistema de gestión de inventario empresarial">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="{% block og_title %}LuxeraRD | Sistema de Gestión de Inventario{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Sistema profesional de gestión de inventario de laptops empresarial{% endblock %}">
-    <meta property="og:type" content="website">
-
-    <title>{% block title %}LuxeraRD | Sistema de Gestión de Inventario{% endblock %}</title>
-
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
-    <!-- Fonts - Outfit y Space Grotesk -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>{% block title %}LuxeraRD | Sistema de Gestión{% endblock %}</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,66 +19,20 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        'sans': ['Outfit', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-                        'heading': ['Space Grotesk', 'system-ui', 'sans-serif'],
+                        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
                     },
                     colors: {
-                        'luxera': {
-                            'primary': '#7c3aed',
-                            'primary-dark': '#6d28d9',
-                            'primary-light': '#a78bfa',
-                            'accent': '#8b5cf6',
-                            'secondary': '#06b6d4',
-                            'success': '#10b981',
-                            'warning': '#f59e0b',
-                            'error': '#ef4444',
-                            'info': '#3b82f6',
-                            'dark': '#0f172a',
-                            'light': '#f8fafc'
+                        primary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
                         }
                     },
                     spacing: {
                         '18': '4.5rem',
-                        '88': '22rem',
-                        '100': '25rem',
                         '128': '32rem',
-                    },
-                    maxWidth: {
-                        '8xl': '88rem',
-                        '9xl': '96rem',
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.4s ease-out',
-                        'scale-in': 'scaleIn 0.3s ease-out',
-                        'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                        'ripple': 'ripple 0.6s linear',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.95)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        },
-                        pulseSubtle: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.8' },
-                        },
-                        fadeInUp: {
-                            'from': { opacity: '0', transform: 'translateY(40px)' },
-                            'to': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        ripple: {
-                            'to': { transform: 'scale(4)', opacity: '0' },
-                        }
                     }
                 }
             },
@@ -101,1453 +43,655 @@
     </script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* =========================================
-           PALETA DE COLORES CALIBRADA V2
-           ========================================= */
+        /* === VARIABLES Y RESET === */
         :root {
-            --font-body: 'Outfit', sans-serif;
-            --font-heading: 'Space Grotesk', sans-serif;
-            --primary: #7c3aed;
-            --primary-dark: #6d28d9;
-            --primary-light: #a78bfa;
-
-            /* --- TEMA CLARO (Light) --- */
             --bg-body: #f8fafc;
-            --bg-nav: rgba(255, 255, 255, 0.9);
-            --bg-footer: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --border-subtle: #e2e8f0;
-            --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-            --card-footer: #f1f5f9;
-
-            --surface-primary: #ffffff;
-            --surface-secondary: #f5f5f7;
-            --surface-tertiary: #fbfbfd;
-            --text-primary: #1d1d1f;
-            --text-secondary: #6e6e73;
-            --text-tertiary: #86868b;
-            --border-light: rgba(0, 0, 0, 0.1);
-            --border-medium: rgba(0, 0, 0, 0.16);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --radius-xl: 24px;
-            --radius-full: 980px;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-nav: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius-lg: 12px;
+            --radius-full: 9999px;
         }
 
-        /* --- TEMA OSCURO (Dark) --- */
         .dark {
-            --bg-body: #050505;
-            --bg-nav: rgba(20, 20, 20, 0.85);
-            --bg-footer: #0a0a0a;
-            --text-main: #ffffff;
-            --text-sub: #94a3b8;
-            --border-subtle: #262626;
-            --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-            --card-footer: #171717;
-
-            --surface-primary: #0a0a0a;
-            --surface-secondary: #171717;
-            --surface-tertiary: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1a6;
-            --text-tertiary: #6e6e73;
-            --border-light: rgba(255, 255, 255, 0.1);
-            --border-medium: rgba(255, 255, 255, 0.16);
+            --bg-body: #0f172a;
+            --bg-nav: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
         }
 
         * {
+            -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem;
         }
 
         body {
-            font-family: var(--font-body);
-            color: var(--text-main);
-            background: var(--bg-body);
-            overflow-x: hidden;
-            line-height: 1.5;
-            transition: background-color 0.4s ease, color 0.4s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.2s ease;
         }
 
-        h1, h2, h3, h4, h5, .font-heading {
-            font-family: var(--font-heading);
-        }
-
-        /* Accessibility - Skip to main content */
-        .skip-to-content {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--primary);
-            color: white;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            z-index: 9999;
-            transition: top var(--transition-fast);
-        }
-
-        .skip-to-content:focus {
-            top: 10px;
-            outline: 3px solid var(--primary-light);
-            outline-offset: 2px;
-        }
-
-        /* Smooth scrolling with offset for fixed header */
-        html {
-            scroll-padding-top: 100px;
-            scroll-behavior: smooth;
-        }
-
-        /* =========================================
-           NAVBAR FLOTANTE (ISLA) V2
-           ========================================= */
-        .nav-island {
+        /* CORRECCIÓN: Bloqueo de scroll cuando menú está abierto */
+        body.menu-open {
+            overflow: hidden;
             position: fixed;
-            top: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 1200px;
-            z-index: 1000;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
 
+        /* === NAVBAR SIMPLIFICADA === */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4rem;
             background: var(--bg-nav);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-
-            border: 1px solid var(--border-subtle);
-            border-radius: 9999px;
-            padding: 0.75rem 1.5rem;
-
-            box-shadow: var(--shadow-nav);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
 
-        .nav-island.scrolled {
-            top: 1rem;
-            padding: 0.5rem 1.25rem;
-        }
-
-        /* Enlaces Nav V2 */
-        .nav-link-v2 {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-sub);
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             padding: 0.5rem 1rem;
-            border-radius: 20px;
-            transition: all 0.2s ease;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        .nav-link-v2:hover {
-            color: var(--primary);
+        .nav-link:hover,
+        .nav-link.active {
+            color: #7c3aed;
             background-color: rgba(124, 58, 237, 0.08);
         }
 
-        .nav-link-v2.active {
-            color: var(--primary);
-            background-color: rgba(124, 58, 237, 0.1);
-        }
-
-        .dark .nav-link-v2:hover {
+        .dark .nav-link:hover,
+        .dark .nav-link.active {
             background-color: rgba(124, 58, 237, 0.15);
-            color: #fff;
         }
 
-        /* Botón Circular Acción */
-        .btn-icon-v2 {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-main);
-            border: 1px solid transparent;
-            background: transparent;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .btn-icon-v2:hover {
-            background: var(--card-footer);
-            border-color: var(--border-subtle);
-        }
-
-        /* Typography - Enhanced style */
-        .hero-title {
-            font-size: clamp(2.75rem, 5.5vw, 5rem);
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -0.022em;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: clamp(2.25rem, 4.5vw, 3.75rem);
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -0.018em;
-            margin-bottom: 1rem;
-        }
-
-        .subsection-title {
-            font-size: clamp(1.5rem, 3vw, 2.25rem);
-            font-weight: 600;
-            line-height: 1.2;
-            letter-spacing: -0.012em;
-        }
-
-        .subtitle {
-            font-size: clamp(1.125rem, 2.25vw, 1.75rem);
-            font-weight: 400;
-            line-height: 1.4;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .body-large {
-            font-size: 1.125rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        /* Buttons - Enhanced V2 style */
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 0.875rem 2rem;
-            background: var(--primary);
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: var(--radius-full);
-            border: none;
-            cursor: pointer;
-            transition: all var(--transition-base);
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 0.875rem 2rem;
-            background: transparent;
-            color: var(--primary);
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: var(--radius-full);
-            border: 2px solid var(--primary);
-            cursor: pointer;
-            transition: all var(--transition-base);
-            text-decoration: none;
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-secondary:active {
-            transform: translateY(0);
-        }
-
-        /* Product Cards - Enhanced interactions */
-        .product-card {
-            background: var(--surface-tertiary);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            transition: all var(--transition-base);
-            cursor: pointer;
-            border: 1px solid var(--border-light);
-            position: relative;
-        }
-
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-            border-color: transparent;
-        }
-
-        .product-card:hover .product-image {
-            transform: scale(1.08);
-        }
-
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-
-        .product-card:hover::before {
-            opacity: 1;
-        }
-
-        .product-image {
-            transition: transform var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* Feature Icons - Enhanced design */
-        .feature-icon {
-            width: 72px;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--surface-secondary) 0%, var(--surface-primary) 100%);
-            border-radius: var(--radius-lg);
-            margin: 0 auto 1.5rem;
-            transition: all var(--transition-base);
-            border: 1px solid var(--border-light);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-icon::before {
-            content: '';
-            position: absolute;
-            top: 0;
+        /* CORRECCIÓN: Overlay para cerrar menú al tocar fuera */
+        .mobile-overlay {
+            position: fixed;
+            top: 4rem;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .feature-card:hover .feature-icon::before {
-            opacity: 0.1;
-        }
-
-        .feature-icon i {
-            position: relative;
-            z-index: 1;
-            transition: color var(--transition-base);
-        }
-
-        .feature-card:hover .feature-icon i {
-            color: var(--primary);
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            opacity: 0;
-        }
-
-        .staggered > * {
-            opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        .staggered > *:nth-child(1) { animation-delay: 0.1s; }
-        .staggered > *:nth-child(2) { animation-delay: 0.2s; }
-        .staggered > *:nth-child(3) { animation-delay: 0.3s; }
-        .staggered > *:nth-child(4) { animation-delay: 0.4s; }
-        .staggered > *:nth-child(5) { animation-delay: 0.5s; }
-
-        /* Spacing - Systematic approach */
-        .section-spacing {
-            padding: 6rem 1.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .section-spacing {
-                padding: 8rem 2rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .section-spacing {
-                padding: 10rem 3rem;
-            }
-        }
-
-        /* Container */
-        .container-custom {
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .container-custom {
-                padding: 0 2rem;
-            }
-        }
-
-        @media (min-width: 1280px) {
-            .container-custom {
-                padding: 0 4rem;
-            }
-        }
-
-        /* Grid - Responsive and flexible */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        @media (min-width: 1024px) {
-            .products-grid {
-                gap: 2.5rem;
-            }
-        }
-
-        /* Utility classes */
-        .text-gradient {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .bg-gradient {
-            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
-        }
-
-        /* Loading states */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s ease-in-out infinite;
-            border-radius: var(--radius-md);
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* Toast notification */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--text-primary);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all var(--transition-base);
-            z-index: 9999;
-            max-width: 350px;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Focus states for accessibility */
-        a:focus-visible,
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible {
-            outline: 3px solid var(--primary-light);
-            outline-offset: 3px;
-            border-radius: var(--radius-sm);
-        }
-
-        /* Progress indicator */
-        .scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            z-index: 1001;
-            transition: width 0.1s ease;
-        }
-
-        /* Back to top button */
-        .back-to-top {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all var(--transition-base);
-            z-index: 999;
-            box-shadow: var(--shadow-md);
-            border: none;
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .back-to-top:hover {
-            background: var(--primary-dark);
-            transform: translateY(-5px);
-        }
-
-        /* Mobile menu */
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
             opacity: 0;
             visibility: hidden;
-            transition: all var(--transition-base);
-            z-index: 998;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        .mobile-menu-overlay.active {
+        .mobile-overlay.active {
             opacity: 1;
             visibility: visible;
         }
 
+        /* === MENU MOBILE CORREGIDO === */
         .mobile-menu {
             position: fixed;
-            top: 0;
-            right: -100%;
-            width: 85%;
-            max-width: 400px;
-            height: 100vh;
-            background: var(--bg-nav);
-            backdrop-filter: blur(20px);
+            top: 4rem;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-body);
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 2rem;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
 
         .mobile-menu.active {
-            right: 0;
+            transform: translateX(0);
         }
 
-        /* Flash Messages (Adaptado) */
+        /* === MAIN CONTENT === */
+        .main-content {
+            min-height: calc(100vh - 4rem);
+            padding-top: 4rem;
+        }
+
+        /* === CARDS SIMPLES === */
+        .card {
+            background: var(--bg-nav);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* === BOTONES === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.05);
+            border-color: #7c3aed;
+        }
+
+        /* === FORMS === */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-nav);
+            color: var(--text-primary);
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        /* === TABLAS RESPONSIVAS === */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: rgba(124, 58, 237, 0.05);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* === FLASH MESSAGES === */
         .flash-message {
             position: fixed;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: var(--surface-primary);
-            border: 1px solid var(--border-subtle);
+            top: 5rem;
+            right: 1rem;
+            max-width: 24rem;
+            background: var(--bg-nav);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem 1.5rem;
-            max-width: 400px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transform: translateX(150%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1rem;
+            box-shadow: var(--shadow-md);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         }
 
         .flash-message.show {
             transform: translateX(0);
         }
 
-        .flash-message.success {
-            border-left: 4px solid #10b981;
+        .flash-success {
+            border-left-color: #10b981;
         }
 
-        .flash-message.error {
-            border-left: 4px solid #ef4444;
+        .flash-error {
+            border-left-color: #ef4444;
         }
 
-        .flash-message.warning {
-            border-left: 4px solid #f59e0b;
+        .flash-warning {
+            border-left-color: #f59e0b;
         }
 
-        .flash-message.info {
-            border-left: 4px solid #3b82f6;
+        .flash-info {
+            border-left-color: #3b82f6;
         }
 
-        /* =========================================
-           FOOTER V2: GRID ESTRUCTURADO
-           ========================================= */
-        .footer-v2 {
-            background-color: var(--bg-footer);
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 5rem;
-            padding-bottom: 2rem;
-            transition: background-color 0.4s ease;
-        }
-
-        .footer-col-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-sub);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            display: block;
-        }
-
-        .footer-link-v2 {
-            display: block;
-            color: var(--text-main);
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-            transition: transform 0.2s, color 0.2s;
-            text-decoration: none;
-        }
-
-        .footer-link-v2:hover {
-            color: var(--primary);
-            transform: translateX(4px);
-        }
-
-        /* Tarjeta Newsletter dentro del Footer */
-        .newsletter-card {
-            background-color: var(--card-footer);
-            border: 1px solid var(--border-subtle);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Input Minimalista */
-        .input-v2 {
-            background: var(--bg-body);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-main);
-            border-radius: 0.75rem;
-            transition: all 0.3s;
-        }
-
-        .input-v2:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
-        }
-
-        /* User dropdown (Adaptado) */
-        .user-dropdown {
+        /* === DROPDOWN === */
+        .dropdown {
             position: absolute;
+            top: 100%;
             right: 0;
-            top: calc(100% + 0.5rem);
-            width: 14rem;
-            background: var(--surface-primary);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 100;
-            border: 1px solid var(--border-subtle);
-            overflow: hidden;
+            margin-top: 0.5rem;
+            background: var(--bg-nav);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            min-width: 12rem;
+            z-index: 50;
+            display: none;
         }
 
-        .user-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+        .dropdown.show {
+            display: block;
         }
 
-        /* Print styles */
-        @media print {
-            .nav-island,
-            footer,
-            .btn-primary,
-            .btn-secondary,
-            .back-to-top {
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        /* === UTILITIES === */
+        @media (max-width: 640px) {
+            .hide-mobile {
                 display: none !important;
             }
 
-            body {
-                font-size: 12pt;
-                line-height: 1.4;
+            .full-width-mobile {
+                width: 100% !important;
             }
         }
 
-        /* Main content area */
-        .main-content {
-            min-height: calc(100vh - 200px);
-            padding: 2rem 0;
+        @media (min-width: 641px) {
+            .hide-desktop {
+                display: none !important;
+            }
         }
 
-        /* Cards para el dashboard */
-        .dashboard-card {
-            background: var(--surface-primary);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 1.5rem;
-            transition: all var(--transition-base);
+        /* iOS specific optimizations */
+        @supports (-webkit-touch-callout: none) {
+            .min-h-screen {
+                min-height: -webkit-fill-available;
+            }
+
+            .mobile-menu {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
         }
 
-        .dashboard-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary-light);
+        /* Safe area handling */
+        .safe-top {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="h-full">
-    <!-- Scroll progress indicator -->
-    <div class="scroll-progress" id="scrollProgress"></div>
+<body class="min-h-screen safe-top safe-bottom">
+    <!-- Navbar -->
+    <nav class="navbar px-4 md:px-6 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-laptop-code"></i>
+            </div>
+            <span class="font-bold text-lg">Luxera<span class="text-purple-600">RD</span></span>
+        </a>
 
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="skip-to-content">Saltar al contenido principal</a>
-
-    <!-- ============================================
-         NAVBAR V2: "ISLA FLOTANTE"
-         ============================================ -->
-    <nav class="nav-island flex items-center justify-between" id="navbar">
-        <!-- Izquierda: Logo y Menú Desktop -->
-        <div class="flex items-center gap-8">
-            <!-- Logo Compacto -->
-            <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-2 group" aria-label="LuxeraRD - Sistema de Gestión">
-                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-md shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-laptop"></i>
-                </div>
-                <span class="font-heading font-bold text-xl tracking-tight text-[var(--text-main)]">
-                    Luxera<span class="text-gradient">RD</span>
-                </span>
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-1">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.dashboard') }}"
+                class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                <i class="fas fa-gauge"></i> Dashboard
+            </a>
+            <a href="{{ url_for('inventory.laptops_list') }}"
+                class="nav-link {% if 'inventory' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-laptop"></i> Inventario
+            </a>
+            <a href="{{ url_for('invoices.invoices_list') }}"
+                class="nav-link {% if 'invoices' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
+            <a href="{{ url_for('customers.customers_list') }}"
+                class="nav-link {% if 'customers' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-users"></i> Clientes
             </a>
 
-            <!-- Links Desktop (Menu principal) -->
-            <div class="hidden md:flex items-center gap-1">
-                {% if current_user.is_authenticated %}
-                    <!-- Dashboard -->
-                    <a href="{{ url_for('main.dashboard') }}" class="nav-link-v2 {% if request.endpoint == 'main.dashboard' %}active{% endif %}" data-nav="dashboard">
-                        <i class="fa-solid fa-gauge mr-1"></i> Dashboard
-                    </a>
-
-                    <!-- Inventory -->
-                    <a href="{{ url_for('inventory.laptops_list') }}" class="nav-link-v2 {% if request.endpoint and 'inventory' in request.endpoint %}active{% endif %}" data-nav="inventory">
-                        <i class="fa-solid fa-laptop mr-1"></i> Inventario
-                    </a>
-
-                    <!-- Invoices -->
-                    <a href="{{ url_for('invoices.invoices_list') }}" class="nav-link-v2 {% if request.endpoint and 'invoices' in request.endpoint %}active{% endif %}" data-nav="invoices">
-                        <i class="fa-solid fa-file-invoice mr-1"></i> Facturas
-                    </a>
-
-                    <!-- Customers -->
-                    <a href="{{ url_for('customers.customers_list') }}" class="nav-link-v2 {% if request.endpoint and 'customers' in request.endpoint %}active{% endif %}" data-nav="customers">
-                        <i class="fa-solid fa-users mr-1"></i> Clientes
-                    </a>
-
-                    {% if current_user.is_admin %}
-                        <!-- Admin Panel -->
-                        <a href="{{ url_for('main.admin_panel') }}" class="nav-link-v2 {% if request.endpoint == 'main.admin_panel' %}active{% endif %}" data-nav="admin">
-                            <i class="fa-solid fa-sliders-h mr-1"></i> Administración
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <!-- Public links for non-authenticated users -->
-                    <a href="{{ url_for('main.dashboard') }}" class="nav-link-v2" data-nav="home">Inicio</a>
-                    <a href="{{ url_for('public.about') }}" class="nav-link-v2" data-nav="about">Acerca de</a>
-                    <a href="{{ url_for('public.contact') }}" class="nav-link-v2" data-nav="contact">Contacto</a>
-                {% endif %}
-            </div>
+            {% if current_user.is_admin or current_user.has_permission('admin.users.view') %}
+            <a href="{{ url_for('admin.admin_panel') }}"
+                class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-cog"></i> Admin
+            </a>
+            {% endif %}
+            {% endif %}
         </div>
 
-        <!-- Derecha: Acciones -->
+        <!-- Right Section -->
         <div class="flex items-center gap-3">
-            <!-- Buscador (Expandible visualmente) -->
-            <div class="hidden lg:flex items-center bg-[var(--card-footer)] rounded-full px-3 py-1.5 border border-[var(--border-subtle)] focus-within:border-purple-500 transition-colors">
-                <i class="fa-solid fa-search text-[var(--text-sub)] text-sm ml-1"></i>
-                <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-sm ml-2 w-32 text-[var(--text-main)] placeholder-[var(--text-sub)] focus:w-48 transition-all duration-300">
-            </div>
-
-            <div class="h-6 w-px bg-[var(--border-subtle)] mx-1 hidden sm:block"></div>
-
             <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="btn-icon-v2" title="Cambiar Tema" aria-label="Cambiar tema">
-                <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
+            <button id="theme-toggle"
+                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                <i id="theme-icon" class="fas fa-sun"></i>
             </button>
 
+            <!-- User Menu -->
             {% if current_user.is_authenticated %}
-                <!-- User Menu (Authenticated) -->
-                <div class="relative group">
-                    <button class="btn-icon-v2" aria-label="Mi cuenta" onclick="toggleUserDropdown()">
-                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
-                            {{ current_user.username[0].upper() }}
-                        </div>
-                    </button>
-                    <div id="user-dropdown" class="user-dropdown" role="menu" aria-hidden="true">
-                        <div class="py-2">
-                            <div class="px-4 py-3 border-b border-[var(--border-subtle)]">
-                                <p class="text-sm font-semibold text-[var(--text-main)]">{{ current_user.username }}</p>
-                                <p class="text-xs text-[var(--text-sub)] truncate">{{ current_user.email }}</p>
-                            </div>
-                            <a href="#" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
-                                <i class="fas fa-user-circle mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
-                                <span>Mi Perfil</span>
-                            </a>
-                            <a href="#" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
-                                <i class="fas fa-cog mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
-                                <span>Configuración</span>
-                            </a>
-                            {% if current_user.is_admin %}
-                                <div class="my-2 border-t border-[var(--border-subtle)]"></div>
-                                <a href="{{ url_for('main.admin_users') }}" class="flex items-center px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
-                                    <i class="fas fa-user-cog mr-3 text-purple-500 w-4 text-center" aria-hidden="true"></i>
-                                    <span>Usuarios</span>
-                                </a>
-                            {% endif %}
-                            <div class="my-2 border-t border-[var(--border-subtle)]"></div>
-                            <a href="{{ url_for('auth.logout') }}" class="flex items-center px-4 py-3 text-sm text-red-500 hover:bg-[var(--card-footer)] transition-colors" role="menuitem">
-                                <i class="fas fa-sign-out-alt mr-3 w-4 text-center" aria-hidden="true"></i>
-                                <span>Cerrar Sesión</span>
-                            </a>
-                        </div>
+            <div class="relative">
+                <button id="user-dropdown-btn"
+                    class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center text-white font-semibold">
+                        {{ current_user.username[0].upper() }}
                     </div>
+                    <span class="hidden md:inline text-sm">{{ current_user.username }}</span>
+                </button>
+
+                <div id="user-dropdown" class="dropdown">
+                    <a href="#" class="dropdown-item">
+                        <i class="fas fa-user text-purple-500"></i> Perfil
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="dropdown-item text-red-500">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </a>
                 </div>
+            </div>
             {% else %}
-                <!-- User Menu (Not Authenticated) -->
-                <div class="relative group">
-                    <button class="btn-icon-v2" aria-label="Mi cuenta">
-                        <i class="fa-solid fa-user text-sm"></i>
-                    </button>
-                    <div class="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-nav)] backdrop-blur-xl rounded-xl shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 border border-[var(--border-subtle)]">
-                        <a href="{{ url_for('auth.login') }}" class="block px-4 py-2 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
-                        </a>
-                        <a href="{{ url_for('auth.register') }}" class="block px-4 py-2 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">
-                            <i class="fas fa-user-plus mr-2"></i> Crear Cuenta
-                        </a>
-                    </div>
-                </div>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary py-2 px-4">
+                <i class="fas fa-sign-in-alt"></i> Ingresar
+            </a>
             {% endif %}
 
             <!-- Mobile Menu Button -->
-            <button id="mobile-menu-btn" class="md:hidden btn-icon-v2 ml-1" aria-label="Menú de navegación" aria-expanded="false">
-                <i class="fa-solid fa-bars" id="menu-icon"></i>
+            <button id="mobile-menu-btn"
+                class="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                <i id="menu-icon" class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" id="mobile-overlay"></div>
+    <!-- CORRECCIÓN: Overlay agregado -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobile-menu">
-        <div class="flex items-center justify-between mb-8">
-            <span class="font-heading font-bold text-xl text-[var(--text-main)]">Menú</span>
-            <button id="close-mobile-menu" class="btn-icon-v2">
-                <i class="fa-solid fa-times"></i>
-            </button>
-        </div>
-
-        <nav class="space-y-2">
+    <div id="mobile-menu" class="mobile-menu">
+        <div class="p-4 space-y-1">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-gauge w-5 text-purple-500"></i>
-                    <span class="font-medium">Dashboard</span>
+            <a href="{{ url_for('main.dashboard') }}"
+                class="nav-link block {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                <i class="fas fa-gauge"></i> Dashboard
+            </a>
+            <a href="{{ url_for('inventory.laptops_list') }}"
+                class="nav-link block {% if 'inventory' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-laptop"></i> Inventario
+            </a>
+            <a href="{{ url_for('invoices.invoices_list') }}"
+                class="nav-link block {% if 'invoices' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
+            <a href="{{ url_for('customers.customers_list') }}"
+                class="nav-link block {% if 'customers' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-users"></i> Clientes
+            </a>
+
+            {% if current_user.is_admin or current_user.has_permission('admin.users.view') %}
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Administración</p>
+                <a href="{{ url_for('admin.admin_panel') }}" class="nav-link block">
+                    <i class="fas fa-cog"></i> Panel Admin
                 </a>
-                <a href="{{ url_for('inventory.laptops_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-laptop w-5 text-purple-500"></i>
-                    <span class="font-medium">Inventario</span>
-                </a>
-                <a href="{{ url_for('invoices.invoices_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-file-invoice w-5 text-purple-500"></i>
-                    <span class="font-medium">Facturas</span>
-                </a>
-                <a href="{{ url_for('customers.customers_list') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-users w-5 text-purple-500"></i>
-                    <span class="font-medium">Clientes</span>
-                </a>
-                {% if current_user.is_admin %}
-                    <div class="pt-4 border-t border-[var(--border-subtle)]">
-                        <p class="text-xs font-semibold text-[var(--text-sub)] uppercase tracking-wider px-4 mb-2">Administración</p>
-                        <a href="{{ url_for('main.admin_panel') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                            <i class="fa-solid fa-sliders-h w-5 text-purple-500"></i>
-                            <span class="font-medium">Panel de Admin</span>
-                        </a>
-                        <a href="{{ url_for('main.admin_users') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                            <i class="fa-solid fa-user-cog w-5 text-purple-500"></i>
-                            <span class="font-medium">Usuarios</span>
-                        </a>
-                    </div>
-                {% endif %}
-            {% else %}
-                <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-home w-5 text-purple-500"></i>
-                    <span class="font-medium">Inicio</span>
-                </a>
-                <a href="{{ url_for('public.about') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-info-circle w-5 text-purple-500"></i>
-                    <span class="font-medium">Acerca de</span>
-                </a>
-                <a href="{{ url_for('public.contact') }}" class="flex items-center gap-3 py-3 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)]">
-                    <i class="fa-solid fa-envelope w-5 text-purple-500"></i>
-                    <span class="font-medium">Contacto</span>
-                </a>
+            </div>
             {% endif %}
-        </nav>
 
-        <div class="border-t border-[var(--border-subtle)] my-6"></div>
-
-        <div class="space-y-3">
-            {% if current_user.is_authenticated %}
-                <div class="px-4 py-3 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl">
-                    <p class="text-sm font-medium text-[var(--text-main)]">{{ current_user.username }}</p>
-                    <p class="text-xs text-[var(--text-sub)] truncate">{{ current_user.email }}</p>
-                </div>
-                <a href="{{ url_for('auth.logout') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors">
-                    <i class="fa-solid fa-sign-out-alt"></i>
-                    <span>Cerrar Sesión</span>
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <a href="{{ url_for('auth.logout') }}" class="nav-link block text-red-500">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
+            </div>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">
-                    <i class="fa-solid fa-sign-in-alt"></i>
-                    <span>Iniciar Sesión</span>
-                </a>
-                <a href="{{ url_for('auth.register') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-purple-600 text-purple-600 font-medium hover:bg-purple-50 transition-colors">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Crear Cuenta</span>
-                </a>
+            <a href="{{ url_for('auth.login') }}" class="nav-link block">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="nav-link block">
+                <i class="fas fa-user-plus"></i> Crear Cuenta
+            </a>
             {% endif %}
         </div>
     </div>
 
     <!-- Main Content -->
-    <main class="pt-28" id="main-content">
+    <main class="main-content">
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="fixed top-24 right-6 z-50 space-y-2" role="alert" aria-live="polite" aria-atomic="true">
-                    {% for category, message in messages %}
-                        <div class="flash-message {{ category }} show animate-fade-in">
-                            <div class="flex-shrink-0">
-                                {% if category == 'success' %}
-                                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                                        <i class="fas fa-check text-green-600 dark:text-green-300" aria-hidden="true"></i>
-                                    </div>
-                                {% elif category == 'error' %}
-                                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-                                        <i class="fas fa-times text-red-600 dark:text-red-300" aria-hidden="true"></i>
-                                    </div>
-                                {% elif category == 'warning' %}
-                                    <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
-                                        <i class="fas fa-exclamation text-yellow-600 dark:text-yellow-300" aria-hidden="true"></i>
-                                    </div>
-                                {% else %}
-                                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                                        <i class="fas fa-info text-blue-600 dark:text-blue-300" aria-hidden="true"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-[var(--text-main)]">{{ message }}</p>
-                            </div>
-                            <button onclick="this.closest('.flash-message').classList.remove('show')" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors focus-visible:outline-none rounded-lg p-1" aria-label="Cerrar mensaje">
-                                <i class="fas fa-times w-4 h-4" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    {% endfor %}
+        {% if messages %}
+        <div class="fixed top-20 right-4 z-50 space-y-2">
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }} show" role="alert">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        {% if category == 'success' %}
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        {% elif category == 'error' %}
+                        <i class="fas fa-times-circle text-red-500"></i>
+                        {% elif category == 'warning' %}
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                        {% endif %}
+                        <span class="text-sm">{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.classList.remove('show')"
+                        class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-            {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
-        <!-- Main Content Block -->
-        <div class="container-custom main-content">
+        <!-- Content -->
+        <div class="p-4 md:p-6">
             {% block content %}{% endblock %}
         </div>
     </main>
 
-    <!-- ============================================
-         FOOTER V2: GRID ESTRUCTURADO
-         ============================================ -->
-    <footer class="footer-v2">
-        <div class="container mx-auto px-6 lg:px-12">
-            <!-- Parte Superior: Grid Principal -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-16">
-                <!-- Columna 1: Navegación Rápida (Span 2) -->
-                <div class="lg:col-span-2">
-                    <span class="footer-col-title">Sistema</span>
-                    <nav class="flex flex-col">
-                        <a href="{{ url_for('main.dashboard') }}" class="footer-link-v2">Dashboard</a>
-                        <a href="{{ url_for('inventory.laptops_list') }}" class="footer-link-v2">Inventario</a>
-                        <a href="{{ url_for('invoices.invoices_list') }}" class="footer-link-v2">Facturas</a>
-                        <a href="{{ url_for('customers.customers_list') }}" class="footer-link-v2">Clientes</a>
-                    </nav>
+    <!-- Footer -->
+    <footer class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-6">
+        <div class="px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    © {{ now.year if now else '2026' }} LuxeraRD
                 </div>
-
-                <!-- Columna 2: Empresa (Span 2) -->
-                <div class="lg:col-span-2">
-                    <span class="footer-col-title">Luxera</span>
-                    <nav class="flex flex-col">
-                        <a href="{{ url_for('public.about') }}" class="footer-link-v2">Historia</a>
-                        <a href="#" class="footer-link-v2">Blog</a>
-                        <a href="#" class="footer-link-v2">Carreras</a>
-                        <a href="{{ url_for('public.contact') }}" class="footer-link-v2">Contacto</a>
-                    </nav>
-                </div>
-
-                <!-- Columna 3: Soporte (Span 2) -->
-                <div class="lg:col-span-2">
-                    <span class="footer-col-title">Legal & Ayuda</span>
-                    <nav class="flex flex-col">
-                        <a href="#" class="footer-link-v2">Garantía</a>
-                        <a href="#" class="footer-link-v2">Envíos</a>
-                        <a href="#" class="footer-link-v2">Privacidad</a>
-                        <a href="#" class="footer-link-v2">Términos</a>
-                    </nav>
-                </div>
-
-                <!-- Columna 4: Newsletter Destacado (Span 6) -->
-                <div class="lg:col-span-6">
-                    <div class="newsletter-card flex flex-col justify-center h-full">
-                        <!-- Decoración Abstracta -->
-                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-                        <div class="relative z-10">
-                            <h3 class="font-heading text-2xl font-bold text-[var(--text-main)] mb-2">
-                                ¿Necesitas ayuda?
-                            </h3>
-                            <p class="text-[var(--text-sub)] mb-6 text-sm max-w-md">
-                                Suscríbete para recibir notificaciones del sistema y actualizaciones importantes.
-                            </p>
-
-                            <form class="flex flex-col sm:flex-row gap-3">
-                                <input type="email" placeholder="tu@correo.com" class="input-v2 px-4 py-3 w-full text-sm">
-                                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-600/20 whitespace-nowrap">
-                                    Suscribirse
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Separador -->
-            <div class="h-px w-full bg-[var(--border-subtle)] mb-8"></div>
-
-            <!-- Parte Inferior: Copyright & Social -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <!-- Logo & Copy -->
-                <div class="flex items-center gap-4">
-                    <div class="w-8 h-8 bg-[var(--text-main)] rounded-lg flex items-center justify-center text-[var(--bg-body)]">
-                        <i class="fa-solid fa-laptop-code text-xs"></i>
-                    </div>
-                    <span class="text-sm text-[var(--text-sub)]">
-                        © {{ now.year if now else '2026' }} LuxeraRD - Sistema de Gestión de Inventario
-                    </span>
-                </div>
-
-                <!-- Social Icons (Minimalistas) -->
-                <div class="flex items-center gap-6">
-                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                        <i class="fa-brands fa-facebook text-lg"></i>
-                    </a>
-                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
-                        <i class="fa-brands fa-twitter text-lg"></i>
-                    </a>
-                    <a href="https://www.instagram.com/fismrd" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                        <i class="fa-brands fa-instagram text-lg"></i>
-                    </a>
-                    <a href="https://wa.me/1829823340" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                    </a>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Sistema de Gestión de Inventario
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
-        <i class="fas fa-chevron-up"></i>
-    </button>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <div class="flex items-start">
-            <i class="fas fa-check-circle text-green-400 mt-0.5 mr-3"></i>
-            <div>
-                <p class="font-medium" id="toast-title">Notificación</p>
-                <p class="text-sm text-gray-300 mt-1" id="toast-message">Mensaje de notificación</p>
-            </div>
-            <button class="ml-auto text-gray-400 hover:text-white" id="toast-close" aria-label="Cerrar notificación">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- JavaScript -->
     <script>
-        // ============================================
-        // THEME TOGGLE
-        // ============================================
+        // === MOBILE MENU - CORREGIDO ===
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        const menuIcon = document.getElementById('menu-icon');
+
+        let isMenuOpen = false;
+
+        function openMobileMenu() {
+            isMenuOpen = true;
+            mobileMenu.classList.add('active');
+            mobileOverlay.classList.add('active');
+            menuIcon.className = 'fas fa-times';
+            document.body.classList.add('menu-open');
+        }
+
+        function closeMobileMenu() {
+            isMenuOpen = false;
+            mobileMenu.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            menuIcon.className = 'fas fa-bars';
+            document.body.classList.remove('menu-open');
+        }
+
+        function toggleMobileMenu() {
+            if (isMenuOpen) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        }
+
+        // Event listeners
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        // Cerrar menú al hacer click en un enlace
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                setTimeout(closeMobileMenu, 100);
+            });
+        });
+
+        // Cerrar menú en resize a desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768 && isMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+
+        // === THEME MANAGEMENT ===
+        const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
 
         function toggleTheme() {
             const html = document.documentElement;
-            const current = html.classList.contains('dark') ? 'dark' : 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
 
-            if (next === 'dark') {
-                html.classList.add('dark');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'dark');
-            } else {
+            if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
+                themeIcon.className = 'fas fa-sun';
                 localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'dark');
             }
         }
 
-        // Init Theme
-        const savedTheme = localStorage.getItem('theme') || 'auto';
-        if (savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
+        // Load saved theme
+        (function () {
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        // ============================================
-        // UI STATE & DOM ELEMENTS
-        // ============================================
-        const uiState = {
-            lastScroll: 0,
-            scrollDirection: 'down',
-            isMobileMenuOpen: false,
-            currentSection: 'dashboard'
-        };
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+            }
+        })();
 
-        const navbar = document.getElementById('navbar');
-        const scrollProgress = document.getElementById('scrollProgress');
-        const backToTop = document.getElementById('backToTop');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileOverlay = document.getElementById('mobile-overlay');
-        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
-        const menuIcon = document.getElementById('menu-icon');
-        const toast = document.getElementById('toast');
-        const toastTitle = document.getElementById('toast-title');
-        const toastMessage = document.getElementById('toast-message');
-        const toastClose = document.getElementById('toast-close');
-        const navLinks = document.querySelectorAll('.nav-link-v2');
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // === DROPDOWNS ===
+        const userDropdownBtn = document.getElementById('user-dropdown-btn');
         const userDropdown = document.getElementById('user-dropdown');
 
-        // ============================================
-        // SCROLL EFFECTS
-        // ============================================
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-
-            // Update scroll direction
-            uiState.scrollDirection = currentScroll > uiState.lastScroll ? 'down' : 'up';
-            uiState.lastScroll = currentScroll;
-
-            // Navbar scroll effect
-            if (currentScroll > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-
-            // Scroll progress
-            const scrollPercent = (currentScroll / (documentHeight - windowHeight)) * 100;
-            scrollProgress.style.width = scrollPercent + '%';
-
-            // Back to top button
-            if (currentScroll > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-
-            // Update active nav
-            updateActiveNav();
-        });
-
-        // Back to top click
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // ============================================
-        // MOBILE MENU
-        // ============================================
-        function toggleMobileMenu() {
-            uiState.isMobileMenuOpen = !uiState.isMobileMenuOpen;
-
-            if (uiState.isMobileMenuOpen) {
-                mobileMenu.classList.add('active');
-                mobileOverlay.classList.add('active');
-                menuIcon.classList.remove('fa-bars');
-                menuIcon.classList.add('fa-times');
-                document.body.style.overflow = 'hidden';
-            } else {
-                mobileMenu.classList.remove('active');
-                mobileOverlay.classList.remove('active');
-                menuIcon.classList.remove('fa-times');
-                menuIcon.classList.add('fa-bars');
-                document.body.style.overflow = '';
-            }
-        }
-
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        }
-
-        if (mobileOverlay) {
-            mobileOverlay.addEventListener('click', toggleMobileMenu);
-        }
-
-        if (closeMobileMenuBtn) {
-            closeMobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        }
-
-        // Close mobile menu on link click
-        if (mobileMenu) {
-            mobileMenu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (uiState.isMobileMenuOpen) {
-                        toggleMobileMenu();
-                    }
-                });
+        if (userDropdownBtn && userDropdown) {
+            userDropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
             });
         }
 
-        // ============================================
-        // TOAST NOTIFICATIONS
-        // ============================================
-        function showToast(title, message, type = 'success') {
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-
-            const icon = toast.querySelector('i');
-            icon.className = type === 'success' ? 'fas fa-check-circle text-green-400 mt-0.5 mr-3' :
-                            type === 'error' ? 'fas fa-exclamation-circle text-red-400 mt-0.5 mr-3' :
-                            'fas fa-info-circle text-blue-400 mt-0.5 mr-3';
-
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
-        }
-
-        if (toastClose) {
-            toastClose.addEventListener('click', () => {
-                toast.classList.remove('show');
-            });
-        }
-
-        // ============================================
-        // USER DROPDOWN
-        // ============================================
-        function toggleUserDropdown() {
-            if (userDropdown) {
-                const isActive = userDropdown.classList.contains('active');
-
-                if (isActive) {
-                    userDropdown.classList.remove('active');
-                    userDropdown.setAttribute('aria-hidden', 'true');
-                } else {
-                    userDropdown.classList.add('active');
-                    userDropdown.setAttribute('aria-hidden', 'false');
-                }
-            }
-        }
-
-        // Close dropdowns on outside click
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
-            if (userDropdown && !userDropdown.contains(e.target) &&
-                !e.target.closest('[onclick="toggleUserDropdown()"]')) {
-                userDropdown.classList.remove('active');
-                userDropdown.setAttribute('aria-hidden', 'true');
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('.dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
             }
         });
 
-        // ============================================
-        // ACTIVE NAV UPDATE
-        // ============================================
-        function updateActiveNav() {
-            const sections = {
-                dashboard: 0,
-                inventory: document.getElementById('inventory')?.offsetTop || 500,
-                invoices: document.getElementById('invoices')?.offsetTop || 1000,
-                customers: document.getElementById('customers')?.offsetTop || 1500,
-                admin: document.getElementById('admin')?.offsetTop || 2000
-            };
-
-            const currentScroll = window.pageYOffset + 150;
-
-            let current = 'dashboard';
-            for (const [section, offset] of Object.entries(sections)) {
-                if (currentScroll >= offset) {
-                    current = section;
-                }
-            }
-
-            if (uiState.currentSection !== current) {
-                uiState.currentSection = current;
-
-                navLinks.forEach(link => {
-                    const nav = link.dataset.nav;
-                    if (nav === current) {
-                        link.classList.add('active');
-                    } else {
-                        link.classList.remove('active');
-                    }
-                });
-            }
-        }
-
-        // ============================================
-        // FLASH MESSAGES AUTO-HIDE
-        // ============================================
+        // === FLASH MESSAGES AUTO-HIDE ===
         setTimeout(() => {
-            document.querySelectorAll('.flash-message').forEach(message => {
-                message.classList.remove('show');
-                setTimeout(() => message.remove(), 300);
+            document.querySelectorAll('.flash-message').forEach(msg => {
+                msg.classList.remove('show');
+                setTimeout(() => msg.remove(), 300);
             });
         }, 5000);
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            updateActiveNav();
+        // === KEYBOARD SHORTCUTS ===
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + D: Toggle theme
+            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                toggleTheme();
+            }
 
-            // Observe animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in-up');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('[data-animate]').forEach(el => {
-                observer.observe(el);
-            });
-
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && uiState.isMobileMenuOpen) {
-                    toggleMobileMenu();
+            // Escape: Close mobile menu and dropdowns
+            if (e.key === 'Escape') {
+                if (isMenuOpen) {
+                    closeMobileMenu();
                 }
 
-                // Ctrl/Cmd + D: Toggle theme
-                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                    e.preventDefault();
-                    toggleTheme();
-                }
-            });
-
-            // Enhanced smooth scroll for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    if (href === '#') return;
-
-                    e.preventDefault();
-                    const target = document.querySelector(href);
-                    if (target) {
-                        const navbarHeight = navbar.offsetHeight + 40;
-                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
-
-                        history.pushState(null, null, href);
-                    }
+                document.querySelectorAll('.dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
                 });
-            });
-
-            // Update current year
-            document.getElementById('current-year')?.textContent = new Date().getFullYear();
+            }
         });
-
-        // Global functions for inline handlers
-        function toggleDarkMode() {
-            toggleTheme();
-        }
     </script>
 
     {% block extra_js %}{% endblock %}
-    <script src="{{ url_for('static', filename='js/barcode_scanner.js') }}"></script>
 </body>
+
 </html>

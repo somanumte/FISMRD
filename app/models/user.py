@@ -104,7 +104,34 @@ class User(UserMixin, db.Model):
 
     # Si el usuario falla muchos logins, bloqueamos temporalmente
     # nullable=True: Solo tiene valor si está bloqueado
+    
+    # ===== CAMPOS RBAC (NUEVOS) =====
+    
+    # Seguridad de contraseñas
+    must_change_password = db.Column(db.Boolean, default=False)
+    password_changed_at = db.Column(db.DateTime, nullable=True)
+    last_password_change = db.Column(db.DateTime, nullable=True)
+    password_expires_at = db.Column(db.DateTime, nullable=True)
+    
+    # Autenticación de dos factores (2FA)
+    two_factor_enabled = db.Column(db.Boolean, default=False)
+    two_factor_secret = db.Column(db.String(255), nullable=True)
 
+    # ===== RELACIONES RBAC =====
+    
+    # Importar tabla de asociación para evitar referencia circular
+    from app.models.rbac_associations import user_roles
+    
+    # Relación many-to-many con roles
+    # Un usuario puede tener múltiples roles
+    # Un rol puede ser asignado a múltiples usuarios
+    roles = db.relationship(
+        'Role',
+        secondary=user_roles,
+        foreign_keys=[user_roles.c.user_id, user_roles.c.role_id],
+        backref=db.backref('users', lazy='dynamic')
+    )
+    
     # ===== MÉTODOS DE LA CLASE =====
 
     def __repr__(self):
@@ -232,12 +259,116 @@ class User(UserMixin, db.Model):
     def update_last_login(self):
         """
         Actualiza la fecha del último login
-
+        
         ¿Cuándo usar?
         - Inmediatamente después de un login exitoso
         """
         self.last_login = datetime.utcnow()
         db.session.commit()
+
+    def has_permission(self, permission):
+        """
+        Verifica si el usuario tiene un permiso específico a través de sus roles.
+        
+        Args:
+            permission (str): El nombre o código del permiso a verificar.
+            
+        Returns:
+            bool: True si tiene el permiso, False si no.
+        """
+        # Si el usuario es admin, tiene todos los permisos (opcional, pero común)
+        if self.is_admin:
+            return True
+            
+        # Iterar sobre los roles del usuario
+        for role in self.roles:
+            # Iterar sobre los permisos de cada rol
+            for perm in role.permissions:
+                if perm.name == permission:
+                    return True
+        return False
+
+    def has_role(self, role_name):
+        """
+        Verifica si el usuario tiene un rol específico.
+        
+        Args:
+            role_name (str): El nombre del rol a verificar.
+            
+        Returns:
+            bool: True si tiene el rol, False si no.
+        """
+        return any(role.name == role_name for role in self.roles)
+
+    def has_any_permission(self, *permission_names):
+        """
+        Verifica si el usuario tiene AL MENOS UNO de los permisos especificados.
+
+        Args:
+            *permission_names: Lista de nombres de permisos a verificar.
+
+        Returns:
+            bool: True si tiene al menos uno, False si no.
+        """
+        if self.is_admin:
+            return True
+
+        for role in self.roles:
+            for perm in role.permissions:
+                if perm.name in permission_names:
+                    return True
+        return False
+
+    def has_all_permissions(self, *permission_names):
+        """
+        Verifica si el usuario tiene TODOS los permisos especificados.
+
+        Args:
+            *permission_names: Lista de nombres de permisos a verificar.
+
+        Returns:
+            bool: True si tiene todos, False si falta alguno.
+        """
+        if self.is_admin:
+            return True
+
+        # Obtener todos los permisos del usuario en un set
+        user_permissions = set()
+        for role in self.roles:
+            for perm in role.permissions:
+                user_permissions.add(perm.name)
+
+        # Verificar que todos los permisos requeridos estén presentes
+        return all(perm in user_permissions for perm in permission_names)
+
+    def get_all_permissions(self):
+        """
+        Obtiene una lista de todos los objetos Permission que tiene el usuario.
+        
+        Returns:
+            list: Lista de objetos Permission.
+        """
+        if self.is_admin:
+            # Si es admin, teóricamente tiene todos. 
+            # Para evitar retornar TODA la base de datos cada vez, devolvemos los asignados 
+            # o importamos Permission para devolver todos si es crítico.
+            # Por ahora, devolvemos los explícitos de sus roles.
+            pass
+
+        perms = set()
+        for role in self.roles:
+            for perm in role.permissions:
+                perms.add(perm)
+        return list(perms)
+
+    def get_permission_names(self):
+        """
+        Obtiene una lista de todos los nombres de permisos que tiene el usuario.
+        
+        Returns:
+            list: Lista de strings con los nombres de los permisos.
+        """
+        return [p.name for p in self.get_all_permissions()]
 
     def to_dict(self):
         """

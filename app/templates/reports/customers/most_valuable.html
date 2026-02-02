@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes Más Valiosos - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .btn-primary {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .filter-input {
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    .rank-badge {
+        background: #fef3c7;
+        color: #d97706;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .top-1 {
+        background: #fbbf24;
+        color: white;
+        box-shadow: 0 4px 10px rgba(251, 191, 36, 0.5);
+    }
+
+    .top-2 {
+        background: #94a3b8;
+        color: white;
+    }
+
+    .top-3 {
+        background: #b45309;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>🏆 Clientes Más Valiosos (Top 20)</h1>
+    </div>
+
+    <div class="filters-card">
+        <label>Inicio: <input type="date" id="startDate" class="filter-input" value="{{ start_date }}"></label>
+        <label>Fin: <input type="date" id="endDate" class="filter-input" value="{{ end_date }}"></label>
+        <button class="btn-primary" onclick="loadReport()">Actualizar</button>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ranking</th>
+                    <th>Cliente</th>
+                    <th>Compras Total</th>
+                    <th>Facturas</th>
+                    <th>Última Compra</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadReport);
+
+    function loadReport() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        fetch(`{{ url_for('reports.api_customers_most_valuable') }}?start_date=${start}&end_date=${end}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('reportTableBody');
+                tbody.innerHTML = '';
+                if (data.success) {
+                    data.data.forEach((item, index) => {
+                        let rankClass = 'rank-badge';
+                        if (index === 0) rankClass += ' top-1';
+                        if (index === 1) rankClass += ' top-2';
+                        if (index === 2) rankClass += ' top-3';
+
+                        tbody.innerHTML += `<tr>
+                            <td><div class="${rankClass}">${index + 1}</div></td>
+                            <td class="font-bold">${item.name}</td>
+                            <td class="text-green-600 font-bold">$${item.total.toLocaleString()}</td>
+                            <td>${item.count}</td>
+                            <td>${item.last_purchase || '-'}</td>
+                            <td>
+                                <a href="/reports/customers/history/${item.id}" class="text-blue-500 hover:underline">Ver Historial</a>
+                            </td>
+                        </tr>`;
+                    });
+                }
+            });
+    }
+</script>
+{% endblock %}

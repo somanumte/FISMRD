@@ -328,38 +328,11 @@ class RegisterForm(FlaskForm):
     def validate_password(self, field):
         """
         Validación adicional de seguridad de contraseña
-
-        Verifica que la contraseña no sea demasiado común o débil
-
-        Args:
-            field: El campo password del formulario
-
-        Raises:
-            ValidationError: Si la contraseña es demasiado débil
+        Usa la utilidad de seguridad centralizada.
         """
-        # Lista de contraseñas comunes que están prohibidas
-        common_passwords = [
-            'password', '123456', '12345678', 'qwerty', 'abc123',
-            'password123', '111111', '123123', 'admin', 'letmein'
-        ]
-
-        # Si la contraseña está en la lista de prohibidas
-        if field.data.lower() in common_passwords:
-            raise ValidationError(
-                'Esta contraseña es demasiado común. '
-                'Por favor elige una más segura.'
-            )
-
-        # Verificar que no sea solo números
-        if field.data.isdigit():
-            raise ValidationError(
-                'La contraseña no puede ser solo números. '
-                'Debe incluir letras.'
-            )
-
-        # Verificar que no sea solo letras
-        if field.data.isalpha():
-            raise ValidationError(
-                'La contraseña no puede ser solo letras. '
-                'Debe incluir números.'
-            )
+        from app.utils.security import validate_password_strength
+        
+        is_valid, message = validate_password_strength(field.data)
+        
+        if not is_valid:
+            raise ValidationError(message)

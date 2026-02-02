@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda de Seriales - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>🔍 Búsqueda de Seriales</h1>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por serial, modelo o marca...">
+        <button class="btn btn-secondary" onclick="loadReport()">Buscar</button>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Serial</th>
+                    <th>Producto</th>
+                    <th>Estado</th>
+                    <th>Días en Inv.</th>
+                    <th>Costo</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', loadReport);
+
+    function loadReport() {
+        const search = document.getElementById('searchInput').value;
+        fetch(`{{ url_for('reports.api_inventory_serials') }}?search=${search}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('reportTableBody');
+                tbody.innerHTML = '';
+                if (data.success) {
+                    data.data.forEach(item => {
+                        tbody.innerHTML += `<tr>
+                            <td class="font-mono font-bold">${item.serial}</td>
+                            <td>${item.product}</td>
+                            <td>${item.status}</td>
+                            <td>${item.days_in_inventory} días</td>
+                            <td>$${item.cost.toLocaleString()}</td>
+                        </tr>`;
+                    });
+                }
+            });
+    }
+</script>
+{% endblock %}

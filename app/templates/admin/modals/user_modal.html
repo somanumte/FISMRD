@@ -1,0 +1,235 @@
+<!-- User Editor Modal (Popup Style) -->
+<div id="userModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-hidden" role="dialog"
+    aria-modal="true">
+    <!-- Backdrop with Blur -->
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+        id="userModalBackdrop" onclick="closeUserModal()"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden transform transition-all duration-300 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        id="userModalPanel">
+
+        <!-- HEADER -->
+        <div
+            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="userModalTitle">
+                Añadir Usuario
+            </h3>
+            <button onclick="closeUserModal()"
+                class="text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors focus:outline-none">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- BODY -->
+        <div class="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+            <form id="userForm" onsubmit="event.preventDefault(); saveUser();" class="space-y-6">
+                <input type="hidden" id="userId">
+
+                <div class="space-y-5">
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Nombre
+                            Completo</label>
+                        <input type="text" id="fullName" required
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors"
+                            placeholder="Ej. Ana García">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Usuario</label>
+                        <input type="text" id="username" required
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors"
+                            placeholder="ana.garcia">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Correo
+                            Electrónico</label>
+                        <input type="email" id="email" required
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors"
+                            placeholder="ejemplo@empresa.com">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+                            Contraseña
+                            <span id="passwordHint"
+                                class="text-gray-400 font-normal normal-case ml-1 tracking-normal hidden">(Opcional)</span>
+                        </label>
+                        <input type="password" id="password"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors"
+                            placeholder="••••••••">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Estado</label>
+                        <select id="isActive"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">Roles
+                            Asignados</label>
+                        <div id="rolesListContainer" class="space-y-2">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-800/50">
+            <button type="button" onclick="closeUserModal()"
+                class="px-5 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 transition-colors">Cancelar</button>
+            <button type="button" onclick="saveUser()"
+                class="px-5 py-2.5 bg-slate-900 dark:bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 dark:hover:bg-indigo-700 shadow-lg transition-all hover:-translate-y-0.5">Guardar
+                Cambios</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openUserModal(user = null) {
+        const modal = document.getElementById('userModal');
+        const backdrop = document.getElementById('userModalBackdrop');
+        const panel = document.getElementById('userModalPanel');
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            panel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+        }, 10);
+
+        initUserForm(user);
+    }
+
+    function closeUserModal() {
+        const modal = document.getElementById('userModal');
+        const backdrop = document.getElementById('userModalBackdrop');
+        const panel = document.getElementById('userModalPanel');
+
+        backdrop.classList.add('opacity-0');
+        panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+        panel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function initUserForm(user) {
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('passwordHint').classList.add('hidden');
+        document.getElementById('isActive').value = 'true';
+
+        // Render Roles (Checkboxes to allow multiple, React example had Select but we support multiple)
+        const roles = window.allRoles || [];
+        const container = document.getElementById('rolesListContainer');
+        container.innerHTML = '';
+
+        roles.forEach(role => {
+            let isChecked = false;
+            // Check based on mapping strings
+            if (user && user.roles) {
+                isChecked = user.roles.includes(role.name);
+            }
+
+            const div = document.createElement('label');
+            div.className = `flex items-center justify-between p-3 rounded-xl border ${isChecked ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 dark:border-indigo-500' : 'border-gray-200 bg-white dark:bg-gray-900/50 dark:border-gray-700'} cursor-pointer hover:border-indigo-300 transition-all`;
+            // Simple click toggle visual
+            div.onclick = (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    // Let input handle it naturally or force visual update
+                }
+                setTimeout(() => {
+                    const chk = div.querySelector('input');
+                    const textSpan = div.querySelector('span');
+                    if (chk.checked) {
+                        div.classList.remove('border-gray-200', 'bg-white', 'dark:bg-gray-900/50', 'dark:border-gray-700');
+                        div.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/30', 'dark:border-indigo-500');
+                        textSpan.classList.remove('text-gray-700', 'dark:text-gray-300');
+                        textSpan.classList.add('text-indigo-900', 'dark:text-indigo-100');
+                    } else {
+                        div.classList.add('border-gray-200', 'bg-white', 'dark:bg-gray-900/50', 'dark:border-gray-700');
+                        div.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900/30', 'dark:border-indigo-500');
+                        textSpan.classList.add('text-gray-700', 'dark:text-gray-300');
+                        textSpan.classList.remove('text-indigo-900', 'dark:text-indigo-100');
+                    }
+                }, 0);
+            };
+
+            div.innerHTML = `
+                <span class="text-sm font-medium ${isChecked ? 'text-indigo-900 dark:text-indigo-100' : 'text-gray-700 dark:text-gray-300'}">${role.display_name}</span>
+                <input type="checkbox" name="user_roles" value="${role.name}" ${isChecked ? 'checked' : ''}
+                       class="h-5 w-5 rounded-md border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 transition-all">
+            `;
+            container.appendChild(div);
+        });
+
+        if (user) {
+            document.getElementById('userModalTitle').textContent = 'Editar Perfil';
+            document.getElementById('userId').value = user.id;
+            document.getElementById('fullName').value = user.full_name;
+            document.getElementById('username').value = user.username;
+            document.getElementById('email').value = user.email;
+            document.getElementById('isActive').value = user.is_active ? 'true' : 'false';
+            document.getElementById('username').disabled = true; // Still standard practice
+            document.getElementById('passwordHint').classList.remove('hidden');
+        } else {
+            document.getElementById('userModalTitle').textContent = 'Añadir Usuario';
+            document.getElementById('username').disabled = false;
+        }
+    }
+
+    // Save logic reuse
+    async function saveUser() {
+        const id = document.getElementById('userId').value;
+        const isEdit = !!id;
+
+        const data = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            full_name: document.getElementById('fullName').value,
+            is_active: document.getElementById('isActive').value === 'true', // From select
+            roles: Array.from(document.querySelectorAll('input[name="user_roles"]:checked')).map(cb => cb.value)
+        };
+        const password = document.getElementById('password').value;
+        if (password) data.password = password;
+
+        if (!isEdit && !password) {
+            alert('Contraseña requerida');
+            return;
+        }
+
+        const url = isEdit ? `/admin/api/users/${id}` : '/admin/api/users';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                closeUserModal();
+                loadUsers();
+            } else {
+                const err = await res.json();
+                alert(err.error);
+            }
+        } catch (e) { alert('Error de red'); }
+    }
+</script>

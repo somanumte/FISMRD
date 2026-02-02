@@ -246,54 +246,66 @@ class AIService:
             Dict con análisis de tendencias
         """
         try:
+            # Obtener serie de tiempo de ventas
+            if 'datasets' in sales_data and len(sales_data['datasets']) > 0:
+                sales_values = sales_data['datasets'][0].get('data', [])
+            else:
+                daily_sales = sales_data.get('daily_sales', [])
+                sales_values = [day.get('amount', 0) for day in daily_sales]
+
+            if not sales_values or len(sales_values) < 2:
+                return {'trend': 'stable', 'momentum': 'neutral', 'trend_percent': 0, 'volatility': 0}
+
+            # Tomar últimos periodos (máximo 7)
+            recent_sales = sales_values[-7:] if len(sales_values) >= 7 else sales_values
+            
+            # Tendencia simple
+            split_idx = len(recent_sales) // 2
+            first_half = sum(recent_sales[:split_idx]) / split_idx if split_idx > 0 else recent_sales[0]
+            second_half = sum(recent_sales[split_idx:]) / (len(recent_sales) - split_idx)
+            
+            trend_percent = ((second_half - first_half) / first_half * 100) if first_half > 0 else 0
+
+            if trend_percent > 10:
+                trend = 'up'
+                momentum = 'strong'
+            elif trend_percent > 5:
+                trend = 'up'
+                momentum = 'moderate'
+            elif trend_percent < -10:
+                trend = 'down'
+                momentum = 'strong'
+            elif trend_percent < -5:
+                trend = 'down'
+                momentum = 'moderate'
+            else:
+                trend = 'stable'
+                momentum = 'neutral'
+
+            # Calcular volatilidad
+            avg_sales = sum(recent_sales) / len(recent_sales)
+            variance = sum((x - avg_sales) ** 2 for x in recent_sales) / len(recent_sales)
+            volatility = (variance ** 0.5) / avg_sales if avg_sales > 0 else 0
+
+            # Identificar mejores y peores días
+            # Si tenemos daily_sales original (formato antiguo)
             daily_sales = sales_data.get('daily_sales', [])
-            if not daily_sales or len(daily_sales) < 7:
-                return {'trend': 'stable', 'momentum': 0, 'volatility': 0}
-
-            # Calcular tendencia de los últimos 7 días
-            recent_sales = [day.get('amount', 0) for day in daily_sales[-7:]]
-
-            if len(recent_sales) >= 2:
-                # Tendencia simple
-                first_half = sum(recent_sales[:3]) / 3 if len(recent_sales) >= 3 else recent_sales[0]
-                second_half = sum(recent_sales[-3:]) / 3 if len(recent_sales) >= 3 else recent_sales[-1]
-
-                trend_percent = ((second_half - first_half) / first_half * 100) if first_half > 0 else 0
-
-                if trend_percent > 10:
-                    trend = 'up'
-                    momentum = 'strong'
-                elif trend_percent > 5:
-                    trend = 'up'
-                    momentum = 'moderate'
-                elif trend_percent < -10:
-                    trend = 'down'
-                    momentum = 'strong'
-                elif trend_percent < -5:
-                    trend = 'down'
-                    momentum = 'moderate'
-                else:
-                    trend = 'stable'
-                    momentum = 'neutral'
-
-                # Calcular volatilidad
-                avg_sales = sum(recent_sales) / len(recent_sales)
-                variance = sum((x - avg_sales) ** 2 for x in recent_sales) / len(recent_sales)
-                volatility = (variance ** 0.5) / avg_sales if avg_sales > 0 else 0
-
-                # Identificar mejores y peores días
+            if daily_sales:
                 best_day = max(daily_sales, key=lambda x: x.get('amount', 0))
                 worst_day = min(daily_sales, key=lambda x: x.get('amount', 0))
+            else:
+                best_day = None
+                worst_day = None
 
-                return {
-                    'trend': trend,
-                    'momentum': momentum,
-                    'trend_percent': round(trend_percent, 2),
-                    'volatility': round(volatility, 3),
-                    'best_day': best_day,
-                    'worst_day': worst_day,
-                    'avg_daily_sales': round(avg_sales, 2)
-                }
+            return {
+                'trend': trend,
+                'momentum': momentum,
+                'trend_percent': round(trend_percent, 2),
+                'volatility': round(volatility, 3),
+                'best_day': best_day,
+                'worst_day': worst_day,
+                'avg_daily_sales': round(avg_sales, 2)
+            }
 
             return {'trend': 'stable', 'momentum': 'neutral', 'trend_percent': 0}
 
@@ -420,43 +432,52 @@ class AIService:
                 return {}
 
             # Calcular métricas para matriz BCG
-            total_sales = sum(item.get('sales', 0) for item in laptops_data)
-            total_market_growth = 12  # Suposición: mercado crece 12% anual
+            total_sales = sum(item.get('z', item.get('sales', 0)) for item in laptops_data)
+            total_market_growth = 10  # Umbral de mercado
 
             matrix_data = []
             for item in laptops_data:
-                sales = item.get('sales', 0)
-                market_share = (sales / total_sales * 100) if total_sales > 0 else 0
-                growth_rate = item.get('growth_rate', total_market_growth)
+                sales = item.get('z', item.get('sales', 0))
+                market_share = item.get('x', (sales / total_sales * 100) if total_sales > 0 else 0)
+                growth_rate = item.get('y', item.get('growth_rate', 0))
 
                 # Clasificar en cuadrantes BCG
-                if market_share > 15 and growth_rate > total_market_growth:
-                    quadrant = 'star'
-                    color = '#6366f1'  # Indigo
-                    label = 'Estrella'
-                    action = 'Invertir y mantener'
-                elif market_share > 15 and growth_rate <= total_market_growth:
-                    quadrant = 'cash_cow'
-                    color = '#10b981'  # Emerald
-                    label = 'Vaca Lechera'
-                    action = 'Ordeñar ganancia'
-                elif market_share <= 15 and growth_rate > total_market_growth:
-                    quadrant = 'question_mark'
-                    color = '#f59e0b'  # Amber
-                    label = 'Oportunidad'
-                    action = 'Promocionar'
+                # Usar el cuadrante ya definido si existe, o recalcular
+                if item.get('quadrant'):
+                    quadrant = item['quadrant']
+                    label = item.get('label', 'Análisis')
+                    color = item.get('color', '#6366f1')
                 else:
-                    quadrant = 'dog'
-                    color = '#6b7280'  # Gray
-                    label = 'Riesgo'
-                    action = 'Liquidar/Evaluar'
+                    if market_share > 5 and growth_rate > total_market_growth:
+                        quadrant = 'star'
+                        color = '#6366f1'  # Indigo
+                        label = 'Estrella'
+                    elif market_share > 5 and growth_rate <= total_market_growth:
+                        quadrant = 'cash_cow'
+                        color = '#10b981'  # Emerald
+                        label = 'Vaca Lechera'
+                    elif market_share <= 5 and growth_rate > total_market_growth:
+                        quadrant = 'question_mark'
+                        color = '#f59e0b'  # Amber
+                        label = 'Oportunidad'
+                    else:
+                        quadrant = 'dog'
+                        color = '#6b7280'  # Gray
+                        label = 'Riesgo'
+
+                action = {
+                    'star': 'Invertir y mantener',
+                    'cash_cow': 'Ordeñar ganancia',
+                    'question_mark': 'Promocionar',
+                    'dog': 'Liquidar/Evaluar'
+                }.get(quadrant, 'Evaluar')
 
                 matrix_data.append({
                     'name': item.get('name', ''),
                     'category': item.get('category', ''),
-                    'x': round(market_share, 1),  # Participación de mercado
-                    'y': round(growth_rate, 1),  # Tasa de crecimiento
-                    'z': sales,  # Tamaño (ventas)
+                    'x': round(market_share, 1),
+                    'y': round(growth_rate, 1),
+                    'z': sales,
                     'color': color,
                     'label': label,
                     'action': action,

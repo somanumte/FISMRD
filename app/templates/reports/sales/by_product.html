@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block title %}Ventas por Producto - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .report-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+    }
+
+    .products-table {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table thead {
+        background: #f9fafb;
+    }
+
+    .table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        color: #6b7280;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .rank-badge.gold {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+    }
+
+    .rank-badge.silver {
+        background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+        color: white;
+    }
+
+    .rank-badge.bronze {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+    }
+
+    .rank-badge.default {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #10b981;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Header -->
+    <div class="report-header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
+            <span>/</span>
+            <span>Ventas por Producto</span>
+        </div>
+        <h1>🏆 Ventas por Producto</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label>Fecha Inicio</label>
+                <input type="date" class="filter-input" id="startDate" value="{{ start_date }}">
+            </div>
+            <div class="filter-group">
+                <label>Fecha Fin</label>
+                <input type="date" class="filter-input" id="endDate" value="{{ end_date }}">
+            </div>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="loadReport()">🔍 Aplicar Filtros</button>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">Top 20 Productos Más Vendidos</h3>
+        <div class="chart-container">
+            <canvas id="productsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="products-table">
+        <h3 class="chart-title">Detalle de Productos</h3>
+        <table class="table" id="productsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>SKU</th>
+                    <th>Producto</th>
+                    <th>Unidades</th>
+                    <th>Ingresos</th>
+                </tr>
+            </thead>
+            <tbody id="productsTableBody">
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                        Cargando datos...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    let productsChart = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadReport();
+    });
+
+    function loadReport() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        showLoading();
+
+        fetch(`{{ url_for('reports.api_sales_by_product') }}?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    updateChart(result.data.chart_data);
+                    updateTable(result.data.products);
+                } else {
+                    alert('Error al cargar el reporte: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar el reporte');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+    }
+
+    function updateChart(chartData) {
+        const ctx = document.getElementById('productsChart').getContext('2d');
+
+        if (productsChart) {
+            productsChart.destroy();
+        }
+
+        productsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Ingresos ($)',
+                    data: chartData.revenues,
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        callbacks: {
+                            label: function (context) {
+                                return 'Ingresos: ' + formatCurrency(context.parsed.x);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateTable(products) {
+        const tbody = document.getElementById('productsTableBody');
+        tbody.innerHTML = '';
+
+        if (products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No hay datos disponibles</td></tr>';
+            return;
+        }
+
+        products.forEach((product, index) => {
+            const row = document.createElement('tr');
+
+            let rankBadge = '';
+            if (index === 0) {
+                rankBadge = '<span class="rank-badge gold">🥇</span>';
+            } else if (index === 1) {
+                rankBadge = '<span class="rank-badge silver">🥈</span>';
+            } else if (index === 2) {
+                rankBadge = '<span class="rank-badge bronze">🥉</span>';
+            } else {
+                rankBadge = `<span class="rank-badge default">${index + 1}</span>`;
+            }
+
+            row.innerHTML = `
+            <td>${rankBadge}</td>
+            <td><strong>${product.sku}</strong></td>
+            <td>${product.name}</td>
+            <td>${product.units_sold}</td>
+            <td><strong>${formatCurrency(product.revenue)}</strong></td>
+        `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function formatCurrency(value) {
+        return '$' + parseFloat(value).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+<!-- Role Editor Modal (Popup Style) -->
+<div id="roleModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-hidden" role="dialog"
+    aria-modal="true">
+    <!-- Backdrop with Blur -->
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+        id="roleModalBackdrop" onclick="closeRoleModal()"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all duration-300 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        id="roleModalPanel">
+
+        <!-- HEADER -->
+        <div
+            class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="roleModalTitle">
+                Configurar Rol
+            </h3>
+            <button onclick="closeRoleModal()"
+                class="text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors focus:outline-none">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <!-- BODY -->
+        <div class="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+            <form id="roleForm" onsubmit="event.preventDefault(); saveRole();" class="space-y-6">
+                <input type="hidden" id="roleId">
+
+                <div class="space-y-5">
+                    <!-- Alert Info -->
+                    <div
+                        class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900 rounded-xl p-4 flex gap-3">
+                        <i class="fas fa-exclamation-circle text-amber-600 dark:text-amber-400 mt-0.5"></i>
+                        <div>
+                            <h4 class="text-sm font-bold text-amber-800 dark:text-amber-200">Concepto de Roles</h4>
+                            <p class="text-xs text-amber-700 dark:text-amber-300 mt-1 leading-relaxed">
+                                Los roles agrupan permisos. Asigna permisos específicos abajo para
+                                definir qué pueden hacer los usuarios con este rol.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Nombre
+                            del Rol</label>
+                        <input type="text" id="displayName" required
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors"
+                            placeholder="Ej. Soporte Técnico">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
+                            ID Interno (Slug)
+                            <i class="fas fa-question-circle text-gray-400 text-xs ml-1" title="sales_support"></i>
+                        </label>
+                        <input type="text" id="roleName" required
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors font-mono"
+                            placeholder="sales_support">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Descripción</label>
+                        <textarea id="description" required rows="3"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-4 text-sm bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-colors resize-none"
+                            placeholder="Describe las responsabilidades..."></textarea>
+                    </div>
+
+                    <!-- Permissions Grid -->
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <label
+                                class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Permisos
+                                del Sistema</label>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="selectAllPermissions(true)"
+                                    class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">Marcar
+                                    Todo</button>
+                                <button type="button" onclick="selectAllPermissions(false)"
+                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:underline">Desmarcar</button>
+                            </div>
+                        </div>
+
+                        <div id="permissionsContainer" class="space-y-6">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <div
+            class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-800/50">
+            <button type="button" onclick="closeRoleModal()"
+                class="px-5 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 transition-colors">Cancelar</button>
+            <button type="button" onclick="saveRole()"
+                class="px-5 py-2.5 bg-slate-900 dark:bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 dark:hover:bg-indigo-700 shadow-lg transition-all hover:-translate-y-0.5">Guardar
+                Rol</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rolePermissionsLoaded = false;
+    let allSystemPermissions = {};
+
+    function openRoleModal(role = null) {
+        const modal = document.getElementById('roleModal');
+        const backdrop = document.getElementById('roleModalBackdrop');
+        const panel = document.getElementById('roleModalPanel');
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            panel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+        }, 10);
+
+        initRoleForm(role);
+    }
+
+    function closeRoleModal() {
+        const modal = document.getElementById('roleModal');
+        const backdrop = document.getElementById('roleModalBackdrop');
+        const panel = document.getElementById('roleModalPanel');
+
+        backdrop.classList.add('opacity-0');
+        panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+        panel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    async function initRoleForm(role) {
+        await loadPermissionsIfNeeded();
+
+        const title = document.getElementById('roleModalTitle');
+        document.getElementById('roleForm').reset();
+        document.getElementById('roleId').value = '';
+        document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = false);
+
+        if (role) {
+            title.textContent = "Configurar Rol";
+            document.getElementById('roleId').value = role.id;
+            document.getElementById('roleName').value = role.name;
+            document.getElementById('roleName').disabled = true; // Immutable slug
+            document.getElementById('roleName').classList.add('bg-gray-100');
+            document.getElementById('displayName').value = role.display_name;
+            document.getElementById('description').value = role.description;
+
+            if (role.permissions) {
+                role.permissions.forEach(p => {
+                    const val = (typeof p === 'object' && p.id) ? p.id : p;
+                    const cb = document.querySelector(`input[value="${val}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+        } else {
+            title.textContent = "Crear Rol";
+            document.getElementById('roleName').disabled = false;
+            document.getElementById('roleName').classList.remove('bg-gray-100');
+        }
+    }
+
+    async function loadPermissionsIfNeeded() {
+        if (rolePermissionsLoaded) return;
+        try {
+            const res = await fetch('/admin/api/permissions');
+            allSystemPermissions = await res.json();
+            renderPermissionsForm();
+            rolePermissionsLoaded = true;
+        } catch (e) { }
+    }
+
+    function renderPermissionsForm() {
+        const container = document.getElementById('permissionsContainer');
+        container.innerHTML = '';
+
+        Object.keys(allSystemPermissions).forEach(module => {
+            const title = module.charAt(0).toUpperCase() + module.slice(1);
+
+            const group = document.createElement('div');
+            group.className = "mb-4";
+
+            let html = `<h5 class="text-xs font-bold text-gray-500 uppercase mb-3 border-b border-gray-100 pb-1">${title}</h5>`;
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">`;
+
+            allSystemPermissions[module].forEach(perm => {
+                html += `
+                    <label class="flex items-start p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 hover:bg-white dark:hover:bg-gray-700 hover:border-indigo-100 dark:hover:border-indigo-500/50 cursor-pointer transition-all">
+                        <input type="checkbox" name="permissions" value="${perm.id}" class="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">${perm.display_name}</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">${perm.description || ''}</span>
+                        </div>
+                    </label>
+                 `;
+            });
+            html += `</div>`;
+            group.innerHTML = html;
+            container.appendChild(group);
+        });
+    }
+
+    async function saveRole() {
+        // Reuse logic from previous steps
+        const id = document.getElementById('roleId').value;
+        const isEdit = !!id;
+
+        const data = {
+            name: document.getElementById('roleName').value,
+            display_name: document.getElementById('displayName').value,
+            description: document.getElementById('description').value,
+            permissions: Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value)
+        };
+
+        const url = isEdit ? `/admin/api/roles/${id}` : '/admin/api/roles';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                closeRoleModal();
+                loadRoles(); // refresh main list
+            } else {
+                const err = await res.json();
+                alert(err.error);
+            }
+        } catch (e) { alert('Error network'); }
+    }
+
+    function selectAllPermissions(v) {
+        document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = v);
+    }
+</script>

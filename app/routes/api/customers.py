@@ -9,7 +9,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.customer import Customer
 from app.forms.customer_forms import CustomerForm, QuickSearchForm, FilterForm
-from app.utils.decorators import admin_required
+from app.utils.decorators import admin_required, permission_required, any_permission_required
 from app.services.dgii_service import DGIIService  # ===== NUEVA IMPORTACIÓN =====
 from sqlalchemy import or_
 import re
@@ -32,6 +32,7 @@ def clean_id_number(id_number):
 
 @customers_bp.route('/')
 @login_required
+@permission_required('customers.list')
 def customers_list():
     """
     Muestra el listado principal de clientes con filtros y búsqueda
@@ -115,6 +116,7 @@ def customers_list():
 
 @customers_bp.route('/add', methods=['GET', 'POST'])
 @login_required
+@permission_required('customers.create')
 def customer_add():
     """
     Muestra el formulario y procesa la creación de un nuevo cliente
@@ -208,6 +210,7 @@ def customer_add():
 
 @customers_bp.route('/check-dgii', methods=['POST'])
 @login_required
+@any_permission_required('customers.create', 'customers.edit')
 def check_dgii():
     """
     Endpoint para consultar datos del cliente en DGII
@@ -303,6 +306,7 @@ def check_dgii():
 
 @customers_bp.route('/<int:id>')
 @login_required
+@permission_required('customers.view')
 def customer_detail(id):
     """
     Muestra el detalle completo de un cliente
@@ -319,7 +323,7 @@ def customer_detail(id):
 
 @customers_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@permission_required('customers.edit')
 def customer_edit(id):
     """
     Edita un cliente existente
@@ -378,7 +382,7 @@ def customer_edit(id):
 
 @customers_bp.route('/<int:id>/toggle-status', methods=['POST'])
 @login_required
-@admin_required
+@permission_required('customers.edit')
 def customer_toggle_status(id):
     """
     Activa/Desactiva un cliente (soft delete)
@@ -404,6 +408,7 @@ def customer_toggle_status(id):
 
 @customers_bp.route('/api/search')
 @login_required
+@any_permission_required('customers.list', 'customers.view')
 def api_search():
     """
     Búsqueda rápida de clientes para autocompletado

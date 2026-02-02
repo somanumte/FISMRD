@@ -1,153 +1,145 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
+from app.utils.decorators import permission_required, any_permission_required
 from app import db
 from app.models.expense import Expense, ExpenseCategory
-from app.models.user import User
 from datetime import datetime, date, timedelta
-from sqlalchemy import func, and_, or_, extract
-import csv
-import io
-import json
+from sqlalchemy import func, or_, extract, case, and_
 
 bp = Blueprint('expenses', __name__, url_prefix='/expenses')
 
-
 # ============================================
-# RUTAS PRINCIPALES (IMPLEMENTAR EXISTENTES)
+# VISTAS PRINCIPALES
 # ============================================
 
 @bp.route('/')
 @login_required
+@permission_required('expenses.view')
 def expenses_list():
-    """Página principal de gastos"""
-    # Obtener parámetros de filtrado
-    page = request.args.get('page', 1, type=int)
-    status = request.args.get('status', 'all')
-    category_id = request.args.get('category_id', 'all')
-    search = request.args.get('search', '')
+    """Renderiza la vista principal de gastos"""
+    # Solo pasamos datos estáticos necesarios para la carga inicial
+    # Todo lo demás se carga vía API
+    return render_template('Expenses/expenses_list.html')
 
-    # Construir query base
-    query = Expense.query.filter_by(created_by=current_user.id)
+# ============================================
+# API ENDPOINTS
+# ============================================
 
-    # Aplicar filtros
-    if status == 'pending':
-        query = query.filter_by(is_paid=False).filter(Expense.due_date >= date.today())
-    elif status == 'overdue':
-        query = query.filter_by(is_paid=False).filter(Expense.due_date < date.today())
-    elif status == 'paid':
-        query = query.filter_by(is_paid=True)
-
-    if category_id != 'all' and category_id.isdigit():
-        query = query.filter_by(category_id=int(category_id))
-
-    if search:
-        query = query.filter(
-            or_(
-                Expense.description.ilike(f'%{search}%'),
-                Expense.notes.ilike(f'%{search}%')
-            )
-        )
-
-    # Paginación
-    expenses = query.order_by(Expense.due_date.desc()).paginate(
-        page=page, per_page=20, error_out=False
-    )
-
-    # Obtener categorías para el filtro
-    categories = ExpenseCategory.query.order_by(ExpenseCategory.name).all()
-
-    # Estadísticas rápidas
-    total_expenses = query.count()
-    total_amount = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
-        Expense.created_by == current_user.id
-    ).scalar() or 0
-
-    return render_template(
-        'Expenses/expenses_list.html',
-        expenses=expenses,
-        categories=categories,
-        current_status=status,
-        current_category=category_id,
-        search_query=search,
-        total_expenses=total_expenses,
-        total_amount=float(total_amount)
-    )
-
-
-@bp.route('/create', methods=['POST'])
+@bp.route('/api/dashboard')
 @login_required
-def expense_create():
-    """Crear un nuevo gasto"""
+@permission_required('expenses.view')
+def api_dashboard_data():
+    """API para obtener datos consolidados del dashboard"""
     try:
-        data = request.form
+        today = date.today()
+        start_of_month = today.replace(day=1)
+        # Fin de mes
+        if start_of_month.month == 12:
+            end_of_month = date(today.year + 1, 1, 1) - timedelta(days=1)
+        else:
+            end_of_month = date(today.year, today.month + 1, 1) - timedelta(days=1)
+            
+        # 1. KPIs Principales (Mes Actual)
+        # Total Gastos (Pagados + Pendientes del mes)
+        total_month = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
+            Expense.created_by == current_user.id,
+            Expense.due_date >= start_of_month,
+            Expense.due_date <= end_of_month
+        ).scalar()
+        
+        # Gastos Pendientes (Mes actual)
+        pending_month = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
+            Expense.created_by == current_user.id,
+            Expense.is_paid == False,
+            Expense.due_date >= start_of_month,
+            Expense.due_date <= end_of_month
+        ).scalar()
+        
+        # Gastos Vencidos (Total histórico)
+        overdue_total = db.session.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
+            Expense.created_by == current_user.id,
+            Expense.is_paid == False,
+            Expense.due_date < today
+        ).scalar()
+        
+        # Próximos Vencimientos (7 días, conteo)
+        next_week = today + timedelta(days=7)
+        upcoming_count = Expense.query.filter(
+            Expense.created_by == current_user.id,
+            Expense.is_paid == False,
+            Expense.due_date >= today,
+            Expense.due_date <= next_week
+        ).count()
+        
+        # 2. Datos para Gráfico Diario (Mes Actual)
+        # Agrupado por día
+        daily_data_query = db.session.query(
+            extract('day', Expense.due_date).label('day'),
+            func.sum(Expense.amount).label('total')
+        ).filter(
+            Expense.created_by == current_user.id,
+            Expense.due_date >= start_of_month,
+            Expense.due_date <= end_of_month
+        ).group_by(extract('day', Expense.due_date)).all()
+        
+        # Rellenar días vacíos
+        days_in_month = list(range(1, end_of_month.day + 1))
+        daily_map = {d.day: float(d.total) for d in daily_data_query}
+        chart_daily = {
+            'labels': days_in_month,
+            'data': [daily_map.get(day, 0) for day in days_in_month]
+        }
 
-        # Validar campos requeridos
-        required_fields = ['description', 'amount', 'category_id', 'due_date']
-        for field in required_fields:
-            if not data.get(field):
-                flash(f'El campo {field} es requerido', 'error')
-                return redirect(url_for('expenses.expenses_list'))
+        # 3. Datos para Gráfico Categorías (Mes Actual)
+        category_data_query = db.session.query(
+            ExpenseCategory.name,
+            ExpenseCategory.color,
+            func.sum(Expense.amount).label('total')
+        ).join(Expense).filter(
+            Expense.created_by == current_user.id,
+            Expense.due_date >= start_of_month,
+            Expense.due_date <= end_of_month
+        ).group_by(ExpenseCategory.name, ExpenseCategory.color).all()
+        
+        chart_categories = [{
+            'name': c.name,
+            'color': c.color or '#808080',
+            'value': float(c.total)
+        } for c in category_data_query]
 
-        # Crear gasto
-        expense = Expense(
-            description=data['description'],
-            amount=float(data['amount']),
-            category_id=int(data['category_id']),
-            due_date=datetime.strptime(data['due_date'], '%Y-%m-%d').date(),
-            is_paid=data.get('is_paid') == 'on',
-            is_recurring=data.get('is_recurring') == 'on',
-            frequency=data.get('frequency'),
-            advance_days=int(data.get('advance_days', 7)),
-            auto_renew=data.get('auto_renew') == 'on',
-            notes=data.get('notes'),
-            created_by=current_user.id
-        )
-
-        # Si está pagado, establecer fecha de pago
-        if expense.is_paid:
-            expense.paid_date = date.today()
-
-        db.session.add(expense)
-        db.session.commit()
-
-        flash('Gasto creado exitosamente', 'success')
-        return redirect(url_for('expenses.expenses_list'))
-
+        return jsonify({
+            'kpi': {
+                'total_month': float(total_month),
+                'pending_month': float(pending_month),
+                'overdue_total': float(overdue_total),
+                'upcoming_count': upcoming_count
+            },
+            'charts': {
+                'daily': chart_daily,
+                'categories': chart_categories
+            }
+        })
+        
     except Exception as e:
-        db.session.rollback()
-        flash(f'Error al crear el gasto: {str(e)}', 'error')
-        return redirect(url_for('expenses.expenses_list'))
+        print(f"Error in dashboard backend: {e}")
+        return jsonify({'error': str(e)}), 500
 
-
-# ============================================
-# NUEVAS APIS RESTFUL PARA EL FRONTEND
-# ============================================
-
-@bp.route('/api/expenses')
+@bp.route('/api/list')
 @login_required
-def expense_get_all():
-    """API para obtener todos los gastos del usuario"""
+@permission_required('expenses.list')
+def api_list_expenses():
+    """API para listar gastos con filtros y paginación"""
     try:
-        # Obtener parámetros de filtrado
-        status = request.args.get('status', '')
-        category_id = request.args.get('category_id', '')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
-
-        # Construir query base
+        status = request.args.get('status', 'all')
+        category_id = request.args.get('category_id', 'all')
+        
         query = Expense.query.filter_by(created_by=current_user.id)
-
-        # Aplicar filtros
-        if status == 'pending':
-            query = query.filter_by(is_paid=False).filter(Expense.due_date >= date.today())
-        elif status == 'overdue':
-            query = query.filter_by(is_paid=False).filter(Expense.due_date < date.today())
-        elif status == 'paid':
-            query = query.filter_by(is_paid=True)
-
-        if category_id and category_id.isdigit():
-            query = query.filter_by(category_id=int(category_id))
-
+        
+        # Filtros
         if search:
             query = query.filter(
                 or_(
@@ -155,674 +147,163 @@ def expense_get_all():
                     Expense.notes.ilike(f'%{search}%')
                 )
             )
-
-        # Obtener gastos
-        expenses = query.order_by(Expense.due_date.desc()).all()
-
-        # Retornar como JSON
-        expenses_data = [expense.to_dict() for expense in expenses]
-
-        # Calcular estadísticas totales
-        total_amount = sum(float(expense.amount) for expense in expenses)
-        total_count = len(expenses)
-        pending_count = sum(1 for expense in expenses if not expense.is_paid)
-        overdue_count = sum(1 for expense in expenses if expense.is_overdue)
-
+            
+        if status == 'pending':
+            query = query.filter(Expense.is_paid == False, Expense.due_date >= date.today())
+        elif status == 'overdue':
+            query = query.filter(Expense.is_paid == False, Expense.due_date < date.today())
+        elif status == 'paid':
+            query = query.filter(Expense.is_paid == True)
+            
+        if category_id != 'all' and category_id.isdigit():
+            query = query.filter_by(category_id=int(category_id))
+            
+        # Ordenar por fecha de vencimiento desc
+        expenses_paginated = query.order_by(Expense.due_date.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
         return jsonify({
-            'expenses': expenses_data,
-            'summary': {
-                'total_amount': float(total_amount),
-                'total_count': total_count,
-                'pending_count': pending_count,
-                'overdue_count': overdue_count
-            }
+            'expenses': [e.to_dict() for e in expenses_paginated.items],
+            'total': expenses_paginated.total,
+            'pages': expenses_paginated.pages,
+            'current_page': page
         })
-
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-@bp.route('/api/expenses/<int:expense_id>')
+@bp.route('/api/create', methods=['POST'])
 @login_required
-def expense_get(expense_id):
-    """API para obtener datos de un gasto específico"""
-    expense = Expense.query.get_or_404(expense_id)
-
-    # Verificar permisos
-    if expense.created_by != current_user.id and not current_user.is_admin:
-        return jsonify({'error': 'No tienes permiso'}), 403
-
-    return jsonify(expense.to_dict())
-
-
-@bp.route('/api/expenses/<int:expense_id>', methods=['PUT'])
-@login_required
-def expense_update(expense_id):
-    """API para actualizar un gasto"""
-    expense = Expense.query.get_or_404(expense_id)
-
-    # Verificar permisos
-    if expense.created_by != current_user.id and not current_user.is_admin:
-        return jsonify({'error': 'No tienes permiso'}), 403
-
+@permission_required('expenses.create')
+def api_create_expense():
+    """Crear un nuevo gasto"""
     try:
-        data = request.get_json()
-
-        # Actualizar campos
-        if 'description' in data:
-            expense.description = data['description']
-        if 'amount' in data:
-            expense.amount = float(data['amount'])
-        if 'category_id' in data:
-            expense.category_id = int(data['category_id'])
-        if 'due_date' in data:
-            expense.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
-        if 'is_paid' in data:
-            expense.is_paid = bool(data['is_paid'])
-            if expense.is_paid and not expense.paid_date:
-                expense.paid_date = date.today()
-            elif not expense.is_paid:
-                expense.paid_date = None
-        if 'is_recurring' in data:
-            expense.is_recurring = bool(data['is_recurring'])
-        if 'frequency' in data:
-            expense.frequency = data['frequency']
-        if 'advance_days' in data:
-            expense.advance_days = int(data['advance_days'])
-        if 'auto_renew' in data:
-            expense.auto_renew = bool(data['auto_renew'])
-        if 'notes' in data:
-            expense.notes = data['notes']
-
-        expense.updated_at = datetime.utcnow()
-
+        data = request.json
+        
+        # Validaciones básicas
+        if not data.get('description') or not data.get('amount') or not data.get('category_id'):
+            return jsonify({'error': 'Campos requeridos faltantes'}), 400
+            
+        expense = Expense(
+            description=data['description'],
+            amount=float(data['amount']),
+            category_id=int(data['category_id']),
+            due_date=datetime.strptime(data['due_date'], '%Y-%m-%d').date(),
+            is_paid=data.get('is_paid', False),
+            is_recurring=data.get('is_recurring', False),
+            frequency=data.get('frequency'),
+            advance_days=int(data.get('advance_days', 7)),
+            auto_renew=data.get('auto_renew', False),
+            notes=data.get('notes'),
+            created_by=current_user.id
+        )
+        
+        if expense.is_paid and not expense.paid_date:
+            expense.paid_date = date.today()
+            
+        db.session.add(expense)
         db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Gasto actualizado exitosamente',
-            'expense': expense.to_dict()
-        })
-
+        
+        return jsonify({'success': True, 'message': 'Gasto creado', 'expense': expense.to_dict()})
+        
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-
-@bp.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
+@bp.route('/api/<int:expense_id>', methods=['DELETE'])
 @login_required
-def expense_delete(expense_id):
+@permission_required('expenses.delete')
+def api_delete_expense(expense_id):
     """Eliminar un gasto"""
     expense = Expense.query.get_or_404(expense_id)
-
-    # Verificar permisos
-    if expense.created_by != current_user.id and not current_user.is_admin:
-        return jsonify({'error': 'No tienes permiso'}), 403
-
+    
+    if expense.created_by != current_user.id:
+        return jsonify({'error': 'No autorizado'}), 403
+        
     try:
         db.session.delete(expense)
         db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Gasto eliminado exitosamente'
-        })
+        return jsonify({'success': True, 'message': 'Gasto eliminado'})
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-
-@bp.route('/api/expenses/<int:expense_id>/paid', methods=['POST'])
+@bp.route('/api/<int:expense_id>', methods=['PUT'])
 @login_required
-def expense_mark_paid(expense_id):
-    """Marcar un gasto como pagado"""
+@permission_required('expenses.edit')
+def api_update_expense(expense_id):
+    """Actualizar un gasto"""
     expense = Expense.query.get_or_404(expense_id)
-
-    # Verificar permisos
-    if expense.created_by != current_user.id and not current_user.is_admin:
-        return jsonify({'error': 'No tienes permiso'}), 403
-
+    
+    if expense.created_by != current_user.id:
+        return jsonify({'error': 'No autorizado'}), 403
+        
     try:
-        expense.is_paid = True
-        expense.paid_date = date.today()
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Gasto marcado como pagado',
-            'expense': expense.to_dict()
-        })
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-@bp.route('/api/expenses/<int:expense_id>/pending', methods=['POST'])
-@login_required
-def expense_mark_pending(expense_id):
-    """Marcar un gasto como pendiente"""
-    expense = Expense.query.get_or_404(expense_id)
-
-    # Verificar permisos
-    if expense.created_by != current_user.id and not current_user.is_admin:
-        return jsonify({'error': 'No tienes permiso'}), 403
-
-    try:
-        expense.is_paid = False
-        expense.paid_date = None
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Gasto marcado como pendiente',
-            'expense': expense.to_dict()
-        })
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-@bp.route('/api/expenses/bulk', methods=['POST'])
-@login_required
-def expense_bulk_action():
-    """API para acciones en lote"""
-    data = request.get_json()
-    action = data.get('action')
-    expense_ids = data.get('expense_ids', [])
-
-    if not expense_ids:
-        return jsonify({'error': 'No hay gastos seleccionados'}), 400
-
-    # Verificar permisos para todos los gastos
-    expenses = Expense.query.filter(
-        Expense.id.in_(expense_ids),
-        Expense.created_by == current_user.id
-    ).all()
-
-    if len(expenses) != len(expense_ids):
-        return jsonify({'error': 'No tienes permiso para algunos gastos'}), 403
-
-    try:
-        if action == 'mark_paid':
-            for expense in expenses:
+        data = request.json
+        expense.description = data.get('description', expense.description)
+        expense.amount = float(data.get('amount', expense.amount))
+        expense.category_id = int(data.get('category_id', expense.category_id))
+        if 'due_date' in data:
+            expense.due_date = datetime.strptime(data['due_date'], '%Y-%m-%d').date()
+        
+        expense.is_recurring = data.get('is_recurring', expense.is_recurring)
+        expense.frequency = data.get('frequency', expense.frequency)
+        expense.auto_renew = data.get('auto_renew', expense.auto_renew)
+        expense.notes = data.get('notes', expense.notes)
+        
+        # Actualización de estado pagado
+        if 'is_paid' in data:
+            new_paid_status = data['is_paid']
+            if new_paid_status and not expense.is_paid:
                 expense.is_paid = True
                 expense.paid_date = date.today()
-
-                # Si es recurrente y tiene auto_renew, crear el siguiente gasto
-                if expense.is_recurring and expense.auto_renew and expense.next_due_date:
-                    new_expense = Expense(
-                        description=expense.description,
-                        amount=expense.amount,
-                        category_id=expense.category_id,
-                        due_date=expense.next_due_date,
-                        is_paid=False,
-                        is_recurring=True,
-                        frequency=expense.frequency,
-                        advance_days=expense.advance_days,
-                        auto_renew=True,
-                        notes=expense.notes,
-                        created_by=current_user.id
-                    )
-                    db.session.add(new_expense)
-
-        elif action == 'delete':
-            for expense in expenses:
-                db.session.delete(expense)
-
-        elif action == 'mark_pending':
-            for expense in expenses:
+            elif not new_paid_status:
                 expense.is_paid = False
                 expense.paid_date = None
-
+        
         db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': f'{len(expenses)} gastos procesados',
-            'processed': len(expenses)
-        })
-
+        return jsonify({'success': True, 'message': 'Gasto actualizado', 'expense': expense.to_dict()})
+        
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/api/<int:expense_id>/toggle-status', methods=['POST'])
+@login_required
+@permission_required('expenses.edit')
+def api_toggle_status(expense_id):
+    """Cambiar estado de pago rápidamente"""
+    expense = Expense.query.get_or_404(expense_id)
+    if expense.created_by != current_user.id:
+        return jsonify({'error': 'No autorizado'}), 403
+        
+    try:
+        expense.is_paid = not expense.is_paid
+        expense.paid_date = date.today() if expense.is_paid else None
+        
+        # Logica de recurrencia simple: si se paga y es recurrente/auto-renew, 
+        # crear el siguiente (si no existe ya - simplificación para este sprint)
+        # Por ahora solo cambiamos el estado.
+        
+        db.session.commit()
+        return jsonify({'success': True, 'new_status': expense.is_paid})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @bp.route('/api/categories')
 @login_required
-def categories_get_all():
-    """API para obtener todas las categorías"""
-    try:
-        categories = ExpenseCategory.query.order_by(ExpenseCategory.name).all()
-        return jsonify([category.to_dict() for category in categories])
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@bp.route('/api/categories/<int:category_id>')
-@login_required
-def category_get(category_id):
-    """API para obtener una categoría específica"""
-    category = ExpenseCategory.query.get_or_404(category_id)
-    return jsonify(category.to_dict())
-
-
-@bp.route('/api/categories', methods=['POST'])
-@login_required
-def category_create_api():
-    """API para crear una nueva categoría"""
-    try:
-        data = request.get_json()
-
-        if not data.get('name'):
-            return jsonify({'error': 'El nombre es requerido'}), 400
-
-        # Verificar si ya existe
-        existing = ExpenseCategory.query.filter_by(name=data['name']).first()
-        if existing:
-            return jsonify({'error': 'Ya existe una categoría con ese nombre'}), 400
-
-        # Crear categoría
-        category = ExpenseCategory(
-            name=data['name'],
-            color=data.get('color'),
-            description=data.get('description')
-        )
-
-        db.session.add(category)
-        db.session.commit()
-
-        return jsonify({
-            'success': True,
-            'message': 'Categoría creada exitosamente',
-            'category': category.to_dict()
-        })
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-
-@bp.route('/api/dashboard')
-@login_required
-def dashboard_data():
-    """API para datos del dashboard con gráficos"""
-
-    # Fechas para cálculos
-    today = date.today()
-    start_of_month = today.replace(day=1)
-    end_of_month = (start_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-    start_of_year = today.replace(month=1, day=1)
-
-    # 1. Gastos por día del mes actual (para gráfico de líneas)
-    daily_expenses = db.session.query(
-        extract('day', Expense.due_date).label('day'),
-        func.sum(Expense.amount).label('total'),
-        func.count(Expense.id).label('count')
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month,
-        Expense.is_paid == True
-    ).group_by(
-        extract('day', Expense.due_date)
-    ).order_by('day').all()
-
-    # Preparar datos para gráfico
-    days_in_month = [i for i in range(1, 32)]
-    daily_data = {day: {'total': 0, 'count': 0} for day in days_in_month}
-
-    for expense in daily_expenses:
-        daily_data[int(expense.day)] = {
-            'total': float(expense.total) if expense.total else 0,
-            'count': expense.count or 0
-        }
-
-    # 2. Resumen por categoría para gráfico de pastel
-    category_chart = db.session.query(
-        ExpenseCategory.name,
-        ExpenseCategory.color,
-        func.sum(Expense.amount).label('total'),
-        func.count(Expense.id).label('count')
-    ).join(
-        Expense, Expense.category_id == ExpenseCategory.id
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == True,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).group_by(
-        ExpenseCategory.name,
-        ExpenseCategory.color
-    ).order_by(func.sum(Expense.amount).desc()).all()
-
-    # 3. Comparación mes anterior vs mes actual
-    if start_of_month.month == 1:
-        prev_month_start = date(start_of_month.year - 1, 12, 1)
-    else:
-        prev_month_start = date(start_of_month.year, start_of_month.month - 1, 1)
-
-    prev_month_end = start_of_month - timedelta(days=1)
-
-    current_month_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == True,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).scalar() or 0
-
-    prev_month_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == True,
-        Expense.due_date >= prev_month_start,
-        Expense.due_date <= prev_month_end
-    ).scalar() or 0
-
-    # Calcular porcentaje de cambio
-    if prev_month_total > 0:
-        percentage_change = ((current_month_total - prev_month_total) / prev_month_total) * 100
-    else:
-        percentage_change = 100 if current_month_total > 0 else 0
-
-    # 4. Tendencias por tipo (fijo vs recurrente)
-    type_trends = db.session.query(
-        Expense.is_recurring,
-        func.sum(Expense.amount).label('total'),
-        func.count(Expense.id).label('count')
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == True,
-        Expense.due_date >= start_of_year
-    ).group_by(Expense.is_recurring).all()
-
-    fixed_total = 0
-    recurring_total = 0
-
-    for trend in type_trends:
-        if trend.is_recurring:
-            recurring_total = float(trend.total) if trend.total else 0
-        else:
-            fixed_total = float(trend.total) if trend.total else 0
-
-    return jsonify({
-        'daily_expenses': {
-            'labels': days_in_month,
-            'data': [daily_data[day]['total'] for day in days_in_month],
-            'counts': [daily_data[day]['count'] for day in days_in_month]
-        },
-        'category_chart': [{
-            'name': cat.name,
-            'color': cat.color or '#2D64B3',
-            'total': float(cat.total) if cat.total else 0,
-            'count': cat.count or 0
-        } for cat in category_chart],
-        'monthly_comparison': {
-            'current_month': float(current_month_total),
-            'previous_month': float(prev_month_total),
-            'percentage_change': float(percentage_change),
-            'trend': 'up' if percentage_change > 0 else 'down'
-        },
-        'type_trends': {
-            'fixed': fixed_total,
-            'recurring': recurring_total,
-            'total': fixed_total + recurring_total
-        }
-    })
-
-
-@bp.route('/api/expenses/summary')
-@login_required
-def expenses_summary():
-    """Resumen de gastos para tarjetas del dashboard"""
-    today = date.today()
-    start_of_month = today.replace(day=1)
-    end_of_month = (start_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-
-    # Gastos del mes actual
-    current_month = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).scalar() or 0
-
-    # Gastos pendientes del mes
-    pending_month = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == False,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).scalar() or 0
-
-    # Gastos vencidos
-    overdue_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == False,
-        Expense.due_date < today
-    ).scalar() or 0
-
-    # Gastos fijos vs recurrentes
-    fixed_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_recurring == False,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).scalar() or 0
-
-    recurring_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_recurring == True,
-        Expense.due_date >= start_of_month,
-        Expense.due_date <= end_of_month
-    ).scalar() or 0
-
-    # Gastos por pagar en próximos 7 días
-    next_week = today + timedelta(days=7)
-    upcoming_total = db.session.query(
-        func.coalesce(func.sum(Expense.amount), 0)
-    ).filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == False,
-        Expense.due_date.between(today, next_week)
-    ).scalar() or 0
-
-    return jsonify({
-        'current_month': float(current_month),
-        'pending_month': float(pending_month),
-        'overdue_total': float(overdue_total),
-        'fixed_total': float(fixed_total),
-        'recurring_total': float(recurring_total),
-        'upcoming_total': float(upcoming_total),
-        'month_name': start_of_month.strftime('%B %Y')
-    })
-
-
-@bp.route('/api/notifications')
-@login_required
-def expense_notifications():
-    """Notificaciones de gastos próximos y vencidos"""
-    today = date.today()
-    next_week = today + timedelta(days=7)
-
-    # Gastos próximos (próximos 7 días)
-    upcoming = Expense.query.filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == False,
-        Expense.due_date.between(today, next_week)
-    ).order_by(Expense.due_date).limit(10).all()
-
-    # Gastos vencidos
-    overdue = Expense.query.filter(
-        Expense.created_by == current_user.id,
-        Expense.is_paid == False,
-        Expense.due_date < today
-    ).order_by(Expense.due_date).limit(10).all()
-
-    # Gastos recurrentes próximos a renovar
-    renewing_soon = Expense.query.filter(
-        Expense.created_by == current_user.id,
-        Expense.is_recurring == True,
-        Expense.auto_renew == True,
-        Expense.due_date <= next_week
-    ).limit(5).all()
-
-    return jsonify({
-        'upcoming': [{
-            'id': e.id,
-            'description': e.description,
-            'amount': float(e.amount),
-            'due_date': e.due_date.isoformat(),
-            'days_until': e.days_until,
-            'category': e.category_ref.name if e.category_ref else 'Sin categoría'
-        } for e in upcoming],
-        'overdue': [{
-            'id': e.id,
-            'description': e.description,
-            'amount': float(e.amount),
-            'due_date': e.due_date.isoformat(),
-            'days_overdue': abs(e.days_until) if e.days_until < 0 else 0,
-            'category': e.category_ref.name if e.category_ref else 'Sin categoría'
-        } for e in overdue],
-        'renewing_soon': [{
-            'id': e.id,
-            'description': e.description,
-            'amount': float(e.amount),
-            'due_date': e.due_date.isoformat(),
-            'next_due_date': e.next_due_date.isoformat() if e.next_due_date else None,
-            'frequency': e.frequency
-        } for e in renewing_soon],
-        'total_notifications': len(upcoming) + len(overdue)
-    })
-
-
-@bp.route('/api/search')
-@login_required
-def expense_search():
-    """Búsqueda en tiempo real de gastos"""
-    query = request.args.get('q', '')
-    category_id = request.args.get('category_id', '')
-    status = request.args.get('status', '')
-
-    if not query or len(query) < 2:
-        return jsonify([])
-
-    # Construir query base
-    search_query = Expense.query.filter(
-        Expense.created_by == current_user.id,
-        or_(
-            Expense.description.ilike(f'%{query}%'),
-            Expense.notes.ilike(f'%{query}%')
-        )
-    )
-
-    # Aplicar filtros adicionales
-    if category_id:
-        search_query = search_query.filter_by(category_id=int(category_id))
-
-    if status == 'pending':
-        search_query = search_query.filter_by(is_paid=False).filter(Expense.due_date >= date.today())
-    elif status == 'paid':
-        search_query = search_query.filter_by(is_paid=True)
-    elif status == 'overdue':
-        search_query = search_query.filter_by(is_paid=False).filter(Expense.due_date < date.today())
-
-    # Ejecutar búsqueda
-    results = search_query.order_by(Expense.due_date.desc()).limit(20).all()
-
-    return jsonify([{
-        'id': e.id,
-        'description': e.description,
-        'amount': float(e.amount),
-        'due_date': e.due_date.isoformat(),
-        'is_paid': e.is_paid,
-        'is_overdue': e.is_overdue,
-        'category': {
-            'id': e.category_id,
-            'name': e.category_ref.name if e.category_ref else 'Sin categoría',
-            'color': e.category_ref.color if e.category_ref else None
-        },
-        'type': 'Recurrente' if e.is_recurring else 'Fijo',
-        'notes': e.notes or ''
-    } for e in results])
-
-
-@bp.route('/api/analytics/monthly')
-@login_required
-def monthly_analytics():
-    """Análisis mensual de gastos"""
-    year = request.args.get('year', date.today().year, type=int)
-
-    monthly_data = []
-
-    for month in range(1, 13):
-        month_start = date(year, month, 1)
-
-        if month == 12:
-            month_end = date(year + 1, 1, 1) - timedelta(days=1)
-        else:
-            month_end = date(year, month + 1, 1) - timedelta(days=1)
-
-        # Gastos pagados
-        paid_total = db.session.query(
-            func.coalesce(func.sum(Expense.amount), 0)
-        ).filter(
-            Expense.created_by == current_user.id,
-            Expense.is_paid == True,
-            Expense.due_date >= month_start,
-            Expense.due_date <= month_end
-        ).scalar() or 0
-
-        # Gastos pendientes
-        pending_total = db.session.query(
-            func.coalesce(func.sum(Expense.amount), 0)
-        ).filter(
-            Expense.created_by == current_user.id,
-            Expense.is_paid == False,
-            Expense.due_date >= month_start,
-            Expense.due_date <= month_end
-        ).scalar() or 0
-
-        # Total gastos
-        total_expenses = paid_total + pending_total
-
-        # Conteo de gastos
-        expense_count = Expense.query.filter(
-            Expense.created_by == current_user.id,
-            Expense.due_date >= month_start,
-            Expense.due_date <= month_end
-        ).count()
-
-        monthly_data.append({
-            'month': month_start.strftime('%B'),
-            'month_number': month,
-            'paid': float(paid_total),
-            'pending': float(pending_total),
-            'total': float(total_expenses),
-            'count': expense_count
-        })
-
-    return jsonify({
-        'year': year,
-        'monthly_data': monthly_data,
-        'annual_total': sum(item['total'] for item in monthly_data),
-        'annual_paid': sum(item['paid'] for item in monthly_data)
-    })
+@permission_required('expenses.view')
+def api_get_categories():
+    """Obtener todas las categorías"""
+    categories = ExpenseCategory.query.order_by(ExpenseCategory.name).all()
+    return jsonify([c.to_dict() for c in categories])
 
 
 @bp.route('/api/categories/stats')
 @login_required
+@permission_required('expenses.view')
 def categories_stats():
     """Estadísticas detalladas por categoría"""
     start_date = request.args.get('start_date', date.today().replace(day=1).isoformat())
@@ -898,6 +379,7 @@ def categories_stats():
 
 @bp.route('/export')
 @login_required
+@permission_required('expenses.export')
 def expense_export():
     """Exportar gastos a CSV"""
     try:
@@ -948,6 +430,7 @@ def expense_export():
 
 @bp.route('/categories')
 @login_required
+@permission_required('expenses.view')
 def categories_list():
     """Listar categorías de gastos"""
     categories = ExpenseCategory.query.order_by(ExpenseCategory.name).all()
@@ -981,6 +464,7 @@ def categories_list():
 
 @bp.route('/categories/create', methods=['POST'])
 @login_required
+@permission_required('expenses.create')
 def category_create():
     """Crear nueva categoría de gastos"""
     try:

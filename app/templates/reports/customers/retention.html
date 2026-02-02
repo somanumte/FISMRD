@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Retención - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(236, 72, 153, 0.3);
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .metric-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .metric-label {
+        font-size: 1.1rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+        background: white;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>🧲 Análisis de Retención de Clientes</h1>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-value" id="activeCustomers">0</div>
+            <div class="metric-label">Clientes Activos (Últimos 90 días)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value text-pink-600" id="repeatRate">0%</div>
+            <div class="metric-label">Tasa de Recurrencia</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="retentionChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_customers_retention') }}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const d = data.data;
+                    document.getElementById('activeCustomers').textContent = d.active;
+                    const rate = ((d.repeat / d.total) * 100).toFixed(1);
+                    document.getElementById('repeatRate').textContent = rate + '%';
+
+                    const ctx = document.getElementById('retentionChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Activos', 'Inactivos (Riesgo)', 'Recurrentes'],
+                            datasets: [{
+                                data: [d.active, d.churn_risk, d.repeat],
+                                backgroundColor: ['#10b981', '#ef4444', '#3b82f6']
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

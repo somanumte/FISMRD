@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Facturas Pendientes - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>⏳ Facturas Pendientes de Pago</h1>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Factura</th>
+                    <th>Cliente</th>
+                    <th>Fecha Emisión</th>
+                    <th>Vencimiento</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_pending_invoices') }}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('reportTableBody');
+                if (data.success) {
+                    data.data.forEach(item => {
+                        const statusBadge = item.days_overdue > 0
+                            ? `<span class="badge-danger">Vencida (${item.days_overdue} días)</span>`
+                            : `<span class="badge-warning">Pendiente</span>`;
+
+                        tbody.innerHTML += `<tr>
+                            <td>${item.number}</td>
+                            <td>${item.customer}</td>
+                            <td>${item.date}</td>
+                            <td>${item.due_date || 'N/A'}</td>
+                            <td>$${item.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td>${statusBadge}</td>
+                        </tr>`;
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

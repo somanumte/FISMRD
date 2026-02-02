@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte 607 (Ventas) - DGII{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .filters-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1000px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: #059669;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>📈 Reporte 607: Ventas de Bienes y Servicios</h1>
+        <p>Formato de Envío de Ventas</p>
+    </div>
+
+    <div class="filters-card">
+        <label>Inicio: <input type="date" id="startDate" class="filter-input" value="{{ start_date }}"></label>
+        <label>Fin: <input type="date" id="endDate" class="filter-input" value="{{ end_date }}"></label>
+        <button class="btn-primary" onclick="loadReport()">Generar</button>
+        <button class="btn-primary" style="background: #2563eb;" onclick="downloadCSV()">Descargar CSV (DGII)</button>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table" id="reportTable">
+            <thead>
+                <tr>
+                    <th>RNC/Cédula</th>
+                    <th>Tipo ID</th>
+                    <th>NCF</th>
+                    <th>NCF Modif.</th>
+                    <th>Tipo Ingreso</th>
+                    <th>Fecha</th>
+                    <th>Monto Fac.</th>
+                    <th>ITBIS Fac.</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentData = [];
+    document.addEventListener('DOMContentLoaded', loadReport);
+
+    function loadReport() {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        fetch(`{{ url_for('reports.api_ncf_607') }}?start_date=${start}&end_date=${end}`)
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('reportTableBody');
+                tbody.innerHTML = '';
+                if (data.success) {
+                    currentData = data.data; // Store for CSV
+                    if (data.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center p-4">No hay ventas en este período</td></tr>';
+                        return;
+                    }
+                    data.data.forEach(item => {
+                        const formattedDate = item.date.replace(/-/g, '');
+                        tbody.innerHTML += `<tr>
+                            <td class="font-mono">${item.rnc || ''}</td>
+                            <td>${item.type_id}</td>
+                            <td class="font-mono font-bold">${item.ncf}</td>
+                            <td class="font-mono">${item.ncf_modified}</td>
+                            <td>01</td> <!-- Ingreso por Operaciones -->
+                            <td>${formattedDate}</td>
+                            <td>$${item.amount_invoiced.toLocaleString()}</td>
+                            <td>$${item.itbis_invoiced.toLocaleString()}</td>
+                        </tr>`;
+                    });
+                }
+            });
+    }
+
+    function downloadCSV() {
+        if (!currentData.length) {
+            alert("No hay datos para exportar");
+            return;
+        }
+
+        // CSV Header as per DGII 607 format (simplified)
+        let csv = "RNC_CEDULA|TIPO_ID|NCF|NCF_MODIFICADO|TIPO_INGRESO|FECHA_COMPROBANTE|FECHA_RETENCION|MONTO_FACTURADO|ITBIS_FACTURADO\n";
+
+        currentData.forEach(row => {
+            const date = row.date.replace(/-/g, '');
+            csv += `${row.rnc}|${row.type_id}|${row.ncf}|${row.ncf_modified}|01|${date}||${row.amount_invoiced}|${row.itbis_invoiced}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'DGII_607.csv');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+{% endblock %}

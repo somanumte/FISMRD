@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Estado del Inventario - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+    }
+
+    .report-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .breadcrumb a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--metric-color);
+    }
+
+    .metric-card.purple {
+        --metric-color: #8b5cf6;
+    }
+
+    .metric-card.blue {
+        --metric-color: #3b82f6;
+    }
+
+    .metric-card.green {
+        --metric-color: #10b981;
+    }
+
+    .metric-card.red {
+        --metric-color: #ef4444;
+    }
+
+    .metric-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+    }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #8b5cf6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Header -->
+    <div class="report-header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
+            <span>/</span>
+            <span>Estado del Inventario</span>
+        </div>
+        <h1>📦 Estado Actual del Inventario</h1>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card purple">
+            <div class="metric-label">Total de Productos</div>
+            <div class="metric-value" id="totalProducts">0</div>
+        </div>
+        <div class="metric-card blue">
+            <div class="metric-label">Unidades en Stock</div>
+            <div class="metric-value" id="totalUnits">0</div>
+        </div>
+        <div class="metric-card green">
+            <div class="metric-label">Valor del Inventario</div>
+            <div class="metric-value" id="totalValue">$0.00</div>
+        </div>
+        <div class="metric-card red">
+            <div class="metric-label">Stock Bajo</div>
+            <div class="metric-value" id="lowStockCount">0</div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+        <h3 class="chart-title">Distribución por Categoría</h3>
+        <div class="chart-container">
+            <canvas id="inventoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    let inventoryChart = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadReport();
+    });
+
+    function loadReport() {
+        showLoading();
+
+        fetch('{{ url_for("reports.api_inventory_current_status") }}')
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    updateMetrics(result.data);
+                    updateChart(result.data.categories);
+                } else {
+                    alert('Error al cargar el reporte: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar el reporte');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+    }
+
+    function updateMetrics(data) {
+        document.getElementById('totalProducts').textContent = data.total_products;
+        document.getElementById('totalUnits').textContent = data.total_units;
+        document.getElementById('totalValue').textContent = formatCurrency(data.total_value);
+        document.getElementById('lowStockCount').textContent = data.low_stock_count;
+    }
+
+    function updateChart(categories) {
+        const ctx = document.getElementById('inventoryChart').getContext('2d');
+
+        if (inventoryChart) {
+            inventoryChart.destroy();
+        }
+
+        const colors = [
+            'rgba(139, 92, 246, 0.8)',
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(107, 114, 128, 0.8)'
+        ];
+
+        inventoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories.labels,
+                datasets: [{
+                    data: categories.units,
+                    backgroundColor: colors,
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        callbacks: {
+                            label: function (context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} unidades (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function formatCurrency(value) {
+        return '$' + parseFloat(value).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+</script>
+{% endblock %}

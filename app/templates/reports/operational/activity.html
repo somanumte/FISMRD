@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Actividad de Usuarios - Reportes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .report-header {
+        background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .timeline::after {
+        content: '';
+        position: absolute;
+        width: 4px;
+        background-color: #e5e7eb;
+        top: 0;
+        bottom: 0;
+        left: 50px;
+        margin-left: -2px;
+    }
+
+    .timeline-item {
+        padding: 10px 40px;
+        position: relative;
+        background-color: inherit;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        right: auto;
+        left: 42px;
+        background-color: white;
+        border: 4px solid #3b82f6;
+        top: 24px;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    .time-content {
+        margin-left: 40px;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .time-date {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .user-badge {
+        background: #e0f2fe;
+        color: #0284c7;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+
+    .module-badge {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        float: right;
+    }
+
+    .action-text {
+        margin-top: 0.5rem;
+        color: #1f2937;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <h1>👣 Actividad Reciente</h1>
+        <p>Registro unificado de acciones (Ventas, Inventario, Finanzas)</p>
+    </div>
+
+    <div class="timeline" id="activityTimeline">
+        <!-- Content loaded dynamically -->
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch(`{{ url_for('reports.api_operational_activity') }}`)
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('activityTimeline');
+                if (data.success) {
+                    data.data.forEach(item => {
+                        let borderColor = '#9ca3af';
+                        if (item.module === 'Ventas') borderColor = '#10b981';
+                        if (item.module === 'Inventario') borderColor = '#f59e0b';
+                        if (item.module === 'Finanzas') borderColor = '#ef4444';
+
+                        container.innerHTML += `<div class="timeline-item">
+                            <style>.timeline-item:last-child::after { border-color: ${borderColor}; }</style>
+                            <div class="time-content" style="border-left: 4px solid ${borderColor}">
+                                <span class="time-date">${item.date}</span>
+                                <div>
+                                    <span class="user-badge">${item.user}</span>
+                                    <span class="module-badge">${item.module}</span>
+                                </div>
+                                <div class="action-text">${item.action}</div>
+                            </div>
+                        </div>`;
+                    });
+                }
+            });
+    });
+</script>
+{% endblock %}

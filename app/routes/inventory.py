@@ -16,7 +16,7 @@ from app.forms.laptop_forms import LaptopForm, FilterForm
 from app.services.sku_service import SKUService
 from app.services.catalog_service import CatalogService
 from app.services.serial_service import SerialService
-from app.utils.decorators import admin_required
+from app.utils.decorators import admin_required, permission_required
 from datetime import datetime, date
 from sqlalchemy import or_
 import re
@@ -427,6 +427,7 @@ def process_laptop_images(laptop, form):
 
 @inventory_bp.route('/')
 @login_required
+@permission_required('inventory.laptops.view')
 def laptops_list():
     """
     Muestra el listado principal de laptops con filtros y busqueda
@@ -586,7 +587,7 @@ def laptops_list():
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@permission_required('inventory.laptops.create')
 def laptop_add():
     """
     Muestra el formulario y procesa la creacion de una nueva laptop
@@ -760,6 +761,7 @@ def laptop_add():
 
 @inventory_bp.route('/<int:id>')
 @login_required
+@permission_required('inventory.laptops.view')
 def laptop_detail(id):
     """
     Muestra el detalle completo de una laptop
@@ -824,7 +826,7 @@ def laptop_by_slug(slug):
 
 @inventory_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@permission_required('inventory.laptops.edit')
 def laptop_edit(id):
     """
     Edita una laptop existente
@@ -1018,7 +1020,7 @@ def laptop_edit(id):
 
 @inventory_bp.route('/<int:id>/delete', methods=['POST'])
 @login_required
-@admin_required
+@permission_required('inventory.laptops.delete')
 def laptop_delete(id):
     """
     Elimina una laptop del inventario
@@ -1066,6 +1068,7 @@ def laptop_delete(id):
 
 @inventory_bp.route('/<int:id>/duplicate', methods=['POST'])
 @login_required
+@permission_required('inventory.laptops.create')
 def laptop_duplicate(id):
     original = Laptop.query.get_or_404(id)
 

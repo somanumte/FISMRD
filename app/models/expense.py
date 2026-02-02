@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from app import db
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func
 
@@ -49,19 +49,38 @@ class Expense(db.Model):
         next_date = self.due_date
         today = date.today()
 
-        while next_date <= today:
+        # Evitar bucles infinitos si la fecha es muy antigua
+        safety_break = 0
+        
+        while next_date <= today and safety_break < 1000:
+            safety_break += 1
+            
             if self.frequency == 'daily':
-                next_date = next_date.replace(day=next_date.day + 1)
+                next_date = next_date + timedelta(days=1)
             elif self.frequency == 'weekly':
-                next_date = next_date.replace(day=next_date.day + 7)
+                next_date = next_date + timedelta(weeks=1)
             elif self.frequency == 'monthly':
-                # Avanzar un mes
-                if next_date.month == 12:
-                    next_date = next_date.replace(year=next_date.year + 1, month=1)
-                else:
-                    next_date = next_date.replace(month=next_date.month + 1)
+                # Avanzar un mes manejando días (ej: 31 Ene -> 28 Feb)
+                year = next_date.year
+                month = next_date.month + 1
+                if month > 12:
+                    month = 1
+                    year += 1
+                
+                # Obtener último día del próximo mes
+                import calendar
+                _, last_day = calendar.monthrange(year, month)
+                
+                # Ajustar día si excede el último día del mes
+                target_day = min(self.due_date.day, last_day)
+                next_date = next_date.replace(year=year, month=month, day=target_day)
+
             elif self.frequency == 'yearly':
-                next_date = next_date.replace(year=next_date.year + 1)
+                try:
+                    next_date = next_date.replace(year=next_date.year + 1)
+                except ValueError:
+                    # Caso bisiesto: 29 Feb -> 28 Feb
+                    next_date = next_date.replace(year=next_date.year + 1, day=28)
             else:
                 break
 

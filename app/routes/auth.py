@@ -10,6 +10,7 @@ from app import db
 from app.models.user import User
 from app.forms.auth import LoginForm, RegisterForm
 from datetime import datetime
+from app.utils.session_manager import create_session, terminate_current_session, validate_session
 
 # ============================================
 # CREAR BLUEPRINT DE AUTENTICACIÓN
@@ -47,7 +48,7 @@ def login():
     """
 
     # ===== SI YA ESTÁ LOGUEADO, REDIRIGIR =====
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and validate_session():
         # current_user.is_authenticated = True si hay sesión activa
         # No tiene sentido que un usuario logueado vea la página de login
         flash('Ya has iniciado sesión', 'info')
@@ -111,6 +112,9 @@ def login():
 
             # Actualizar fecha de último login
             user.update_last_login()
+            
+            # --- NUEVO: CREAR SESIÓN SEGURA ---
+            create_session(user)
 
             # Mensaje de éxito
             flash(f'¡Bienvenido de vuelta, {user.username}!', 'success')
@@ -192,7 +196,7 @@ def register():
         return redirect(url_for('auth.login'))
 
     # ===== SI YA ESTÁ LOGUEADO, REDIRIGIR =====
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and validate_session():
         flash('Ya tienes una cuenta activa', 'info')
         return redirect(url_for('inventory.laptops_list'))
 
@@ -261,6 +265,10 @@ def logout():
     Ruta para cerrar sesión
     """
     username = current_user.username
+    
+    # Terminar sesión segura
+    terminate_current_session()
+    
     logout_user()
     flash(f'¡Hasta pronto, {username}!', 'success')
     return redirect(url_for('public.landing'))
