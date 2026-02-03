@@ -15,10 +15,21 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="CSS File" />
         <option value="JavaScript File" />
+        <option value="Python Script" />
       </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
     </option>
   </component>
   <component name="Git.Settings">
@@ -48,53 +59,54 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flask server.Flask.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.base_landing.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.invoice_form.html.executor&quot;: &quot;Run&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;Python.run.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/felix/PycharmProjects/FISMRD/app/templates/componets&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flask server.Flask.executor": "Run",
+    "JavaScript Debug.base_landing.html.executor": "Run",
+    "JavaScript Debug.invoice_form.html.executor": "Run",
+    "Python.app.executor": "Run",
+    "Python.run.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/F3LIX/PycharmProjects/FISMRD",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "vcs.Git",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;module&quot;,
-      &quot;repository&quot;
+  "keyToStringList": {
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\inventory" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\admin" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\routes" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\templates\componets" />
       <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static\js" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\services" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\routes" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\models" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\migrations\versions" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static\js" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD" />
-      <recent name="C:\Users\felix\PycharmProjects\FISMRD\app\static" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\models" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\admin" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\services" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\routes" />
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\inventory" />
     </key>
   </component>
   <component name="RunManager" selected="Python.run">
@@ -202,23 +214,9 @@
       <workItem from="1769730439291" duration="12000" />
       <workItem from="1769730700478" duration="1195000" />
       <workItem from="1769784165751" duration="140000" />
-      <workItem from="1770144598349" duration="108000" />
-    </task>
-    <task id="LOCAL-00021" summary="0">
-      <option name="closed" value="true" />
-      <created>1768775594310</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1768775594310</updated>
-    </task>
-    <task id="LOCAL-00022" summary="1">
-      <option name="closed" value="true" />
-      <created>1768787746041</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1768787746041</updated>
+      <workItem from="1770144598349" duration="505000" />
+      <workItem from="1770145149747" duration="3973000" />
+      <workItem from="1770150520957" duration="101000" />
     </task>
     <task id="LOCAL-00023" summary="1">
       <option name="closed" value="true" />
@@ -596,7 +594,23 @@
       <option name="project" value="LOCAL" />
       <updated>1770144537058</updated>
     </task>
-    <option name="localTasksCounter" value="70" />
+    <task id="LOCAL-00070" summary="Version Segura.">
+      <option name="closed" value="true" />
+      <created>1770145011448</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1770145011448</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Version Segura.">
+      <option name="closed" value="true" />
+      <created>1770145020254</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1770145020254</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -617,7 +631,8 @@
     <MESSAGE value="0" />
     <MESSAGE value="1" />
     <MESSAGE value="seriales" />
-    <option name="LAST_COMMIT_MESSAGE" value="seriales" />
+    <MESSAGE value="Version Segura." />
+    <option name="LAST_COMMIT_MESSAGE" value="Version Segura." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -635,6 +650,6 @@
     <SUITE FILE_PATH="coverage/FISM$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1770144657120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1769784167805" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$app.coverage" NAME="app Coverage Results" MODIFIED="1769222239684" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/FISM$run.coverage" NAME="run Coverage Results" MODIFIED="1770144706118" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISM$run.coverage" NAME="run Coverage Results" MODIFIED="1770149796186" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -12,6 +12,7 @@ from app.models.laptop import (
     Store, Location, Supplier, Laptop, LaptopImage
 )
 from app.models.serial import LaptopSerial, InvoiceItemSerial, SerialMovement
+from app.models.system_setting import SystemSetting
 
 __all__ = [
     # User

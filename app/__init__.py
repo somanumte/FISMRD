@@ -92,8 +92,11 @@ def create_app(config_name='development'):
     from app.routes.serial_api import serial_api
     from app.routes.dashboard import dashboard_bp
     from app.routes.reports import reports_bp
-    from app.routes.admin import admin_bp  # <--- Agregado
+    from app.routes.admin import admin_bp
+    from app.routes.icecat_routes import icecat_bp
+    from app.models.system_setting import SystemSetting
 
+    app.register_blueprint(icecat_bp)
     app.register_blueprint(public_bp)
     app.register_blueprint(expenses_bp)
     app.register_blueprint(customers_bp)
@@ -105,7 +108,7 @@ def create_app(config_name='development'):
     app.register_blueprint(serial_api)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(reports_bp)
-    app.register_blueprint(admin_bp)  # <--- Agregado
+    app.register_blueprint(admin_bp)
 
     # Configuración de CORS para APIs
     from flask_cors import CORS

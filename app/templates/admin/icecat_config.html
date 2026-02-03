@@ -1,0 +1,409 @@
+{% extends "base.html" %}
+{% set hide_search = True %}
+
+{% block title %}Configuración de Icecat{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-transparent py-4 sm:py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-3 mb-4">
+                <a href="{{ url_for('admin.admin_panel') }}"
+                    class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-cloud text-cyan-500 mr-2"></i>
+                        Configuración de Icecat
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                        Configura la integración con el catálogo de productos Icecat
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-500 text-xl mt-0.5"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-blue-800 dark:text-blue-200 font-semibold">¿Qué es Icecat?</h3>
+                    <p class="text-blue-700 dark:text-blue-300 text-sm mt-1">
+                        Icecat es un catálogo global de información de productos con millones de fichas técnicas.
+                        Con esta integración puedes importar automáticamente especificaciones, descripciones e imágenes
+                        al agregar productos a tu inventario.
+                    </p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <a href="https://icecat.biz/en/authorization/" target="_blank" 
+                           class="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                            <i class="fas fa-external-link-alt mr-1"></i> Crear cuenta gratuita
+                        </a>
+                        <a href="https://iceclog.com/manual-for-icecat-json-product-requests/" target="_blank"
+                           class="inline-flex items-center text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                            <i class="fas fa-book mr-1"></i> Documentación API
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-cog text-gray-500 mr-2"></i>
+                    Configuración de API
+                </h2>
+            </div>
+
+            <form id="icecat-config-form" class="p-6 space-y-6">
+                <!-- Enabled Toggle -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Habilitar Integración</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Activa o desactiva la búsqueda de productos en Icecat
+                        </p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="icecat_enabled" name="icecat_enabled" 
+                               class="sr-only peer" {% if config.enabled %}checked{% endif %}>
+                        <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 
+                                    peer-focus:ring-cyan-300 dark:peer-focus:ring-cyan-800 rounded-full peer 
+                                    dark:bg-gray-600 peer-checked:after:translate-x-full 
+                                    peer-checked:after:border-white after:content-[''] after:absolute 
+                                    after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 
+                                    after:border after:rounded-full after:h-6 after:w-6 after:transition-all 
+                                    dark:border-gray-500 peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+
+                <!-- Username -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        <i class="fas fa-user mr-1"></i> Usuario de Icecat
+                    </label>
+                    <input type="text" id="icecat_username" name="icecat_username" 
+                           value="{{ config.username or 'openIcecat-live' }}"
+                           class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                  focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all"
+                           placeholder="openIcecat-live">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-1"></i>
+                        Para Open Icecat (gratuito) usa: <code class="bg-gray-100 dark:bg-gray-600 px-1 rounded">openIcecat-live</code>
+                    </p>
+                </div>
+
+                <!-- API Token -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        <i class="fas fa-key mr-1"></i> API Token
+                        <span class="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="icecat_api_token" name="icecat_api_token" 
+                               value="{{ '••••••••' if config.has_api_token else '' }}"
+                               class="w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+                                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                      focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all"
+                               placeholder="Tu API token de Icecat">
+                        <button type="button" onclick="togglePassword('icecat_api_token')"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Necesario para cuentas Full Icecat. Se almacena de forma encriptada.
+                    </p>
+                </div>
+
+                <!-- Content Token -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        <i class="fas fa-image mr-1"></i> Content Token
+                        <span class="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="icecat_content_token" name="icecat_content_token"
+                               value="{{ '••••••••' if config.has_content_token else '' }}"
+                               class="w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+                                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                      focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all"
+                               placeholder="Tu Content token de Icecat">
+                        <button type="button" onclick="togglePassword('icecat_content_token')"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Necesario para acceder a imágenes en cuentas con restricción de IP.
+                    </p>
+                </div>
+
+                <!-- Default Language -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        <i class="fas fa-language mr-1"></i> Idioma por Defecto
+                    </label>
+                    <select id="icecat_language" name="icecat_language"
+                            class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl 
+                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                   focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all">
+                        <option value="ES" {% if config.language == 'ES' %}selected{% endif %}>🇪🇸 Español</option>
+                        <option value="EN" {% if config.language == 'EN' %}selected{% endif %}>🇬🇧 English</option>
+                        <option value="PT" {% if config.language == 'PT' %}selected{% endif %}>🇵🇹 Português</option>
+                        <option value="FR" {% if config.language == 'FR' %}selected{% endif %}>🇫🇷 Français</option>
+                        <option value="DE" {% if config.language == 'DE' %}selected{% endif %}>🇩🇪 Deutsch</option>
+                        <option value="IT" {% if config.language == 'IT' %}selected{% endif %}>🇮🇹 Italiano</option>
+                        <option value="NL" {% if config.language == 'NL' %}selected{% endif %}>🇳🇱 Nederlands</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Idioma en que se mostrarán las descripciones y especificaciones de los productos.
+                    </p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit" id="btn-save"
+                            class="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 
+                                   text-white font-bold rounded-xl shadow-lg hover:shadow-xl 
+                                   transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> Guardar Configuración
+                    </button>
+                    <button type="button" id="btn-test"
+                            class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+                                   font-semibold rounded-xl border-2 border-gray-200 dark:border-gray-600
+                                   hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center">
+                        <i class="fas fa-plug mr-2"></i> Probar Conexión
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Test Results -->
+        <div id="test-results" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    <i class="fas fa-flask mr-2"></i> Resultado de la Prueba
+                </h3>
+                <div id="test-content"></div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="{{ url_for('icecat.icecat_search_form') }}"
+               class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-2 border-cyan-200 dark:border-cyan-800 
+                      rounded-xl hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-all group">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-search text-xl text-cyan-600 dark:text-cyan-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white">Importar Producto</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Buscar en Icecat</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400 group-hover:text-cyan-500 transition-colors"></i>
+            </a>
+
+            <a href="https://icecat.biz/brands" target="_blank"
+               class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 
+                      rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all group">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-external-link-alt text-xl text-gray-600 dark:text-gray-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 dark:text-white">Marcas Soportadas</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Ver catálogo Icecat</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400 group-hover:text-gray-600 transition-colors"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.nextElementSibling.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+document.getElementById('icecat-config-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const btn = document.getElementById('btn-save');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
+    
+    const formData = {
+        icecat_enabled: document.getElementById('icecat_enabled').checked,
+        icecat_username: document.getElementById('icecat_username').value.trim(),
+        icecat_language: document.getElementById('icecat_language').value
+    };
+    
+    // Solo enviar tokens si han sido modificados (no son los placeholder)
+    const apiToken = document.getElementById('icecat_api_token').value;
+    const contentToken = document.getElementById('icecat_content_token').value;
+    
+    if (apiToken && apiToken !== '••••••••') {
+        formData.icecat_api_token = apiToken;
+    }
+    if (contentToken && contentToken !== '••••••••') {
+        formData.icecat_content_token = contentToken;
+    }
+    
+    try {
+        const response = await fetch('{{ url_for("admin.save_icecat_config") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success notification
+            showNotification('success', 'Configuración guardada correctamente');
+        } else {
+            showNotification('error', data.error || 'Error al guardar la configuración');
+        }
+    } catch (error) {
+        showNotification('error', 'Error de conexión: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+});
+
+document.getElementById('btn-test').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-test');
+    const resultsDiv = document.getElementById('test-results');
+    const contentDiv = document.getElementById('test-content');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Probando...';
+    resultsDiv.classList.remove('hidden');
+    contentDiv.innerHTML = '<div class="flex items-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Conectando con Icecat...</div>';
+    
+    try {
+        const response = await fetch('{{ url_for("admin.test_icecat_connection") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            contentDiv.innerHTML = `
+                <div class="flex items-start text-green-600 dark:text-green-400">
+                    <i class="fas fa-check-circle text-2xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold">¡Conexión exitosa!</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            Se pudo conectar correctamente con el servidor de Icecat.
+                        </p>
+                        ${data.product ? `
+                        <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <p class="text-sm"><strong>Producto de prueba:</strong> ${data.product.title}</p>
+                            <p class="text-sm text-gray-500">${data.product.brand} - ${data.product.category}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            contentDiv.innerHTML = `
+                <div class="flex items-start text-red-600 dark:text-red-400">
+                    <i class="fas fa-times-circle text-2xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold">Error de conexión</p>
+                        <p class="text-sm mt-1">${data.error}</p>
+                        <p class="text-xs text-gray-500 mt-2">
+                            Verifica tu usuario y tokens de Icecat.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        contentDiv.innerHTML = `
+            <div class="flex items-start text-red-600 dark:text-red-400">
+                <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                <div>
+                    <p class="font-semibold">Error de red</p>
+                    <p class="text-sm mt-1">${error.message}</p>
+                </div>
+            </div>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug mr-2"></i> Probar Conexión';
+    }
+});
+
+function showNotification(type, message) {
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500'
+    };
+    
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-times-circle',
+        warning: 'fa-exclamation-circle'
+    };
+    
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 flex items-center px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} transform translate-x-full transition-transform duration-300`;
+    notification.innerHTML = `
+        <i class="fas ${icons[type]} mr-2"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

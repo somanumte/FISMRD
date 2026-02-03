@@ -9,6 +9,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.user import User
 from app.models.role import Role
+from app.models.system_setting import SystemSetting
 from app.services.permission_service import PermissionService
 from app.services.role_service import RoleService
 from app.services.audit_service import AuditService
@@ -35,16 +36,13 @@ def admin_panel():
         current_user.has_permission('admin.roles.view') or 
         current_user.has_permission('reports.view') or
         current_user.has_permission('reports.audit.view') or
-        current_user.has_permission('inventory.view')  # Ejemplo, ajustar según necesidad real de catálogos
+        current_user.has_permission('inventory.view')
     )
     
     if not has_access:
         flash('No tienes acceso al panel de administración.', 'error')
         return redirect(url_for('main.dashboard'))
 
-    # Obtener estadísticas (solo si es admin o tiene permisos de ver usuarios, sino mostrar 0 o N/A)
-    # Para simplificar, mostramos estadísticas generales pero protegemos enlaces en el template
-    
     total_users = User.query.count()
     active_users = User.query.filter_by(is_active=True).count()
     admin_users = User.query.filter_by(is_admin=True).count()
@@ -189,7 +187,7 @@ def update_user(user_id):
                 return jsonify({'error': msg}), 400
                 
             user.set_password(data['password'])
-            user.must_change_password = True # Forzar cambio en próximo login
+            user.must_change_password = True
             
         # Actualizar campos RBAC
         if 'is_active' in data:
@@ -412,3 +410,149 @@ def get_audit_logs():
     )
     
     return jsonify([log.to_dict() for log in logs])
+
+
+# ============================================
+# CONFIGURACIÓN DE ICECAT
+# ============================================
+
+@admin_bp.route('/icecat-config')
+@login_required
+@admin_required
+def icecat_config():
+    """
+    Página de configuración de la integración con Icecat
+    """
+    # Obtener configuración actual
+    config = {
+        'username': SystemSetting.get('icecat_username', 'openIcecat-live'),
+        'language': SystemSetting.get('icecat_language', 'ES'),
+        'enabled': SystemSetting.get('icecat_enabled', 'true').lower() == 'true',
+        'has_api_token': bool(SystemSetting.get('icecat_api_token', '')),
+        'has_content_token': bool(SystemSetting.get('icecat_content_token', ''))
+    }
+    
+    return render_template('admin/icecat_config.html', config=config)
+
+
+@admin_bp.route('/api/icecat-config', methods=['POST'])
+@login_required
+@admin_required
+def save_icecat_config():
+    """
+    Guarda la configuración de Icecat
+    """
+    from app.services.icecat_service import reload_icecat_config
+    
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'success': False, 'error': 'Datos no proporcionados'}), 400
+    
+    try:
+        # Guardar configuración
+        if 'icecat_enabled' in data:
+            SystemSetting.set(
+                key='icecat_enabled',
+                value='true' if data['icecat_enabled'] else 'false',
+                category='icecat',
+                description='Habilitar integración con Icecat'
+            )
+        
+        if 'icecat_username' in data:
+            SystemSetting.set(
+                key='icecat_username',
+                value=data['icecat_username'],
+                category='icecat',
+                description='Usuario de Icecat'
+            )
+        
+        if 'icecat_language' in data:
+            SystemSetting.set(
+                key='icecat_language',
+                value=data['icecat_language'],
+                category='icecat',
+                description='Idioma por defecto'
+            )
+        
+        # Tokens - solo guardar si se proporcionan nuevos valores
+        if data.get('icecat_api_token'):
+            SystemSetting.set(
+                key='icecat_api_token',
+                value=data['icecat_api_token'],
+                category='icecat',
+                description='API Token de Icecat',
+                encrypted=True
+            )
+        
+        if data.get('icecat_content_token'):
+            SystemSetting.set(
+                key='icecat_content_token',
+                value=data['icecat_content_token'],
+                category='icecat',
+                description='Content Token de Icecat',
+                encrypted=True
+            )
+        
+        # Recargar configuración en el servicio
+        reload_icecat_config()
+        
+        # Log de auditoría
+        AuditService.log_action(
+            action='update_icecat_config',
+            module='admin',
+            target_type='SystemSetting',
+            target_id=0,
+            details={'updated_fields': list(data.keys())}
+        )
+        
+        return jsonify({'success': True, 'message': 'Configuración guardada'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@admin_bp.route('/api/icecat-test', methods=['POST'])
+@login_required
+@admin_required
+def test_icecat_connection():
+    """
+    Prueba la conexión con Icecat
+    """
+    from app.services.icecat_service import reload_icecat_config
+    
+    try:
+        # Recargar configuración antes de probar
+        service = reload_icecat_config()
+        
+        if not service.is_enabled():
+            return jsonify({
+                'success': False, 
+                'error': 'La integración con Icecat está deshabilitada'
+            })
+        
+        # Probar con un producto conocido (PlayStation 5)
+        success, result = service.search_by_gtin('0711719709695')
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Conexión exitosa',
+                'product': {
+                    'title': result.title,
+                    'brand': result.brand,
+                    'category': result.category
+                }
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
