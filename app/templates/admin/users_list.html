@@ -6,460 +6,649 @@
 {% block content %}
 <div class="container-custom section-spacing">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 bg-white/50 dark:bg-gray-800/50 p-6 rounded-3xl border border-white/20 dark:border-gray-700/30 backdrop-blur-xl shadow-2xl shadow-indigo-500/5">
         <div>
-            <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white mb-2">
-                Gestión de Usuarios
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                    Gestión de Usuarios
+                </h1>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 pl-1">
                 Administra el acceso y los roles de los usuarios del sistema.
             </p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-3 w-full md:w-auto">
             {% if current_user.is_admin or current_user.has_permission('admin.roles.view') %}
-            <a href="{{ url_for('admin.roles_list') }}" class="btn-secondary">
-                <i class="fas fa-shield-alt mr-2"></i> Roles
+            <a href="{{ url_for('admin.roles_list') }}"
+                class="flex-1 md:flex-none inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm">
+                <i class="fas fa-shield-alt mr-2 text-indigo-500"></i> Roles
             </a>
             {% endif %}
-            <button onclick="openUserModal()" class="btn-primary">
+            <button onclick="openUserModal()"
+                class="flex-1 md:flex-none inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 shadow-md">
                 <i class="fas fa-plus mr-2"></i> Nuevo Usuario
             </button>
         </div>
     </div>
 
-    <!-- Filtros y Búsqueda -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1 relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchInput" placeholder="Buscar por nombre, email o rol..."
-                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
+    <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+        <!-- Overlay for Mobile Filters -->
+        <div id="filters-overlay" onclick="toggleFilters()"
+            class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm hidden lg:hidden transition-all duration-300 opacity-0">
+        </div>
+
+        <!-- FILTERS SIDEBAR -->
+        <aside id="filters-sidebar"
+            class="fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:relative lg:block lg:w-72 flex-shrink-0 lg:rounded-3xl border-r lg:border border-gray-200 dark:border-gray-700 shadow-2xl lg:shadow-sm overflow-hidden flex flex-col h-full lg:h-fit">
+
+            <!-- Header for Mobile -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 lg:hidden">
+                <h3 class="font-bold text-xl text-gray-900 dark:text-white">Filtros</h3>
+                <button onclick="toggleFilters()"
+                    class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
-            <div class="w-full md:w-48">
-                <select id="roleFilter" onchange="loadUsers()"
-                    class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                    <option value="">Todos los Roles</option>
-                    <!-- Roles se cargarán dinámicamente -->
-                </select>
-            </div>
-            <button onclick="loadUsers()"
-                class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-        </div>
-    </div>
 
-    <!-- Tabla de Usuarios -->
-    <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
-                        <th
-                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Usuario</th>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Roles</th>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Estado</th>
-                        <th
-                            class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Último Login</th>
-                        <th
-                            class="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
-                    <!-- Filas se insertarán aquí -->
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i>
-                            <p>Cargando usuarios...</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- Paginación si fuera necesaria -->
-        <div
-            class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex justify-between items-center text-sm text-gray-500">
-            <span id="usersCount">0 usuarios encontrados</span>
-        </div>
-    </div>
-</div>
+            <div class="p-6 overflow-y-auto lg:overflow-visible flex-1">
+                <div
+                    class="hidden lg:flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Filtros</h3>
+                    <button onclick="resetFilters()"
+                        class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Limpiar</button>
+                </div>
 
-<!-- Modal Crear/Editar Usuario -->
-<div id="userModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-    aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true"
-            onclick="closeUserModal()"></div>
-
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div
-            class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div
-                        class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 sm:mx-0 sm:h-10 sm:w-10">
-                        <i class="fas fa-user text-primary"></i>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            Buscar
+                        </label>
+                        <input type="text" id="searchInput" placeholder="Nombre, email, rol..."
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modalTitle">
-                            Nuevo Usuario
-                        </h3>
-                        <div class="mt-4 space-y-4">
-                            <input type="hidden" id="userId">
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
-                                    Completo</label>
-                                <input type="text" id="fullName"
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
-                            </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            Rol
+                        </label>
+                        <select id="roleFilter" onchange="loadUsers()"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
+                            <option value="">Todos los Roles</option>
+                        </select>
+                    </div>
 
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Usuario</label>
-                                <input type="text" id="username"
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                                <input type="email" id="email"
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Contraseña
-                                    <span id="passwordHint" class="text-xs text-gray-500 font-normal hidden">(Dejar en
-                                        blanco para no cambiar)</span>
-                                </label>
-                                <input type="password" id="password"
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Roles
-                                    Asignados</label>
-                                <div id="rolesCheckboxes"
-                                    class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
-                                    <!-- Checkboxes dinámicos -->
-                                </div>
-                            </div>
-
-                            <div class="flex items-center">
-                                <input type="checkbox" id="isActive"
-                                    class="rounded border-gray-300 text-primary focus:ring-primary" checked>
-                                <label for="isActive"
-                                    class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Usuario Activo</label>
-                            </div>
-                        </div>
+                    <div class="flex flex-col gap-2 pt-4 lg:hidden">
+                        <button onclick="loadUsers(); toggleFilters();"
+                            class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-bold">
+                            Aplicar Filtros
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="saveUser()"
-                    class="w-full inline-flex justify-center rounded-full border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all">
-                    Guardar
-                </button>
-                <button type="button" onclick="closeUserModal()"
-                    class="mt-3 w-full inline-flex justify-center rounded-full border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all">
-                    Cancelar
-                </button>
+        </aside>
+
+        <div class="flex-1 w-full">
+            <!-- Toolbar -->
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+                    <button onclick="toggleFilters()"
+                        class="lg:hidden flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                            </path>
+                        </svg>
+                        <span class="font-bold text-sm">Filtros</span>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span id="usersTotalDisplay">0</span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Usuarios</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <button onclick="loadUsers()"
+                        class="flex-1 sm:flex-none p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300"
+                        title="Refrescar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Usuarios -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Usuario</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Roles</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">
+                                    Estado</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
+                                    Último Login</th>
+                                <th
+                                    class="px-4 py-3 text-right text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <!-- Filas se insertarán aquí -->
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    <i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i>
+                                    <p>Cargando usuarios...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Paginación si fuera necesaria -->
+                <div
+                    class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex justify-between items-center text-sm text-gray-500">
+                    <span id="usersCount">0 usuarios encontrados</span>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script>
-    let allRoles = [];
+        <!-- Floating Filter Button for Mobile -->
+        <button onclick="toggleFilters()"
+            class="fixed bottom-6 right-6 z-40 lg:hidden flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl hover:bg-indigo-700 active:scale-95 transition-all outline-none border-4 border-white dark:border-gray-900 group">
+            <svg class="w-8 h-8 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                </path>
+            </svg>
+            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+            </span>
+        </button>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadRoles(); // Cargar roles primero para el filtro y modal
-        loadUsers();
-    });
+        <!-- Modal Crear/Editar Usuario -->
+        <div id="userModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title"
+            role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Background overlay -->
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true"
+                    onclick="closeUserModal()"></div>
 
-    async function loadRoles() {
-        try {
-            const response = await fetch('/admin/api/roles');
-            allRoles = await response.json();
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            // Poblar filtro
-            const filter = document.getElementById('roleFilter');
-            allRoles.forEach(role => {
-                const opt = document.createElement('option');
-                opt.value = role.name;
-                opt.textContent = role.display_name;
-                filter.appendChild(opt);
+                <div
+                    class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div
+                                class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="fas fa-user text-primary"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modalTitle">
+                                    Nuevo Usuario
+                                </h3>
+                                <div class="mt-4 space-y-4">
+                                    <input type="hidden" id="userId">
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
+                                            Completo</label>
+                                        <input type="text" id="fullName"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Usuario</label>
+                                        <input type="text" id="username"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                                        <input type="email" id="email"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Contraseña
+                                            <span id="passwordHint"
+                                                class="text-xs text-gray-500 font-normal hidden">(Dejar en
+                                                blanco para no cambiar)</span>
+                                        </label>
+                                        <input type="password" id="password"
+                                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary focus:border-primary">
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Roles
+                                            Asignados</label>
+                                        <div id="rolesCheckboxes"
+                                            class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                            <!-- Checkboxes dinámicos -->
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="isActive"
+                                            class="rounded border-gray-300 text-primary focus:ring-primary" checked>
+                                        <label for="isActive"
+                                            class="ml-2 block text-sm text-gray-900 dark:text-gray-300">Usuario
+                                            Activo</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" onclick="saveUser()"
+                            class="w-full inline-flex justify-center rounded-full border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                            Guardar
+                        </button>
+                        <button type="button" onclick="closeUserModal()"
+                            class="mt-3 w-full inline-flex justify-center rounded-full border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let allRoles = [];
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadRoles(); // Cargar roles primero para el filtro y modal
+                loadUsers();
             });
 
-        } catch (error) {
-            console.error('Error cargando roles:', error);
-        }
-    }
+            async function loadRoles() {
+                try {
+                    const response = await fetch('/admin/api/roles');
+                    allRoles = await response.json();
 
-    async function loadUsers() {
-        const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i><p>Cargando usuarios...</p></td></tr>';
+                    // Poblar filtro
+                    const filter = document.getElementById('roleFilter');
+                    allRoles.forEach(role => {
+                        const opt = document.createElement('option');
+                        opt.value = role.name;
+                        opt.textContent = role.display_name;
+                        filter.appendChild(opt);
+                    });
 
-        try {
-            const response = await fetch('/admin/api/users');
-            const users = await response.json();
-
-            renderUsers(users);
-
-        } catch (error) {
-            console.error('Error:', error);
-            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error cargando usuarios</td></tr>';
-        }
-    }
-
-    function renderUsers(users) {
-        const tbody = document.getElementById('usersTableBody');
-        const filterText = document.getElementById('searchInput').value.toLowerCase();
-        const roleFilter = document.getElementById('roleFilter').value;
-
-        tbody.innerHTML = '';
-
-        let count = 0;
-
-        users.forEach(user => {
-            // Filtrado cliente-side
-            if (filterText) {
-                const match = user.username.toLowerCase().includes(filterText) ||
-                    user.email.toLowerCase().includes(filterText) ||
-                    (user.full_name && user.full_name.toLowerCase().includes(filterText));
-                if (!match) return;
+                } catch (error) {
+                    console.error('Error cargando roles:', error);
+                }
             }
 
-            if (roleFilter) {
-                if (!user.roles.includes(roleFilter)) return;
+            async function loadUsers() {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i><p>Cargando usuarios...</p></td></tr>';
+
+                try {
+                    const response = await fetch('/admin/api/users');
+                    const users = await response.json();
+
+                    renderUsers(users);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Error cargando usuarios</td></tr>';
+                }
             }
 
-            count++;
+            function renderUsers(users) {
+                const tbody = document.getElementById('usersTableBody');
+                const searchInput = document.getElementById('searchInput');
+                const roleFilter = document.getElementById('roleFilter');
+                const filterText = (searchInput ? searchInput.value : '').toLowerCase();
+                const roleFilterValue = roleFilter ? roleFilter.value : '';
 
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+                tbody.innerHTML = '';
 
-            // Avatar con iniciales
-            const initials = (user.full_name || user.username).substring(0, 2).toUpperCase();
+                let count = 0;
 
-            // Roles badges
-            const rolesHtml = user.roles.map(r =>
-                `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mr-1">
+                users.forEach(user => {
+                    // Filtrado cliente-side
+                    if (filterText) {
+                        const match = user.username.toLowerCase().includes(filterText) ||
+                            user.email.toLowerCase().includes(filterText) ||
+                            (user.full_name && user.full_name.toLowerCase().includes(filterText));
+                        if (!match) return;
+                    }
+
+                    if (roleFilterValue) {
+                        if (!user.roles.includes(roleFilterValue)) return;
+                    }
+
+                    count++;
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 sm:hover:shadow-lg sm:hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:table-row cursor-pointer relative group';
+                    tr.onclick = (e) => handleRowClick(e, user);
+
+                    // Avatar con iniciales
+                    const initials = (user.full_name || user.username).substring(0, 2).toUpperCase();
+
+                    // Roles badges with bold, uppercase design
+                    const rolesHtml = user.roles.map(r =>
+                        `<span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-1 ring-purple-600/20 mr-1">
                     ${r}
                 </span>`
-            ).join('');
+                    ).join('');
 
-            tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
+                    tr.innerHTML = `
+                <!-- Mobile Info Bar (Top) -->
+                <td class="sm:hidden px-4 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
+                            @${user.username}
+                        </span>
+                    </div>
+                </td>
+
+                <td class="px-4 py-3">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10">
-                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-white font-black text-sm shadow-sm transition-transform group-hover:scale-110">
                                 ${initials}
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">${user.full_name || 'Sin nombre'}</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">@${user.username}</div>
-                            <div class="text-xs text-gray-400 dark:text-gray-500">${user.email}</div>
+                            <div class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">${user.full_name || 'Sin nombre'}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">@${user.username} • ${user.email}</div>
                         </div>
                     </div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-3">
                     <div class="flex flex-wrap gap-1">
-                        ${rolesHtml || '<span class="text-xs text-gray-400">Sin roles</span>'}
+                        ${rolesHtml || '<span class="text-xs text-gray-400 font-bold uppercase tracking-widest">Sin roles</span>'}
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}">
+                <td class="px-4 py-3 whitespace-nowrap text-center">
+                    <span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg ${user.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 ring-1 ring-green-600/20' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-1 ring-red-600/20'}">
                         ${user.is_active ? 'Activo' : 'Inactivo'}
                     </span>
-                    ${user.is_admin ? '<span class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Admin</span>' : ''}
+                    ${user.is_admin ? '<span class="ml-1 px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg bg-blue-100 text-blue-700 ring-1 ring-blue-600/20">Admin</span>' : ''}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-4 py-3 whitespace-nowrap text-xs font-bold text-gray-500 dark:text-gray-400 hidden sm:table-cell">
                     ${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Nunca'}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick="editUser(${user.id})" class="text-primary hover:text-primary-dark mr-3 transition-colors" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    ${!user.is_active ?
-                    `<button onclick="toggleUserStatus(${user.id}, true)" class="text-green-600 hover:text-green-800 transition-colors" title="Reactivar"><i class="fas fa-check"></i></button>` :
-                    `<button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900 transition-colors" title="Desactivar"><i class="fas fa-trash-alt"></i></button>`
-                }
+                <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium hidden sm:table-cell">
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="editUser(${user.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all hover:scale-110" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+
+                <!-- Mobile-Only Footer (Hidden on Desktop) -->
+                <td class="px-4 py-3 sm:hidden border-t border-gray-50 dark:border-gray-700/50 bg-gray-50/20 dark:bg-gray-800/20">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-500 lowercase underline tracking-tighter">${user.email}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="editUser(${user.id})" class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${!user.is_active ?
+                            `<button onclick="toggleUserStatus(${user.id}, true)" class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Reactivar"><i class="fas fa-check"></i></button>` :
+                            `<button onclick="deleteUser(${user.id})" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Desactivar"><i class="fas fa-trash-alt"></i></button>`
+                        }
+                        </div>
+                    </div>
                 </td>
             `;
-            tbody.appendChild(tr);
-        });
+                    tbody.appendChild(tr);
+                });
 
-        document.getElementById('usersCount').textContent = `${count} usuarios mostrados`;
-    }
+                const displayTotal = document.getElementById('usersTotalDisplay');
+                if (displayTotal) displayTotal.textContent = count;
 
-    // Funciones del Modal y CRUD
+                const countSpan = document.getElementById('usersCount');
+                if (countSpan) countSpan.textContent = `${count} usuarios mostrados`;
+            }
 
-    function openUserModal(user = null) {
-        const modal = document.getElementById('userModal');
-        const title = document.getElementById('modalTitle');
-        const passwordHint = document.getElementById('passwordHint');
+            // Funciones del Modal y CRUD
 
-        // Reset form
-        document.getElementById('userId').value = '';
-        document.getElementById('username').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('fullName').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('isActive').checked = true;
+            function openUserModal(user = null) {
+                const modal = document.getElementById('userModal');
+                const title = document.getElementById('modalTitle');
+                const passwordHint = document.getElementById('passwordHint');
 
-        // Render Roles Checkboxes
-        const container = document.getElementById('rolesCheckboxes');
-        container.innerHTML = '';
-        allRoles.forEach(role => {
-            const isChecked = user && user.roles.includes(role.name);
-            const div = document.createElement('div');
-            div.className = 'flex items-center';
-            div.innerHTML = `
+                // Reset form
+                document.getElementById('userId').value = '';
+                document.getElementById('username').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('fullName').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('isActive').checked = true;
+
+                // Render Roles Checkboxes
+                const container = document.getElementById('rolesCheckboxes');
+                container.innerHTML = '';
+                allRoles.forEach(role => {
+                    const isChecked = user && user.roles.includes(role.name);
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center';
+                    div.innerHTML = `
                 <input type="checkbox" name="roles" value="${role.name}" ${isChecked ? 'checked' : ''} 
                        class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                 <label class="ml-2 block text-sm text-gray-900 dark:text-gray-300 truncate" title="${role.description}">
                     ${role.display_name}
                 </label>
             `;
-            container.appendChild(div);
-        });
+                    container.appendChild(div);
+                });
 
-        if (user) {
-            title.textContent = 'Editar Usuario';
-            document.getElementById('userId').value = user.id;
-            document.getElementById('username').value = user.username;
-            document.getElementById('username').disabled = true; // No permitir cambiar username
-            document.getElementById('email').value = user.email;
-            document.getElementById('fullName').value = user.full_name;
-            document.getElementById('isActive').checked = user.is_active;
-            passwordHint.classList.remove('hidden');
-        } else {
-            title.textContent = 'Nuevo Usuario';
-            document.getElementById('username').disabled = false;
-            passwordHint.classList.add('hidden');
-        }
+                if (user) {
+                    title.textContent = 'Editar Usuario';
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('username').disabled = true; // No permitir cambiar username
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('fullName').value = user.full_name;
+                    document.getElementById('isActive').checked = user.is_active;
+                    passwordHint.classList.remove('hidden');
+                } else {
+                    title.textContent = 'Nuevo Usuario';
+                    document.getElementById('username').disabled = false;
+                    passwordHint.classList.add('hidden');
+                }
 
-        modal.classList.remove('hidden');
-    }
+                modal.classList.remove('hidden');
+            }
 
-    function closeUserModal() {
-        document.getElementById('userModal').classList.add('hidden');
-    }
+            function closeUserModal() {
+                document.getElementById('userModal').classList.add('hidden');
+            }
 
-    async function editUser(id) {
-        try {
-            const response = await fetch(`/admin/api/users/${id}`);
-            const user = await response.json();
+            async function editUser(id) {
+                try {
+                    const response = await fetch(`/admin/api/users/${id}`);
+                    const user = await response.json();
 
-            // Transformar roles objects a string array para reutilizar lógica
-            const userData = {
-                ...user,
-                roles: user.roles.map(r => r.name)
-            };
+                    // Transformar roles objects a string array para reutilizar lógica
+                    const userData = {
+                        ...user,
+                        roles: user.roles.map(r => r.name)
+                    };
 
-            openUserModal(userData);
-        } catch (error) {
-            alert('Error cargando detalles del usuario');
-        }
-    }
+                    openUserModal(userData);
+                } catch (error) {
+                    alert('Error cargando detalles del usuario');
+                }
+            }
 
-    async function saveUser() {
-        const id = document.getElementById('userId').value;
-        const isEdit = !!id;
+            async function saveUser() {
+                const id = document.getElementById('userId').value;
+                const isEdit = !!id;
 
-        const data = {
-            username: document.getElementById('username').value,
-            email: document.getElementById('email').value,
-            full_name: document.getElementById('fullName').value,
-            is_active: document.getElementById('isActive').checked,
-            roles: Array.from(document.querySelectorAll('input[name="roles"]:checked')).map(cb => cb.value)
-        };
+                const data = {
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    full_name: document.getElementById('fullName').value,
+                    is_active: document.getElementById('isActive').checked,
+                    roles: Array.from(document.querySelectorAll('input[name="roles"]:checked')).map(cb => cb.value)
+                };
 
-        const password = document.getElementById('password').value;
-        if (password) data.password = password;
+                const password = document.getElementById('password').value;
+                if (password) data.password = password;
 
-        if (!isEdit && !password) {
-            alert('La contraseña es obligatoria para nuevos usuarios');
-            return;
-        }
+                if (!isEdit && !password) {
+                    alert('La contraseña es obligatoria para nuevos usuarios');
+                    return;
+                }
 
-        const url = isEdit ? `/admin/api/users/${id}` : '/admin/api/users';
-        const method = isEdit ? 'PUT' : 'POST';
+                const url = isEdit ? `/admin/api/users/${id}` : '/admin/api/users';
+                const method = isEdit ? 'PUT' : 'POST';
 
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        closeUserModal();
+                        loadUsers();
+                        showToast(isEdit ? 'Usuario actualizado' : 'Usuario creado', 'success');
+                    } else {
+                        const err = await response.json();
+                        alert(err.error || 'Error guardando usuario');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Error de red');
+                }
+            }
+
+            async function deleteUser(id) {
+                if (!confirm('¿Estás seguro de desactivar este usuario?')) return;
+
+                try {
+                    const response = await fetch(`/admin/api/users/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        loadUsers();
+                        showToast('Usuario desactivado', 'warning');
+                    }
+                } catch (error) {
+                    alert('Error al desactivar');
+                }
+            }
+
+            async function toggleUserStatus(id, active) {
+                if (!active) return deleteUser(id);
+
+                try {
+                    const response = await fetch(`/admin/api/users/${id}/status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ is_active: true })
+                    });
+                    if (response.ok) {
+                        loadUsers();
+                        showToast('Usuario reactivado', 'success');
+                    }
+                } catch (error) {
+                    alert('Error al reactivar');
+                }
+            }
+
+            // Toast Helper
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 translate-y-10 opacity-0 ${type === 'success' ? 'bg-green-600' : type === 'warning' ? 'bg-yellow-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800'
+                    }`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                // Animate in
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-10', 'opacity-0');
+                });
+
+                // Remove
+                setTimeout(() => {
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            function toggleFilters() {
+                const sidebar = document.getElementById('filters-sidebar');
+                const overlay = document.getElementById('filters-overlay');
+
+                if (!sidebar || !overlay) return;
+
+                const isHidden = sidebar.classList.contains('-translate-x-full');
+
+                if (isHidden) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-0');
+                    }, 10);
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('opacity-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                    document.body.style.overflow = '';
+                }
+            }
+
+            function resetFilters() {
+                const searchInput = document.getElementById('searchInput');
+                const roleFilter = document.getElementById('roleFilter');
+                if (searchInput) searchInput.value = '';
+                if (roleFilter) roleFilter.value = '';
+                loadUsers();
+            }
+
+            function handleRowClick(event, user) {
+                if (!event.target.closest('button') &&
+                    !event.target.closest('a')) {
+                    editUser(user.id);
+                }
+            }
+
+
+            // Search Listener
+            document.getElementById('searchInput').addEventListener('input', () => {
+                // Debounce simple
+                clearTimeout(window.searchTimeout);
+                window.searchTimeout = setTimeout(loadUsers, 300);
             });
-
-            if (response.ok) {
-                closeUserModal();
-                loadUsers();
-                showToast(isEdit ? 'Usuario actualizado' : 'Usuario creado', 'success');
-            } else {
-                const err = await response.json();
-                alert(err.error || 'Error guardando usuario');
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Error de red');
-        }
-    }
-
-    async function deleteUser(id) {
-        if (!confirm('¿Estás seguro de desactivar este usuario?')) return;
-
-        try {
-            const response = await fetch(`/admin/api/users/${id}`, { method: 'DELETE' });
-            if (response.ok) {
-                loadUsers();
-                showToast('Usuario desactivado', 'warning');
-            }
-        } catch (error) {
-            alert('Error al desactivar');
-        }
-    }
-
-    // Toast Helper
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 translate-y-10 opacity-0 ${type === 'success' ? 'bg-green-600' : type === 'warning' ? 'bg-yellow-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800'
-            }`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-y-10', 'opacity-0');
-        });
-
-        // Remove
-        setTimeout(() => {
-            toast.classList.add('translate-y-10', 'opacity-0');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // Search Listener
-    document.getElementById('searchInput').addEventListener('input', () => {
-        // Debounce simple
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(loadUsers, 300);
-    });
-</script>
-{% endblock %}
+        </script>
+        {% endblock %}

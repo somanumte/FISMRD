@@ -140,30 +140,45 @@
 
         roles.forEach(role => {
             const card = document.createElement('div');
-            card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md transition-shadow relative overflow-hidden group';
+            card.className = 'bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group';
 
             // System role badge
-            const badge = role.is_system_role
-                ? '<span class="absolute top-4 right-4 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"><i class="fas fa-lock mr-1"></i> Sistema</span>'
-                : '<span class="absolute top-4 right-4 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Personalizado</span>';
+            const badgeClass = role.is_system_role
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+
+            const badge = `<span class="absolute top-6 right-6 ${badgeClass} text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm z-10">
+                <i class="fas ${role.is_system_role ? 'fa-lock' : 'fa-user'} mr-1"></i> ${role.is_system_role ? 'Sistema' : 'Personalizado'}
+            </span>`;
 
             card.innerHTML = `
                 ${badge}
-                <div class="mb-4 pr-16 bg-gradient-to-br from-primary/10 to-transparent w-12 h-12 rounded-lg flex items-center justify-center text-primary">
-                    <i class="fas fa-user-shield text-xl"></i>
+                <!-- Decorative background elements -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                
+                <div class="mb-6 relative">
+                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-user-shield text-2xl"></i>
+                    </div>
                 </div>
                 
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${role.display_name}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 h-10 overflow-hidden text-ellipsis">${role.description || 'Sin descripción'}</p>
+                <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-3 group-hover:text-indigo-600 transition-colors">${role.display_name}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 h-12 overflow-hidden text-ellipsis leading-relaxed">${role.description || 'Sin descripción detallada para este rol de acceso.'}</p>
                 
-                <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-4">
-                    <span>${role.permission_count} permisos</span>
-                    <span>${role.user_count} usuarios</span>
+                <div class="flex items-center gap-4 text-[11px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-700/50 pt-6">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span>${role.permission_count} Permisos</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span>${role.user_count} Usuarios</span>
+                    </div>
                 </div>
 
-                <div class="mt-4 flex justify-end">
-                    <button onclick="editRole(${role.id})" class="text-primary hover:text-primary-dark font-medium text-sm">
-                        Editar Permisos <i class="fas fa-arrow-right ml-1"></i>
+                <div class="mt-8 flex justify-end">
+                    <button onclick="editRole(${role.id})" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-700/50 text-indigo-600 dark:text-indigo-400 font-black text-[12px] uppercase tracking-widest rounded-xl hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-all shadow-sm">
+                        Editar Configuración <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             `;

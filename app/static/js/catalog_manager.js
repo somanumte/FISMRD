@@ -89,7 +89,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initSidebar() {
     dom.sidebar.innerHTML = '';
-    dom.mobileSelect.innerHTML = '';
+
+    // Add "Close" button for mobile
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 lg:hidden mb-4';
+    closeBtn.innerHTML = `
+        <span class="font-bold text-gray-900 dark:text-white">Menú Catálogos</span>
+        <button onclick="toggleSidebar()" class="p-2 text-gray-500"><i class="fa-solid fa-times text-xl"></i></button>
+    `;
+    dom.sidebar.appendChild(closeBtn);
 
     for (const [key, config] of Object.entries(CATALOG_CONFIG)) {
         // Desktop Sidebar
@@ -97,14 +105,11 @@ function initSidebar() {
         item.className = 'catalog-nav-item';
         item.dataset.type = key;
         item.innerHTML = `<i class="fa-solid ${config.icon}"></i> <span>${config.label}</span>`;
-        item.onclick = () => loadCatalog(key);
+        item.onclick = () => {
+            loadCatalog(key);
+            if (window.innerWidth <= 1024) toggleSidebar();
+        };
         dom.sidebar.appendChild(item);
-
-        // Mobile Select
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = config.label;
-        dom.mobileSelect.appendChild(option);
     }
 }
 
@@ -129,7 +134,6 @@ function loadCatalog(type) {
     document.querySelectorAll('.catalog-nav-item').forEach(el => {
         el.classList.toggle('active', el.dataset.type === type);
     });
-    dom.mobileSelect.value = type;
 
     dom.title.textContent = CATALOG_CONFIG[type].label;
 
@@ -194,18 +198,18 @@ function renderTable() {
         }
 
         let html = `
-            <td><span class="text-[var(--text-sub)] font-mono text-xs">#${item.id}</span></td>
-            <td>
+            <td data-label="ID"><span class="text-[var(--text-sub)] font-mono text-xs">#${item.id}</span></td>
+            <td data-label="Nombre">
                 <div class="font-medium">${item.text}</div>
                 ${renderExtraInfo(item)}
             </td>
-            <td>
+            <td data-label="Estado">
                 <span class="status-badge ${item.is_active ? 'active' : 'inactive'}">
                     <i class="fa-solid fa-circle text-[0.4rem]"></i>
                     ${item.is_active ? 'Activo' : 'Inactivo'}
                 </span>
             </td>
-            <td class="text-right">
+            <td data-label="Acciones" class="text-right">
                 <div class="flex items-center justify-end gap-1">
                     ${renderActionButtons(item, isHierarchical)}
                 </div>
@@ -528,5 +532,18 @@ function showToast(title, message, type = 'success') {
         window.showToast(title, message, type);
     } else {
         alert(`${title}: ${message}`);
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.catalog-sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active');
+
+    if (sidebar && sidebar.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
     }
 }

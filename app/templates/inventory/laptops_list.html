@@ -389,7 +389,8 @@
                     class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
                     <div class="overflow-x-visible sm:overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900 hidden sm:table-header-group">
+                            <thead
+                                class="bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-md hidden sm:table-header-group sticky top-0 z-20 border-b border-gray-100 dark:border-gray-700">
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -500,8 +501,8 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {% if laptops %}
                                 {% for laptop in laptops %}
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex flex-col sm:table-row cursor-pointer relative"
-                                    onclick="if(!event.target.closest('.laptop-checkbox')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 sm:hover:shadow-lg sm:hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:table-row cursor-pointer relative group"
+                                    onclick="if(!event.target.closest('.laptop-checkbox') && !event.target.closest('button') && !event.target.closest('a')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
                                     <!-- Desktop Selection (Hidden on Mobile) -->
                                     <td class="px-6 py-4 sm:whitespace-nowrap hidden sm:table-cell">
                                         <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
@@ -511,12 +512,23 @@
                                             data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
                                             class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
                                     </td>
-
-                                    <!-- Laptop Info -->
-                                    <td class="px-6 py-4 sm:table-cell">
+                                     <!-- Mobile Selection Bar (Top) -->
+                                     <td class="sm:hidden px-6 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
+                                         <div class="flex items-center gap-3">
+                                             <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                                 data-laptop-id="{{ laptop.id }}"
+                                                 data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                                 data-laptop-price="{{ laptop.sale_price }}"
+                                                 data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                                 class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0 cursor-pointer shadow-sm transition-transform active:scale-95">
+                                             <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Seleccionar para factura</span>
+                                         </div>
+                                     </td>
+                                     <!-- Laptop Info (Colspan 2 for Desktop) -->
+                                    <td class="px-6 py-4 sm:table-cell sm:col-span-2" colspan="2">
                                         <div class="flex items-center gap-4">
                                             <div
-                                                class="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600">
+                                                class="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 sm:group-hover:border-indigo-200 dark:sm:group-hover:border-indigo-800 transition-colors">
                                                 {% set cover_image = none %}
                                                 {% for image in laptop.images if image.is_cover %}
                                                 {% set cover_image = image %}
@@ -528,7 +540,7 @@
                                                 {% if cover_image %}
                                                 <img src="{{ url_for('static', filename=cover_image.image_path) }}"
                                                     alt="{{ laptop.brand.name }} {{ laptop.model.name }}"
-                                                    class="h-full w-full object-cover"
+                                                    class="h-full w-full object-cover sm:group-hover:scale-105 transition-transform duration-500"
                                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-6 h-6 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';">
                                                 {% else %}
                                                 <div
@@ -544,57 +556,163 @@
                                                 {% endif %}
                                             </div>
 
-                                            <div class="flex-1 min-w-0 pr-8 relative">
-                                                <div class="flex items-center justify-between">
+                                            <div class="flex-1 min-w-0 pr-8 sm:pr-0 relative">
+                                                <div class="flex items-center justify-between sm:block">
                                                     <h3
-                                                        class="text-sm sm:text-base font-black text-gray-900 dark:text-white truncate mb-0.5">
+                                                        class="text-sm sm:text-base font-black text-gray-900 dark:text-white truncate mb-0.5 sm:group-hover:text-indigo-600 transition-colors">
                                                         {{ laptop.brand.name }} {{ laptop.model.name }}
                                                     </h3>
-                                                    <!-- Mobile Checkbox (Floating & High UX) -->
-                                                    <div class="sm:hidden absolute -top-4 -right-6 z-10">
-                                                        <label
-                                                            class="p-4 block cursor-pointer active:scale-95 transition-transform">
-                                                            <input type="checkbox" name="selected_laptop"
-                                                                value="{{ laptop.id }}" data-laptop-id="{{ laptop.id }}"
-                                                                data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                                                data-laptop-price="{{ laptop.sale_price }}"
-                                                                data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
-                                                                class="laptop-checkbox h-6 w-6 rounded-full border-gray-300 text-indigo-600 shadow-md focus:ring-0 cursor-pointer ring-2 ring-white dark:ring-gray-800">
-                                                        </label>
-                                                    </div>
                                                 </div>
                                                 <div
                                                     class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                                     <span class="flex items-center gap-1"><span
-                                                            class="text-indigo-500">CPU:</span> {{
-                                                        laptop.processor.name[:20] if laptop.processor else 'N/A'
+                                                            class="text-indigo-500">CPU:</span> {{ laptop.processor.name
+                                                        if laptop.processor else '-' }}</span>
+                                                    <span class="flex items-center gap-1"><span
+                                                            class="text-indigo-500">GPU:</span> {{
+                                                        laptop.graphics_card.name if laptop.graphics_card else '-'
                                                         }}</span>
                                                     <span class="flex items-center gap-1"><span
-                                                            class="text-indigo-500">SSD:</span> {{
-                                                        laptop.storage.name[:10] if laptop.storage else 'N/A' }}</span>
+                                                            class="text-indigo-500">RAM:</span> {{ laptop.ram.name if
+                                                        laptop.ram else '-' }}</span>
+                                                    <span class="flex items-center gap-1"><span
+                                                            class="text-indigo-500">SSD:</span> {{ laptop.storage.name
+                                                        if laptop.storage else '-' }}</span>
+                                                    <span class="flex items-center gap-1"><span
+                                                            class="text-indigo-500">Pantalla:</span> {{
+                                                        laptop.screen.name if laptop.screen else '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <!-- Mobile Footer: Price, Stock & Actions in One Line -->
+
+                                    <!-- Desktop Category -->
+                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                                        {% if laptop.category == 'gaming' %}
+                                        <span
+                                            class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-1 ring-purple-600/20">Gaming</span>
+                                        {% elif laptop.category == 'workstation' %}
+                                        <span
+                                            class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-1 ring-blue-600/20">WS</span>
+                                        {% else %}
+                                        <span class="text-gray-400 text-xs">-</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- Desktop Price -->
+                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                                        <span class="text-base font-black text-indigo-600 dark:text-indigo-400">
+                                            {{ "{:,.0f}".format(laptop.sale_price) }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Desktop Stock -->
+                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2.5 py-0.5 text-xs font-black rounded-full {{ 'bg-red-100 text-red-700' if laptop.quantity <= 0 else 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.quantity > laptop.min_alert else 'bg-amber-100 text-amber-700' }}">
+                                            {{ laptop.quantity }} uds
+                                        </span>
+                                    </td>
+
+                                    <!-- Desktop Status -->
+                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black transition-all duration-300 {{ 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.is_published else 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400' }} ring-1 ring-inset {{ 'ring-green-600/20' if laptop.is_published else 'ring-gray-600/20' }}">
+                                            <span class="relative flex h-2 w-2 mr-2">
+                                                {% if laptop.is_published %}
+                                                <span
+                                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                <span
+                                                    class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                                {% else %}
+                                                <span
+                                                    class="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
+                                                {% endif %}
+                                            </span>
+                                            {{ 'Publicado' if laptop.is_published else 'Borrador' }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Desktop Actions -->
+                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <!-- Invoice Action (Desktop) -->
+                                            <button type="button"
+                                                onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                                class="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-all hover:scale-110"
+                                                title="Crear Factura">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                            </button>
+
+                                            <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
+                                                class="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all hover:scale-110"
+                                                title="Ver detalle">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                    </path>
+                                                </svg>
+                                            </a>
+                                            {% if current_user.is_admin %}
+                                            <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                                                class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all hover:scale-110"
+                                                title="Editar">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                    </path>
+                                                </svg>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+
+                                    <!-- Mobile-Only Footer (Hidden on Desktop) -->
                                     <td
-                                        class="px-6 py-3 sm:table-cell border-t border-gray-50 dark:border-gray-700/50 sm:border-none bg-gray-50/20 dark:bg-gray-800/20">
+                                        class="px-6 py-3 sm:hidden border-t border-gray-50 dark:border-gray-700/50 bg-gray-50/20 dark:bg-gray-800/20">
                                         <div class="flex items-center justify-between gap-2">
                                             <!-- Price & Stock -->
-                                            <div class="flex items-baseline gap-3">
+                                            <div class="flex items-baseline gap-3 sm:flex-col sm:gap-0">
                                                 <span
-                                                    class="text-base sm:text-sm font-black text-indigo-600 dark:text-indigo-400">
-                                                    ${{ "{:,.0f}".format(laptop.sale_price) }}
+                                                    class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400">
+                                                    {{ "{:,.0f}".format(laptop.sale_price) }}
                                                 </span>
                                                 <span
-                                                    class="px-2 py-0.5 text-[10px] font-black rounded-lg {{ 'bg-red-100 text-red-700' if laptop.quantity <= 0 else 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.quantity > laptop.min_alert else 'bg-amber-100 text-amber-700' }}">
+                                                    class="px-2 py-0.5 text-[10px] sm:text-[11px] font-black rounded-lg {{ 'bg-red-100 text-red-700' if laptop.quantity <= 0 else 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.quantity > laptop.min_alert else 'bg-amber-100 text-amber-700' }}">
                                                     {{ laptop.quantity }} uds
                                                 </span>
                                             </div>
 
-                                            <!-- Actions (Mobile & Desktop) -->
-                                            <div class="flex items-center gap-1">
+                                            <!-- Actions (Mobile Only Footer) -->
+                                            <div class="flex items-center gap-2">
+                                                <!-- Invoice Action -->
+                                                <!-- Invoice Action -->
+                                                <button type="button"
+                                                    onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                                    class="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                                                    title="Crear Factura">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                        </path>
+                                                    </svg>
+                                                </button>
+
                                                 <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
                                                     class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -620,6 +738,8 @@
                                                     </svg>
                                                 </a>
                                                 {% endif %}
+
+                                                <!-- Mobile Multi-select Relocated -->
                                             </div>
                                         </div>
                                     </td>
@@ -653,9 +773,9 @@
                 <div id="grid-view" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {% if laptops %}
                     {% for laptop in laptops %}
-                    <!-- Perfect Mobile Card -->
-                    <div class="relative bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col active:scale-[0.98] cursor-pointer"
-                        onclick="if(!event.target.closest('.laptop-checkbox')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
+                    <!-- Modern Desktop Card / Mobile-Optimized Hybrid -->
+                    <div class="relative bg-white dark:bg-gray-800 rounded-3xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden sm:hover:shadow-2xl sm:hover:-translate-y-2 transition-all duration-500 group flex flex-col active:scale-[0.98] cursor-pointer"
+                        onclick="if(!event.target.closest('.laptop-checkbox') && !event.target.closest('button') && !event.target.closest('a')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
 
                         <!-- Image Container with Aspect Ratio -->
                         <div class="relative aspect-video w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -702,17 +822,6 @@
                                         {% endif %}
                             </div>
 
-                            <!-- Checkbox position absolute with improved hit area -->
-                            <div class="absolute top-2 right-2 z-10">
-                                <label class="p-2 block cursor-pointer active:scale-95 transition-transform">
-                                    <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
-                                        data-laptop-id="{{ laptop.id }}"
-                                        data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                        data-laptop-price="{{ laptop.sale_price }}"
-                                        data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
-                                        class="laptop-checkbox h-7 w-7 rounded-full border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-0 focus:ring-offset-0 shadow-lg cursor-pointer transition-transform ring-2 ring-white dark:ring-gray-800 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-                                </label>
-                            </div>
                         </div>
 
                         <!-- Content Section -->
@@ -726,8 +835,8 @@
                             <div class="grid grid-cols-2 gap-2 mb-6">
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
                                         </path>
@@ -737,8 +846,8 @@
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0 group-hover:rotate-12 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                                         </path>
@@ -770,8 +879,8 @@
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2 col-span-2">
-                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0 group-hover:translate-y-0.5 transition-transform duration-300"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                                         </path>
@@ -784,19 +893,75 @@
                             <!-- Footer (Price & Qty) -->
                             <div class="mt-auto flex items-end justify-between">
                                 <div class="flex flex-col">
-                                    <span class="text-xs font-black text-gray-400 uppercase tracking-tighter">Precio de
-                                        venta</span>
-                                    <span
-                                        class="text-3xl font-black text-indigo-600 dark:text-indigo-400 leading-tight">${{
-                                        "{:,.0f}".format(laptop.sale_price) }}</span>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200">Precio
+                                        de venta</span>
+                                    <div class="flex items-baseline gap-1">
+                                        <span
+                                            class="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 leading-tight group-hover:scale-105 transition-transform duration-500 origin-left">{{
+                                            "{:,.0f}".format(laptop.sale_price) }}</span>
+
+                                    </div>
                                 </div>
                                 <div class="flex flex-col items-end">
                                     <span
-                                        class="text-xs font-black text-gray-400 uppercase tracking-tighter">Disponibles</span>
-                                    <div class="bg-gray-900 dark:bg-white px-3 py-1 rounded-full">
+                                        class="text-[11px] font-bold text-gray-700 dark:text-gray-200">Disponibles</span>
+                                    <div
+                                        class="bg-gray-900 dark:bg-white px-3 py-1 rounded-full group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 transition-colors duration-300">
                                         <span class="text-sm font-black text-white dark:text-gray-900">{{
                                             laptop.quantity }} uds</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Bar (Visible Desktop/Mobile) -->
+                            <div
+                                class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <!-- Invoice -->
+                                    <button type="button"
+                                        onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                        class="p-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl transition-colors active:scale-95"
+                                        title="Crear Factura">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                    <!-- Detail -->
+                                    <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
+                                        class="p-2 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl transition-colors active:scale-95">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                            </path>
+                                        </svg>
+                                    </a>
+                                    <!-- Edit -->
+                                    {% if current_user.is_admin %}
+                                    <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                                        class="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/10 rounded-xl transition-colors active:scale-95">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Integrated Checkbox -->
+                                <div class="ml-4 pl-4 pr-1 border-l border-gray-100 dark:border-gray-700">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                            data-laptop-id="{{ laptop.id }}"
+                                            data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                            data-laptop-price="{{ laptop.sale_price }}"
+                                            data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                            class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -1033,6 +1198,18 @@
             localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
 
             // Redirigir al formulario de factura
+            window.location.href = "{{ url_for('invoices.invoice_new') }}";
+        }
+
+        // Función para crear factura para una sola laptop (Usada en botones individuales)
+        window.createInvoiceForLaptop = function (id, name, price, description) {
+            const selectedLaptops = [{
+                id: id,
+                name: name,
+                price: parseFloat(price),
+                description: description
+            }];
+            localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
             window.location.href = "{{ url_for('invoices.invoice_new') }}";
         }
 

@@ -315,137 +315,223 @@
         justify-content: space-between;
     }
 
-    /* Mobile */
+    /* Responsive Table Layout */
+    @media (max-width: 640px) {
+        .catalog-table thead {
+            display: none;
+        }
+
+        .catalog-table tr {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            background: var(--surface-primary);
+        }
+
+        .catalog-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .catalog-table td:last-child {
+            border-bottom: none;
+        }
+
+        .catalog-table td::before {
+            content: attr(data-label);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+    }
+
     @media (max-width: 1024px) {
         .catalog-grid {
             grid-template-columns: 1fr;
         }
 
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 40;
+            display: none;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
         .catalog-sidebar {
-            display: none;
-        }
-
-        .mobile-nav-select {
             display: block !important;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 50;
+            width: 280px;
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+            border-radius: 0 1.5rem 1.5rem 0;
+            box-shadow: 20px 0 50px rgba(0, 0, 0, 0.2);
         }
 
-        .catalog-toolbar {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-table th,
-        .catalog-table td {
-            padding: 1rem;
-        }
-    }
-
-    @media (min-width: 1025px) {
-        .mobile-nav-select {
-            display: none;
+        .catalog-sidebar.active {
+            transform: translateX(0);
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="catalog-container">
+<div class="container-custom section-spacing">
     <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="font-heading text-4xl font-bold text-[var(--text-main)] mb-2">Gestión de Catálogos</h1>
-        <p class="text-[var(--text-sub)] text-lg">Administra las listas auxiliares del sistema de inventario.</p>
+    <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 bg-white/50 dark:bg-gray-800/50 p-6 rounded-3xl border border-white/20 dark:border-gray-700/30 backdrop-blur-xl shadow-2xl shadow-indigo-500/5">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                    Gestión de Catálogos
+                </h1>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 pl-1">
+                Administra las listas auxiliares del sistema de inventario.
+            </p>
+        </div>
+        <div class="flex gap-3 w-full md:w-auto">
+            <button onclick="openModal('create')"
+                class="flex-1 md:flex-none inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 shadow-md">
+                <i class="fa-solid fa-plus mr-2"></i>
+                <span>Nuevo Registro</span>
+            </button>
+        </div>
     </div>
 
-    <!-- Mobile Selector -->
-    <select id="mobileCatalogSelect"
-        class="mobile-nav-select w-full px-4 py-3 bg-[var(--surface-primary)] border border-[var(--border-subtle)] rounded-xl text-[var(--text-main)] mb-6"
-        onchange="loadCatalog(this.value)">
-    </select>
+    <!-- Mobile Navigation Sidebar -->
+    <div id="filters-overlay" onclick="toggleSidebar()"
+        class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm hidden lg:hidden transition-all duration-300 opacity-0">
+    </div>
 
-    <div class="catalog-grid">
-        <!-- Sidebar -->
-        <aside class="catalog-sidebar custom-scrollbar">
-            <div class="sidebar-title">Catálogos</div>
-            <nav id="catalogNav"></nav>
+    <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+        <!-- Sidebar (Directly using the ID from catalog_manager.js) -->
+        <aside id="catalogNav"
+            class="fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:relative lg:block lg:w-72 flex-shrink-0 lg:p-6 lg:rounded-3xl border-r lg:border border-gray-200 dark:border-gray-700 shadow-2xl lg:shadow-sm overflow-hidden flex flex-col h-full lg:h-fit">
+            <!-- Sidebar content is generated dynamically by catalog_manager.js -->
         </aside>
 
         <!-- Main Content -->
-        <div class="catalog-card">
-            <!-- Header -->
-            <div class="catalog-header">
+        <div class="flex-1 w-full flex flex-col gap-6">
+            <!-- Catalog Info Header (Desktop & Mobile Sync) -->
+            <div
+                class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <h2 id="currentCatalogTitle" class="catalog-title">Cargando...</h2>
-                        <p id="catalogStats" class="catalog-subtitle">0 registros</p>
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleSidebar()"
+                            class="lg:hidden p-2.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                        <div>
+                            <h2 id="currentCatalogTitle" class="text-2xl font-black text-gray-900 dark:text-white">
+                                Cargando...</h2>
+                            <p id="catalogStats" class="text-xs font-black uppercase tracking-widest text-indigo-500">0
+                                registros</p>
+                        </div>
                     </div>
-                    <button onclick="openModal('create')"
-                        class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 font-medium">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Nuevo</span>
-                    </button>
                 </div>
             </div>
 
             <!-- Toolbar -->
-            <div class="catalog-toolbar">
-                <div class="search-wrapper">
-                    <i class="fa-solid fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar..." class="search-input">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="relative w-full sm:max-w-md">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar en este catálogo..."
+                        class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 transition-all">
                 </div>
 
-                <label class="flex items-center gap-2.5 text-sm text-[var(--text-sub)] cursor-pointer select-none">
+                <label
+                    class="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors select-none">
                     <input type="checkbox" id="showInactiveCheck"
-                        class="form-checkbox rounded text-purple-600 border-[var(--border-subtle)] bg-[var(--bg-body)] focus:ring-purple-500 w-4 h-4">
-                    <span class="font-medium">Mostrar inactivos</span>
+                        class="form-checkbox h-5 w-5 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
+                    <span class="text-sm font-bold text-gray-600 dark:text-gray-400">Mostrar inactivos</span>
                 </label>
             </div>
 
-            <!-- Table -->
-            <div class="table-wrapper">
-                <table class="catalog-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">ID</th>
-                            <th>Nombre</th>
-                            <th style="width: 140px;">Estado</th>
-                            <th style="width: 180px;" class="text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="catalogTableBody"></tbody>
-                </table>
+            <!-- Table Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
+                                <th class="px-4 py-4 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                                    style="width: 80px;">ID</th>
+                                <th
+                                    class="px-4 py-4 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    Nombre</th>
+                                <th class="px-4 py-4 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center"
+                                    style="width: 140px;">Estado</th>
+                                <th class="px-4 py-4 text-right text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                                    style="width: 180px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalogTableBody" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody>
+                    </table>
+                </div>
 
-                <!-- Empty State -->
-                <div id="emptyState" class="hidden py-16 text-center">
-                    <div
-                        class="w-20 h-20 bg-[var(--surface-hover)] rounded-2xl flex items-center justify-center mx-auto mb-5 text-[var(--text-sub)]">
-                        <i class="fa-solid fa-inbox text-3xl"></i>
+                <!-- Pagination (Standardized Footer) -->
+                <div
+                    class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex justify-between items-center">
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400" id="paginationInfo">Página 1</p>
+                    <div class="flex gap-2">
+                        <button id="prevPageBtn"
+                            class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button id="nextPageBtn"
+                            class="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <p class="text-[var(--text-main)] font-semibold text-lg mb-1">No se encontraron registros</p>
-                    <p class="text-[var(--text-sub)]">Intenta ajustar los filtros o agrega un nuevo elemento.</p>
-                </div>
-
-                <!-- Loading State -->
-                <div id="loadingState" class="py-16 text-center">
-                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-purple-600 mb-4"></i>
-                    <p class="text-[var(--text-sub)] font-medium">Cargando datos...</p>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination-wrapper">
-                <p class="text-sm text-[var(--text-sub)] font-medium" id="paginationInfo">Página 1</p>
-                <div class="flex gap-2">
-                    <button id="prevPageBtn"
-                        class="px-4 py-2 rounded-lg border border-[var(--border-subtle)] text-[var(--text-main)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button id="nextPageBtn"
-                        class="px-4 py-2 rounded-lg border border-[var(--border-subtle)] text-[var(--text-main)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Floating Filter Button for Mobile -->
+<button onclick="toggleSidebar()"
+    class="fixed bottom-6 right-6 z-40 lg:hidden flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl hover:bg-indigo-700 active:scale-95 transition-all outline-none border-4 border-white dark:border-gray-900 group">
+    <svg class="w-8 h-8 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+        </path>
+    </svg>
+    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+    </span>
+</button>
+</div>
+</div>
 </div>
 
 <!-- Modal Create/Edit -->
