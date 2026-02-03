@@ -512,19 +512,22 @@
                                             data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
                                             class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
                                     </td>
-                                     <!-- Mobile Selection Bar (Top) -->
-                                     <td class="sm:hidden px-6 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
-                                         <div class="flex items-center gap-3">
-                                             <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
-                                                 data-laptop-id="{{ laptop.id }}"
-                                                 data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                                 data-laptop-price="{{ laptop.sale_price }}"
-                                                 data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
-                                                 class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0 cursor-pointer shadow-sm transition-transform active:scale-95">
-                                             <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Seleccionar para factura</span>
-                                         </div>
-                                     </td>
-                                     <!-- Laptop Info (Colspan 2 for Desktop) -->
+                                    <!-- Mobile Selection Bar (Top) -->
+                                    <td
+                                        class="sm:hidden px-6 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
+                                        <div class="flex items-center gap-3">
+                                            <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                                data-laptop-id="{{ laptop.id }}"
+                                                data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                                data-laptop-price="{{ laptop.sale_price }}"
+                                                data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                                class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0 cursor-pointer shadow-sm transition-transform active:scale-95">
+                                            <span
+                                                class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Seleccionar
+                                                para factura</span>
+                                        </div>
+                                    </td>
+                                    <!-- Laptop Info (Colspan 2 for Desktop) -->
                                     <td class="px-6 py-4 sm:table-cell sm:col-span-2" colspan="2">
                                         <div class="flex items-center gap-4">
                                             <div
@@ -1151,7 +1154,14 @@
         // Función para actualizar el contador y estado del botón
         function updateSelection() {
             const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
-            const count = selectedCheckboxes.length;
+
+            // Contar IDs únicos para evitar duplicados entre vistas
+            const uniqueIds = new Set();
+            selectedCheckboxes.forEach(cb => {
+                if (cb.dataset.laptopId) uniqueIds.add(cb.dataset.laptopId);
+            });
+
+            const count = uniqueIds.size;
 
             // Actualizar contador
             selectedCountSpan.textContent = count;
@@ -1161,8 +1171,12 @@
 
             // Actualizar el checkbox "Seleccionar todos"
             if (selectAllCheckbox) {
-                selectAllCheckbox.checked = count > 0 && count === laptopCheckboxes.length;
-                selectAllCheckbox.indeterminate = count > 0 && count < laptopCheckboxes.length;
+                // Para el "Seleccionar todos", seguimos usando la lógica de checkboxes totales vs marcados
+                // pero el estado funcional depende del conteo único
+                selectAllCheckbox.checked = count > 0 && count === (document.querySelectorAll('.laptop-checkbox').length / (window.innerWidth < 768 ? 2 : 1));
+                // Nota: Esta lógica de selectAll es compleja por las 3 vistas, 
+                // lo más seguro es basarla en si hay algo seleccionado.
+                selectAllCheckbox.indeterminate = count > 0 && count < uniqueIds.size;
             }
 
             return selectedCheckboxes;
@@ -1172,14 +1186,19 @@
         function getSelectedLaptops() {
             const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
             const selectedLaptops = [];
+            const ids = new Set();
 
             selectedCheckboxes.forEach(checkbox => {
-                selectedLaptops.push({
-                    id: checkbox.dataset.laptopId,
-                    name: checkbox.dataset.laptopName,
-                    price: parseFloat(checkbox.dataset.laptopPrice),
-                    description: checkbox.dataset.laptopDescription
-                });
+                const id = checkbox.dataset.laptopId;
+                if (id && !ids.has(id)) {
+                    ids.add(id);
+                    selectedLaptops.push({
+                        id: id,
+                        name: checkbox.dataset.laptopName,
+                        price: parseFloat(checkbox.dataset.laptopPrice),
+                        description: checkbox.dataset.laptopDescription
+                    });
+                }
             });
 
             return selectedLaptops;
