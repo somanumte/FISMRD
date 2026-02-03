@@ -279,18 +279,26 @@ document.getElementById('icecat-config-form').addEventListener('submit', async (
         formData.icecat_content_token = contentToken;
     }
     
+    // Preparar headers
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+    // Agregar CSRF token si existe
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+        headers['X-CSRFToken'] = csrfMeta.content;
+    }
+
     try {
         const response = await fetch('{{ url_for("admin.save_icecat_config") }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token() }}'
-            },
+            headers: headers,
             body: JSON.stringify(formData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // Show success notification
             showNotification('success', 'Configuración guardada correctamente');
@@ -309,23 +317,31 @@ document.getElementById('btn-test').addEventListener('click', async () => {
     const btn = document.getElementById('btn-test');
     const resultsDiv = document.getElementById('test-results');
     const contentDiv = document.getElementById('test-content');
-    
+
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Probando...';
     resultsDiv.classList.remove('hidden');
     contentDiv.innerHTML = '<div class="flex items-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Conectando con Icecat...</div>';
-    
+
+    // Preparar headers
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+    // Agregar CSRF token si existe
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+        headers['X-CSRFToken'] = csrfMeta.content;
+    }
+
     try {
         const response = await fetch('{{ url_for("admin.test_icecat_connection") }}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token() }}'
-            }
+            headers: headers
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             contentDiv.innerHTML = `
                 <div class="flex items-start text-green-600 dark:text-green-400">
@@ -380,25 +396,25 @@ function showNotification(type, message) {
         error: 'bg-red-500',
         warning: 'bg-yellow-500'
     };
-    
+
     const icons = {
         success: 'fa-check-circle',
         error: 'fa-times-circle',
         warning: 'fa-exclamation-circle'
     };
-    
+
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 flex items-center px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} transform translate-x-full transition-transform duration-300`;
     notification.innerHTML = `
         <i class="fas ${icons[type]} mr-2"></i>
         <span>${message}</span>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => notification.classList.remove('translate-x-full'), 100);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         notification.classList.add('translate-x-full');
