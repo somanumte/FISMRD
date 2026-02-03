@@ -18,15 +18,55 @@ let state = {
     filters: {
         search: '',
         status: 'all',
-        category_id: 'all'
+        category_id: 'all',
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+        is_recurring: 'all'
     }
 };
 
 async function initExpensesModule() {
+    initPeriodFilters();
     await loadCategories();
+    await syncRecurringExpenses();
     loadDashboardData();
     loadExpenses();
     setupEventListeners();
+}
+
+function initPeriodFilters() {
+    const monthSelect = document.getElementById('monthFilter');
+    const yearSelect = document.getElementById('yearFilter');
+
+    // Set current month
+    monthSelect.value = state.filters.month;
+
+    // Populate years (2 before, up to 2 after)
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let y = currentYear - 2; y <= currentYear + 2; y++) {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = y;
+        if (y === state.filters.year) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+}
+
+async function syncRecurringExpenses() {
+    const query = new URLSearchParams({
+        month: state.filters.month,
+        year: state.filters.year
+    });
+    try {
+        const response = await fetch(`/expenses/api/sync-recurring?${query}`, { method: 'POST' });
+        const result = await response.json();
+        if (result.created_count > 0) {
+            console.log('Gastos recurrentes sincronizados:', result.message);
+        }
+    } catch (error) {
+        console.error('Error sincronizando gastos recurrentes:', error);
+    }
 }
 
 function setupEventListeners() {
@@ -45,6 +85,28 @@ function setupEventListeners() {
 
     document.getElementById('categoryFilter').addEventListener('change', (e) => {
         state.filters.category_id = e.target.value;
+        state.page = 1;
+        loadExpenses();
+    });
+
+    document.getElementById('monthFilter').addEventListener('change', async (e) => {
+        state.filters.month = parseInt(e.target.value);
+        state.page = 1;
+        await syncRecurringExpenses();
+        loadDashboardData();
+        loadExpenses();
+    });
+
+    document.getElementById('yearFilter').addEventListener('change', async (e) => {
+        state.filters.year = parseInt(e.target.value);
+        state.page = 1;
+        await syncRecurringExpenses();
+        loadDashboardData();
+        loadExpenses();
+    });
+
+    document.getElementById('recurringFilter').addEventListener('change', (e) => {
+        state.filters.is_recurring = e.target.value;
         state.page = 1;
         loadExpenses();
     });
@@ -92,8 +154,12 @@ async function loadCategories() {
 }
 
 async function loadDashboardData() {
+    const query = new URLSearchParams({
+        month: state.filters.month,
+        year: state.filters.year
+    });
     try {
-        const response = await fetch('/expenses/api/dashboard');
+        const response = await fetch(`/expenses/api/dashboard?${query}`);
         const data = await response.json();
 
         if (data.error) throw new Error(data.error);
@@ -119,7 +185,10 @@ async function loadExpenses() {
         per_page: state.per_page,
         search: state.filters.search,
         status: state.filters.status,
-        category_id: state.filters.category_id
+        category_id: state.filters.category_id,
+        month: state.filters.month,
+        year: state.filters.year,
+        is_recurring: state.filters.is_recurring
     });
 
     try {
@@ -165,7 +234,13 @@ function updateKPI(elementId, value, isCurrency) {
     if (!el) return;
 
     if (isCurrency) {
-        el.textContent = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(value);
+        const formatted = new Intl.NumberFormat('es-DO', {
+            style: 'currency',
+            currency: 'DOP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value);
+        el.textContent = formatted;
     } else {
         el.textContent = value;
     }
@@ -173,62 +248,105 @@ function updateKPI(elementId, value, isCurrency) {
 
 function renderTable(expenses) {
     const tbody = document.getElementById('expensesTableBody');
+    const mobileContainer = document.getElementById('expensesMobileCards');
+
     tbody.innerHTML = '';
+    mobileContainer.innerHTML = '';
 
     if (expenses.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No se encontraron gastos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-400 font-bold">No se encontraron registros en este periodo.</td></tr>`;
+        mobileContainer.innerHTML = `<div class="p-12 text-center text-slate-400 font-bold">Sin registros.</div>`;
         return;
     }
 
     expenses.forEach(expense => {
+        // --- Desktop Row ---
         const tr = document.createElement('tr');
-        tr.className = 'border-b hover:bg-gray-50 transition-colors';
+        tr.className = 'border-b dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group';
 
-        // Status logic
-        let statusBadge = '';
+        let statusClass = '';
+        let statusText = '';
         if (expense.is_paid) {
-            statusBadge = `<span class="zoho-badge status-paid">Pagado</span>`;
+            statusClass = 'status-paid';
+            statusText = 'Pagado';
         } else if (expense.is_overdue) {
-            statusBadge = `<span class="zoho-badge status-overdue">Vencido</span>`;
+            statusClass = 'status-overdue';
+            statusText = 'Vencido';
         } else {
-            statusBadge = `<span class="zoho-badge status-pending">Pendiente</span>`;
+            statusClass = 'status-pending';
+            statusText = 'Pendiente';
         }
 
         const amount = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(expense.amount);
-        const dateStr = new Date(expense.due_date).toLocaleDateString();
+        const dateStr = new Date(expense.due_date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
 
         tr.innerHTML = `
-            <td class="p-4 font-medium text-gray-900">${expense.description}
-                ${expense.is_recurring ? '<span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Recurrente</span>' : ''}
+            <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                <div class="flex flex-col">
+                    <span>${expense.description}</span>
+                    ${expense.is_recurring ? '<span class="text-[9px] uppercase tracking-tighter text-blue-500 font-black">Recurrente</span>' : ''}
+                </div>
             </td>
-            <td class="p-4 text-gray-600">${expense.category.name || '-'}</td>
-            <td class="p-4 text-gray-600">${dateStr}</td>
-            <td class="p-4 font-bold text-gray-800">${amount}</td>
-            <td class="p-4">${statusBadge}</td>
-            <td class="p-4 text-right">
-                <div class="flex justify-end gap-2">
-                    <button onclick="toggleStatus(${expense.id})" title="${expense.is_paid ? 'Marcar como pendiente' : 'Marcar como pagado'}"
-                            class="p-1 rounded hover:bg-gray-200 text-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            ${expense.is_paid
-                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'
-                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'}
+            <td class="px-6 py-4">
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg">${expense.category.name || '-'}</span>
+            </td>
+            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">${dateStr}</td>
+            <td class="px-6 py-4 font-black text-slate-900 dark:text-white">${amount}</td>
+            <td class="px-6 py-4"><span class="zoho-badge ${statusClass}">${statusText}</span></td>
+            <td class="px-6 py-4 text-right">
+                <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="toggleStatus(${expense.id})" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${expense.is_paid ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>'}
                         </svg>
                     </button>
-                    <button onclick="editExpense(${expense.id})" class="p-1 rounded hover:bg-gray-200 text-blue-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
+                    <button onclick="editExpense(${expense.id})" class="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     </button>
-                    <button onclick="deleteExpense(${expense.id})" class="p-1 rounded hover:bg-gray-200 text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
+                    <button onclick="deleteExpense(${expense.id})" class="p-2 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-600 dark:text-rose-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                 </div>
             </td>
         `;
         tbody.appendChild(tr);
+
+        // --- Mobile Cards ---
+        const card = document.createElement('div');
+        card.className = 'metric-card !p-4 flex flex-col gap-3 relative';
+        card.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div class="flex flex-col">
+                    <span class="text-xs font-black uppercase text-slate-400 tracking-tighter mb-1">${expense.category.name || 'General'}</span>
+                    <span class="text-lg font-black dark:text-white leading-tight">${expense.description}</span>
+                </div>
+                <span class="zoho-badge ${statusClass} scale-90 translate-x-2 -translate-y-1">${statusText}</span>
+            </div>
+            
+            <div class="flex justify-between items-end border-t border-slate-100 dark:border-slate-800 pt-3 mt-1">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Vence</span>
+                    <span class="text-sm font-black dark:text-slate-300">${dateStr}</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Total</span>
+                    <span class="text-xl font-black text-slate-900 dark:text-white">${amount}</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-2">
+                <button onclick="toggleStatus(${expense.id})" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold dark:text-white">
+                    ${expense.is_paid ? 'Pendiente' : 'Pagar'}
+                </button>
+                <button onclick="editExpense(${expense.id})" class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </button>
+                <button onclick="deleteExpense(${expense.id})" class="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </div>
+        `;
+        mobileContainer.appendChild(card);
     });
 }
 
@@ -240,8 +358,19 @@ function updatePagination(data) {
 
 // --- Charts ---
 
+// Watch for theme changes to re-render charts
+const themeObserver = new MutationObserver(() => {
+    if (charts.daily || charts.categories) {
+        loadDashboardData();
+    }
+});
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
 function renderDailyChart(data) {
     const ctx = document.getElementById('dailyExpensesChart').getContext('2d');
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#ffffff' : '#1e293b';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
 
     if (charts.daily) charts.daily.destroy();
 
@@ -252,22 +381,40 @@ function renderDailyChart(data) {
             datasets: [{
                 label: 'Gastos Diarios',
                 data: data.data,
-                borderColor: '#2D64B3',
-                backgroundColor: 'rgba(45, 100, 179, 0.1)',
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 tension: 0.4,
                 fill: true,
-                pointRadius: 2
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                borderWidth: 3
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: isDark ? '#1e293b' : '#fff',
+                    titleColor: isDark ? '#ffffff' : '#1e293b',
+                    bodyColor: isDark ? '#ffffff' : '#1e293b',
+                    borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
+                }
             },
             scales: {
-                y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
-                x: { grid: { display: false } }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, font: { weight: 'bold', size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textColor, font: { weight: 'bold', size: 10 } }
+                }
             }
         }
     });
@@ -275,6 +422,8 @@ function renderDailyChart(data) {
 
 function renderCategoryChart(data) {
     const ctx = document.getElementById('categoryChart').getContext('2d');
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#ffffff' : '#1e293b';
 
     if (charts.categories) charts.categories.destroy();
 
@@ -285,16 +434,26 @@ function renderCategoryChart(data) {
             datasets: [{
                 data: data.map(item => item.value),
                 backgroundColor: data.map(item => item.color),
-                borderWidth: 0
+                borderWidth: isDark ? 4 : 2,
+                borderColor: isDark ? '#1e293b' : '#fff'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'right' }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        padding: 15,
+                        font: { size: 12, weight: 'bold' },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
             },
-            cutout: '70%'
+            cutout: '75%'
         }
     });
 }
@@ -493,4 +652,23 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+function toggleFilters() {
+    const sidebar = document.getElementById('filters-sidebar');
+    const overlay = document.getElementById('filters-overlay');
+    if (!sidebar || !overlay) return;
+
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+
+    if (isOpen) {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden', 'opacity-0');
+        document.body.style.overflow = '';
+    } else {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        document.body.style.overflow = 'hidden';
+    }
 }

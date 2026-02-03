@@ -41,50 +41,85 @@ class Expense(db.Model):
         delta = self.due_date - date.today()
         return delta.days
 
+    def _get_next_period_date(self, base_date):
+        """Calcula la fecha exacta del siguiente periodo a partir de una fecha base"""
+        if not base_date:
+            return None
+            
+        next_date = base_date
+        if self.frequency == 'daily':
+            next_date = next_date + timedelta(days=1)
+        elif self.frequency == 'weekly':
+            next_date = next_date + timedelta(weeks=1)
+        elif self.frequency == 'monthly':
+            # Avanzar un mes manejando días (ej: 31 Ene -> 28 Feb)
+            year = next_date.year
+            month = next_date.month + 1
+            if month > 12:
+                month = 1
+                year += 1
+            
+            # Obtener último día del próximo mes
+            import calendar
+            _, last_day = calendar.monthrange(year, month)
+            
+            # Ajustar día si excede el último día del mes
+            # Intentamos mantener el día original del vencimiento base
+            target_day = min(self.due_date.day, last_day)
+            next_date = next_date.replace(year=year, month=month, day=target_day)
+
+        elif self.frequency == 'yearly':
+            try:
+                next_date = next_date.replace(year=next_date.year + 1)
+            except ValueError:
+                # Caso bisiesto: 29 Feb -> 28 Feb
+                next_date = next_date.replace(year=next_date.year + 1, day=28)
+        
+        return next_date
+
     @hybrid_property
     def next_due_date(self):
         if not self.is_recurring or not self.due_date:
             return None
 
-        next_date = self.due_date
         today = date.today()
+        next_date = self.due_date
 
-        # Evitar bucles infinitos si la fecha es muy antigua
+        # Si el vencimiento base es futuro, ese es el próximo
+        if next_date > today:
+            return next_date
+
+        # Avanzar hasta encontrar el primero >= hoy
         safety_break = 0
-        
-        while next_date <= today and safety_break < 1000:
+        while next_date <= today and safety_break < 100:
             safety_break += 1
-            
-            if self.frequency == 'daily':
-                next_date = next_date + timedelta(days=1)
-            elif self.frequency == 'weekly':
-                next_date = next_date + timedelta(weeks=1)
-            elif self.frequency == 'monthly':
-                # Avanzar un mes manejando días (ej: 31 Ene -> 28 Feb)
-                year = next_date.year
-                month = next_date.month + 1
-                if month > 12:
-                    month = 1
-                    year += 1
-                
-                # Obtener último día del próximo mes
-                import calendar
-                _, last_day = calendar.monthrange(year, month)
-                
-                # Ajustar día si excede el último día del mes
-                target_day = min(self.due_date.day, last_day)
-                next_date = next_date.replace(year=year, month=month, day=target_day)
-
-            elif self.frequency == 'yearly':
-                try:
-                    next_date = next_date.replace(year=next_date.year + 1)
-                except ValueError:
-                    # Caso bisiesto: 29 Feb -> 28 Feb
-                    next_date = next_date.replace(year=next_date.year + 1, day=28)
-            else:
-                break
+            next_date = self._get_next_period_date(next_date)
+            if not next_date: break
 
         return next_date
+
+    def generate_next_occurrence(self):
+        """Genera una nueva instancia para el próximo periodo"""
+        if not self.is_recurring:
+            return None
+        
+        next_date = self.next_due_date
+        if not next_date:
+            return None
+            
+        return Expense(
+            description=self.description,
+            amount=self.amount,
+            category_id=self.category_id,
+            due_date=next_date,
+            is_paid=False,
+            is_recurring=True,
+            frequency=self.frequency,
+            advance_days=self.advance_days,
+            auto_renew=self.auto_renew,
+            notes=self.notes,
+            created_by=self.created_by
+        )
 
     def __repr__(self):
         return f'<Expense {self.id}: {self.description}>'

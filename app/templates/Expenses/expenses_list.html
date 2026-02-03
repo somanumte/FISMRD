@@ -5,299 +5,520 @@
 
 {% block extra_css %}
 <style>
-    /* Estilos Zoho-inspired */
+    /* variables y animaciones del dashboard */
     :root {
-        --zoho-primary: #2D64B3;
-        --zoho-secondary: #4CAF50;
-        --zoho-accent: #FF6B35;
-        --zoho-light: #F8FAFD;
-        --zoho-dark: #2C3E50;
-        --zoho-gray: #7F8C8D;
-        --zoho-border: #E1E8ED;
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #5a67d8 30%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+        --transition-smooth: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .zoho-card {
+    @keyframes professionalAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+            filter: blur(10px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+    }
+
+    .professional-animation {
+        animation: professionalAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .metric-card {
         background: white;
-        border-radius: 12px;
-        border: 1px solid var(--zoho-border);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        transition: all 0.3s ease;
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        transition: var(--transition-smooth);
     }
 
-    .zoho-card:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        transform: translateY(-1px);
+    @media (min-width: 768px) {
+        .metric-card {
+            padding: 24px;
+        }
     }
 
-    .zoho-btn-primary {
-        background: var(--zoho-primary);
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: background-color 0.2s;
+    .dark .metric-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
-    .zoho-btn-primary:hover {
-        background: #1a4f91;
-    }
-
-    .zoho-btn-secondary {
-        background: white;
-        color: var(--zoho-primary);
-        border: 1px solid var(--zoho-border);
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .zoho-btn-secondary:hover {
-        background: var(--zoho-light);
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
     }
 
     .zoho-badge {
         padding: 4px 12px;
-        border-radius: 12px;
+        border-radius: 99px;
         font-size: 0.75rem;
-        font-weight: 600;
+        font-weight: 700;
+        text-transform: uppercase;
     }
 
     .status-paid {
-        background-color: #E8F5E9;
-        color: #2E7D32;
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .dark .status-paid {
+        background: rgba(22, 101, 52, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.3);
     }
 
     .status-pending {
-        background-color: #FFF3E0;
-        color: #EF6C00;
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .dark .status-pending {
+        background: rgba(133, 77, 14, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(250, 204, 21, 0.3);
     }
 
     .status-overdue {
-        background-color: #FFEBEE;
-        color: #C62828;
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .dark .status-overdue {
+        background: rgba(153, 27, 27, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(248, 113, 113, 0.3);
     }
 
     .chart-container {
         position: relative;
-        height: 250px;
+        height: 300px;
         width: 100%;
     }
+
+    /* Estilos para Mobile Card View */
+    @media (max-width: 768px) {
+        .desktop-table {
+            display: none;
+        }
+
+        .mobile-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .mobile-cards {
+            display: none;
+        }
+
+        .desktop-table {
+            display: block;
+        }
+    }
 </style>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="mb-8 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Gestión de Gastos</h1>
-            <p class="text-sm text-gray-500">Control de gastos fijos y recurrentes</p>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div
+            class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 professional-animation">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestión de Gastos</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Control inteligente de gastos fijos y recurrentes</p>
+            </div>
+            <button onclick="openModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 flex items-center gap-2 transform hover:scale-105 active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Nuevo Gasto
+            </button>
         </div>
-        <button onclick="openModal()" class="zoho-btn-primary">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 professional-animation"
+            style="animation-delay: 0.1s;">
+            <!-- Total Mes -->
+            <div class="metric-card group overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                    <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                        <path fill-rule="evenodd"
+                            d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Mes</p>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white mb-2"
+                    id="kpi-total-month">RD$ 0.00</h2>
+                <div class="h-1.5 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 w-full animate-pulse"></div>
+                </div>
+            </div>
+
+            <!-- Pendientes -->
+            <div class="metric-card group">
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pendientes</p>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-amber-600 dark:text-amber-400"
+                    id="kpi-pending-month">RD$ 0.00</h2>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="flex h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span class="text-xs font-bold text-amber-600 dark:text-amber-400/80">Por pagar este mes</span>
+                </div>
+            </div>
+
+            <!-- Vencidos -->
+            <div class="metric-card group">
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Vencidos</p>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-rose-600 dark:text-rose-400"
+                    id="kpi-overdue-total">RD$ 0.00</h2>
+                <div class="mt-2 text-xs font-bold text-rose-600/70 dark:text-rose-400/60 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    Atención inmediata
+                </div>
+            </div>
+
+            <!-- Próximos -->
+            <div class="metric-card group">
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Próximos (7d)
+                </p>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 dark:text-emerald-400"
+                    id="kpi-upcoming-count">0</h2>
+                <div class="mt-2 text-xs font-bold text-emerald-600/70 dark:text-emerald-400/60 uppercase">Vencimientos
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+            <!-- Overlay for Mobile Filters -->
+            <div id="filters-overlay" onclick="toggleFilters()"
+                class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm hidden lg:hidden transition-all duration-300 opacity-0">
+            </div>
+
+            <!-- Sidebar Filters -->
+            <aside id="filters-sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-slate-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:relative lg:block lg:w-72 flex-shrink-0 lg:rounded-3xl border-r lg:border border-slate-200 dark:border-slate-700 shadow-2xl lg:shadow-none overflow-hidden flex flex-col h-full lg:h-fit">
+
+                <div
+                    class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700 lg:hidden">
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white">Filtros</h3>
+                    <button onclick="toggleFilters()" class="text-slate-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div>
+                        <h4
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-search text-blue-500"></i> Búsqueda
+                        </h4>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Buscar gastos..."
+                                class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 pl-4 pr-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-calendar-alt text-blue-500"></i> Periodo
+                        </h4>
+                        <div class="space-y-3">
+                            <select id="monthFilter"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 px-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                            <select id="yearFilter"
+                                class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 px-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-tag text-blue-500"></i> Estado
+                        </h4>
+                        <select id="statusFilter"
+                            class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 px-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="all">Todos los estados</option>
+                            <option value="pending">Pendientes</option>
+                            <option value="paid">Pagados</option>
+                            <option value="overdue">Vencidos</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-layer-group text-blue-500"></i> Categoría
+                        </h4>
+                        <select id="categoryFilter"
+                            class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 px-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="all">Todas las categorías</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <h4
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                            <i class="fas fa-redo text-blue-500"></i> Tipo
+                        </h4>
+                        <select id="recurringFilter"
+                            class="w-full bg-slate-100 dark:bg-slate-900 border-transparent rounded-xl py-3 px-4 text-sm dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="all">Todos los tipos</option>
+                            <option value="true">Recurrentes</option>
+                            <option value="false">Únicos</option>
+                        </select>
+                    </div>
+
+                    <button onclick="loadExpenses()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-bold transition-all shadow-lg hover:shadow-blue-500/30">
+                        Aplicar Filtros
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 w-full space-y-8">
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 professional-animation"
+                    style="animation-delay: 0.2s;">
+                    <div class="metric-card">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                            Evolución Diaria
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="dailyExpensesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+                            <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
+                            Gastos por Categoría
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List Content -->
+                <div class="metric-card !p-0 overflow-hidden professional-animation" style="animation-delay: 0.3s;">
+                    <div class="desktop-table overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead
+                                class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                                <tr>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800">Descripción</th>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800">Categoría</th>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800">Vencimiento</th>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800">Monto</th>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800">Estado</th>
+                                    <th class="px-6 py-4 border-b dark:border-slate-800 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTableBody" class="text-sm dark:text-slate-300">
+                                <!-- Rows populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card Container -->
+                    <div id="expensesMobileCards" class="mobile-cards p-4">
+                        <!-- Cards populated by JS -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div
+                        class="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+                        <button id="prevPageBtn"
+                            class="px-4 py-2 border dark:border-slate-700 rounded-xl hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 dark:disabled:opacity-20 text-sm font-bold transition-all dark:text-white shadow-sm">
+                            Anterior
+                        </button>
+                        <span
+                            class="text-sm font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-4 py-1.5 rounded-full"
+                            id="pageInfo">
+                            Página 1
+                        </span>
+                        <button id="nextPageBtn"
+                            class="px-4 py-2 border dark:border-slate-700 rounded-xl hover:bg-white dark:hover:bg-slate-700 disabled:opacity-30 dark:disabled:opacity-20 text-sm font-bold transition-all dark:text-white shadow-sm">
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Filter Button for Mobile -->
+        <button onclick="toggleFilters()"
+            class="fixed bottom-6 right-6 z-40 lg:hidden flex items-center justify-center w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 active:scale-95 transition-all outline-none border-4 border-white dark:border-slate-900 group">
+            <svg class="w-8 h-8 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                </path>
             </svg>
-            Nuevo Gasto
+            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+            </span>
         </button>
-    </div>
-
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <!-- Total Mes -->
-        <div class="zoho-card p-6">
-            <p class="text-sm text-gray-500 mb-1">Total Mes</p>
-            <h2 class="text-2xl font-bold text-gray-900" id="kpi-total-month">RD$ 0.00</h2>
-            <div class="mt-2 h-1 w-full bg-blue-100 rounded-full overflow-hidden">
-                <div class="h-full bg-blue-600 w-2/3"></div>
-            </div>
-        </div>
-
-        <!-- Pendientes -->
-        <div class="zoho-card p-6">
-            <p class="text-sm text-gray-500 mb-1">Pendientes</p>
-            <h2 class="text-2xl font-bold text-orange-600" id="kpi-pending-month">RD$ 0.00</h2>
-            <div class="mt-2 text-xs text-orange-600 font-medium">Por pagar este mes</div>
-        </div>
-
-        <!-- Vencidos -->
-        <div class="zoho-card p-6">
-            <p class="text-sm text-gray-500 mb-1">Vencidos</p>
-            <h2 class="text-2xl font-bold text-red-600" id="kpi-overdue-total">RD$ 0.00</h2>
-            <div class="mt-2 text-xs text-red-600 font-medium">Requieren atención inmediata</div>
-        </div>
-
-        <!-- Próximos -->
-        <div class="zoho-card p-6">
-            <p class="text-sm text-gray-500 mb-1">Próximos 7 días</p>
-            <h2 class="text-2xl font-bold text-green-600" id="kpi-upcoming-count">0</h2>
-            <div class="mt-2 text-xs text-green-600 font-medium">Vencimientos cercanos</div>
-        </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="zoho-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Evolución Diaria (Mes Actual)</h3>
-            <div class="chart-container">
-                <canvas id="dailyExpensesChart"></canvas>
-            </div>
-        </div>
-        <div class="zoho-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Gastos por Categoría</h3>
-            <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filters & Table -->
-    <div class="zoho-card mb-8">
-        <div class="p-4 border-b border-gray-100 flex flex-wrap gap-4 justify-between items-center">
-            <div class="flex gap-4 flex-1">
-                <input type="text" id="searchInput" placeholder="Buscar concepto..."
-                    class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-xs focus:border-blue-500 focus:outline-none">
-
-                <select id="statusFilter"
-                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                    <option value="all">Todos los estados</option>
-                    <option value="pending">Pendientes</option>
-                    <option value="paid">Pagados</option>
-                    <option value="overdue">Vencidos</option>
-                </select>
-
-                <select id="categoryFilter"
-                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                    <option value="all">Todas las categorías</option>
-                    <!-- Populated by JS -->
-                </select>
-            </div>
-            <button onclick="loadExpenses()"
-                class="text-blue-600 text-sm font-medium hover:text-blue-800">Actualizar</button>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                    <tr>
-                        <th class="p-4 font-semibold border-b">Descripción</th>
-                        <th class="p-4 font-semibold border-b">Categoría</th>
-                        <th class="p-4 font-semibold border-b">Fecha Vence</th>
-                        <th class="p-4 font-semibold border-b">Monto</th>
-                        <th class="p-4 font-semibold border-b">Estado</th>
-                        <th class="p-4 font-semibold border-b text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="expensesTableBody" class="text-sm text-gray-700">
-                    <!-- Rows populated by JS -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="p-4 border-t border-gray-100 flex justify-between items-center" id="paginationControls">
-            <button id="prevPageBtn"
-                class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 text-sm">Anterior</button>
-            <span class="text-sm text-gray-600" id="pageInfo">Página 1</span>
-            <button id="nextPageBtn"
-                class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 text-sm">Siguiente</button>
-        </div>
     </div>
 </div>
 
 <!-- Modal Create/Edit -->
-<div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 transform transition-all scale-100">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-gray-900" id="modalTitle">Nuevo Gasto</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+<div id="expenseModal"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex justify-center items-center p-4">
+    <div
+        class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md p-8 transform transition-all professional-animation">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white" id="modalTitle">Nuevo Gasto</h3>
+            <button onclick="closeModal()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
         </div>
 
         <form id="expenseForm">
             <input type="hidden" id="expenseId">
 
-            <div class="space-y-4">
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <label
+                        class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Descripción</label>
                     <input type="text" name="description" required
-                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        class="w-full bg-slate-100 dark:bg-slate-900 border-transparent dark:border-slate-700 rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Monto</label>
                         <input type="number" name="amount" step="0.01" required
-                            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                            class="w-full bg-slate-100 dark:bg-slate-900 border-transparent dark:border-slate-700 rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Categoría</label>
                         <select name="category_id" id="modalCategorySelect" required
-                            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                            <!-- Populated by JS -->
+                            class="w-full bg-slate-100 dark:bg-slate-900 border-transparent dark:border-slate-700 rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Vencimiento</label>
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Fecha
+                        Vencimiento</label>
                     <input type="date" name="due_date" required
-                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        class="w-full bg-slate-100 dark:bg-slate-900 border-transparent dark:border-slate-700 rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <div class="flex items-center gap-2 mt-2">
+                <div
+                    class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                     <input type="checkbox" name="is_paid" id="checkIsPaid"
-                        class="rounded text-blue-600 focus:ring-blue-500">
-                    <label for="checkIsPaid" class="text-sm text-gray-700">Ya está pagado</label>
+                        class="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500 transition-all">
+                    <label for="checkIsPaid" class="text-sm font-bold text-slate-700 dark:text-slate-300">Ya está
+                        pagado</label>
                 </div>
 
-                <div class="border-t pt-2 mt-2">
-                    <div class="flex items-center gap-2 mb-2">
+                <div class="pt-2">
+                    <div class="flex items-center gap-3 mb-4">
                         <input type="checkbox" name="is_recurring" id="checkIsRecurring"
-                            onchange="toggleRecurringOptions()" class="rounded text-blue-600 focus:ring-blue-500">
-                        <label for="checkIsRecurring" class="text-sm font-medium text-gray-700">Es recurrente</label>
+                            onchange="toggleRecurringOptions()"
+                            class="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <label for="checkIsRecurring"
+                            class="text-sm font-black uppercase tracking-widest text-slate-400">Es
+                            recurrente</label>
                     </div>
 
-                    <div id="recurringOptions" class="hidden pl-6 space-y-3 bg-gray-50 p-3 rounded text-sm">
+                    <div id="recurringOptions"
+                        class="hidden pl-6 py-4 space-y-4 border-l-2 border-blue-500 bg-blue-50/30 dark:bg-blue-900/10 rounded-r-2xl translate-x-1 transition-all">
                         <div>
-                            <label class="block text-gray-700 mb-1">Frecuencia</label>
-                            <select name="frequency" class="w-full border border-gray-300 rounded px-2 py-1">
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">Frecuencia</label>
+                            <select name="frequency"
+                                class="w-full bg-white dark:bg-slate-800 border-transparent dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="monthly">Mensual</option>
                                 <option value="weekly">Semanal</option>
                                 <option value="yearly">Anual</option>
                             </select>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="checkbox" name="auto_renew" class="rounded text-blue-600">
-                            <label class="text-gray-600">Renovar automáticamente</label>
+                            <input type="checkbox" name="auto_renew"
+                                class="w-4 h-4 rounded border-slate-300 text-blue-600">
+                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400">Renovación
+                                automática</label>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                    <label
+                        class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Notas</label>
                     <textarea name="notes" rows="2"
-                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"></textarea>
+                        class="w-full bg-slate-100 dark:bg-slate-900 border-transparent dark:border-slate-700 rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Info adicional..."></textarea>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeModal()" class="zoho-btn-secondary">Cancelar</button>
-                <button type="submit" class="zoho-btn-primary">Guardar Gasto</button>
+            <div class="mt-8 flex gap-4">
+                <button type="button" onclick="closeModal()"
+                    class="flex-1 px-6 py-3 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 transform active:scale-95">
+                    Guardar
+                </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
 
-<!-- Scripts -->
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/zoho-expenses.js') }}"></script>
 {% endblock %}

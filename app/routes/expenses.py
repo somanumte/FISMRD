@@ -10,6 +10,32 @@ from sqlalchemy import func, or_, extract, case, and_
 bp = Blueprint('expenses', __name__, url_prefix='/expenses')
 
 # ============================================
+# FUNCIONES AUXILIARES
+# ============================================
+
+def handle_recurrence(expense):
+    """
+    Verifica y genera la siguiente ocurrencia si el gasto es recurrente, 
+    auto-renew y está pagado.
+    """
+    if expense.is_paid and expense.is_recurring and expense.auto_renew:
+        next_due = expense.next_due_date
+        if next_due:
+            # Verificar si ya existe para evitar duplicados
+            existing = Expense.query.filter_by(
+                description=expense.description,
+                due_date=next_due,
+                created_by=expense.created_by
+            ).first()
+            
+            if not existing:
+                next_occurrence = expense.generate_next_occurrence()
+                if next_occurrence:
+                    db.session.add(next_occurrence)
+                    return True
+    return False
+
+# ============================================
 # VISTAS PRINCIPALES
 # ============================================
 
@@ -22,10 +48,6 @@ def expenses_list():
     # Todo lo demás se carga vía API
     return render_template('Expenses/expenses_list.html')
 
-# ============================================
-# API ENDPOINTS
-# ============================================
-
 @bp.route('/api/dashboard')
 @login_required
 @permission_required('expenses.view')
@@ -33,12 +55,16 @@ def api_dashboard_data():
     """API para obtener datos consolidados del dashboard"""
     try:
         today = date.today()
-        start_of_month = today.replace(day=1)
+        # Obtener mes y año de filtros
+        month = request.args.get('month', today.month, type=int)
+        year = request.args.get('year', today.year, type=int)
+        
+        start_of_month = date(year, month, 1)
         # Fin de mes
-        if start_of_month.month == 12:
-            end_of_month = date(today.year + 1, 1, 1) - timedelta(days=1)
+        if month == 12:
+            end_of_month = date(year + 1, 1, 1) - timedelta(days=1)
         else:
-            end_of_month = date(today.year, today.month + 1, 1) - timedelta(days=1)
+            end_of_month = date(year, month + 1, 1) - timedelta(days=1)
             
         # 1. KPIs Principales (Mes Actual)
         # Total Gastos (Pagados + Pendientes del mes)
@@ -136,8 +162,22 @@ def api_list_expenses():
         search = request.args.get('search', '')
         status = request.args.get('status', 'all')
         category_id = request.args.get('category_id', 'all')
+        month = request.args.get('month', None, type=int)
+        year = request.args.get('year', None, type=int)
+        is_recurring = request.args.get('is_recurring', 'all')
         
         query = Expense.query.filter_by(created_by=current_user.id)
+        
+        # Filtros de periodo
+        if year:
+            query = query.filter(extract('year', Expense.due_date) == year)
+        if month:
+            query = query.filter(extract('month', Expense.due_date) == month)
+
+        if is_recurring == 'true':
+            query = query.filter(Expense.is_recurring == True)
+        elif is_recurring == 'false':
+            query = query.filter(Expense.is_recurring == False)
         
         # Filtros
         if search:
@@ -203,6 +243,10 @@ def api_create_expense():
             expense.paid_date = date.today()
             
         db.session.add(expense)
+        
+        # Generar próxima recurrencia si aplica
+        handle_recurrence(expense)
+        
         db.session.commit()
         
         return jsonify({'success': True, 'message': 'Gasto creado', 'expense': expense.to_dict()})
@@ -262,6 +306,9 @@ def api_update_expense(expense_id):
                 expense.is_paid = False
                 expense.paid_date = None
         
+        # Generar próxima recurrencia si aplica (por si se marcó como pagado ahora)
+        handle_recurrence(expense)
+        
         db.session.commit()
         return jsonify({'success': True, 'message': 'Gasto actualizado', 'expense': expense.to_dict()})
         
@@ -282,9 +329,8 @@ def api_toggle_status(expense_id):
         expense.is_paid = not expense.is_paid
         expense.paid_date = date.today() if expense.is_paid else None
         
-        # Logica de recurrencia simple: si se paga y es recurrente/auto-renew, 
-        # crear el siguiente (si no existe ya - simplificación para este sprint)
-        # Por ahora solo cambiamos el estado.
+        # Lógica de recurrencia centralizada
+        handle_recurrence(expense)
         
         db.session.commit()
         return jsonify({'success': True, 'new_status': expense.is_paid})
@@ -299,6 +345,84 @@ def api_get_categories():
     """Obtener todas las categorías"""
     categories = ExpenseCategory.query.order_by(ExpenseCategory.name).all()
     return jsonify([c.to_dict() for c in categories])
+
+
+@bp.route('/api/sync-recurring', methods=['POST'])
+@login_required
+@permission_required('expenses.create')
+def api_sync_recurring():
+    """Sincroniza gastos recurrentes para asegurar que existan los del periodo seleccionado"""
+    try:
+        today = date.today()
+        # Obtener mes y año objetivo del request
+        target_month = request.args.get('month', today.month, type=int)
+        target_year = request.args.get('year', today.year, type=int)
+        
+        # El límite superior de la sincronización es el último día del mes seleccionado
+        import calendar
+        _, last_day = calendar.monthrange(target_year, target_month)
+        sync_boundary = date(target_year, target_month, last_day)
+
+        # Si el periodo seleccionado es pasado, sincronizar al menos hasta hoy
+        if sync_boundary < today:
+            sync_boundary = today
+        # Buscar gastos marcados como recurrentes y con auto-renew
+        recurring_base_expenses = Expense.query.filter_by(
+            created_by=current_user.id,
+            is_recurring=True,
+            auto_renew=True
+        ).all()
+        
+        created_count = 0
+        for expense in recurring_base_expenses:
+            # Obtener el más reciente (por fecha de vencimiento)
+            latest = Expense.query.filter_by(
+                description=expense.description,
+                created_by=current_user.id
+            ).order_by(Expense.due_date.desc()).first()
+            
+            if latest:
+                # Calcular la fecha del siguiente periodo
+                next_date = latest._get_next_period_date(latest.due_date)
+                
+                # Generar gastos mientras no excedamos el límite
+                inner_count = 0
+                while next_date and next_date <= sync_boundary and inner_count < 24:
+                    # Evitar duplicados
+                    exists = Expense.query.filter_by(
+                        description=expense.description,
+                        due_date=next_date,
+                        created_by=current_user.id
+                    ).first()
+                    
+                    if not exists:
+                        new_occurrence = latest.generate_next_occurrence()
+                        if new_occurrence:
+                            new_occurrence.due_date = next_date
+                            db.session.add(new_occurrence)
+                            db.session.flush()
+                            latest = new_occurrence
+                            created_count += 1
+                        else:
+                            break
+                    else:
+                        latest = exists
+                    
+                    # Avanzar a la siguiente fecha para el siguiente ciclo del while
+                    next_date = latest._get_next_period_date(latest.due_date)
+                    inner_count += 1
+                        
+                    if created_count > 100: break
+
+        db.session.commit()
+        return jsonify({
+            'success': True, 
+            'message': f'Se generaron {created_count} gastos recurrentes pendientes.',
+            'created_count': created_count
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 @bp.route('/api/categories/stats')
