@@ -4,154 +4,155 @@
 {% block title %}Gestión de Roles | LuxeraRD{% endblock %}
 
 {% block content %}
-<div class="container-custom section-spacing">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white mb-2">
-                Gestión de Roles y Permisos
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400">
-                Define los perfiles de acceso y permisos del sistema.
-            </p>
+<div class="min-h-screen bg-transparent py-4 sm:py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white mb-2">
+                    Gestión de Roles y Permisos
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Define los perfiles de acceso y permisos del sistema.
+                </p>
+            </div>
+            <div>
+                <button onclick="openRoleModal()" class="btn-primary">
+                    <i class="fas fa-plus mr-2"></i> Nuevo Rol
+                </button>
+            </div>
         </div>
-        <div>
-            <button onclick="openRoleModal()" class="btn-primary">
-                <i class="fas fa-plus mr-2"></i> Nuevo Rol
-            </button>
-        </div>
-    </div>
 
-    <!-- Grid de Roles -->
-    <div id="rolesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Cards se insertarán aquí -->
-        <div class="col-span-full text-center py-12">
-            <i class="fas fa-circle-notch fa-spin fa-2x text-primary mb-3"></i>
-            <p class="text-gray-500">Cargando roles...</p>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Rol -->
-<div id="roleModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-    aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeRoleModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-
-        <div
-            class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
-            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Nuevo Rol</h3>
-                    <button onclick="closeRoleModal()" class="text-gray-400 hover:text-gray-500">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <form id="roleForm" onsubmit="event.preventDefault(); saveRole();">
-                    <input type="hidden" id="roleId">
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
-                                Interno (slug)</label>
-                            <input type="text" id="roleName"
-                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                placeholder="ej: gerente_ventas">
-                            <p class="text-xs text-gray-500 mt-1">Único, minúsculas, sin espacios.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
-                                Visible</label>
-                            <input type="text" id="displayName"
-                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
-                                placeholder="ej: Gerente de Ventas">
-                        </div>
-                        <div class="col-span-full">
-                            <label
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-                            <textarea id="description" rows="2"
-                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">Permisos</h4>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="selectAll(true)"
-                                    class="text-xs text-primary hover:underline">Seleccionar Todo</button>
-                                <span class="text-gray-300">|</span>
-                                <button type="button" onclick="selectAll(false)"
-                                    class="text-xs text-gray-500 hover:text-gray-700">Deseleccionar</button>
-                            </div>
-                        </div>
-
-                        <div id="permissionsContainer"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[50vh] overflow-y-auto pr-2">
-                            <!-- Permisos agrupados por módulo -->
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex justify-end gap-3">
-                        <button type="button" onclick="closeRoleModal()"
-                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">Guardar
-                            Rol</button>
-                    </div>
-                </form>
+        <!-- Grid de Roles -->
+        <div id="rolesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Cards se insertarán aquí -->
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-circle-notch fa-spin fa-2x text-primary mb-3"></i>
+                <p class="text-gray-500">Cargando roles...</p>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    let allPermissions = {};
+    <!-- Modal Rol -->
+    <div id="roleModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeRoleModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadRoles();
-        loadPermissions();
-    });
+            <div
+                class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Nuevo Rol</h3>
+                        <button onclick="closeRoleModal()" class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
 
-    async function loadRoles() {
-        try {
-            const response = await fetch('/admin/api/roles');
-            const roles = await response.json();
-            renderRoles(roles);
-        } catch (error) {
-            console.error(error);
+                    <form id="roleForm" onsubmit="event.preventDefault(); saveRole();">
+                        <input type="hidden" id="roleId">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
+                                    Interno (slug)</label>
+                                <input type="text" id="roleName"
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                    placeholder="ej: gerente_ventas">
+                                <p class="text-xs text-gray-500 mt-1">Único, minúsculas, sin espacios.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
+                                    Visible</label>
+                                <input type="text" id="displayName"
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                    placeholder="ej: Gerente de Ventas">
+                            </div>
+                            <div class="col-span-full">
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+                                <textarea id="description" rows="2"
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white">Permisos</h4>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="selectAll(true)"
+                                        class="text-xs text-primary hover:underline">Seleccionar Todo</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button type="button" onclick="selectAll(false)"
+                                        class="text-xs text-gray-500 hover:text-gray-700">Deseleccionar</button>
+                                </div>
+                            </div>
+
+                            <div id="permissionsContainer"
+                                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[50vh] overflow-y-auto pr-2">
+                                <!-- Permisos agrupados por módulo -->
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="closeRoleModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">Guardar
+                                Rol</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPermissions = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRoles();
+            loadPermissions();
+        });
+
+        async function loadRoles() {
+            try {
+                const response = await fetch('/admin/api/roles');
+                const roles = await response.json();
+                renderRoles(roles);
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
 
-    async function loadPermissions() {
-        try {
-            const response = await fetch('/admin/api/permissions');
-            allPermissions = await response.json();
-            renderPermissionsForm();
-        } catch (error) {
-            console.error(error);
+        async function loadPermissions() {
+            try {
+                const response = await fetch('/admin/api/permissions');
+                allPermissions = await response.json();
+                renderPermissionsForm();
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
 
-    function renderRoles(roles) {
-        const grid = document.getElementById('rolesGrid');
-        grid.innerHTML = '';
+        function renderRoles(roles) {
+            const grid = document.getElementById('rolesGrid');
+            grid.innerHTML = '';
 
-        roles.forEach(role => {
-            const card = document.createElement('div');
-            card.className = 'bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group';
+            roles.forEach(role => {
+                const card = document.createElement('div');
+                card.className = 'bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group';
 
-            // System role badge
-            const badgeClass = role.is_system_role
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-                : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
+                // System role badge
+                const badgeClass = role.is_system_role
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+                    : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
 
-            const badge = `<span class="absolute top-6 right-6 ${badgeClass} text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm z-10">
+                const badge = `<span class="absolute top-6 right-6 ${badgeClass} text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm z-10">
                 <i class="fas ${role.is_system_role ? 'fa-lock' : 'fa-user'} mr-1"></i> ${role.is_system_role ? 'Sistema' : 'Personalizado'}
             </span>`;
 
-            card.innerHTML = `
+                card.innerHTML = `
                 ${badge}
                 <!-- Decorative background elements -->
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
@@ -182,26 +183,26 @@
                     </button>
                 </div>
             `;
-            grid.appendChild(card);
-        });
-    }
+                grid.appendChild(card);
+            });
+        }
 
-    function renderPermissionsForm() {
-        const container = document.getElementById('permissionsContainer');
-        container.innerHTML = '';
+        function renderPermissionsForm() {
+            const container = document.getElementById('permissionsContainer');
+            container.innerHTML = '';
 
-        Object.keys(allPermissions).forEach(module => {
-            const group = document.createElement('div');
-            group.className = 'bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4';
+            Object.keys(allPermissions).forEach(module => {
+                const group = document.createElement('div');
+                group.className = 'bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4';
 
-            const title = module.charAt(0).toUpperCase() + module.slice(1);
+                const title = module.charAt(0).toUpperCase() + module.slice(1);
 
-            let html = `<h5 class="font-bold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">${title}</h5>
+                let html = `<h5 class="font-bold text-gray-900 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">${title}</h5>
                         <div class="space-y-2">`;
 
-            allPermissions[module].forEach(perm => {
-                const isDangerous = perm.is_dangerous;
-                html += `
+                allPermissions[module].forEach(perm => {
+                    const isDangerous = perm.is_dangerous;
+                    html += `
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
                             <input type="checkbox" name="permissions" value="${perm.name}" id="perm_${perm.id}"
@@ -215,106 +216,106 @@
                         </div>
                     </div>
                 `;
-            });
-
-            html += `</div>`;
-            group.innerHTML = html;
-            container.appendChild(group);
-        });
-    }
-
-    function openRoleModal(role = null) {
-        const modal = document.getElementById('roleModal');
-        const title = document.getElementById('modalTitle');
-
-        // Reset
-        document.getElementById('roleForm').reset();
-        document.getElementById('roleId').value = '';
-        document.getElementById('roleName').disabled = false;
-
-        // Uncheck all perms
-        document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = false);
-
-        if (role) {
-            title.textContent = `Editar Rol: ${role.display_name}`;
-            document.getElementById('roleId').value = role.id;
-            document.getElementById('roleName').value = role.name;
-            document.getElementById('roleName').disabled = true; // No cambiar slug
-            document.getElementById('displayName').value = role.display_name;
-            document.getElementById('description').value = role.description;
-
-            // Check permissions
-            if (role.permissions) {
-                role.permissions.forEach(p => {
-                    const cb = document.querySelector(`input[value="${p.name}"]`);
-                    if (cb) cb.checked = true;
                 });
-            }
-        } else {
-            title.textContent = 'Crear Nuevo Rol';
-        }
 
-        modal.classList.remove('hidden');
-    }
-
-    function closeRoleModal() {
-        document.getElementById('roleModal').classList.add('hidden');
-    }
-
-    async function editRole(id) {
-        try {
-            // Re-fetch role to get full permissions list usually handled by API
-            // But we can iterate existing list if data is full.
-            // Better to fetch specific role details if endpoint likely supported, 
-            // but GET /roles returns all. Let's find it in memory or fetch list again.
-            // Assume we can fetch list again or filter. simpler:
-            const response = await fetch('/admin/api/roles'); // Not optimal but safe
-            const roles = await response.json();
-            const role = roles.find(r => r.id === id);
-
-            if (role) openRoleModal(role);
-
-        } catch (error) {
-            alert('Error cargando rol');
-        }
-    }
-
-    async function saveRole() {
-        const id = document.getElementById('roleId').value;
-        const isEdit = !!id;
-
-        const data = {
-            name: document.getElementById('roleName').value,
-            display_name: document.getElementById('displayName').value,
-            description: document.getElementById('description').value,
-            permissions: Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value)
-        };
-
-        const url = isEdit ? `/admin/api/roles/${id}` : '/admin/api/roles';
-        const method = isEdit ? 'PUT' : 'POST';
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                html += `</div>`;
+                group.innerHTML = html;
+                container.appendChild(group);
             });
-
-            if (response.ok) {
-                closeRoleModal();
-                loadRoles();
-                alert('Rol guardado exitosamente');
-            } else {
-                const err = await response.json();
-                alert('Error: ' + (err.error || 'Desconocido'));
-            }
-        } catch (error) {
-            alert('Error de red');
         }
-    }
 
-    function selectAll(check) {
-        document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = check);
-    }
-</script>
-{% endblock %}
+        function openRoleModal(role = null) {
+            const modal = document.getElementById('roleModal');
+            const title = document.getElementById('modalTitle');
+
+            // Reset
+            document.getElementById('roleForm').reset();
+            document.getElementById('roleId').value = '';
+            document.getElementById('roleName').disabled = false;
+
+            // Uncheck all perms
+            document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = false);
+
+            if (role) {
+                title.textContent = `Editar Rol: ${role.display_name}`;
+                document.getElementById('roleId').value = role.id;
+                document.getElementById('roleName').value = role.name;
+                document.getElementById('roleName').disabled = true; // No cambiar slug
+                document.getElementById('displayName').value = role.display_name;
+                document.getElementById('description').value = role.description;
+
+                // Check permissions
+                if (role.permissions) {
+                    role.permissions.forEach(p => {
+                        const cb = document.querySelector(`input[value="${p.name}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+            } else {
+                title.textContent = 'Crear Nuevo Rol';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').classList.add('hidden');
+        }
+
+        async function editRole(id) {
+            try {
+                // Re-fetch role to get full permissions list usually handled by API
+                // But we can iterate existing list if data is full.
+                // Better to fetch specific role details if endpoint likely supported, 
+                // but GET /roles returns all. Let's find it in memory or fetch list again.
+                // Assume we can fetch list again or filter. simpler:
+                const response = await fetch('/admin/api/roles'); // Not optimal but safe
+                const roles = await response.json();
+                const role = roles.find(r => r.id === id);
+
+                if (role) openRoleModal(role);
+
+            } catch (error) {
+                alert('Error cargando rol');
+            }
+        }
+
+        async function saveRole() {
+            const id = document.getElementById('roleId').value;
+            const isEdit = !!id;
+
+            const data = {
+                name: document.getElementById('roleName').value,
+                display_name: document.getElementById('displayName').value,
+                description: document.getElementById('description').value,
+                permissions: Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value)
+            };
+
+            const url = isEdit ? `/admin/api/roles/${id}` : '/admin/api/roles';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    closeRoleModal();
+                    loadRoles();
+                    alert('Rol guardado exitosamente');
+                } else {
+                    const err = await response.json();
+                    alert('Error: ' + (err.error || 'Desconocido'));
+                }
+            } catch (error) {
+                alert('Error de red');
+            }
+        }
+
+        function selectAll(check) {
+            document.querySelectorAll('input[name="permissions"]').forEach(cb => cb.checked = check);
+        }
+    </script>
+    {% endblock %}
