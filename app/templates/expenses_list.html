@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Gastos - Panel Zoho</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -42,10 +43,10 @@
             }
         }
     </script>
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         /* Estilos Zoho-inspired */
         :root {
@@ -57,7 +58,7 @@
             --zoho-gray: #7F8C8D;
             --zoho-border: #E1E8ED;
         }
-        
+
         .zoho-card {
             background: white;
             border-radius: 12px;
@@ -65,21 +66,21 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all 0.3s ease;
         }
-        
+
         .zoho-card:hover {
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             transform: translateY(-1px);
         }
-        
+
         .dark .zoho-card {
             background: #1E293B;
             border-color: #334155;
         }
-        
+
         .dark .zoho-card:hover {
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
-        
+
         .zoho-badge {
             font-size: 0.75rem;
             font-weight: 600;
@@ -89,7 +90,7 @@
             align-items: center;
             gap: 4px;
         }
-        
+
         .zoho-chip {
             background: var(--zoho-light);
             border: 1px solid var(--zoho-border);
@@ -100,19 +101,19 @@
             align-items: center;
             gap: 6px;
         }
-        
+
         .dark .zoho-chip {
             background: #334155;
             border-color: #475569;
             color: #CBD5E1;
         }
-        
+
         .zoho-table {
             border-collapse: separate;
             border-spacing: 0;
             width: 100%;
         }
-        
+
         .zoho-table th {
             background: var(--zoho-light);
             border-bottom: 2px solid var(--zoho-border);
@@ -123,33 +124,33 @@
             letter-spacing: 0.5px;
             padding: 16px;
         }
-        
+
         .dark .zoho-table th {
             background: #0F172A;
             border-color: #334155;
             color: #E2E8F0;
         }
-        
+
         .zoho-table td {
             padding: 16px;
             border-bottom: 1px solid var(--zoho-border);
             font-size: 0.875rem;
             color: var(--zoho-dark);
         }
-        
+
         .dark .zoho-table td {
             border-color: #334155;
             color: #CBD5E1;
         }
-        
+
         .zoho-table tr:hover {
             background: var(--zoho-light);
         }
-        
+
         .dark .zoho-table tr:hover {
             background: #1E293B;
         }
-        
+
         .zoho-btn-primary {
             background: var(--zoho-primary);
             color: white;
@@ -163,13 +164,13 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .zoho-btn-primary:hover {
             background: #265EA0;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(45, 100, 179, 0.2);
         }
-        
+
         .zoho-btn-secondary {
             background: white;
             color: var(--zoho-primary);
@@ -183,18 +184,18 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .zoho-btn-secondary:hover {
             background: var(--zoho-light);
             transform: translateY(-1px);
         }
-        
+
         .dark .zoho-btn-secondary {
             background: #1E293B;
             color: #60A5FA;
             border-color: #60A5FA;
         }
-        
+
         .zoho-input {
             width: 100%;
             padding: 10px 12px;
@@ -204,24 +205,24 @@
             transition: all 0.2s;
             background: white;
         }
-        
+
         .zoho-input:focus {
             outline: none;
             border-color: var(--zoho-primary);
             box-shadow: 0 0 0 3px rgba(45, 100, 179, 0.1);
         }
-        
+
         .dark .zoho-input {
             background: #1E293B;
             border-color: #475569;
             color: #E2E8F0;
         }
-        
+
         .dark .zoho-input:focus {
             border-color: #60A5FA;
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
         }
-        
+
         .zoho-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232D64B3' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
@@ -229,29 +230,29 @@
             background-position: right 12px center;
             background-size: 16px;
         }
-        
+
         .dark .zoho-select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2360A5FA' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
         }
-        
+
         .zoho-progress {
             height: 6px;
             background: var(--zoho-border);
             border-radius: 3px;
             overflow: hidden;
         }
-        
+
         .dark .zoho-progress {
             background: #475569;
         }
-        
+
         .zoho-progress-bar {
             height: 100%;
             border-radius: 3px;
             background: var(--zoho-primary);
             transition: width 0.3s ease;
         }
-        
+
         .zoho-pill {
             display: inline-flex;
             align-items: center;
@@ -261,47 +262,47 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
+
         .zoho-pill-success {
             background: #E8F5E9;
             color: #2E7D32;
         }
-        
+
         .dark .zoho-pill-success {
             background: #064E3B;
             color: #34D399;
         }
-        
+
         .zoho-pill-warning {
             background: #FFF3E0;
             color: #EF6C00;
         }
-        
+
         .dark .zoho-pill-warning {
             background: #78350F;
             color: #FBBF24;
         }
-        
+
         .zoho-pill-danger {
             background: #FFEBEE;
             color: #C62828;
         }
-        
+
         .dark .zoho-pill-danger {
             background: #7F1D1D;
             color: #FCA5A5;
         }
-        
+
         .zoho-pill-info {
             background: #E3F2FD;
             color: var(--zoho-primary);
         }
-        
+
         .dark .zoho-pill-info {
             background: #1E3A8A;
             color: #60A5FA;
         }
-        
+
         .zoho-modal {
             position: fixed;
             top: 0;
@@ -317,12 +318,12 @@
             visibility: hidden;
             transition: all 0.3s;
         }
-        
+
         .zoho-modal.active {
             opacity: 1;
             visibility: visible;
         }
-        
+
         .zoho-modal-content {
             background: white;
             border-radius: 12px;
@@ -333,20 +334,20 @@
             transform: translateY(20px);
             transition: transform 0.3s;
         }
-        
+
         .dark .zoho-modal-content {
             background: #1E293B;
         }
-        
+
         .zoho-modal.active .zoho-modal-content {
             transform: translateY(0);
         }
-        
+
         .zoho-tabs {
             display: flex;
             border-bottom: 1px solid var(--zoho-border);
         }
-        
+
         .zoho-tab {
             padding: 12px 24px;
             cursor: pointer;
@@ -355,29 +356,29 @@
             color: var(--zoho-gray);
             transition: all 0.2s;
         }
-        
+
         .zoho-tab.active {
             color: var(--zoho-primary);
             border-bottom-color: var(--zoho-primary);
         }
-        
+
         .dark .zoho-tab.active {
             color: #60A5FA;
             border-bottom-color: #60A5FA;
         }
-        
+
         .zoho-tab:hover:not(.active) {
             color: var(--zoho-dark);
         }
-        
+
         .dark .zoho-tab:hover:not(.active) {
             color: #E2E8F0;
         }
-        
+
         .zoho-dropdown {
             position: relative;
         }
-        
+
         .zoho-dropdown-menu {
             position: absolute;
             top: 100%;
@@ -393,18 +394,18 @@
             transform: translateY(-10px);
             transition: all 0.2s;
         }
-        
+
         .dark .zoho-dropdown-menu {
             background: #1E293B;
             border-color: #475569;
         }
-        
+
         .zoho-dropdown:hover .zoho-dropdown-menu {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        
+
         .zoho-dropdown-item {
             display: block;
             padding: 10px 16px;
@@ -413,19 +414,19 @@
             transition: background 0.2s;
             font-size: 0.875rem;
         }
-        
+
         .dark .zoho-dropdown-item {
             color: #CBD5E1;
         }
-        
+
         .zoho-dropdown-item:hover {
             background: var(--zoho-light);
         }
-        
+
         .dark .zoho-dropdown-item:hover {
             background: #334155;
         }
-        
+
         .zoho-status-dot {
             width: 8px;
             height: 8px;
@@ -433,19 +434,19 @@
             display: inline-block;
             margin-right: 6px;
         }
-        
+
         .zoho-status-active {
             background: #4CAF50;
         }
-        
+
         .zoho-status-pending {
             background: #FF9800;
         }
-        
+
         .zoho-status-overdue {
             background: #F44336;
         }
-        
+
         .zoho-avatar {
             width: 32px;
             height: 32px;
@@ -458,43 +459,43 @@
             font-weight: 600;
             font-size: 0.875rem;
         }
-        
+
         .dark .zoho-avatar {
             background: #60A5FA;
         }
-        
+
         /* Scrollbar personalizado */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #c1c1c1;
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: #a1a1a1;
         }
-        
+
         .dark ::-webkit-scrollbar-track {
             background: #334155;
         }
-        
+
         .dark ::-webkit-scrollbar-thumb {
             background: #64748b;
         }
-        
+
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-        
+
         /* Transiciones suaves */
         .transition-all {
             transition-property: all;
@@ -503,6 +504,7 @@
         }
     </style>
 </head>
+
 <body class="h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     <!-- Header fijo -->
     <header class="sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
@@ -520,39 +522,42 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center space-x-3">
                     <!-- Barra de búsqueda -->
                     <div class="relative hidden md:block">
-                        <input type="text" 
-                               id="searchInput"
-                               placeholder="Buscar gastos..."
-                               class="zoho-input pl-10 w-64">
+                        <input type="text" id="searchInput" placeholder="Buscar gastos..."
+                            class="zoho-input pl-10 w-64">
                         <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
                         <!-- Resultados de búsqueda -->
-                        <div id="searchResults" class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden max-h-96 overflow-y-auto z-40">
+                        <div id="searchResults"
+                            class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden max-h-96 overflow-y-auto z-40">
                         </div>
                     </div>
-                    
+
                     <!-- Botón de notificaciones -->
                     <div class="relative">
-                        <button id="notificationButton" 
-                                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
-                            <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        <button id="notificationButton"
+                            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+                            <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                                </path>
                             </svg>
-                            <span id="notificationBadge" 
-                                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">
+                            <span id="notificationBadge"
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">
                             </span>
                         </button>
-                        
+
                         <!-- Panel de notificaciones -->
-                        <div id="notificationsPanel" 
-                             class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 hidden">
+                        <div id="notificationsPanel"
+                            class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-200 dark:border-gray-700 hidden">
                             <div class="p-4">
                                 <h3 class="font-bold text-gray-900 dark:text-white mb-4">Notificaciones</h3>
                                 <div id="notificationsContent" class="max-h-96 overflow-y-auto">
@@ -561,30 +566,60 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Botón de exportar -->
                     <button onclick="exportExpenses()" class="zoho-btn-secondary">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
                         </svg>
                         Exportar
                     </button>
-                    
+
+                    <!-- Toggle de vista -->
+                    <div class="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-xl mr-2">
+                        <button id="view-list-btn" onclick="setViewMode('list')"
+                            class="p-2 rounded-lg transition-all duration-200 text-indigo-600 bg-white dark:bg-gray-600 shadow-sm"
+                            title="Vista de lista">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <button id="view-grid-btn" onclick="setViewMode('grid')"
+                            class="p-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200"
+                            title="Vista de tarjetas">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
                     <!-- Botón de nuevo gasto -->
                     <button onclick="openExpenseModal()" class="zoho-btn-primary">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
                         </svg>
                         Nuevo Gasto
                     </button>
-                    
+
                     <!-- Botón de modo oscuro -->
                     <button id="darkModeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <svg id="sunIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        <svg id="sunIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400 hidden" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
                         </svg>
-                        <svg id="moonIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        <svg id="moonIcon" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -605,8 +640,11 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Mes actual</p>
                     </div>
                     <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -620,12 +658,15 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Pendientes</p>
-                        <p id="pendingMonthTotal" class="text-2xl font-bold text-orange-600 dark:text-orange-400">RD$ 0.00</p>
+                        <p id="pendingMonthTotal" class="text-2xl font-bold text-orange-600 dark:text-orange-400">RD$
+                            0.00</p>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Por pagar este mes</p>
                     </div>
                     <div class="p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
-                        <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                 </div>
@@ -646,8 +687,11 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Requieren atención</p>
                     </div>
                     <div class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
-                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.346 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -668,8 +712,11 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">vencimientos</p>
                     </div>
                     <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -694,13 +741,16 @@
                 </div>
                 <canvas id="dailyExpensesChart" height="250"></canvas>
             </div>
-            
+
             <div class="zoho-card p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Distribución por Categoría</h3>
                     <button onclick="refreshCharts()" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -732,7 +782,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Filtros avanzados -->
             <div id="advancedFilters" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -756,11 +806,13 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-4 flex justify-between items-center">
-                <button onclick="toggleAdvancedFilters()" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                <button onclick="toggleAdvancedFilters()"
+                    class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                     <span id="toggleFilterText">Mostrar filtros avanzados</span>
-                    <svg id="filterArrow" class="w-4 h-4 inline ml-1 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="filterArrow" class="w-4 h-4 inline ml-1 transform rotate-0" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
@@ -785,17 +837,20 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Gastos</h3>
                     <div class="flex items-center space-x-2">
                         <input type="checkbox" id="selectAll" class="rounded border-gray-300 dark:border-gray-600">
-                        <label for="selectAll" class="text-sm text-gray-600 dark:text-gray-400">Seleccionar todos</label>
+                        <label for="selectAll" class="text-sm text-gray-600 dark:text-gray-400">Seleccionar
+                            todos</label>
                     </div>
                 </div>
             </div>
-            
-            <div class="overflow-x-auto">
+
+            <!-- Vista de Lista (Tabla) -->
+            <div id="list-view" class="overflow-x-auto">
                 <table class="zoho-table">
                     <thead>
                         <tr>
                             <th class="w-12">
-                                <input type="checkbox" id="selectAllHeader" class="rounded border-gray-300 dark:border-gray-600">
+                                <input type="checkbox" id="selectAllHeader"
+                                    class="rounded border-gray-300 dark:border-gray-600">
                             </th>
                             <th class="text-left">Descripción</th>
                             <th class="text-left">Categoría</th>
@@ -811,7 +866,9 @@
                         <tr id="loadingRow">
                             <td colspan="8" class="text-center py-12">
                                 <div class="flex justify-center items-center">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+                                    <div
+                                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400">
+                                    </div>
                                     <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando gastos...</span>
                                 </div>
                             </td>
@@ -819,7 +876,22 @@
                     </tbody>
                 </table>
             </div>
-            
+
+            <!-- Vista de Cuadrícula (Tarjetas) -->
+            <div id="grid-view" class="hidden p-6">
+                <div id="expensesGridBody" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Las tarjetas se cargarán aquí dinámicamente -->
+                    <div class="col-span-full text-center py-12">
+                        <div class="flex justify-center items-center">
+                            <div
+                                class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400">
+                            </div>
+                            <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando gastos...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Paginación -->
             <div id="paginationContainer" class="p-6 border-t border-gray-200 dark:border-gray-700 hidden">
                 <div class="flex justify-between items-center">
@@ -827,14 +899,18 @@
                         Mostrando 0 de 0 resultados
                     </span>
                     <div class="flex space-x-2">
-                        <button id="prevPage" class="zoho-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <button id="prevPage" class="zoho-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </button>
-                        <button id="nextPage" class="zoho-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <button id="nextPage" class="zoho-btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
                             </svg>
                         </button>
                     </div>
@@ -843,18 +919,22 @@
         </div>
 
         <!-- Acciones en lote -->
-        <div id="bulkActions" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 hidden z-50">
+        <div id="bulkActions"
+            class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 hidden z-50">
             <div class="flex items-center space-x-4">
                 <span class="font-medium text-gray-900 dark:text-white">
                     <span id="selectedCount">0</span> gastos seleccionados
                 </span>
-                <button onclick="bulkMarkAsPaid()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                <button onclick="bulkMarkAsPaid()"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
                     Marcar como pagados
                 </button>
-                <button onclick="bulkDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">
+                <button onclick="bulkDelete()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">
                     Eliminar
                 </button>
-                <button onclick="clearSelection()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                <button onclick="clearSelection()"
+                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
                     Cancelar
                 </button>
             </div>
@@ -867,36 +947,26 @@
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 id="modalTitle" class="text-xl font-bold text-gray-900 dark:text-white">Nuevo Gasto</h3>
             </div>
-            
+
             <form id="expenseForm" class="p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Descripción *
                         </label>
-                        <input type="text" 
-                               id="expenseDescription"
-                               name="description"
-                               required
-                               class="zoho-input"
-                               placeholder="Ej: Pago de internet">
+                        <input type="text" id="expenseDescription" name="description" required class="zoho-input"
+                            placeholder="Ej: Pago de internet">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Monto (RD$) *
                         </label>
-                        <input type="number" 
-                               id="expenseAmount"
-                               name="amount"
-                               required
-                               step="0.01"
-                               min="0.01"
-                               class="zoho-input"
-                               placeholder="0.00">
+                        <input type="number" id="expenseAmount" name="amount" required step="0.01" min="0.01"
+                            class="zoho-input" placeholder="0.00">
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -907,31 +977,25 @@
                             <!-- Las categorías se cargarán dinámicamente -->
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Fecha de vencimiento *
                         </label>
-                        <input type="date" 
-                               id="expenseDueDate"
-                               name="due_date"
-                               required
-                               class="zoho-input">
+                        <input type="date" id="expenseDueDate" name="due_date" required class="zoho-input">
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="flex items-center space-x-3">
-                        <input type="checkbox" 
-                               id="isRecurring"
-                               name="is_recurring"
-                               class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" id="isRecurring" name="is_recurring"
+                            class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Gasto recurrente
                         </span>
                     </label>
                 </div>
-                
+
                 <div id="recurringFields" class="hidden space-y-6 border-t border-gray-200 dark:border-gray-700 pt-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -946,56 +1010,43 @@
                                 <option value="yearly">Anual</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Días de anticipación
                             </label>
-                            <input type="number" 
-                                   id="advanceDays"
-                                   name="advance_days"
-                                   value="7"
-                                   min="1"
-                                   max="30"
-                                   class="zoho-input">
+                            <input type="number" id="advanceDays" name="advance_days" value="7" min="1" max="30"
+                                class="zoho-input">
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                                 Días antes para notificación
                             </p>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="flex items-center space-x-3">
-                            <input type="checkbox" 
-                                   id="autoRenew"
-                                   name="auto_renew"
-                                   class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
+                            <input type="checkbox" id="autoRenew" name="auto_renew"
+                                class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Renovación automática
                             </span>
                         </label>
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Notas
                     </label>
-                    <textarea id="expenseNotes" 
-                              name="notes"
-                              rows="3"
-                              class="zoho-input"
-                              placeholder="Notas adicionales..."></textarea>
+                    <textarea id="expenseNotes" name="notes" rows="3" class="zoho-input"
+                        placeholder="Notas adicionales..."></textarea>
                 </div>
-                
+
                 <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" 
-                            onclick="closeExpenseModal()"
-                            class="zoho-btn-secondary">
+                    <button type="button" onclick="closeExpenseModal()" class="zoho-btn-secondary">
                         Cancelar
                     </button>
-                    <button type="submit" 
-                            class="zoho-btn-primary">
+                    <button type="submit" class="zoho-btn-primary">
                         Guardar Gasto
                     </button>
                 </div>
@@ -1017,13 +1068,13 @@
         let categories = [];
 
         // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initDarkMode();
             loadCategories();
             loadExpenses();
             loadDashboardData();
             setupEventListeners();
-            
+
             // Configurar actualización automática cada 30 segundos
             setInterval(loadDashboardData, 30000);
             setInterval(loadNotifications, 60000);
@@ -1035,11 +1086,11 @@
             const darkModeToggle = document.getElementById('darkModeToggle');
             const sunIcon = document.getElementById('sunIcon');
             const moonIcon = document.getElementById('moonIcon');
-            
+
             // Verificar preferencia del sistema
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const savedTheme = localStorage.getItem('theme');
-            
+
             if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
                 document.documentElement.classList.add('dark');
                 sunIcon.classList.remove('hidden');
@@ -1049,12 +1100,12 @@
                 sunIcon.classList.add('hidden');
                 moonIcon.classList.remove('hidden');
             }
-            
-            darkModeToggle.addEventListener('click', function() {
+
+            darkModeToggle.addEventListener('click', function () {
                 document.documentElement.classList.toggle('dark');
                 const isDark = document.documentElement.classList.contains('dark');
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                
+
                 if (isDark) {
                     sunIcon.classList.remove('hidden');
                     moonIcon.classList.add('hidden');
@@ -1062,7 +1113,7 @@
                     sunIcon.classList.add('hidden');
                     moonIcon.classList.remove('hidden');
                 }
-                
+
                 // Actualizar gráficos para modo oscuro
                 updateChartsForTheme();
             });
@@ -1072,7 +1123,7 @@
             // Búsqueda
             const searchInput = document.getElementById('searchInput');
             let searchTimeout;
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
                     performSearch(e.target.value);
@@ -1080,7 +1131,7 @@
             });
 
             // Notificaciones
-            document.getElementById('notificationButton').addEventListener('click', function(e) {
+            document.getElementById('notificationButton').addEventListener('click', function (e) {
                 e.stopPropagation();
                 const panel = document.getElementById('notificationsPanel');
                 panel.classList.toggle('hidden');
@@ -1090,7 +1141,7 @@
             });
 
             // Cerrar panel de notificaciones al hacer clic fuera
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!e.target.closest('#notificationButton') && !e.target.closest('#notificationsPanel')) {
                     document.getElementById('notificationsPanel').classList.add('hidden');
                 }
@@ -1100,17 +1151,17 @@
             });
 
             // Filtros
-            document.getElementById('chartPeriod').addEventListener('change', function() {
+            document.getElementById('chartPeriod').addEventListener('change', function () {
                 updateCharts();
             });
-            
-            document.getElementById('sortBy').addEventListener('change', function() {
+
+            document.getElementById('sortBy').addEventListener('change', function () {
                 sortExpenses();
-                renderExpensesTable();
+                renderExpenses();
             });
 
             // Selección múltiple
-            document.getElementById('selectAllHeader').addEventListener('change', function(e) {
+            document.getElementById('selectAllHeader').addEventListener('change', function (e) {
                 const checkboxes = document.querySelectorAll('.expense-checkbox');
                 checkboxes.forEach(cb => {
                     cb.checked = e.target.checked;
@@ -1124,17 +1175,17 @@
             });
 
             // Paginación
-            document.getElementById('prevPage').addEventListener('click', function() {
+            document.getElementById('prevPage').addEventListener('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
-                    renderExpensesTable();
+                    renderExpenses();
                 }
             });
 
-            document.getElementById('nextPage').addEventListener('click', function() {
+            document.getElementById('nextPage').addEventListener('click', function () {
                 if (currentPage < totalPages) {
                     currentPage++;
-                    renderExpensesTable();
+                    renderExpenses();
                 }
             });
 
@@ -1235,16 +1286,16 @@
 
                 allExpenses = mockExpenses;
                 filteredExpenses = [...allExpenses];
-                
+
                 // Actualizar estadísticas
                 updateStatistics();
-                
+
                 // Renderizar tabla
-                renderExpensesTable();
-                
+                renderExpenses();
+
                 // Ocultar indicador de carga
                 document.getElementById('loadingRow').classList.add('hidden');
-                
+
             } catch (error) {
                 console.error('Error cargando gastos:', error);
                 showNotification('Error al cargar los gastos', 'error');
@@ -1280,17 +1331,17 @@
                 document.getElementById('overdueTotal').textContent = formatCurrency(mockData.overdue_total);
                 document.getElementById('upcomingCount').textContent = mockData.upcoming_count;
                 document.getElementById('totalExpenses').textContent = formatCurrency(mockData.current_month);
-                
+
                 const nextDue = new Date(mockData.next_due_date);
-                document.getElementById('nextDueDate').textContent = 
+                document.getElementById('nextDueDate').textContent =
                     `Próximo: ${nextDue.getDate()}/${nextDue.getMonth() + 1}`;
 
                 // Renderizar gráficos
                 renderCharts(mockData);
-                
+
                 // Cargar notificaciones
                 loadNotifications();
-                
+
             } catch (error) {
                 console.error('Error cargando dashboard:', error);
             }
@@ -1332,7 +1383,7 @@
                 };
 
                 updateNotificationPanel(mockNotifications);
-                
+
             } catch (error) {
                 console.error('Error cargando notificaciones:', error);
             }
@@ -1353,7 +1404,7 @@
                 .length;
 
             // Actualizar contador
-            document.getElementById('expenseCount').textContent = 
+            document.getElementById('expenseCount').textContent =
                 `${filteredExpenses.length} gastos mostrados`;
         }
 
@@ -1362,10 +1413,10 @@
             const startIndex = (currentPage - 1) * expensesPerPage;
             const endIndex = startIndex + expensesPerPage;
             const pageExpenses = filteredExpenses.slice(startIndex, endIndex);
-            
+
             // Calcular paginación
             totalPages = Math.ceil(filteredExpenses.length / expensesPerPage);
-            
+
             if (pageExpenses.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -1393,12 +1444,12 @@
                     today.setHours(0, 0, 0, 0);
                     const dueDateObj = new Date(dueDate);
                     dueDateObj.setHours(0, 0, 0, 0);
-                    
+
                     const isOverdue = !expense.is_paid && dueDateObj < today;
                     const daysUntil = Math.ceil((dueDateObj - today) / (1000 * 60 * 60 * 24));
-                    
+
                     const category = categories.find(c => c.id === expense.category_id) || { name: 'Sin categoría', color: '#6B7280' };
-                    
+
                     return `
                         <tr class="animate-fade-in" style="animation-delay: ${index * 0.05}s;">
                             <td>
@@ -1497,7 +1548,7 @@
                     `;
                 }).join('');
             }
-            
+
             // Actualizar paginación
             updatePagination();
         }
@@ -1507,12 +1558,12 @@
             const paginationInfo = document.getElementById('paginationInfo');
             const prevBtn = document.getElementById('prevPage');
             const nextBtn = document.getElementById('nextPage');
-            
+
             if (filteredExpenses.length > expensesPerPage) {
                 paginationContainer.classList.remove('hidden');
-                paginationInfo.textContent = 
+                paginationInfo.textContent =
                     `Mostrando ${((currentPage - 1) * expensesPerPage) + 1}-${Math.min(currentPage * expensesPerPage, filteredExpenses.length)} de ${filteredExpenses.length} resultados`;
-                
+
                 prevBtn.disabled = currentPage === 1;
                 nextBtn.disabled = currentPage === totalPages;
             } else {
@@ -1523,7 +1574,7 @@
         function updateNotificationPanel(notifications) {
             const content = document.getElementById('notificationsContent');
             const badge = document.getElementById('notificationBadge');
-            
+
             // Actualizar badge
             if (notifications.total_notifications > 0) {
                 badge.textContent = notifications.total_notifications > 99 ? '99+' : notifications.total_notifications;
@@ -1531,10 +1582,10 @@
             } else {
                 badge.classList.add('hidden');
             }
-            
+
             // Construir contenido
             let html = '';
-            
+
             if (notifications.overdue && notifications.overdue.length > 0) {
                 html += `
                     <div class="mb-4">
@@ -1559,7 +1610,7 @@
                     </div>
                 `;
             }
-            
+
             if (notifications.upcoming && notifications.upcoming.length > 0) {
                 html += `
                     <div class="mb-4">
@@ -1580,7 +1631,7 @@
                     </div>
                 `;
             }
-            
+
             if (!html) {
                 html = `
                     <div class="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -1591,7 +1642,7 @@
                     </div>
                 `;
             }
-            
+
             content.innerHTML = html;
         }
 
@@ -1599,7 +1650,7 @@
             // Destruir gráficos existentes
             if (charts.daily) charts.daily.destroy();
             if (charts.category) charts.category.destroy();
-            
+
             // Gráfico de gastos diarios
             const dailyCtx = document.getElementById('dailyExpensesChart').getContext('2d');
             charts.daily = new Chart(dailyCtx, {
@@ -1635,7 +1686,7 @@
                             mode: 'index',
                             intersect: false,
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return `RD$ ${context.raw.toFixed(2)}`;
                                 }
                             }
@@ -1657,7 +1708,7 @@
                             },
                             ticks: {
                                 color: document.documentElement.classList.contains('dark') ? '#94A3B8' : '#6B7280',
-                                callback: function(value) {
+                                callback: function (value) {
                                     return 'RD$ ' + value;
                                 }
                             }
@@ -1669,7 +1720,7 @@
                     }
                 }
             });
-            
+
             // Gráfico de categorías
             const categoryCtx = document.getElementById('categoryChart').getContext('2d');
             charts.category = new Chart(categoryCtx, {
@@ -1697,7 +1748,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const total = data.category_chart.reduce((sum, item) => sum + item.total, 0);
                                     const percentage = ((context.raw / total) * 100).toFixed(1);
                                     return `${context.label}: RD$ ${context.raw.toFixed(2)} (${percentage}%)`;
@@ -1720,7 +1771,7 @@
                 charts.daily.options.plugins.legend.labels.color = document.documentElement.classList.contains('dark') ? '#E2E8F0' : '#374151';
                 charts.daily.update();
             }
-            
+
             if (charts.category) {
                 charts.category.options.plugins.legend.labels.color = document.documentElement.classList.contains('dark') ? '#E2E8F0' : '#374151';
                 charts.category.data.datasets[0].borderColor = document.documentElement.classList.contains('dark') ? '#1E293B' : '#ffffff';
@@ -1744,9 +1795,9 @@
             const modal = document.getElementById('expenseModal');
             const title = document.getElementById('modalTitle');
             const form = document.getElementById('expenseForm');
-            
+
             currentExpenseId = expenseId;
-            
+
             if (expenseId) {
                 title.textContent = 'Editar Gasto';
                 // Cargar datos del gasto
@@ -1757,7 +1808,7 @@
                     document.getElementById('expenseCategory').value = expense.category_id;
                     document.getElementById('expenseDueDate').value = expense.due_date;
                     document.getElementById('expenseNotes').value = expense.notes || '';
-                    
+
                     if (expense.is_recurring) {
                         document.getElementById('isRecurring').checked = true;
                         toggleRecurringFields();
@@ -1776,12 +1827,12 @@
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 document.getElementById('expenseDueDate').valueAsDate = tomorrow;
-                
+
                 // Resetear campos recurrentes
                 document.getElementById('isRecurring').checked = false;
                 toggleRecurringFields();
             }
-            
+
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -1791,7 +1842,7 @@
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
             currentExpenseId = null;
-            
+
             // Resetear formulario
             document.getElementById('expenseForm').reset();
             document.getElementById('recurringFields').classList.add('hidden');
@@ -1800,7 +1851,7 @@
         function toggleRecurringFields() {
             const isRecurring = document.getElementById('isRecurring').checked;
             const recurringFields = document.getElementById('recurringFields');
-            
+
             if (isRecurring) {
                 recurringFields.classList.remove('hidden');
             } else {
@@ -1810,7 +1861,7 @@
 
         async function handleExpenseSubmit(e) {
             e.preventDefault();
-            
+
             const formData = {
                 description: document.getElementById('expenseDescription').value,
                 amount: parseFloat(document.getElementById('expenseAmount').value),
@@ -1822,13 +1873,13 @@
                 advance_days: parseInt(document.getElementById('advanceDays').value) || 7,
                 auto_renew: document.getElementById('autoRenew').checked
             };
-            
+
             // Validación básica
             if (!formData.description || !formData.amount || !formData.category_id || !formData.due_date) {
                 showNotification('Por favor completa todos los campos requeridos', 'error');
                 return;
             }
-            
+
             try {
                 // Simular guardado
                 if (currentExpenseId) {
@@ -1849,16 +1900,16 @@
                     allExpenses.push(newExpense);
                     showNotification('Gasto creado exitosamente', 'success');
                 }
-                
+
                 // Actualizar datos
                 filteredExpenses = [...allExpenses];
                 updateStatistics();
-                renderExpensesTable();
+                renderExpenses();
                 loadDashboardData();
-                
+
                 // Cerrar modal
                 closeExpenseModal();
-                
+
             } catch (error) {
                 console.error('Error guardando gasto:', error);
                 showNotification('Error al guardar el gasto', 'error');
@@ -1872,7 +1923,7 @@
                     expense.is_paid = true;
                     filteredExpenses = [...allExpenses];
                     updateStatistics();
-                    renderExpensesTable();
+                    renderExpenses();
                     loadDashboardData();
                     showNotification('Gasto marcado como pagado', 'success');
                 }
@@ -1889,7 +1940,7 @@
                 filteredExpenses = filteredExpenses.filter(e => e.id !== expenseId);
                 selectedExpenses.delete(expenseId.toString());
                 updateStatistics();
-                renderExpensesTable();
+                renderExpenses();
                 loadDashboardData();
                 showNotification('Gasto eliminado exitosamente', 'success');
             }
@@ -1907,7 +1958,7 @@
         function updateBulkActions() {
             const bulkActions = document.getElementById('bulkActions');
             const selectedCount = document.getElementById('selectedCount');
-            
+
             if (selectedExpenses.size > 0) {
                 selectedCount.textContent = selectedExpenses.size;
                 bulkActions.classList.remove('hidden');
@@ -1919,19 +1970,19 @@
         function bulkMarkAsPaid() {
             const count = selectedExpenses.size;
             if (count === 0) return;
-            
+
             if (confirm(`¿Marcar ${count} gastos como pagados?`)) {
                 allExpenses.forEach(expense => {
                     if (selectedExpenses.has(expense.id.toString())) {
                         expense.is_paid = true;
                     }
                 });
-                
+
                 filteredExpenses = [...allExpenses];
                 selectedExpenses.clear();
                 updateBulkActions();
                 updateStatistics();
-                renderExpensesTable();
+                renderExpenses();
                 loadDashboardData();
                 showNotification(`${count} gastos marcados como pagados`, 'success');
             }
@@ -1940,14 +1991,14 @@
         function bulkDelete() {
             const count = selectedExpenses.size;
             if (count === 0) return;
-            
+
             if (confirm(`¿Eliminar ${count} gastos permanentemente? Esta acción no se puede deshacer.`)) {
                 allExpenses = allExpenses.filter(e => !selectedExpenses.has(e.id.toString()));
                 filteredExpenses = filteredExpenses.filter(e => !selectedExpenses.has(e.id.toString()));
                 selectedExpenses.clear();
                 updateBulkActions();
                 updateStatistics();
-                renderExpensesTable();
+                renderExpenses();
                 loadDashboardData();
                 showNotification(`${count} gastos eliminados`, 'success');
             }
@@ -1967,32 +2018,32 @@
             const dateFrom = document.getElementById('dateFrom').value;
             const dateTo = document.getElementById('dateTo').value;
             const maxAmount = parseFloat(document.getElementById('maxAmount').value) || Infinity;
-            
+
             filteredExpenses = allExpenses.filter(expense => {
                 // Filtrar por tipo
                 if (typeFilter === 'fixed' && expense.is_recurring) return false;
                 if (typeFilter === 'recurring' && !expense.is_recurring) return false;
-                
+
                 // Filtrar por estado
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const dueDate = new Date(expense.due_date);
                 dueDate.setHours(0, 0, 0, 0);
-                
+
                 if (statusFilter === 'pending' && (expense.is_paid || dueDate < today)) return false;
                 if (statusFilter === 'paid' && !expense.is_paid) return false;
                 if (statusFilter === 'overdue' && (expense.is_paid || dueDate >= today)) return false;
-                
+
                 // Filtrar por fecha
                 if (dateFrom && new Date(expense.due_date) < new Date(dateFrom)) return false;
                 if (dateTo && new Date(expense.due_date) > new Date(dateTo)) return false;
-                
+
                 // Filtrar por monto máximo
                 if (expense.amount > maxAmount) return false;
-                
+
                 return true;
             });
-            
+
             currentPage = 1;
             updateStatistics();
             renderExpensesTable();
@@ -2005,7 +2056,7 @@
             document.getElementById('dateFrom').value = '';
             document.getElementById('dateTo').value = '';
             document.getElementById('maxAmount').value = '';
-            
+
             filteredExpenses = [...allExpenses];
             currentPage = 1;
             updateStatistics();
@@ -2017,7 +2068,7 @@
             const filters = document.getElementById('advancedFilters');
             const toggleText = document.getElementById('toggleFilterText');
             const arrow = document.getElementById('filterArrow');
-            
+
             if (filters.classList.contains('hidden')) {
                 filters.classList.remove('hidden');
                 toggleText.textContent = 'Ocultar filtros avanzados';
@@ -2031,7 +2082,7 @@
 
         function sortExpenses() {
             const sortBy = document.getElementById('sortBy').value;
-            
+
             filteredExpenses.sort((a, b) => {
                 switch (sortBy) {
                     case 'amount_desc':
@@ -2049,18 +2100,18 @@
 
         async function performSearch(query) {
             const resultsContainer = document.getElementById('searchResults');
-            
+
             if (!query || query.length < 2) {
                 resultsContainer.classList.add('hidden');
                 return;
             }
-            
+
             const lowerQuery = query.toLowerCase();
-            const results = allExpenses.filter(expense => 
+            const results = allExpenses.filter(expense =>
                 expense.description.toLowerCase().includes(lowerQuery) ||
                 (expense.notes && expense.notes.toLowerCase().includes(lowerQuery))
             ).slice(0, 5);
-            
+
             if (results.length === 0) {
                 resultsContainer.innerHTML = `
                     <div class="p-4 text-center text-gray-500 dark:text-gray-400">
@@ -2070,7 +2121,7 @@
                 resultsContainer.classList.remove('hidden');
                 return;
             }
-            
+
             resultsContainer.innerHTML = results.map(expense => {
                 const category = categories.find(c => c.id === expense.category_id) || { name: 'Sin categoría' };
                 const dueDate = new Date(expense.due_date);
@@ -2078,9 +2129,9 @@
                 today.setHours(0, 0, 0, 0);
                 const dueDateObj = new Date(dueDate);
                 dueDateObj.setHours(0, 0, 0, 0);
-                
+
                 const isOverdue = !expense.is_paid && dueDateObj < today;
-                
+
                 return `
                     <a href="#" onclick="editExpense(${expense.id}); document.getElementById('searchResults').classList.add('hidden'); return false;" 
                        class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 last:border-0">
@@ -2101,22 +2152,22 @@
                     </a>
                 `;
             }).join('');
-            
+
             resultsContainer.classList.remove('hidden');
         }
 
         function exportExpenses() {
             // Simular exportación
             const dataStr = JSON.stringify(filteredExpenses, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
             const exportFileDefaultName = `gastos_${new Date().toISOString().split('T')[0]}.json`;
-            
+
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', exportFileDefaultName);
             linkElement.click();
-            
+
             showNotification('Exportación completada', 'success');
         }
 
@@ -2142,21 +2193,20 @@
         function showNotification(message, type = 'info') {
             // Crear notificación
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 translate-x-full ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 
-                'bg-blue-600'
-            }`;
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 translate-x-full ${type === 'success' ? 'bg-green-600' :
+                type === 'error' ? 'bg-red-600' :
+                    'bg-blue-600'
+                }`;
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             // Animación de entrada
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 10);
-            
+
             // Animación de salida
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
@@ -2170,18 +2220,19 @@
         }
 
         // Cerrar modal al hacer clic fuera
-        document.getElementById('expenseModal').addEventListener('click', function(e) {
+        document.getElementById('expenseModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 closeExpenseModal();
             }
         });
 
         // Cerrar modal con ESC
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeExpenseModal();
             }
         });
     </script>
 </body>
+
 </html>

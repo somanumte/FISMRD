@@ -20,18 +20,22 @@
             <div class="flex space-x-3">
                 <!-- Botón para crear factura con laptops seleccionadas -->
                 <button id="create-invoice-btn"
-                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled>
+                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
                     </svg>
                     Crear Factura (<span id="selected-count">0</span>)
                 </button>
 
                 {% if current_user.is_admin %}
-                <a href="{{ url_for('inventory.laptop_add') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                <a href="{{ url_for('inventory.laptop_add') }}"
+                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                     Agregar Laptop
                 </a>
@@ -40,7 +44,7 @@
         </div>
 
         <!-- Estadísticas Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Laptops -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
@@ -49,8 +53,11 @@
                         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats.total }}</p>
                     </div>
                     <div class="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -61,11 +68,15 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Valor Total Inventario</p>
-                        <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">${{ "{:,.2f}".format(stats.total_value) }}</p>
+                        <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">${{
+                            "{:,.2f}".format(stats.total_value) }}</p>
                     </div>
                     <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -76,11 +87,15 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Stock Bajo</p>
-                        <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{{ stats.low_stock }}</p>
+                        <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{{ stats.low_stock }}
+                        </p>
                     </div>
                     <div class="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -91,12 +106,17 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Publicadas</p>
-                        <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{{ stats.published if stats.published is defined else '—' }}</p>
+                        <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{{ stats.published if
+                            stats.published is defined else '—' }}</p>
                     </div>
                     <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
                         </svg>
                     </div>
                 </div>
@@ -104,507 +124,1009 @@
         </div>
 
         <!-- CATALOG LAYOUT -->
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
-            <!-- FILTERS SIDEBAR - Versión simple sin Alpine.js -->
-            <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm h-fit">
-                <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Filtros</h3>
-                    <a href="{{ url_for('inventory.laptops_list') }}" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Limpiar</a>
+        <div class="flex flex-col lg:flex-row gap-8 items-start relative">
+            <!-- Overlay for Mobile Filters -->
+            <div id="filters-overlay" onclick="toggleFilters()"
+                class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm hidden lg:hidden transition-all duration-300 opacity-0">
+            </div>
+
+            <!-- FILTERS SIDEBAR -->
+            <aside id="filters-sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:relative lg:block lg:w-72 flex-shrink-0 lg:rounded-3xl border-r lg:border border-gray-200 dark:border-gray-700 shadow-2xl lg:shadow-sm overflow-hidden flex flex-col h-full lg:h-fit">
+
+                <!-- Header for Mobile -->
+                <div
+                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 lg:hidden">
+                    <h3 class="font-bold text-xl text-gray-900 dark:text-white">Filtros</h3>
+                    <button onclick="toggleFilters()"
+                        class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
 
-                <!-- Filtros básicos con formulario -->
-                <form method="GET" action="{{ url_for('inventory.laptops_list') }}" class="space-y-4">
-                    <!-- Search -->
-                    <div class="relative">
-                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Buscar laptops..."
-                               class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 transition-all">
+                <div class="p-6 overflow-y-auto lg:overflow-visible flex-1">
+                    <div
+                        class="hidden lg:flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700 mb-4">
+                        <h3 class="font-bold text-lg text-gray-900 dark:text-white">Filtros</h3>
+                        <a href="{{ url_for('inventory.laptops_list') }}"
+                            class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Limpiar</a>
                     </div>
 
-                    <!-- Price Range -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <!-- Filtros básicos con formulario -->
+                    <form method="GET" action="{{ url_for('inventory.laptops_list') }}" class="space-y-4">
+                        <!-- Search -->
+                        <div class="relative">
+                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
-                            Rango de Precio
-                        </h4>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <input type="number" name="min_price" value="{{ request.args.get('min_price', '') }}" placeholder="Mín" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                                <span class="text-gray-500">-</span>
-                                <input type="number" name="max_price" value="{{ request.args.get('max_price', '') }}" placeholder="Máx" class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                            <input type="text" name="search" value="{{ request.args.get('search', '') }}"
+                                placeholder="Buscar laptops..."
+                                class="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-xl py-3 pl-10 pr-4 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                                Rango de Precio
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <input type="number" name="min_price"
+                                        value="{{ request.args.get('min_price', '') }}" placeholder="Mín"
+                                        class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                    <span class="text-gray-500">-</span>
+                                    <input type="number" name="max_price"
+                                        value="{{ request.args.get('max_price', '') }}" placeholder="Máx"
+                                        class="w-1/2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Brand Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                            </svg>
-                            Marca
-                        </h4>
-                        <select name="brand" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="">Todas</option>
-                            {% for brand in filter_form.brand_id.choices[1:] %}
-                                <option value="{{ brand[0] }}" {% if request.args.get('brand') == brand[0]|string %}selected{% endif %}>{{ brand[1] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <!-- Brand Filter -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                                    </path>
+                                </svg>
+                                Marca
+                            </h4>
+                            <select name="brand"
+                                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                <option value="">Todas</option>
+                                {% for brand in filter_form.brand_id.choices[1:] %}
+                                <option value="{{ brand[0] }}" {% if request.args.get('brand')==brand[0]|string
+                                    %}selected{% endif %}>{{ brand[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <!-- Category Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                            </svg>
-                            Categoría
-                        </h4>
-                        <select name="category" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="">Todas</option>
-                            <option value="laptop" {% if request.args.get('category') == 'laptop' %}selected{% endif %}>💻 Laptop</option>
-                            <option value="workstation" {% if request.args.get('category') == 'workstation' %}selected{% endif %}>Workstation</option>
-                            <option value="gaming" {% if request.args.get('category') == 'gaming' %}selected{% endif %}>Gaming</option>
-                        </select>
-                    </div>
+                        <!-- Category Filter -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                                Categoría
+                            </h4>
+                            <select name="category"
+                                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                <option value="">Todas</option>
+                                <option value="laptop" {% if request.args.get('category')=='laptop' %}selected{% endif
+                                    %}>💻
+                                    Laptop</option>
+                                <option value="workstation" {% if request.args.get('category')=='workstation'
+                                    %}selected{% endif %}>Workstation</option>
+                                <option value="gaming" {% if request.args.get('category')=='gaming' %}selected{% endif
+                                    %}>
+                                    Gaming</option>
+                            </select>
+                        </div>
 
-                    <!-- Condition Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Condición
-                        </h4>
-                        <select name="condition" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="">Todas</option>
-                            <option value="new" {% if request.args.get('condition') == 'new' %}selected{% endif %}>Nuevo</option>
-                            <option value="used" {% if request.args.get('condition') == 'used' %}selected{% endif %}>Usado</option>
-                            <option value="refurbished" {% if request.args.get('condition') == 'refurbished' %}selected{% endif %}>Reacondicionado</option>
-                        </select>
-                    </div>
+                        <!-- Condition Filter -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Condición
+                            </h4>
+                            <select name="condition"
+                                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                <option value="">Todas</option>
+                                <option value="new" {% if request.args.get('condition')=='new' %}selected{% endif %}>
+                                    Nuevo
+                                </option>
+                                <option value="used" {% if request.args.get('condition')=='used' %}selected{% endif %}>
+                                    Usado
+                                </option>
+                                <option value="refurbished" {% if request.args.get('condition')=='refurbished'
+                                    %}selected{% endif %}>Reacondicionado</option>
+                            </select>
+                        </div>
 
-                    <!-- Store Filter -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                            Tienda
-                        </h4>
-                        <select name="store" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="">Todas</option>
-                            {% for store in filter_form.store_id.choices[1:] %}
-                                <option value="{{ store[0] }}" {% if request.args.get('store') == store[0]|string %}selected{% endif %}>{{ store[1] }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <!-- Store Filter -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                Tienda
+                            </h4>
+                            <select name="store"
+                                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                <option value="">Todas</option>
+                                {% for store in filter_form.store_id.choices[1:] %}
+                                <option value="{{ store[0] }}" {% if request.args.get('store')==store[0]|string
+                                    %}selected{% endif %}>{{ store[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <!-- Sorting -->
-                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                            </svg>
-                            Ordenar por
-                        </h4>
-                        <select name="sort_by" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'entry_date_desc' %}selected{% endif %}>Más recientes</option>
-                            <option value="entry_date_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'entry_date_asc' %}selected{% endif %}>Más antiguos</option>
-                            <option value="sale_price_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'sale_price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
-                            <option value="sale_price_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'sale_price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
-                            <option value="name_asc" {% if request.args.get('sort_by', 'entry_date_desc') == 'name_asc' %}selected{% endif %}>Nombre A-Z</option>
-                            <option value="name_desc" {% if request.args.get('sort_by', 'entry_date_desc') == 'name_desc' %}selected{% endif %}>Nombre Z-A</option>
-                        </select>
-                    </div>
+                        <!-- Sorting -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                </svg>
+                                Ordenar por
+                            </h4>
+                            <select name="sort_by"
+                                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+                                <option value="entry_date_desc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='entry_date_desc' %}selected{% endif %}>Más recientes</option>
+                                <option value="entry_date_asc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='entry_date_asc' %}selected{% endif %}>Más antiguos</option>
+                                <option value="sale_price_asc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='sale_price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                <option value="sale_price_desc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='sale_price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                                <option value="name_asc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='name_asc' %}selected{% endif %}>Nombre A-Z</option>
+                                <option value="name_desc" {% if request.args.get('sort_by', 'entry_date_desc'
+                                    )=='name_desc' %}selected{% endif %}>Nombre Z-A</option>
+                            </select>
+                        </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2 pt-2">
-                        <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-lg py-2 px-4 hover:bg-indigo-700 transition-colors text-sm font-medium">
-                            Aplicar
-                        </button>
-                        <a href="{{ url_for('inventory.laptops_list') }}" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg py-2 px-4 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium text-center">
-                            Limpiar
-                        </a>
-                    </div>
-                </form>
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-2 pt-2">
+                            <button type="submit"
+                                class="flex-1 bg-indigo-600 text-white rounded-lg py-2 px-4 hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                Aplicar
+                            </button>
+                            <a href="{{ url_for('inventory.laptops_list') }}"
+                                class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg py-2 px-4 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium text-center">
+                                Limpiar
+                            </a>
+                        </div>
+                    </form>
             </aside>
 
             <!-- PRODUCT TABLE -->
             <div class="flex-1 w-full">
                 <!-- Toolbar -->
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <!-- Info -->
-                    <div class="flex items-center gap-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            <span class="text-gray-900 dark:text-white font-bold">{{ pagination.total }}</span> Productos
-                        </p>
-                        <div class="hidden md:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Mostrando <span class="font-bold">{{ pagination.per_page * (pagination.page - 1) + 1 }}</span> -
-                            <span class="font-bold">{{ [pagination.per_page * pagination.page, pagination.total]|min }}</span>
-                        </p>
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <!-- Info & Mobile Toggle (Simplified) -->
+                    <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-indigo-500 hidden sm:block" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                </path>
+                            </svg>
+                            <p class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span>{{ pagination.total }}</span>
+                                <span class="text-gray-500 dark:text-gray-400 font-medium">Productos</span>
+                            </p>
+                            <div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                {{ pagination.per_page * (pagination.page - 1) + 1 }} - {{ [pagination.per_page *
+                                pagination.page, pagination.total]|min }}
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="flex items-center gap-3">
-                        <button onclick="exportToCSV()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
+                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-xl">
+                            <button id="view-list-btn" onclick="setViewMode('list')"
+                                class="p-2 rounded-lg transition-all duration-200 text-indigo-600 bg-white dark:bg-gray-600 shadow-sm"
+                                title="Vista de lista">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            <button id="view-grid-btn" onclick="setViewMode('grid')"
+                                class="p-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200"
+                                title="Vista de tarjetas">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                        <button onclick="exportToCSV()"
+                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
                             Exportar CSV
                         </button>
                     </div>
                 </div>
 
-                <!-- Tabla de Laptops -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
+                <!-- Tabla de Laptops (Responsive Layout) -->
+                <div id="list-view"
+                    class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+                    <div class="overflow-x-visible sm:overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-900 hidden sm:table-header-group">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <input type="checkbox" id="select-all"
+                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" colspan="2">Laptop</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categoría</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Precio</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                                        colspan="2">
+                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='name_desc' if sort_by == 'name_asc' else 'name_asc')) }}"
+                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            Laptop
+                                            {% if sort_by == 'name_asc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            {% elif sort_by == 'name_desc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                            {% else %}
+                                            <svg class="w-3 h-3 opacity-0 group-hover:opacity-100" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='category_desc' if sort_by == 'category_asc' else 'category_asc')) }}"
+                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            Categoría
+                                            {% if sort_by == 'category_asc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            {% elif sort_by == 'category_desc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='sale_price_desc' if sort_by == 'sale_price_asc' else 'sale_price_asc')) }}"
+                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            Precio
+                                            {% if sort_by == 'sale_price_asc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            {% elif sort_by == 'sale_price_desc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='quantity_desc' if sort_by == 'quantity_asc' else 'quantity_asc')) }}"
+                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            Stock
+                                            {% if sort_by == 'quantity_asc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            {% elif sort_by == 'quantity_desc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='status_desc' if sort_by == 'status_asc' else 'status_asc')) }}"
+                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                            Estado
+                                            {% if sort_by == 'status_asc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            {% elif sort_by == 'status_desc' %}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                            {% endif %}
+                                        </a>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {% if laptops %}
-                                    {% for laptop in laptops %}
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors animate-fade-in">
-                                        <!-- Checkbox de selección -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <input type="checkbox"
-                                                   name="selected_laptop"
-                                                   value="{{ laptop.id }}"
-                                                   data-laptop-id="{{ laptop.id }}"
-                                                   data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                                   data-laptop-price="{{ laptop.sale_price }}"
-                                                   data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
-                                                   class="laptop-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                        </td>
+                                {% for laptop in laptops %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex flex-col sm:table-row cursor-pointer relative"
+                                    onclick="if(!event.target.closest('.laptop-checkbox')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
+                                    <!-- Desktop Selection (Hidden on Mobile) -->
+                                    <td class="px-6 py-4 sm:whitespace-nowrap hidden sm:table-cell">
+                                        <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                            data-laptop-id="{{ laptop.id }}"
+                                            data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                            data-laptop-price="{{ laptop.sale_price }}"
+                                            data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                            class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
+                                    </td>
 
-                                        <!-- Laptop Info con Imagen -->
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-4">
-                                                <!-- Imagen de portada o placeholder -->
-                                                <div class="flex-shrink-0 h-20 w-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 shadow-sm">
-                                                    {% set cover_image = none %}
-                                                    {% for image in laptop.images if image.is_cover %}
-                                                        {% set cover_image = image %}
-                                                    {% endfor %}
-                                                    {% if not cover_image and laptop.images %}
-                                                        {% set cover_image = laptop.images[0] %}
-                                                    {% endif %}
+                                    <!-- Laptop Info -->
+                                    <td class="px-6 py-4 sm:table-cell">
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600">
+                                                {% set cover_image = none %}
+                                                {% for image in laptop.images if image.is_cover %}
+                                                {% set cover_image = image %}
+                                                {% endfor %}
+                                                {% if not cover_image and laptop.images %}
+                                                {% set cover_image = laptop.images[0] %}
+                                                {% endif %}
 
-                                                    {% if cover_image %}
-                                                        <img
-                                                            src="{{ url_for('static', filename=cover_image.image_path) }}"
-                                                            alt="{{ cover_image.alt_text or laptop.display_name or (laptop.brand.name ~ ' ' ~ laptop.model.name) }}"
-                                                            class="h-full w-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
-                                                            onclick="window.location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'"
-                                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-10 h-10 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';"
-                                                        >
-                                                    {% else %}
-                                                        <!-- Placeholder cuando no hay imagen -->
-                                                        <div class="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                                            </svg>
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-
-                                                <!-- Informacion de la laptop -->
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                                            {{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}
-                                                        </h3>
-                                                    </div>
-                                                    <div class="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
-                                                        <div class="flex flex-col gap-1 mt-1">
-                                                            <div class="truncate">CPU: {{ laptop.processor.name[:25] if laptop.processor else 'N/A' }}</div>
-                                                            <div class="truncate">GPU: {{ laptop.graphics_card.name[:25] if laptop.graphics_card else 'N/A' }}</div>
-                                                            <div class="truncate">RAM: {{ laptop.ram.name[:20] if laptop.ram else 'N/A' }}</div>
-                                                            <div class="truncate">SSD: {{ laptop.storage.name[:20] if laptop.storage else 'N/A' }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <!-- Espacio adicional para mantener el colspan=2 -->
-                                        <td class="hidden md:table-cell"></td>
-
-                                        <!-- Categoría -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {% if laptop.category == 'gaming' %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                                                    Gaming
-                                                </span>
-                                            {% elif laptop.category == 'workstation' %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                                    Workstation
-                                                </span>
-                                            {% else %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                    💻 Laptop
-                                                </span>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Precio - CAMBIADO A FORMATO DE MILES -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 dark:text-white font-semibold">${{ "{:,.2f}".format(laptop.sale_price) }}</div>
-                                            {% if laptop.discount_price %}
-                                            <div class="text-xs text-green-600 dark:text-green-400">Descuento: ${{ "{:,.2f}".format(laptop.discount_price) }}</div>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Stock -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {% if laptop.quantity <= 0 %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                                    Sin stock
-                                                </span>
-                                            {% elif laptop.quantity <= laptop.min_alert %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                                                    {{ laptop.quantity }} unidades
-                                                </span>
-                                            {% else %}
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                    {{ laptop.quantity }} unidades
-                                                </span>
-                                            {% endif %}
-                                        </td>
-
-                                        <!-- Estado (Publicado/Destacado) -->
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex flex-col space-y-1">
-                                                {% if laptop.is_published %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                        Publicado
-                                                    </span>
+                                                {% if cover_image %}
+                                                <img src="{{ url_for('static', filename=cover_image.image_path) }}"
+                                                    alt="{{ laptop.brand.name }} {{ laptop.model.name }}"
+                                                    class="h-full w-full object-cover"
+                                                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-6 h-6 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';">
                                                 {% else %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                                        Borrador
-                                                    </span>
-                                                {% endif %}
-                                                {% if laptop.is_featured %}
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                                                        Destacado
-                                                    </span>
+                                                <div
+                                                    class="h-full w-full bg-indigo-50 dark:bg-gray-700 flex items-center justify-center">
+                                                    <svg class="w-8 h-8 text-indigo-300" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="1.5"
+                                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                        </path>
+                                                    </svg>
+                                                </div>
                                                 {% endif %}
                                             </div>
-                                        </td>
 
-                                        <!-- Acciones -->
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3" title="Ver detalle">
-                                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                            </a>
-                                            {% if current_user.is_admin %}
-                                            <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Editar">
-                                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                </svg>
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="8" class="px-6 py-12 text-center">
-                                            <div class="text-gray-400">
-                                                <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                                                </svg>
-                                                <p class="text-lg font-medium">No hay laptops en el inventario</p>
-                                                <p class="mt-1 text-sm">Agrega la primera laptop para comenzar</p>
+                                            <div class="flex-1 min-w-0 pr-8 relative">
+                                                <div class="flex items-center justify-between">
+                                                    <h3
+                                                        class="text-sm sm:text-base font-black text-gray-900 dark:text-white truncate mb-0.5">
+                                                        {{ laptop.brand.name }} {{ laptop.model.name }}
+                                                    </h3>
+                                                    <!-- Mobile Checkbox (Floating & High UX) -->
+                                                    <div class="sm:hidden absolute -top-4 -right-6 z-10">
+                                                        <label
+                                                            class="p-4 block cursor-pointer active:scale-95 transition-transform">
+                                                            <input type="checkbox" name="selected_laptop"
+                                                                value="{{ laptop.id }}" data-laptop-id="{{ laptop.id }}"
+                                                                data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                                                data-laptop-price="{{ laptop.sale_price }}"
+                                                                data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                                                class="laptop-checkbox h-6 w-6 rounded-full border-gray-300 text-indigo-600 shadow-md focus:ring-0 cursor-pointer ring-2 ring-white dark:ring-gray-800">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                    <span class="flex items-center gap-1"><span
+                                                            class="text-indigo-500">CPU:</span> {{
+                                                        laptop.processor.name[:20] if laptop.processor else 'N/A'
+                                                        }}</span>
+                                                    <span class="flex items-center gap-1"><span
+                                                            class="text-indigo-500">SSD:</span> {{
+                                                        laptop.storage.name[:10] if laptop.storage else 'N/A' }}</span>
+                                                </div>
                                             </div>
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </td>
+
+                                    <!-- Mobile Footer: Price, Stock & Actions in One Line -->
+                                    <td
+                                        class="px-6 py-3 sm:table-cell border-t border-gray-50 dark:border-gray-700/50 sm:border-none bg-gray-50/20 dark:bg-gray-800/20">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <!-- Price & Stock -->
+                                            <div class="flex items-baseline gap-3">
+                                                <span
+                                                    class="text-base sm:text-sm font-black text-indigo-600 dark:text-indigo-400">
+                                                    ${{ "{:,.0f}".format(laptop.sale_price) }}
+                                                </span>
+                                                <span
+                                                    class="px-2 py-0.5 text-[10px] font-black rounded-lg {{ 'bg-red-100 text-red-700' if laptop.quantity <= 0 else 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.quantity > laptop.min_alert else 'bg-amber-100 text-amber-700' }}">
+                                                    {{ laptop.quantity }} uds
+                                                </span>
+                                            </div>
+
+                                            <!-- Actions (Mobile & Desktop) -->
+                                            <div class="flex items-center gap-1">
+                                                <a href="{{ url_for('inventory.laptop_detail', id=laptop.id) }}"
+                                                    class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+                                                        </path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                        </path>
+                                                    </svg>
+                                                </a>
+                                                {% if current_user.is_admin %}
+                                                <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                                                    class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                        </path>
+                                                    </svg>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                                <!-- Subtle separator for mobile -->
+                                <tr class="sm:hidden h-2 bg-gray-50/50 dark:bg-gray-900/50"></tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="px-6 py-12 text-center">
+                                        <div class="text-gray-400">
+                                            <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                                </path>
+                                            </svg>
+                                            <p class="text-lg font-medium">No hay laptops en el inventario</p>
+                                            <p class="mt-1 text-sm">Agrega la primera laptop para comenzar</p>
+                                        </div>
+                                    </td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
                     </div>
+                </div>
 
-                    <!-- Paginación -->
-                    {% if pagination.pages > 1 %}
-                    <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-gray-700 dark:text-gray-300">
-                                Mostrando <span class="font-medium">{{ pagination.per_page * (pagination.page - 1) + 1 }}</span> a
-                                <span class="font-medium">{{ [pagination.per_page * pagination.page, pagination.total]|min }}</span> de
-                                <span class="font-medium">{{ pagination.total }}</span> resultados
+                <!-- Grid de Tarjetas (Card View Optimized for Mobile) -->
+                <div id="grid-view" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {% if laptops %}
+                    {% for laptop in laptops %}
+                    <!-- Perfect Mobile Card -->
+                    <div class="relative bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col active:scale-[0.98] cursor-pointer"
+                        onclick="if(!event.target.closest('.laptop-checkbox')) { location.href='{{ url_for('inventory.laptop_detail', id=laptop.id) }}'; }">
+
+                        <!-- Image Container with Aspect Ratio -->
+                        <div class="relative aspect-video w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+                            {% set cover_image = none %}
+                            {% for image in laptop.images if image.is_cover %}
+                            {% set cover_image = image %}
+                            {% endfor %}
+                            {% if not cover_image and laptop.images %}
+                            {% set cover_image = laptop.images[0] %}
+                            {% endif %}
+
+                            {% if cover_image %}
+                            <img src="{{ url_for('static', filename=cover_image.image_path) }}"
+                                alt="{{ laptop.brand.name }} {{ laptop.model.name }}"
+                                class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center\'><svg class=\'w-12 h-12 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z\'></path></svg></div>';">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900/50">
+                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
                             </div>
-                            <div class="flex space-x-2">
-                                {% if pagination.has_prev %}
-                                <a href="{{ url_for('inventory.laptops_list', page=pagination.prev_num) }}" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                                    Anterior
-                                </a>
+                            {% endif %}
+
+                            <!-- Status Badges (Mobile Style) -->
+                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                {% if laptop.category == 'gaming' %}
+                                <span
+                                    class="px-2 py-1 bg-purple-600 text-white text-[10px] font-black uppercase rounded-lg shadow-lg ring-2 ring-white dark:ring-gray-800">Gaming</span>
+                                {% elif laptop.category == 'workstation' %}
+                                <span
+                                    class="px-2 py-1 bg-blue-600 text-white text-[10px] font-black uppercase rounded-lg shadow-lg ring-2 ring-white dark:ring-gray-800">WORKSTATION</span>
                                 {% endif %}
-                                {% if pagination.has_next %}
-                                <a href="{{ url_for('inventory.laptops_list', page=pagination.next_num) }}" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                    Siguiente
-                                </a>
-                                {% endif %}
+
+                                {% if laptop.quantity <= 0 %} <span
+                                    class="px-2 py-1 bg-red-500 text-white text-[10px] font-black uppercase rounded-lg shadow-lg ring-2 ring-white dark:ring-gray-800">
+                                    SIN STOCK</span>
+                                    {% elif laptop.quantity <= laptop.min_alert %} <span
+                                        class="px-2 py-1 bg-amber-500 text-white text-[10px] font-black uppercase rounded-lg shadow-lg ring-2 ring-white dark:ring-gray-800">
+                                        STOCK BAJO</span>
+                                        {% endif %}
+                            </div>
+
+                            <!-- Checkbox position absolute with improved hit area -->
+                            <div class="absolute top-2 right-2 z-10">
+                                <label class="p-2 block cursor-pointer active:scale-95 transition-transform">
+                                    <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
+                                        data-laptop-id="{{ laptop.id }}"
+                                        data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
+                                        data-laptop-price="{{ laptop.sale_price }}"
+                                        data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                        class="laptop-checkbox h-7 w-7 rounded-full border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-0 focus:ring-offset-0 shadow-lg cursor-pointer transition-transform ring-2 ring-white dark:ring-gray-800 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Content Section -->
+                        <div class="p-5 flex-1 flex flex-col">
+                            <h3
+                                class="font-black text-gray-900 dark:text-white text-lg leading-tight mb-4 group-hover:text-indigo-600 transition-colors">
+                                {{ laptop.brand.name }} {{ laptop.model.name }}
+                            </h3>
+
+                            <!-- Specs Grid (Mobile Optimized) -->
+                            <div class="grid grid-cols-2 gap-2 mb-6">
+                                <div
+                                    class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                                        </path>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
+                                        laptop.processor.name if laptop.processor else 'N/A' }}</span>
+                                </div>
+                                <div
+                                    class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
+                                        laptop.screen.name if laptop.screen else 'N/A' }}</span>
+                                </div>
+                                <div
+                                    class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 7v10c0 1.1.9 2 2 2h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2zm4 4h8m-8 4h5">
+                                        </path>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
+                                        laptop.graphics_card.name if laptop.graphics_card else 'N/A' }}</span>
+                                </div>
+                                <div
+                                    class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                        </path>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
+                                        laptop.ram.name if laptop.ram else 'N/A' }}</span>
+                                </div>
+                                <div
+                                    class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2 col-span-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                        </path>
+                                    </svg>
+                                    <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
+                                        laptop.storage.name if laptop.storage else 'N/A' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Footer (Price & Qty) -->
+                            <div class="mt-auto flex items-end justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-black text-gray-400 uppercase tracking-tighter">Precio de
+                                        venta</span>
+                                    <span
+                                        class="text-3xl font-black text-indigo-600 dark:text-indigo-400 leading-tight">${{
+                                        "{:,.0f}".format(laptop.sale_price) }}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span
+                                        class="text-xs font-black text-gray-400 uppercase tracking-tighter">Disponibles</span>
+                                    <div class="bg-gray-900 dark:bg-white px-3 py-1 rounded-full">
+                                        <span class="text-sm font-black text-white dark:text-gray-900">{{
+                                            laptop.quantity }} uds</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="col-span-full py-20 text-center">
+                        <p class="text-gray-400">No se encontraron productos con estos filtros.</p>
+                    </div>
                     {% endif %}
                 </div>
+                <!-- Paginación Moderna -->
+                {% if pagination.pages > 1 %}
+                <div
+                    class="mt-12 bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <!-- Mobile view (Numeric & Centered) -->
+                    <div class="flex flex-col items-center justify-center gap-4 sm:hidden w-full">
+                        <div
+                            class="flex items-center justify-center gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
+                            {% if pagination.has_prev %}
+                            <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=pagination.prev_num)) }}"
+                                class="flex-shrink-0 w-11 h-11 flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 active:scale-90 transition-transform shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+
+                            {% for p in pagination.iter_pages(left_edge=1, left_current=1, right_current=2,
+                            right_edge=1) %}
+                            {% if p %}
+                            <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=p)) }}"
+                                class="flex-shrink-0 w-11 h-11 flex items-center justify-center text-sm font-black rounded-2xl transition-all {{ 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 scale-110 z-10' if p == pagination.page else 'border border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800' }}">
+                                {{ p }}
+                            </a>
+                            {% else %}
+                            <span class="flex-shrink-0 w-4 flex items-center justify-center text-gray-300">...</span>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if pagination.has_next %}
+                            <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=pagination.next_num)) }}"
+                                class="flex-shrink-0 w-11 h-11 flex items-center justify-center border-2 border-indigo-600 dark:border-indigo-500 rounded-2xl text-indigo-600 dark:text-indigo-400 bg-white dark:bg-gray-800 active:scale-90 transition-transform shadow-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                        <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            Página {{ pagination.page }} de {{ pagination.pages }}</p>
+                    </div>
+
+                    <!-- Desktop view -->
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Página <span class="font-bold text-gray-900 dark:text-white">{{ pagination.page
+                                    }}</span> de <span class="font-bold text-gray-900 dark:text-white">{{
+                                    pagination.pages }}</span>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px bg-gray-100 dark:bg-gray-700 p-1"
+                                aria-label="Pagination">
+                                <!-- Botón Anterior -->
+                                <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=pagination.prev_num if pagination.has_prev else 1)) }}"
+                                    class="relative inline-flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors {{ 'opacity-30 cursor-not-allowed' if not pagination.has_prev }}">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </a>
+
+                                <!-- Números de página -->
+                                {% for p in pagination.iter_pages(left_edge=2, left_current=2, right_current=3,
+                                right_edge=2) %}
+                                {% if p %}
+                                <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=p)) }}"
+                                    class="relative inline-flex items-center px-4 py-2 text-sm font-bold rounded-lg transition-all {{ 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm' if p == pagination.page else 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' }}">
+                                    {{ p }}
+                                </a>
+                                {% else %}
+                                <span
+                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400">...</span>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Botón Siguiente -->
+                                <a href="{{ url_for('inventory.laptops_list', **dict(request.args, page=pagination.next_num if pagination.has_next else pagination.pages)) }}"
+                                    class="relative inline-flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors {{ 'opacity-30 cursor-not-allowed' if not pagination.has_next }}">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
+
+        <!-- Floating Filter Button for Mobile -->
+        <button onclick="toggleFilters()"
+            class="fixed bottom-6 right-6 z-40 lg:hidden flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl hover:bg-indigo-700 active:scale-95 transition-all outline-none border-4 border-white dark:border-gray-900 group">
+            <svg class="w-8 h-8 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                </path>
+            </svg>
+            <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+            </span>
+        </button>
     </div>
+</div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Función para exportar a CSV
-function exportToCSV() {
-    const headers = ['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Precio', 'Stock', 'Estado'];
-    const rows = [];
+    // Función para exportar a CSV
+    function exportToCSV() {
+        const headers = ['ID', 'Nombre', 'Marca', 'Modelo', 'Categoría', 'Precio', 'Stock', 'Estado'];
+        const rows = [];
 
-    // Obtener datos de las laptops visibles
-    document.querySelectorAll('.laptop-checkbox').forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        if (row) {
-            const name = row.querySelector('h3')?.textContent || '';
-            const brand = row.querySelector('.text-xs div:nth-child(1)')?.textContent?.replace('CPU: ', '') || '';
-            const model = row.querySelector('.text-xs div:nth-child(2)')?.textContent?.replace('GPU: ', '') || '';
-            const category = row.querySelector('td:nth-child(4) span')?.textContent || '';
-            const price = row.querySelector('td:nth-child(5) div:first-child')?.textContent?.replace('$', '') || '';
-            const stock = row.querySelector('td:nth-child(6) span')?.textContent || '';
-            const status = row.querySelector('td:nth-child(7) span:first-child')?.textContent || '';
+        // Obtener datos de las laptops visibles
+        document.querySelectorAll('.laptop-checkbox').forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            if (row) {
+                const name = row.querySelector('h3')?.textContent || '';
+                const brand = row.querySelector('.text-xs div:nth-child(1)')?.textContent?.replace('CPU: ', '') || '';
+                const model = row.querySelector('.text-xs div:nth-child(2)')?.textContent?.replace('GPU: ', '') || '';
+                const category = row.querySelector('td:nth-child(4) span')?.textContent || '';
+                const price = row.querySelector('td:nth-child(5) div:first-child')?.textContent?.replace('$', '') || '';
+                const stock = row.querySelector('td:nth-child(6) span')?.textContent || '';
+                const status = row.querySelector('td:nth-child(7) span:first-child')?.textContent || '';
 
-            rows.push([
-                checkbox.value,
-                name,
-                brand,
-                model,
-                category,
-                price,
-                stock,
-                status
-            ]);
-        }
-    });
-
-    if (rows.length === 0) {
-        alert('No hay datos para exportar');
-        return;
-    }
-
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'inventario_laptops.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-}
-
-// Inicializar selección de checkboxes
-document.addEventListener('DOMContentLoaded', function() {
-    const selectAllCheckbox = document.getElementById('select-all');
-    const laptopCheckboxes = document.querySelectorAll('.laptop-checkbox');
-    const createInvoiceBtn = document.getElementById('create-invoice-btn');
-    const selectedCountSpan = document.getElementById('selected-count');
-
-    // Función para actualizar el contador y estado del botón
-    function updateSelection() {
-        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
-        const count = selectedCheckboxes.length;
-
-        // Actualizar contador
-        selectedCountSpan.textContent = count;
-
-        // Habilitar/deshabilitar botón
-        createInvoiceBtn.disabled = count === 0;
-
-        // Actualizar el checkbox "Seleccionar todos"
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = count > 0 && count === laptopCheckboxes.length;
-            selectAllCheckbox.indeterminate = count > 0 && count < laptopCheckboxes.length;
-        }
-
-        return selectedCheckboxes;
-    }
-
-    // Función para obtener los datos de las laptops seleccionadas
-    function getSelectedLaptops() {
-        const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
-        const selectedLaptops = [];
-
-        selectedCheckboxes.forEach(checkbox => {
-            selectedLaptops.push({
-                id: checkbox.dataset.laptopId,
-                name: checkbox.dataset.laptopName,
-                price: parseFloat(checkbox.dataset.laptopPrice),
-                description: checkbox.dataset.laptopDescription
-            });
+                rows.push([
+                    checkbox.value,
+                    name,
+                    brand,
+                    model,
+                    category,
+                    price,
+                    stock,
+                    status
+                ]);
+            }
         });
 
-        return selectedLaptops;
-    }
-
-    // Función para redirigir al formulario de factura
-    function goToInvoiceForm() {
-        const selectedLaptops = getSelectedLaptops();
-
-        if (selectedLaptops.length === 0) {
-            alert('Por favor, selecciona al menos una laptop');
+        if (rows.length === 0) {
+            alert('No hay datos para exportar');
             return;
         }
 
-        // Guardar en localStorage para usar en el formulario de factura
-        localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
 
-        // Redirigir al formulario de factura
-        window.location.href = "{{ url_for('invoices.invoice_new') }}";
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'inventario_laptops.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     }
 
-    // Event listeners
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            laptopCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
+    // Inicializar selección de checkboxes
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const laptopCheckboxes = document.querySelectorAll('.laptop-checkbox');
+        const createInvoiceBtn = document.getElementById('create-invoice-btn');
+        const selectedCountSpan = document.getElementById('selected-count');
+
+        // Función para actualizar el contador y estado del botón
+        function updateSelection() {
+            const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
+            const count = selectedCheckboxes.length;
+
+            // Actualizar contador
+            selectedCountSpan.textContent = count;
+
+            // Habilitar/deshabilitar botón
+            createInvoiceBtn.disabled = count === 0;
+
+            // Actualizar el checkbox "Seleccionar todos"
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = count > 0 && count === laptopCheckboxes.length;
+                selectAllCheckbox.indeterminate = count > 0 && count < laptopCheckboxes.length;
+            }
+
+            return selectedCheckboxes;
+        }
+
+        // Función para obtener los datos de las laptops seleccionadas
+        function getSelectedLaptops() {
+            const selectedCheckboxes = document.querySelectorAll('.laptop-checkbox:checked');
+            const selectedLaptops = [];
+
+            selectedCheckboxes.forEach(checkbox => {
+                selectedLaptops.push({
+                    id: checkbox.dataset.laptopId,
+                    name: checkbox.dataset.laptopName,
+                    price: parseFloat(checkbox.dataset.laptopPrice),
+                    description: checkbox.dataset.laptopDescription
+                });
             });
-            updateSelection();
-        });
-    }
 
-    laptopCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateSelection);
+            return selectedLaptops;
+        }
+
+        // Función para redirigir al formulario de factura
+        function goToInvoiceForm() {
+            const selectedLaptops = getSelectedLaptops();
+
+            if (selectedLaptops.length === 0) {
+                alert('Por favor, selecciona al menos una laptop');
+                return;
+            }
+
+            // Guardar en localStorage para usar en el formulario de factura
+            localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+
+            // Redirigir al formulario de factura
+            window.location.href = "{{ url_for('invoices.invoice_new') }}";
+        }
+
+        // Event listeners
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                document.querySelectorAll('.laptop-checkbox').forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelection();
+            });
+        }
+
+        // Usar delegación de eventos para manejar checkboxes en ambas vistas
+        document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('laptop-checkbox')) {
+                // Sincronizar checkboxes con el mismo ID en diferentes vistas
+                const laptopId = e.target.value;
+                const isChecked = e.target.checked;
+                document.querySelectorAll(`.laptop-checkbox[value="${laptopId}"]`).forEach(cb => {
+                    cb.checked = isChecked;
+                });
+                updateSelection();
+            }
+        });
+
+        if (createInvoiceBtn) {
+            createInvoiceBtn.addEventListener('click', goToInvoiceForm);
+        }
+
+        // Inicializar el estado de selección
+        updateSelection();
+
+        // Inicializar vista guardada
+        const savedView = localStorage.getItem('inventoryViewMode') || 'list';
+        setViewMode(savedView);
     });
 
-    if (createInvoiceBtn) {
-        createInvoiceBtn.addEventListener('click', goToInvoiceForm);
+    // Función para cambiar el modo de vista
+    function setViewMode(mode) {
+        const listView = document.getElementById('list-view');
+        const gridView = document.getElementById('grid-view');
+        const listBtn = document.getElementById('view-list-btn');
+        const gridBtn = document.getElementById('view-grid-btn');
+
+        if (mode === 'grid') {
+            listView.classList.add('hidden');
+            gridView.classList.remove('hidden');
+
+            // Estilos botones
+            gridBtn.classList.add('text-indigo-600', 'bg-white', 'dark:bg-gray-600', 'shadow-sm');
+            gridBtn.classList.remove('text-gray-400', 'hover:text-gray-600');
+
+            listBtn.classList.remove('text-indigo-600', 'bg-white', 'dark:bg-gray-600', 'shadow-sm');
+            listBtn.classList.add('text-gray-400', 'hover:text-gray-600');
+        } else {
+            gridView.classList.add('hidden');
+            listView.classList.remove('hidden');
+
+            // Estilos botones
+            listBtn.classList.add('text-indigo-600', 'bg-white', 'dark:bg-gray-600', 'shadow-sm');
+            listBtn.classList.remove('text-gray-400', 'hover:text-gray-600');
+
+            gridBtn.classList.remove('text-indigo-600', 'bg-white', 'dark:bg-gray-600', 'shadow-sm');
+            gridBtn.classList.add('text-gray-400', 'hover:text-gray-600');
+        }
+
+        localStorage.setItem('inventoryViewMode', mode);
     }
 
-    // Inicializar el estado de selección
-    updateSelection();
-});
+    // Función para mostrar/ocultar filtros en móvil
+    function toggleFilters() {
+        const sidebar = document.getElementById('filters-sidebar');
+        const overlay = document.getElementById('filters-overlay');
+
+        if (!sidebar || !overlay) return;
+
+        const isHidden = sidebar.classList.contains('-translate-x-full');
+
+        if (isHidden) {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+            document.body.style.overflow = '';
+        }
+    }
 </script>
 {% endblock %}
