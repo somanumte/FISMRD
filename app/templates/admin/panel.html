@@ -257,28 +257,6 @@
                         </svg>
                     </a>
                     {% endif %}
-
-                    {% if current_user.is_admin %}
-                    <!-- Integración Icecat - NUEVO -->
-                    <a href="{{ url_for('admin.icecat_config') }}"
-                        class="flex items-center justify-between p-4 bg-cyan-50 dark:bg-cyan-900/30 border-2 border-cyan-200 dark:border-cyan-800 rounded-xl hover:bg-cyan-100 dark:hover:bg-cyan-900/50 transition-all duration-300 group">
-                        <div class="flex items-center space-x-4">
-                            <div
-                                class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-cloud text-xl text-cyan-600 dark:text-cyan-400"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">Integración Icecat</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Catálogo de productos global</p>
-                            </div>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </a>
-                    {% endif %}
                 </div>
             </div>
 
@@ -341,4 +319,4 @@
 
 
     </div>
-{% endblock %}
+    {% endblock %}

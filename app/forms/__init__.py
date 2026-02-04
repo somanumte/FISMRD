@@ -7,6 +7,5 @@ __all__ = [
     'RegisterForm',
     'LaptopForm',
     'QuickSearchForm',
-    'FilterForm',
-    'BulkImportForm'
+    'FilterForm'
 ]
