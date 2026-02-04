@@ -1,1085 +1,1458 @@
 {% extends 'base.html' %}
-{% set hide_search = True %}
 
-{% block title %}{{ 'Editar' if mode == 'edit' else 'Agregar' }} Laptop{% endblock %}
+{% block title %}{% if laptop %}Editar Laptop - {{ laptop.sku }}{% else %}Nuevo Laptop{% endif %}{% endblock %}
 
 {% block extra_css %}
-<!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="{{ url_for('static', filename='css/laptop_form.css') }}" rel="stylesheet">
+<style>
+    /* Estilos para el escaneo */
+    .scan-section {
+        border: 2px dashed #cbd5e0;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .scan-input-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .scan-input-group input {
+        flex: 1;
+        font-size: 1.25rem;
+        letter-spacing: 0.1em;
+    }
+    
+    .scan-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .scan-badge.icecat {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .scan-badge.manual {
+        background-color: #f0fdf4;
+        color: #166534;
+    }
+    
+    .scan-badge.duplicate {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .data-source-indicator {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .data-source-icecat {
+        background-color: #3b82f6;
+        color: white;
+    }
+    
+    .data-source-manual {
+        background-color: #10b981;
+        color: white;
+    }
+    
+    .field-with-source {
+        position: relative;
+    }
+    
+    /* Animaciones */
+    @keyframes pulse-highlight {
+        0%, 100% { background-color: transparent; }
+        50% { background-color: rgba(59, 130, 246, 0.1); }
+    }
+    
+    .highlight-field {
+        animation: pulse-highlight 1.5s ease-in-out 2;
+    }
+    
+    .filled-from-icecat {
+        border-left: 4px solid #3b82f6 !important;
+        background-color: #f0f9ff !important;
+    }
+
+    .filled-from-icecat:focus {
+        background-color: #ffffff !important;
+    }
+
+    /* Asegurar que los campos de solo lectura no se resalten */
+    .filled-from-icecat[readonly] {
+        background-color: #f9fafb !important;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .price-warning {
+        animation: pulse-highlight 2s ease-in-out infinite;
+    }
+
+    /* Estilo para imágenes de Icecat */
+    .icecat-image-badge {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        background-color: #3b82f6;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Header -->
+        <!-- Encabezado con acciones -->
         <div class="mb-8">
-            <div class="flex items-center space-x-3 mb-4">
-                <a href="{{ url_for('inventory.laptops_list') }}"
-                    class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                </a>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    {% if mode == 'edit' %}
-                    Editar Laptop
-                    {% else %}
-                    Agregar Nueva Laptop
-                    {% endif %}
-                </h1>
-            </div>
-            {% if mode == 'edit' and laptop %}
-            <p class="text-gray-600 dark:text-gray-400">
-                SKU: <span class="font-mono font-semibold">{{ laptop.sku }}</span>
-            </p>
-            {% endif %}
-        </div>
-
-        <!-- Formulario -->
-        <form method="POST" id="laptop-form" class="space-y-6" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-
-            <!-- Card: Informacion del Producto -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hidden">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                        </path>
-                    </svg>
-                    Informacion del Producto
-                </h2>
-
-                <div class="grid grid-cols-1 gap-6">
-                    <!-- Nombre Comercial (display_name) - AUTO-GENERADO -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.display_name.label.text }} <span class="text-red-500">*</span>
-                            <span class="text-xs font-normal text-indigo-600 dark:text-indigo-400 ml-2">(Generado
-                                automáticamente)</span>
-                        </label>
-                        {{ form.display_name(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="display_name") }}
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Se genera automáticamente: Marca + Modelo + Procesador + RAM + Almacenamiento + Pantalla +
-                            Categoria
-                            <span class="text-indigo-600 dark:text-indigo-400">(Puedes editarlo manualmente)</span>
-                        </p>
-                        {% if form.display_name.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.display_name.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Descripcion Corta (opcional) -->
-                    <div class="hidden">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.short_description.label.text }}
-                        </label>
-                        {{ form.short_description(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                        {% if form.short_description.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.short_description.errors[0] }}
-                        </p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Especificaciones Tecnicas -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                    Especificaciones Tecnicas
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Marca -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.brand_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.brand_id(class="select2-ajax w-full", id="brand_id") }}
-                        {% if form.brand_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.brand_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Modelo -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.model_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.model_id(class="select2-ajax w-full", id="model_id") }}
-                        {% if form.model_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.model_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Procesador -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.processor_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.processor_id(class="select2-ajax w-full", id="processor_id") }}
-                        {% if form.processor_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.processor_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Sistema Operativo -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.os_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.os_id(class="select2-ajax w-full", id="os_id") }}
-                        {% if form.os_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.os_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Pantalla -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.screen_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.screen_id(class="select2-ajax w-full", id="screen_id") }}
-                        {% if form.screen_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.screen_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Tarjeta Grafica -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.graphics_card_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.graphics_card_id(class="select2-ajax w-full", id="graphics_card_id") }}
-                        {% if form.graphics_card_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.graphics_card_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Almacenamiento -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.storage_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.storage_id(class="select2-ajax w-full", id="storage_id") }}
-                        <div class="mt-2">
-                            <label class="inline-flex items-center">
-                                {{ form.storage_upgradeable }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ampliable</span>
-                            </label>
-                        </div>
-                        {% if form.storage_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.storage_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- RAM -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.ram_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.ram_id(class="select2-ajax w-full", id="ram_id") }}
-                        <div class="mt-2">
-                            <label class="inline-flex items-center">
-                                {{ form.ram_upgradeable }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ampliable</span>
-                            </label>
-                        </div>
-                        {% if form.ram_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.ram_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- NPU (opcional) -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            NPU (Inteligencia Artificial)
-                        </label>
-                        <div class="flex items-center mt-2">
-                            <label class="inline-flex items-center">
-                                {{ form.npu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300
-                                rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene NPU</span>
-                            </label>
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Intel AI Boost, AMD Ryzen AI, etc.</p>
-                    </div>
-
-                    <!-- Teclado -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.keyboard_layout.label.text }}
-                        </label>
-                        {{ form.keyboard_layout(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card: Galería de Imágenes HÍBRIDA -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                            Galería de Imágenes
-                        </h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {% if mode == 'edit' %}
-                            Gestiona las imágenes existentes o agrega nuevas. Máximo 8 imágenes.
-                            {% else %}
-                            Sube hasta 8 imágenes. La primera será la portada. Formatos: JPG, PNG, WebP, GIF, AVIF.
-                            {% endif %}
-                        </p>
-                    </div>
-
-                    <div class="info-icon-container-premium">
-                        <button type="button" class="info-icon-premium" id="info-icon-premium">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-
-                        <div class="tips-tooltip-premium" id="tips-tooltip-premium">
-                            <div class="tips-title-premium">
-                                <i class="fas fa-lightbulb"></i> Consejos para tu galería
-                            </div>
-                            <ul class="tips-list-premium">
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-star"></i>
-                                    <span>La primera imagen será la portada principal.</span>
-                                </li>
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-expand-alt"></i>
-                                    <span>Usa imágenes de alta calidad (mínimo 800×600px).</span>
-                                </li>
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-search"></i>
-                                    <span>El texto alternativo mejora el SEO y accesibilidad.</span>
-                                </li>
-                                {% if mode == 'edit' %}
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-cloud"></i>
-                                    <span>Badge verde = Ya guardada | Badge azul = Nueva</span>
-                                </li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Área de Drag & Drop -->
-                <div class="upload-area-premium" id="upload-area-premium">
-                    <div class="upload-icon-premium">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <h3 class="upload-title">Arrastra y suelta tus imágenes aquí</h3>
-                    <p class="upload-subtitle">o haz clic en el botón para buscar archivos</p>
-                    <button type="button" class="browse-btn-premium" id="browse-btn-premium">
-                        <i class="fas fa-folder-open"></i> Buscar imágenes
-                    </button>
-
-                    <!-- Contenedor del grid (se llena dinámicamente) -->
-                    <div class="images-grid-premium" id="images-container-premium">
-                        <!-- El JavaScript renderizará aquí las tarjetas -->
-                    </div>
-
-                    <!-- Input para carga múltiple (oculto) -->
-                    <input type="file" id="bulk-upload-premium"
-                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" multiple class="hidden">
-                </div>
-
-                <!-- ===== INPUTS ORIGINALES DEL FORMULARIO ===== -->
-                <!-- Estos inputs son manipulados por el componente JavaScript -->
-                <div class="hidden" id="original-form-fields">
-                    {% for i in range(1, 9) %}
-                    <div class="image-slot-original" data-slot="{{ i }}">
-                        {% if mode == 'edit' %}
-                        {% set img = images_by_position.get(i) %}
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {% if laptop %}
+                            <i class="fas fa-laptop text-indigo-600 mr-2"></i>
+                            Editar Laptop: {{ laptop.sku }}
                         {% else %}
-                        {% set img = None %}
+                            <i class="fas fa-plus-circle text-green-600 mr-2"></i>
+                            Agregar Nuevo Laptop
                         {% endif %}
-
-                        <!-- Input file -->
-                        <input type="file" id="image_{{ i }}" name="image_{{ i }}" class="hidden original-image-input"
-                            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" {% if img %}
-                            data-image-id="{{ img.id }}"
-                            data-image-url="{{ url_for('static', filename=img.image_path) }}"
-                            data-is-cover="{{ 'true' if img.is_cover else 'false' }}" value="{{ img.image_path }}" {%
-                            endif %}>
-
-                        <!-- Input alt text -->
-                        <input type="text" id="image_{{ i }}_alt" name="image_{{ i }}_alt"
-                            class="hidden original-alt-input" {% if img %} value="{{ img.alt_text or '' }}" {% endif %}>
-
-                        <!-- Input path para imágenes existentes -->
-                        <input type="hidden" id="image_{{ i }}_path" name="image_{{ i }}_path" {% if img %}
-                            value="{{ img.image_path }}" {% endif %}>
-
-                        <!-- Input ID para imágenes existentes -->
-                        <input type="hidden" id="image_{{ i }}_id" name="image_{{ i }}_id" {% if img %}
-                            value="{{ img.id }}" {% endif %}>
-
-                    </div>
-                    {% endfor %}
-
-                    <!-- Input oculto para IDs de imágenes a eliminar -->
-                    <input type="hidden" id="images_to_delete" name="images_to_delete" value="[]">
-
-                    <!-- Input oculto para ID de imagen de portada -->
-                    <input type="hidden" id="cover_image_id" name="cover_image_id" {% if laptop and
-                        laptop.cover_image_id %} value="{{ laptop.cover_image_id }}" {% endif %}>
-                </div>
-                <!-- Overlay de arrastre -->
-                <div id="drag-overlay-premium" class="drag-overlay-premium">
-                    <div class="drag-message-premium">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-pink-500 mb-4"></i>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Suelta las imágenes aquí
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400">Seleccionaremos hasta 8 automáticamente</p>
-                    </div>
-                </div>
-
-                <!-- Card: Precios y Costos -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                            </path>
-                        </svg>
-                        Precios y Costos
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <!-- Costo de Compra -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.purchase_cost.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.purchase_cost(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            {% if form.purchase_cost.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.purchase_cost.errors[0] }}
-                            </p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Precio de Venta -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.sale_price.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.sale_price(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            {% if form.sale_price.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.sale_price.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Precio de Descuento -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.discount_price.label.text }}
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.discount_price(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Opcional - precio promocional</p>
-                        </div>
-
-                        <!-- Impuesto -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.tax_percent.label.text }}
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">%</span>
-                                {{ form.tax_percent(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Porcentaje de impuesto</p>
-                        </div>
-                    </div>
-
-                    <!-- Rentabilidades -->
-                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Rentabilidad Precio Normal -->
-                        <div
-                            class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Rentabilidad - Precio Normal
-                            </h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
-                                    <span id="normal-margin-display" class="text-2xl font-bold margin-good">0%</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
-                                    <span id="normal-profit-display"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
-                                    <span id="normal-final-price"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rentabilidad Precio Promocional -->
-                        <div
-                            class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800">
-                            <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                    </path>
-                                </svg>
-                                Rentabilidad - Precio Promocional
-                            </h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
-                                    <span id="promo-margin-display" class="text-2xl font-bold margin-warning">0%</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
-                                    <span id="promo-profit-display"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
-                                    <span id="promo-final-price"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                                <div id="promo-section" class="hidden">
-                                    <div class="mt-2 pt-2 border-t border-yellow-200 dark:border-yellow-800">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">Descuento:</span>
-                                            <span id="discount-percentage"
-                                                class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">0%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="no-promo-message" class="text-sm text-gray-500 dark:text-gray-400 italic">
-                                    No hay precio promocional establecido
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Inventario y Categoria -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                        Inventario y Categoria
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Cantidad -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.quantity.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.quantity(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.quantity.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.quantity.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Alerta Minima -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.min_alert.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.min_alert(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.min_alert.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.min_alert.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Categoria -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.category.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.category(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20", id="category") }}
-                            {% if form.category.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.category.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Opciones de Publicacion -->
-                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Opciones de Publicacion
-                        </h3>
-                        <div class="flex flex-wrap gap-6">
-                            <label class="inline-flex items-center">
-                                {{ form.is_published(class="h-5 w-5 text-indigo-600 focus:ring-indigo-500
-                                border-gray-300 rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Publicado (visible al
-                                    publico)</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                {{ form.is_featured(class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 border-gray-300
-                                rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Destacado</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Números de Serie -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700"
-                    id="serials-card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                                </path>
-                            </svg>
-                            Números de Serie
-                            <span class="ml-2 text-sm font-normal text-gray-500">(opcional)</span>
-                        </h2>
-                        <span id="serial-count"
-                            class="px-3 py-1 text-sm bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full">
-                            0 seriales
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Registra los números de serie de fabricante para cada unidad. Esto permite rastrear cada laptop
-                        individualmente.
+                    </h1>
+                    <p class="text-gray-600 mt-2">
+                        {% if laptop %}
+                            Modifica la información del producto en inventario
+                        {% else %}
+                            Escanea un código de barras o completa el formulario manualmente
+                        {% endif %}
                     </p>
-
-                    <!-- Input para agregar seriales -->
-                    <div class="flex gap-2 mb-4">
-                        <div class="flex-1 relative">
-                            <input type="text" id="serial-input" placeholder="Escanea o escribe el número de serie..."
-                                class="w-full px-4 py-3 pl-10 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 font-mono uppercase"
-                                autocomplete="off">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                                </path>
-                            </svg>
-                        </div>
-                        <button type="button" onclick="addSerialFromInput()"
-                            class="px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Lista de seriales agregados -->
-                    <div id="serials-list" class="space-y-2 max-h-60 overflow-y-auto">
-                        <!-- Los seriales se agregan aquí dinámicamente -->
-                    </div>
-
-                    <!-- Input oculto para enviar los seriales -->
-                    <input type="hidden" name="serials_json" id="serials-json" value="[]">
-
-                    <!-- Mensaje cuando no hay seriales -->
-                    <div id="no-serials-message" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                            </path>
-                        </svg>
-                        <p class="text-sm">No hay seriales registrados</p>
-                        <p class="text-xs mt-1">Escanea o escribe los números de serie</p>
-                    </div>
-
-                    <!-- Información de cantidad -->
-                    <div id="serial-quantity-info" class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hidden">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Cantidad en inventario:</span>
-                            <span id="inventory-qty" class="font-semibold text-gray-900 dark:text-white">0</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm mt-1">
-                            <span class="text-gray-600 dark:text-gray-400">Seriales registrados:</span>
-                            <span id="serials-qty" class="font-semibold text-purple-600 dark:text-purple-400">0</span>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Card: Ubicacion y Estado -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                            </path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        Ubicacion y Estado
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Tienda -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.store_id.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.store_id(class="select2-ajax w-full", id="store_id") }}
-                            {% if form.store_id.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.store_id.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Ubicacion -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.location_id.label.text }}
-                            </label>
-                            {{ form.location_id(class="select2-ajax w-full", id="location_id") }}
-                        </div>
-
-                        <!-- Proveedor -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.supplier_id.label.text }}
-                            </label>
-                            {{ form.supplier_id(class="select2-ajax w-full", id="supplier_id") }}
-                        </div>
-
-                        <!-- Condicion -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.condition.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.condition(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.condition.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.condition.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Notas -->
-                <div class="hidden">
-                    <div
-                        class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-yellow-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z">
-                                </path>
-                            </svg>
-                            Notas Internas
-                        </h2>
-
-                        {{ form.internal_notes(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Estas notas son internas y no se
-                            muestran al publico</p>
-                    </div>
-                </div>
-
-                <!-- Botones -->
-                <div class="flex items-center justify-between">
+                <div class="flex space-x-3">
                     <a href="{{ url_for('inventory.laptops_list') }}"
-                        class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
-                        Cancelar
+                       class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-arrow-left mr-2"></i> Volver
                     </a>
 
-                    <button type="submit" id="submit-btn"
-                        class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                        {{ form.submit.label.text or 'Guardar Laptop' }}
+                    {% if not laptop %}
+                    <button type="button" id="btn-quick-scan"
+                           class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg">
+                        <i class="fas fa-barcode mr-2"></i> Escanear Rápido
                     </button>
+                    {% endif %}
                 </div>
+            </div>
+        </div>
+
+        <!-- Sección de Escaneo (solo para nuevo producto) -->
+        {% if not laptop %}
+        <div class="scan-section mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Escaneo Rápido
+                    </h2>
+                    <p class="text-blue-100">Escanea el código de barras para buscar automáticamente</p>
+                </div>
+                <div class="text-white">
+                    <span class="scan-badge icecat">
+                        <i class="fas fa-cloud mr-1"></i> Icecat
+                    </span>
+                    <span class="scan-badge manual">
+                        <i class="fas fa-keyboard mr-1"></i> Manual
+                    </span>
+                </div>
+            </div>
+
+            <div class="scan-input-group">
+                <input type="text"
+                       id="quick-scan-input"
+                       placeholder="Escanea el código EAN/UPC o ingrésalo manualmente..."
+                       class="w-full px-4 py-3 rounded-lg border-0 bg-white bg-opacity-20 text-white placeholder-blue-200 focus:bg-opacity-30 focus:ring-2 focus:ring-white"
+                       autocomplete="off">
+                <button type="button" id="btn-start-scan"
+                       class="px-4 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:bg-blue-50">
+                    <i class="fas fa-camera mr-2"></i> Escanear
+                </button>
+                <button type="button" id="btn-search-icecat"
+                       class="px-4 py-3 bg-blue-800 text-white rounded-lg font-semibold hover:bg-blue-900">
+                    <i class="fas fa-search mr-2"></i> Buscar en Icecat
+                </button>
+            </div>
+
+            <div class="mt-3 text-sm text-blue-200">
+                <i class="fas fa-info-circle mr-1"></i>
+                Sistema compatible con: EAN-13, UPC-A, GTIN-14.
+                También puedes buscar por Part Number.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulario Principal -->
+        <form method="POST"
+              enctype="multipart/form-data"
+              id="laptop-form"
+              class="bg-white rounded-xl shadow-lg overflow-hidden">
+
+            {{ form.hidden_tag() }}
+            {{ form.icecat_data_id }}
+            {{ form.data_source }}
+            {{ form.modified_fields }}
+
+            <!-- Indicador de Origen de Datos -->
+            <div id="data-source-display" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 border-b">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-database text-blue-600 mr-2"></i>
+                        <span class="font-medium text-blue-900">Origen de datos:</span>
+                        <span id="current-data-source" class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"></span>
+                    </div>
+                    <div id="modified-fields-count" class="text-sm text-gray-600">
+                        <span id="modified-count">0</span> campos modificados
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <!-- Sección en pestañas para mejor organización -->
+                <div class="mb-6 border-b border-gray-200">
+                    <nav class="flex space-x-8">
+                        <button type="button" data-tab="basic" class="tab-button active py-3 px-1 border-b-2 border-blue-600 font-medium text-sm text-blue-600">
+                            <i class="fas fa-info-circle mr-2"></i> Básico
+                        </button>
+                        <button type="button" data-tab="specs" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-microchip mr-2"></i> Especificaciones
+                        </button>
+                        <button type="button" data-tab="pricing" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-tag mr-2"></i> Precios
+                        </button>
+                        <button type="button" data-tab="inventory" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-warehouse mr-2"></i> Inventario
+                        </button>
+                        <button type="button" data-tab="media" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-images mr-2"></i> Multimedia
+                        </button>
+                        <button type="button" data-tab="seo" class="tab-button py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-search mr-2"></i> SEO
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Contenido de pestañas -->
+                <div class="tab-content active" id="tab-basic">
+                    <!-- 1. IDENTIFICADORES -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-fingerprint text-blue-600 mr-2"></i>
+                            Identificadores
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- SKU -->
+                            <div class="field-with-source">
+                                {{ form.sku.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                <div class="flex items-center space-x-2">
+                                    {{ form.sku(class="form-input flex-1") }}
+                                    <button type="button" id="btn-generate-sku"
+                                           class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- GTIN con escáner -->
+                            <div class="field-with-source">
+                                {{ form.gtin.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                <div class="flex items-center space-x-2">
+                                    {{ form.gtin(class="form-input font-mono flex-1",
+                                               placeholder="Escanea o ingresa el código de barras") }}
+                                    <button type="button" id="btn-scan-gtin"
+                                           class="px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                    <button type="button" id="btn-search-by-gtin"
+                                           class="px-3 py-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- MPN -->
+                            <div class="field-with-source">
+                                {{ form.mpn.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.mpn(class="form-input", placeholder="Part Number del fabricante") }}
+                            </div>
+
+                            <!-- Slug -->
+                            <div>
+                                {{ form.slug.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.slug(class="form-input", placeholder="URL amigable") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. INFORMACIÓN BÁSICA -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-info-circle text-green-600 mr-2"></i>
+                            Información del Producto
+                        </h3>
+
+                        <!-- Display Name -->
+                        <div class="field-with-source mb-4">
+                            {{ form.display_name.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.display_name(class="form-input w-full", placeholder="Nombre comercial del producto") }}
+                        </div>
+
+                        <!-- Descripciones -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="field-with-source">
+                                {{ form.short_description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.short_description(class="form-input w-full", rows="4",
+                                                       placeholder="Descripción breve (máx. 500 caracteres)") }}
+                                <div class="text-xs text-gray-500 mt-1" id="short-desc-counter">0/500</div>
+                            </div>
+
+                            <div class="field-with-source">
+                                {{ form.long_description_html.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.long_description_html(class="form-input w-full", rows="4",
+                                                            placeholder="Descripción completa con HTML") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. CATEGORÍA Y ESTADO -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.category.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.category(class="form-input w-full") }}
+                        </div>
+
+                        <div>
+                            {{ form.condition.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.condition(class="form-input w-full") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de ESPECIFICACIONES -->
+                <div class="tab-content" id="tab-specs">
+                    <div class="space-y-8">
+                        <!-- 1. ESPECIFICACIONES PRINCIPALES -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-microchip text-purple-600 mr-2"></i>
+                                Especificaciones Técnicas
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Marca -->
+                                <div class="field-with-source">
+                                    {{ form.brand_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.brand_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Modelo -->
+                                <div class="field-with-source">
+                                    {{ form.model_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.model_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Procesador -->
+                                <div class="field-with-source">
+                                    {{ form.processor_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.processor_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- RAM -->
+                                <div class="field-with-source">
+                                    {{ form.ram_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.ram_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Almacenamiento -->
+                                <div class="field-with-source">
+                                    {{ form.storage_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.storage_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Pantalla -->
+                                <div class="field-with-source">
+                                    {{ form.screen_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.screen_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Tarjeta Gráfica -->
+                                <div class="field-with-source">
+                                    {{ form.graphics_card_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.graphics_card_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Sistema Operativo -->
+                                <div class="field-with-source">
+                                    {{ form.os_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.os_id(class="form-input select2-catalog w-full") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. CARACTERÍSTICAS ADICIONALES -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-sliders-h text-orange-600 mr-2"></i>
+                                Características Adicionales
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- NPU -->
+                                <div class="flex items-center">
+                                    {{ form.npu(class="form-checkbox mr-3") }}
+                                    {{ form.npu.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+
+                                <!-- Almacenamiento Ampliable -->
+                                <div class="flex items-center">
+                                    {{ form.storage_upgradeable(class="form-checkbox mr-3") }}
+                                    {{ form.storage_upgradeable.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+
+                                <!-- RAM Ampliable -->
+                                <div class="flex items-center">
+                                    {{ form.ram_upgradeable(class="form-checkbox mr-3") }}
+                                    {{ form.ram_upgradeable.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+
+                                <!-- Teclado Retroiluminado -->
+                                <div class="flex items-center">
+                                    {{ form.keyboard_backlit(class="form-checkbox mr-3") }}
+                                    {{ form.keyboard_backlit.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+
+                                <!-- Lector de Huellas -->
+                                <div class="flex items-center">
+                                    {{ form.fingerprint_reader(class="form-checkbox mr-3") }}
+                                    {{ form.fingerprint_reader.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+
+                                <!-- Cámara IR -->
+                                <div class="flex items-center">
+                                    {{ form.ir_camera(class="form-checkbox mr-3") }}
+                                    {{ form.ir_camera.label(class="text-sm font-medium text-gray-700") }}
+                                </div>
+                            </div>
+
+                            <!-- Layout de Teclado -->
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    {{ form.keyboard_layout.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.keyboard_layout(class="form-input w-full") }}
+                                </div>
+                            </div>
+
+                            <!-- Conectividad -->
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    {{ form.connectivity_ports.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.connectivity_ports(class="form-input select2-multiple w-full") }}
+                                </div>
+
+                                <div>
+                                    {{ form.wireless_connectivity.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.wireless_connectivity(class="form-input select2-multiple w-full") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. DIMENSIONES Y BATERÍA -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-ruler-combined text-teal-600 mr-2"></i>
+                                Dimensiones y Batería
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <!-- Peso -->
+                                <div class="field-with-source">
+                                    {{ form.weight_kg.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        {{ form.weight_kg(class="form-input w-full pr-10") }}
+                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">kg</span>
+                                    </div>
+                                </div>
+
+                                <!-- Dimensiones -->
+                                <div class="field-with-source">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Dimensiones (mm)</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        {{ form.width_mm(class="form-input", placeholder="Ancho") }}
+                                        {{ form.depth_mm(class="form-input", placeholder="Profundo") }}
+                                        {{ form.height_mm(class="form-input", placeholder="Alto") }}
+                                    </div>
+                                </div>
+
+                                <!-- Batería -->
+                                <div class="field-with-source">
+                                    {{ form.battery_wh.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        {{ form.battery_wh(class="form-input w-full pr-10") }}
+                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">Wh</span>
+                                    </div>
+                                </div>
+
+                                <!-- Celdas de Batería -->
+                                <div class="field-with-source">
+                                    {{ form.battery_cells.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.battery_cells(class="form-input w-full", placeholder="6") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. ESTÉTICA -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-palette text-pink-600 mr-2"></i>
+                                Estética y Materiales
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Color -->
+                                <div class="field-with-source">
+                                    {{ form.color.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.color(class="form-input w-full", placeholder="Platinum Silver, Carbon Black") }}
+                                </div>
+
+                                <!-- Material del Chasis -->
+                                <div class="field-with-source">
+                                    {{ form.chassis_material.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.chassis_material(class="form-input w-full") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de PRECIOS -->
+                <div class="tab-content" id="tab-pricing">
+                    <div class="space-y-8">
+                        <!-- 1. PRECIOS -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                                Información Financiera
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Costo de Compra -->
+                                <div class="field-with-source">
+                                    {{ form.purchase_cost.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ form.currency.data if form.currency.data else 'USD' }}</span>
+                                        {{ form.purchase_cost(class="form-input w-full pl-10") }}
+                                    </div>
+                                </div>
+
+                                <!-- Precio de Venta -->
+                                <div class="field-with-source">
+                                    {{ form.sale_price.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ form.currency.data if form.currency.data else 'USD' }}</span>
+                                        {{ form.sale_price(class="form-input w-full pl-10") }}
+                                    </div>
+                                </div>
+
+                                <!-- Precio con Descuento -->
+                                <div class="field-with-source">
+                                    {{ form.discount_price.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ form.currency.data if form.currency.data else 'USD' }}</span>
+                                        {{ form.discount_price(class="form-input w-full pl-10") }}
+                                    </div>
+                                </div>
+
+                                <!-- Impuesto -->
+                                <div class="field-with-source">
+                                    {{ form.tax_percent.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        {{ form.tax_percent(class="form-input w-full pr-10") }}
+                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                                    </div>
+                                </div>
+
+                                <!-- MSRP -->
+                                <div class="field-with-source">
+                                    {{ form.msrp.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">{{ form.currency.data if form.currency.data else 'USD' }}</span>
+                                        {{ form.msrp(class="form-input w-full pl-10") }}
+                                    </div>
+                                </div>
+
+                                <!-- Moneda -->
+                                <div>
+                                    {{ form.currency.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.currency(class="form-input w-full") }}
+                                </div>
+                            </div>
+
+                            <!-- Cálculos automáticos -->
+                            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-medium text-blue-900 mb-3">Cálculos Automáticos</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="text-center p-3 bg-white rounded">
+                                        <div class="text-sm text-gray-600">Ganancia Bruta</div>
+                                        <div id="gross-profit-display" class="text-xl font-bold text-green-600">$0.00</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-white rounded">
+                                        <div class="text-sm text-gray-600">Margen %</div>
+                                        <div id="margin-display" class="text-xl font-bold text-blue-600">0%</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-white rounded">
+                                        <div class="text-sm text-gray-600">Precio con Impuesto</div>
+                                        <div id="price-with-tax-display" class="text-xl font-bold text-purple-600">$0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. GARANTÍA -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-shield-alt text-yellow-600 mr-2"></i>
+                                Garantía
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Meses de Garantía -->
+                                <div>
+                                    {{ form.warranty_months.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.warranty_months(class="form-input w-full", placeholder="12") }}
+                                </div>
+
+                                <!-- Tipo de Garantía -->
+                                <div>
+                                    {{ form.warranty_type.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.warranty_type(class="form-input w-full") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de INVENTARIO -->
+                <div class="tab-content" id="tab-inventory">
+                    <div class="space-y-8">
+                        <!-- 1. INVENTARIO -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-boxes text-red-600 mr-2"></i>
+                                Gestión de Inventario
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Cantidad Total -->
+                                <div>
+                                    {{ form.quantity.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.quantity(class="form-input w-full") }}
+                                </div>
+
+                                <!-- Cantidad Reservada -->
+                                <div>
+                                    {{ form.reserved_quantity.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.reserved_quantity(class="form-input w-full") }}
+                                </div>
+
+                                <!-- Alerta Mínima -->
+                                <div>
+                                    {{ form.min_alert.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.min_alert(class="form-input w-full") }}
+                                </div>
+                            </div>
+
+                            <!-- Estado de Stock -->
+                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-900 mb-3">Estado de Stock</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="text-center p-3 bg-white rounded border">
+                                        <div class="text-sm text-gray-600">Disponible</div>
+                                        <div id="available-quantity-display" class="text-xl font-bold text-green-600">0</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-white rounded border">
+                                        <div class="text-sm text-gray-600">Reservado</div>
+                                        <div id="reserved-display" class="text-xl font-bold text-yellow-600">0</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-white rounded border">
+                                        <div class="text-sm text-gray-600">Estado</div>
+                                        <div id="stock-status-display" class="text-xl font-bold text-blue-600">Normal</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. UBICACIÓN -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-map-marker-alt text-indigo-600 mr-2"></i>
+                                Ubicación
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Tienda -->
+                                <div>
+                                    {{ form.store_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.store_id(class="form-input select2-catalog w-full") }}
+                                </div>
+
+                                <!-- Ubicación Específica -->
+                                <div>
+                                    {{ form.location_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.location_id(class="form-input select2-catalog w-full") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. PROVEEDOR -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-truck text-orange-600 mr-2"></i>
+                                Proveedor
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Proveedor -->
+                                <div class="field-with-source">
+                                    {{ form.supplier_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                    {{ form.supplier_id(class="form-input select2-catalog w-full") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. NOTAS -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-sticky-note text-gray-600 mr-2"></i>
+                                Notas Internas
+                            </h3>
+
+                            <div>
+                                {{ form.internal_notes.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.internal_notes(class="form-input w-full", rows="6",
+                                    placeholder="Información privada sobre este producto (no visible al público)") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de MULTIMEDIA -->
+                <div class="tab-content" id="tab-media">
+                    <div class="space-y-8">
+                        <!-- Sección de imágenes -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-images text-purple-600 mr-2"></i>
+                                Galería de Imágenes
+                            </h3>
+
+                            <!-- Contenedor para imágenes de Icecat -->
+                            <div id="icecat-images-container" class="hidden mb-6 p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-medium text-blue-900 mb-3 flex items-center">
+                                    <i class="fas fa-cloud-download-alt mr-2"></i>
+                                    Imágenes Disponibles de Icecat
+                                </h4>
+                                <div id="icecat-images-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <!-- Las imágenes se cargarán aquí dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Subida de imágenes -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Subir Imágenes Propias
+                                </label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                    <div class="space-y-1 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <span>Subir archivos</span>
+                                                <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*">
+                                            </label>
+                                            <p class="pl-1">o arrastra y suelta</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vista previa de imágenes -->
+                            <div id="image-preview-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                <!-- Las imágenes subidas se mostrarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña de SEO -->
+                <div class="tab-content" id="tab-seo">
+                    <div class="space-y-8">
+                        <!-- SEO -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-search text-green-600 mr-2"></i>
+                                Optimización para Motores de Búsqueda (SEO)
+                            </h3>
+
+                            <!-- Título SEO -->
+                            <div class="mb-6">
+                                {{ form.seo_title.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                <div class="flex items-center">
+                                    {{ form.seo_title(class="form-input w-full") }}
+                                    <div class="ml-3 text-sm">
+                                        <span id="seo-title-length" class="font-mono">0</span>/70 caracteres
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">Aparece en los resultados de búsqueda. Ideal: 50-60 caracteres.</p>
+                            </div>
+
+                            <!-- Meta Descripción -->
+                            <div class="mb-6">
+                                {{ form.seo_description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                <div class="flex items-start">
+                                    {{ form.seo_description(class="form-input w-full", rows="3") }}
+                                    <div class="ml-3 text-sm">
+                                        <span id="seo-desc-length" class="font-mono">0</span>/160 caracteres
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">Aparece debajo del título en los resultados de búsqueda.</p>
+                            </div>
+
+                            <!-- Palabras Clave -->
+                            <div class="mb-6">
+                                {{ form.seo_keywords.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.seo_keywords(class="form-input w-full", placeholder="laptop, gaming, dell, alienware, portátil") }}
+                                <p class="mt-1 text-sm text-gray-500">Separadas por comas. Máximo 10-15 palabras clave.</p>
+                            </div>
+
+                            <!-- URL amigable -->
+                            <div class="mb-6">
+                                {{ form.slug.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.slug(class="form-input w-full", placeholder="dell-alienware-m15-r6-gaming") }}
+                                <p class="mt-1 text-sm text-gray-500">URL amigable para SEO. Se genera automáticamente desde el nombre.</p>
+                            </div>
+
+                            <!-- Vista previa de resultados de búsqueda -->
+                            <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-900 mb-3">Vista Previa de Resultados de Búsqueda</h4>
+                                <div class="max-w-2xl">
+                                    <div id="search-preview" class="p-4 bg-white rounded border">
+                                        <div id="preview-title" class="text-blue-700 text-xl font-medium truncate">Título aparecerá aquí</div>
+                                        <div id="preview-url" class="text-green-700 text-sm mt-1">https://tutienda.com/producto/<span id="preview-slug">url-del-producto</span></div>
+                                        <div id="preview-description" class="text-gray-600 text-sm mt-2">La descripción aparecerá aquí. Este es cómo se verá tu producto en los resultados de búsqueda de Google.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Publicación -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                                <i class="fas fa-globe text-blue-600 mr-2"></i>
+                                Configuración de Publicación
+                            </h3>
+
+                            <div class="space-y-4">
+                                <!-- Publicar en catálogo web -->
+                                <div class="flex items-center">
+                                    {{ form.is_published(class="form-checkbox mr-3") }}
+                                    <div>
+                                        {{ form.is_published.label(class="text-sm font-medium text-gray-700") }}
+                                        <p class="text-sm text-gray-500">Hace visible este producto en tu sitio web público.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Producto destacado -->
+                                <div class="flex items-center">
+                                    {{ form.is_featured(class="form-checkbox mr-3") }}
+                                    <div>
+                                        {{ form.is_featured.label(class="text-sm font-medium text-gray-700") }}
+                                        <p class="text-sm text-gray-500">Muestra este producto en secciones destacadas del sitio.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="bg-gray-50 px-6 py-4 border-t">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-600">
+                        {% if laptop %}
+                            Última modificación: {{ laptop.updated_at.strftime('%d/%m/%Y %H:%M') if laptop.updated_at else 'Nunca' }}
+                        {% endif %}
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button type="button" id="btn-cancel"
+                               class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" id="btn-submit"
+                               class="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow hover:shadow-lg transition-all">
+                            <i class="fas fa-save mr-2"></i>
+                            {% if laptop %}Actualizar Laptop{% else %}Guardar Laptop{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- jQuery (requerido para Select2) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/es.js"></script>
+<!-- Incluir el script de escaneo -->
+<script src="{{ url_for('static', filename='js/laptop_scan.js') }}"></script>
 
-<!-- Scripts separados para mejor organización -->
-<script src="{{ url_for('static', filename='js/laptop_form.js') }}"></script>
-<script src="{{ url_for('static', filename='js/laptop_form_submit.js') }}"></script>
-<script src="{{ url_for('static', filename='js/laptop_gallery.js') }}"></script>
-
-<!-- Script para calcular rentabilidades -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const purchaseCostInput = document.querySelector('#purchase_cost');
-        const salePriceInput = document.querySelector('#sale_price');
-        const discountPriceInput = document.querySelector('#discount_price');
-        const taxPercentInput = document.querySelector('#tax_percent');
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== INICIALIZACIÓN =====
+    initializeForm();
 
-        // Elementos para mostrar rentabilidades
-        const normalMarginDisplay = document.getElementById('normal-margin-display');
-        const normalProfitDisplay = document.getElementById('normal-profit-display');
-        const normalFinalPrice = document.getElementById('normal-final-price');
+    function initializeForm() {
+        setupTabs();
+        setupFormCalculators();
+        setupCharacterCounters();
+        setupSEOPreview();
+        setupImageUpload();
+        setupSelect2();
+        setupFieldTracking();
+    }
 
-        const promoMarginDisplay = document.getElementById('promo-margin-display');
-        const promoProfitDisplay = document.getElementById('promo-profit-display');
-        const promoFinalPrice = document.getElementById('promo-final-price');
-        const discountPercentage = document.getElementById('discount-percentage');
-        const promoSection = document.getElementById('promo-section');
-        const noPromoMessage = document.getElementById('no-promo-message');
+    // ===== SISTEMA DE PESTAÑAS =====
+    function setupTabs() {
+        const tabButtons = document.querySelectorAll('[data-tab]');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-        // Función para calcular rentabilidades
-        function calculateProfitabilities() {
-            const purchaseCost = parseFloat(purchaseCostInput.value) || 0;
-            const salePrice = parseFloat(salePriceInput.value) || 0;
-            const discountPrice = parseFloat(discountPriceInput.value) || 0;
-            const taxPercent = parseFloat(taxPercentInput.value) || 0;
-
-            // Calcular rentabilidad con precio normal
-            const normalProfit = salePrice - purchaseCost;
-            const normalMargin = purchaseCost > 0 ? (normalProfit / purchaseCost) * 100 : 0;
-            const normalPriceWithTax = salePrice * (1 + taxPercent / 100);
-
-            // Actualizar displays precio normal
-            normalProfitDisplay.textContent = `$${normalProfit.toFixed(2)}`;
-            normalFinalPrice.textContent = `$${normalPriceWithTax.toFixed(2)}`;
-
-            // Determinar color del margen normal
-            normalMarginDisplay.textContent = `${normalMargin.toFixed(1)}%`;
-            if (normalMargin >= 30) {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-good';
-            } else if (normalMargin >= 15) {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-warning';
-            } else {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-danger';
+        // Inicializar estado activo
+        tabContents.forEach(content => {
+            if (!content.classList.contains('active')) {
+                content.style.display = 'none';
             }
+        });
 
-            // Calcular rentabilidad con precio promocional
-            if (discountPrice > 0 && discountPrice < salePrice) {
-                const promoProfit = discountPrice - purchaseCost;
-                const promoMargin = purchaseCost > 0 ? (promoProfit / purchaseCost) * 100 : 0;
-                const promoPriceWithTax = discountPrice * (1 + taxPercent / 100);
-                const discountPercent = ((salePrice - discountPrice) / salePrice) * 100;
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
 
-                // Actualizar displays precio promocional
-                promoProfitDisplay.textContent = `$${promoProfit.toFixed(2)}`;
-                promoFinalPrice.textContent = `$${promoPriceWithTax.toFixed(2)}`;
-                discountPercentage.textContent = `${discountPercent.toFixed(1)}%`;
+                // Remover activo de todos
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active', 'border-blue-600', 'text-blue-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
 
-                // Determinar color del margen promocional
-                promoMarginDisplay.textContent = `${promoMargin.toFixed(1)}%`;
-                if (promoMargin >= 30) {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-good';
-                } else if (promoMargin >= 15) {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
-                } else {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-danger';
+                // Ocultar todos los contenidos
+                tabContents.forEach(content => {
+                    content.style.display = 'none';
+                    content.classList.remove('active');
+                });
+
+                // Mostrar contenido seleccionado
+                const targetTab = document.getElementById(`tab-${tabId}`);
+                if (targetTab) {
+                    targetTab.style.display = 'block';
+                    targetTab.classList.add('active');
+                    this.classList.add('active', 'border-blue-600', 'text-blue-600');
+                    this.classList.remove('border-transparent', 'text-gray-500');
                 }
+            });
+        });
+    }
 
-                // Mostrar sección promocional
-                promoSection.classList.remove('hidden');
-                noPromoMessage.classList.add('hidden');
+    // ===== CÁLCULOS DE PRECIOS =====
+    function setupFormCalculators() {
+        const purchaseCost = document.getElementById('purchase_cost');
+        const salePrice = document.getElementById('sale_price');
+        const discountPrice = document.getElementById('discount_price');
+        const taxPercent = document.getElementById('tax_percent');
+        const quantity = document.getElementById('quantity');
+        const reservedQuantity = document.getElementById('reserved_quantity');
+        const currency = document.getElementById('currency');
+
+        function calculateAll() {
+            calculateProfit();
+            calculateStock();
+        }
+
+        function calculateProfit() {
+            const cost = parseFloat(purchaseCost?.value) || 0;
+            const price = parseFloat(salePrice?.value) || 0;
+            const discount = parseFloat(discountPrice?.value) || price;
+            const tax = parseFloat(taxPercent?.value) || 0;
+            const curr = currency?.value || 'USD';
+
+            // Precio efectivo (con descuento si existe)
+            const effectivePrice = discount > 0 && discount < price ? discount : price;
+
+            // Ganancia bruta
+            const grossProfit = effectivePrice - cost;
+            document.getElementById('gross-profit-display').textContent =
+                `${curr} ${grossProfit.toFixed(2)}`;
+
+            // Margen porcentual
+            const margin = cost > 0 ? (grossProfit / cost) * 100 : 0;
+            document.getElementById('margin-display').textContent =
+                `${margin.toFixed(1)}%`;
+
+            // Precio con impuesto
+            const priceWithTax = effectivePrice * (1 + (tax / 100));
+            document.getElementById('price-with-tax-display').textContent =
+                `${curr} ${priceWithTax.toFixed(2)}`;
+
+            // Validación
+            if (effectivePrice < cost) {
+                showPriceWarning('El precio de venta es menor al costo');
             } else {
-                // No hay precio promocional
-                promoMarginDisplay.textContent = '0%';
-                promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
-                promoProfitDisplay.textContent = '$0.00';
-                promoFinalPrice.textContent = '$0.00';
-
-                // Ocultar sección promocional
-                promoSection.classList.add('hidden');
-                noPromoMessage.classList.remove('hidden');
+                hidePriceWarning();
             }
         }
 
-        // Escuchar cambios en los inputs de precio
-        purchaseCostInput.addEventListener('input', calculateProfitabilities);
-        salePriceInput.addEventListener('input', calculateProfitabilities);
-        discountPriceInput.addEventListener('input', calculateProfitabilities);
-        taxPercentInput.addEventListener('input', calculateProfitabilities);
+        function calculateStock() {
+            const total = parseInt(quantity?.value) || 0;
+            const reserved = parseInt(reservedQuantity?.value) || 0;
+            const minAlert = parseInt(document.getElementById('min_alert')?.value) || 1;
+
+            const available = total - reserved;
+            document.getElementById('available-quantity-display').textContent = available;
+            document.getElementById('reserved-display').textContent = reserved;
+
+            // Estado del stock
+            let status = 'Normal';
+            let statusClass = 'text-blue-600';
+
+            if (available <= 0) {
+                status = 'Agotado';
+                statusClass = 'text-red-600';
+            } else if (available <= minAlert) {
+                status = 'Bajo Stock';
+                statusClass = 'text-yellow-600';
+            } else if (available > total * 0.8) {
+                status = 'Exceso';
+                statusClass = 'text-green-600';
+            }
+
+            const statusElement = document.getElementById('stock-status-display');
+            statusElement.textContent = status;
+            statusElement.className = `text-xl font-bold ${statusClass}`;
+        }
+
+        function showPriceWarning(message) {
+            let warning = document.querySelector('.price-warning');
+            if (!warning) {
+                warning = document.createElement('div');
+                warning.className = 'price-warning mt-2 p-2 bg-red-50 text-red-700 rounded text-sm';
+                if (salePrice && salePrice.parentNode) {
+                    salePrice.parentNode.appendChild(warning);
+                }
+            }
+            warning.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i> ${message}`;
+            if (salePrice) salePrice.classList.add('border-red-500');
+        }
+
+        function hidePriceWarning() {
+            const warning = document.querySelector('.price-warning');
+            if (warning) warning.remove();
+            if (salePrice) salePrice.classList.remove('border-red-500');
+        }
+
+        // Event listeners
+        [purchaseCost, salePrice, discountPrice, taxPercent].forEach(input => {
+            if (input) input.addEventListener('input', calculateProfit);
+        });
+
+        [quantity, reservedQuantity].forEach(input => {
+            if (input) input.addEventListener('input', calculateStock);
+        });
+
+        if (currency) {
+            currency.addEventListener('change', calculateProfit);
+        }
 
         // Calcular inicialmente
-        calculateProfitabilities();
-    });
-</script>
+        calculateAll();
+    }
 
-<!-- Mensajes de error del formulario -->
-<script>
-    {% with messages = get_flashed_messages(with_categories = true) %}
-    {% if messages %}
-    $(document).ready(function () {
-        {% for category, message in messages %}
-        {% if category == 'error' %}
-        alert('Error: {{ message }}');
-        {% elif category == 'success' %}
-        console.log('Éxito: {{ message }}');
-        {% endif %}
-        {% endfor %}
-    });
-    {% endif %}
-    {% endwith %}
+    // ===== CONTADORES DE CARACTERES =====
+    function setupCharacterCounters() {
+        const shortDesc = document.getElementById('short_description');
+        const seoTitle = document.getElementById('seo_title');
+        const seoDesc = document.getElementById('seo_description');
 
-    // Manejar el caso cuando hay errores de validación en campos específicos
-    $(document).ready(function () {
-        // Si hay errores, mostrar el formulario con los errores
-        $('.is-invalid').each(function () {
-            $(this).addClass('border-red-500');
+        function updateCounter(element, counterId, max) {
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                counter.textContent = element.value.length;
+                if (element.value.length > max) {
+                    counter.classList.add('text-red-600');
+                } else {
+                    counter.classList.remove('text-red-600');
+                }
+            }
+        }
+
+        if (shortDesc) {
+            shortDesc.addEventListener('input', () =>
+                updateCounter(shortDesc, 'short-desc-counter', 500));
+            updateCounter(shortDesc, 'short-desc-counter', 500);
+        }
+
+        if (seoTitle) {
+            seoTitle.addEventListener('input', () =>
+                updateCounter(seoTitle, 'seo-title-length', 70));
+            updateCounter(seoTitle, 'seo-title-length', 70);
+        }
+
+        if (seoDesc) {
+            seoDesc.addEventListener('input', () =>
+                updateCounter(seoDesc, 'seo-desc-length', 160));
+            updateCounter(seoDesc, 'seo-desc-length', 160);
+        }
+    }
+
+    // ===== VISTA PREVIA SEO =====
+    function setupSEOPreview() {
+        const displayName = document.getElementById('display_name');
+        const seoTitle = document.getElementById('seo_title');
+        const seoDesc = document.getElementById('seo_description');
+        const slug = document.getElementById('slug');
+        const shortDesc = document.getElementById('short_description');
+
+        function updateSEOPreview() {
+            const title = seoTitle?.value || displayName?.value || 'Título del producto';
+            const description = seoDesc?.value || shortDesc?.value || 'Descripción del producto';
+            const productSlug = slug?.value || 'product-slug';
+
+            const previewTitle = document.getElementById('preview-title');
+            const previewDesc = document.getElementById('preview-description');
+            const previewSlug = document.getElementById('preview-slug');
+
+            if (previewTitle) previewTitle.textContent = title;
+            if (previewDesc) previewDesc.textContent = description;
+            if (previewSlug) previewSlug.textContent = productSlug;
+        }
+
+        [displayName, seoTitle, seoDesc, slug, shortDesc].forEach(input => {
+            if (input) input.addEventListener('input', updateSEOPreview);
         });
-    });
 
-    // Sincronización de portada - actualizar campo cover_image_id cuando se cambie la portada
-    document.addEventListener('DOMContentLoaded', function () {
-        // Función para actualizar el campo de portada
-        function updateCoverImageId(imageId) {
-            const coverInput = document.getElementById('cover_image_id');
-            if (coverInput) {
-                coverInput.value = imageId || '';
-            }
+        // Generar slug automáticamente desde el nombre
+        if (displayName && slug) {
+            displayName.addEventListener('blur', function() {
+                if (!slug.value) {
+                    const generatedSlug = this.value
+                        .toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    slug.value = generatedSlug;
+                    updateSEOPreview();
+                }
+            });
         }
 
-        // Inicializar con la primera imagen como portada (si existe)
-        const firstImageInput = document.getElementById('image_1');
-        if (firstImageInput && firstImageInput.dataset.imageId) {
-            updateCoverImageId(firstImageInput.dataset.imageId);
-        }
+        updateSEOPreview();
+    }
 
-        // Escuchar cambios en los inputs de imagen para actualizar la portada
-        for (let i = 1; i <= 8; i++) {
-            const imageInput = document.getElementById('image_' + i);
-            if (imageInput) {
-                imageInput.addEventListener('change', function () {
-                    // Si esta es la primera imagen (posición 1), se convierte en portada
-                    if (i === 1 && this.files && this.files[0]) {
-                        // Para nuevas imágenes, el backend asignará el ID después de guardar
-                        // Por ahora dejamos vacío, el backend deberá manejar esto
-                        updateCoverImageId('');
-                    }
+    // ===== SUBIDA DE IMÁGENES =====
+    function setupImageUpload() {
+        const fileInput = document.getElementById('file-upload');
+        const previewContainer = document.getElementById('image-preview-container');
+
+        if (fileInput && previewContainer) {
+            fileInput.addEventListener('change', function(e) {
+                previewContainer.innerHTML = '';
+
+                Array.from(e.target.files).forEach((file, index) => {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const imgContainer = document.createElement('div');
+                        imgContainer.className = 'relative group';
+                        imgContainer.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                <button type="button" class="delete-image bg-red-600 text-white p-2 rounded-full" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+
+                        previewContainer.appendChild(imgContainer);
+
+                        // Botón para eliminar imagen
+                        imgContainer.querySelector('.delete-image').addEventListener('click', function() {
+                            imgContainer.remove();
+                        });
+                    };
+
+                    reader.readAsDataURL(file);
                 });
-            }
+            });
         }
+    }
 
-        // Si el componente de galería JavaScript está presente, integrar con él
-        if (window.LaptopGallery) {
-            // Cuando la galería establezca una portada, actualizar el campo
-            window.LaptopGallery.onCoverChange = function (imageId) {
-                updateCoverImageId(imageId);
-            };
-        }
-    });
-</script>
+    // ===== SELECT2 PARA CATÁLOGOS =====
+    function setupSelect2() {
+        // Select2 simple
+        $('.select2-catalog').each(function() {
+            const endpoint = $(this).data('endpoint');
+            const allowCreate = $(this).data('allow-create') === 'true';
 
-<!-- Script para gestión de seriales -->
-<script>
-    // ==========================================
-    // GESTIÓN DE SERIALES EN FORMULARIO
-    // ==========================================
+            $(this).select2({
+                theme: 'bootstrap4',
+                language: 'es',
+                placeholder: $(this).data('placeholder') || 'Seleccionar...',
+                allowClear: true,
+                ajax: endpoint ? {
+                    url: endpoint,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results || data,
+                            pagination: data.pagination
+                        };
+                    }
+                } : null,
+                tags: allowCreate,
+                createTag: allowCreate ? function(params) {
+                    const term = params.term.trim();
+                    if (term === '') return null;
+                    return {
+                        id: 'NEW_' + term,
+                        text: term + ' (nuevo)',
+                        newTag: true
+                    };
+                } : null
+            }).on('select2:select', function(e) {
+                const data = e.params.data;
+                if (data.newTag) {
+                    const name = data.text.replace(' (nuevo)', '');
+                    const fieldId = $(this).attr('id');
+                    const type = fieldId ? fieldId.replace('_id', '') : '';
 
-    let serialsList = [];
-
-    // Inicializar con seriales existentes (modo edición)
-    {% if mode == 'edit' and laptop %}
-    document.addEventListener('DOMContentLoaded', function () {
-        // Cargar seriales existentes desde la API
-        fetch('/api/serials/laptop/{{ laptop.id }}')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.serials) {
-                    data.serials.forEach(serial => {
-                        if (serial.status === 'available') {
-                            addSerialToList(serial.serial_number, serial.id);
+                    // Crear nuevo elemento en catálogo
+                    fetch('/api/catalog/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: type, name: name })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            const newOption = new Option(name, result.data.id, true, true);
+                            $(this).append(newOption).trigger('change');
                         }
                     });
-                    updateSerialsUI();
                 }
-            })
-            .catch(error => console.error('Error cargando seriales:', error));
-    });
-    {% endif %}
+            });
+        });
 
-    // Escuchar Enter en el input
-    document.getElementById('serial-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addSerialFromInput();
-        }
-    });
-
-    // Escuchar cambios en cantidad
-    document.getElementById('quantity')?.addEventListener('change', updateQuantityInfo);
-
-    function addSerialFromInput() {
-        const input = document.getElementById('serial-input');
-        const serialNumber = input.value.trim().toUpperCase();
-
-        if (!serialNumber) {
-            showNotification('Ingresa un número de serie', 'warning');
-            return;
-        }
-
-        // Verificar duplicados
-        if (serialsList.some(s => s.serial_number === serialNumber)) {
-            showNotification('Este serial ya está en la lista', 'warning');
-            input.value = '';
-            input.focus();
-            return;
-        }
-
-        addSerialToList(serialNumber);
-        input.value = '';
-        input.focus();
-        updateSerialsUI();
-    }
-
-    function addSerialToList(serialNumber, existingId = null) {
-        serialsList.push({
-            serial_number: serialNumber,
-            id: existingId,
-            isNew: !existingId
+        // Select2 múltiple
+        $('.select2-multiple').select2({
+            theme: 'bootstrap4',
+            language: 'es',
+            placeholder: 'Seleccionar...',
+            allowClear: true
         });
     }
 
-    function removeSerial(index) {
-        serialsList.splice(index, 1);
-        updateSerialsUI();
-    }
+    // ===== TRACKING DE CAMPOS MODIFICADOS =====
+    function setupFieldTracking() {
+        const originalValues = {};
+        const modifiedFields = new Set();
 
-    function updateSerialsUI() {
-        const listContainer = document.getElementById('serials-list');
-        const noSerialsMsg = document.getElementById('no-serials-message');
-        const countBadge = document.getElementById('serial-count');
-        const jsonInput = document.getElementById('serials-json');
+        // Capturar valores iniciales
+        document.querySelectorAll('#laptop-form input, #laptop-form select, #laptop-form textarea').forEach(field => {
+            if (field.id && field.id !== 'csrf_token' && field.type !== 'hidden') {
+                originalValues[field.id] = field.value;
 
-        // Actualizar contador
-        countBadge.textContent = serialsList.length + ' serial' + (serialsList.length !== 1 ? 'es' : '');
+                field.addEventListener('change', function() {
+                    if (this.value !== originalValues[this.id]) {
+                        modifiedFields.add(this.id);
+                    } else {
+                        modifiedFields.delete(this.id);
+                    }
+                    updateModifiedCount();
+                });
+            }
+        });
 
-        // Actualizar JSON oculto
-        jsonInput.value = JSON.stringify(serialsList.map(s => ({
-            serial_number: s.serial_number,
-            id: s.id
-        })));
+        function updateModifiedCount() {
+            const countElement = document.getElementById('modified-count');
+            const sourceDisplay = document.getElementById('data-source-display');
+            const modifiedFieldsInput = document.getElementById('modified_fields');
 
-        // Mostrar/ocultar mensaje
-        if (serialsList.length === 0) {
-            noSerialsMsg.classList.remove('hidden');
-            listContainer.innerHTML = '';
-            return;
-        }
+            if (countElement) {
+                countElement.textContent = modifiedFields.size;
 
-        noSerialsMsg.classList.add('hidden');
+                if (modifiedFields.size > 0) {
+                    sourceDisplay.classList.remove('hidden');
 
-        // Renderizar lista
-        listContainer.innerHTML = serialsList.map((serial, index) => `
-        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 ${serial.isNew ? 'border-l-4 border-l-green-500' : ''}">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                </svg>
-                <span class="font-mono text-sm font-semibold text-gray-900 dark:text-white">${serial.serial_number}</span>
-                ${serial.isNew ? '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded">Nuevo</span>' : ''}
-            </div>
-            <button type="button" onclick="removeSerial(${index})" class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-            </button>
-        </div>
-    `).join('');
-
-        updateQuantityInfo();
-    }
-
-    function updateQuantityInfo() {
-        const qtyInput = document.getElementById('quantity');
-        const infoContainer = document.getElementById('serial-quantity-info');
-        const inventoryQty = document.getElementById('inventory-qty');
-        const serialsQty = document.getElementById('serials-qty');
-
-        if (qtyInput && infoContainer) {
-            const qty = parseInt(qtyInput.value) || 0;
-            inventoryQty.textContent = qty;
-            serialsQty.textContent = serialsList.length;
-
-            if (qty > 0 || serialsList.length > 0) {
-                infoContainer.classList.remove('hidden');
-
-                // Advertencia si no coinciden
-                if (serialsList.length > 0 && serialsList.length !== qty) {
-                    serialsQty.classList.add('text-yellow-600');
-                    serialsQty.classList.remove('text-purple-600');
+                    // Actualizar campo hidden de campos modificados
+                    if (modifiedFieldsInput) {
+                        modifiedFieldsInput.value = JSON.stringify(Array.from(modifiedFields));
+                    }
                 } else {
-                    serialsQty.classList.remove('text-yellow-600');
-                    serialsQty.classList.add('text-purple-600');
+                    sourceDisplay.classList.add('hidden');
                 }
-            } else {
-                infoContainer.classList.add('hidden');
             }
         }
     }
 
-    function showNotification(message, type = 'info') {
-        // Usar tu sistema de notificaciones existente o crear uno simple
-        alert(message);
+    // ===== ESCANEO RÁPIDO =====
+    const quickScanInput = document.getElementById('quick-scan-input');
+    if (quickScanInput) {
+        quickScanInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const gtin = this.value.trim();
+                if (gtin.length >= 8) {
+                    if (window.laptopScanner) {
+                        window.laptopScanner.searchInIcecat(gtin);
+                    }
+                }
+            }
+        });
     }
+
+    document.getElementById('btn-start-scan')?.addEventListener('click', function() {
+        if (window.laptopScanner) {
+            window.laptopScanner.openScanner();
+        } else {
+            const gtin = prompt('Ingresa el código de barras:');
+            if (gtin && gtin.length >= 8) {
+                document.getElementById('gtin').value = gtin;
+                if (window.laptopScanner) {
+                    window.laptopScanner.searchInIcecat(gtin);
+                }
+            }
+        }
+    });
+
+    // ===== BOTÓN GENERAR SKU =====
+    document.getElementById('btn-generate-sku')?.addEventListener('click', function() {
+        if (window.laptopScanner) {
+            window.laptopScanner.generateAutoSku();
+        }
+    });
+
+    // ===== BOTÓN CANCELAR =====
+    document.getElementById('btn-cancel')?.addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.')) {
+            window.location.href = "{{ url_for('inventory.laptops_list') }}";
+        }
+    });
+
+    // ===== BOTÓN ESCANEAR GTIN =====
+    document.getElementById('btn-scan-gtin')?.addEventListener('click', function() {
+        if (window.laptopScanner) {
+            window.laptopScanner.openScanner();
+        } else {
+            const gtin = prompt('Ingresa el código de barras:');
+            if (gtin) {
+                document.getElementById('gtin').value = gtin;
+                if (window.laptopScanner) {
+                    window.laptopScanner.searchInIcecat(gtin);
+                }
+            }
+        }
+    });
+
+    // ===== BOTÓN BUSCAR POR GTIN =====
+    document.getElementById('btn-search-by-gtin')?.addEventListener('click', function() {
+        const gtin = document.getElementById('gtin').value;
+        if (gtin && gtin.length >= 8) {
+            if (window.laptopScanner) {
+                window.laptopScanner.searchInIcecat(gtin);
+            }
+        }
+    });
+
+    // ===== BOTÓN BUSCAR EN ICECAT =====
+    document.getElementById('btn-search-icecat')?.addEventListener('click', function() {
+        const gtin = document.getElementById('quick-scan-input')?.value || document.getElementById('gtin')?.value;
+        if (gtin && gtin.length >= 8) {
+            if (window.laptopScanner) {
+                window.laptopScanner.searchInIcecat(gtin);
+            }
+        } else {
+            showNotification('Ingresa un código GTIN válido (mínimo 8 dígitos)', 'error');
+        }
+    });
+
+    // ===== NOTIFICACIÓN SIMPLE =====
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' :
+            type === 'error' ? 'bg-red-100 text-red-800 border border-red-300' :
+            'bg-blue-100 text-blue-800 border border-blue-300'
+        }`;
+
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+});
 </script>
 {% endblock %}
