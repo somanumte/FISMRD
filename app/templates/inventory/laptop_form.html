@@ -7,6 +7,28 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="{{ url_for('static', filename='css/laptop_form.css') }}" rel="stylesheet">
+<style>
+    .scanner-active {
+        border-color: #8b5cf6;
+        ring: 4px;
+        ring-color: rgba(139, 92, 246, 0.2);
+    }
+
+    #reader {
+        width: 100%;
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .fetching-overlay {
+        backdrop-filter: blur(4px);
+        background-color: rgba(255, 255, 255, 0.7);
+    }
+
+    .dark .fetching-overlay {
+        background-color: rgba(17, 24, 39, 0.7);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -42,21 +64,84 @@
         <form method="POST" id="laptop-form" class="space-y-6" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
+            <!-- Card: Scanner Icecat (NUEVO) -->
+            <div class="bg-indigo-600 rounded-xl shadow-lg p-6 text-white overflow-hidden relative">
+                <div class="relative z-10">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        Escanear Código de Barras (Icecat)
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="space-y-4">
+                            <p class="text-indigo-100 mb-4">Escanea el código UPC/EAN de la laptop para cargar
+                                automáticamente todas las especificaciones e imágenes.</p>
+
+                            <div class="flex space-x-2">
+                                <div class="relative flex-1">
+                                    {{ form.gtin(class="w-full px-4 py-3 bg-indigo-700 border-2 border-indigo-500
+                                    rounded-xl text-white placeholder-indigo-300 focus:outline-none focus:border-white
+                                    transition-all", placeholder="O ingresa el código manualmente") }}
+                                </div>
+                                <button type="button" id="btn-fetch-icecat"
+                                    class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors shadow-md flex items-center">
+                                    <span id="fetch-text">Buscar</span>
+                                    <svg id="fetch-spinner" class="animate-spin ml-2 h-5 w-5 text-indigo-600 hidden"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <button type="button" id="btn-toggle-scanner"
+                                class="w-full py-3 bg-indigo-500 hover:bg-indigo-400 rounded-xl font-semibold flex items-center justify-center transition-all border border-indigo-400">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Iniciar Cámara Scanner
+                            </button>
+                        </div>
+
+                        <div id="scanner-container" class="hidden">
+                            <div id="reader"></div>
+                        </div>
+
+                        <div id="scanner-placeholder"
+                            class="bg-indigo-700/50 rounded-xl h-48 flex items-center justify-center border-2 border-dashed border-indigo-400 text-indigo-200">
+                            Cámara inactiva
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decoration -->
+                <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl"></div>
+                <div class="absolute -left-20 -top-20 w-48 h-48 bg-indigo-400/20 rounded-full blur-3xl"></div>
+            </div>
+
             <!-- Card: Informacion del Producto -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
                     <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
                         </path>
                     </svg>
-                    Informacion del Producto
+                    Información del Producto
                 </h2>
 
-                <div class="grid grid-cols-1 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Nombre Comercial (display_name) - AUTO-GENERADO -->
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {{ form.display_name.label.text }} <span class="text-red-500">*</span>
                             <span class="text-xs font-normal text-indigo-600 dark:text-indigo-400 ml-2">(Generado
@@ -75,18 +160,37 @@
                         {% endif %}
                     </div>
 
-                    <!-- Descripcion Corta (opcional) -->
-                    <div class="hidden">
+
+                    <!-- URL amigable -->
+                    <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.short_description.label.text }}
+                            {{ form.slug.label.text }}
                         </label>
-                        {{ form.short_description(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        {{ form.slug(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
                         rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                        {% if form.short_description.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.short_description.errors[0] }}
-                        </p>
-                        {% endif %}
+                        focus:ring-4 focus:ring-indigo-500/20", id="slug") }}
+                    </div>
+
+                    <!-- Descripcion Corta (opcional) -->
+                    <!-- Palabras Clave (SEO) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            {{ form.keywords.label.text }}
+                        </label>
+                        {{ form.keywords(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="keywords", placeholder="Ej: gaming, ultrabook, intel
+                        core i7") }}
+                    </div>
+
+                    <!-- Notas Públicas (Descripción para el cliente) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            Notas Públicas (Descripción para el cliente)
+                        </label>
+                        {{ form.public_notes(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="public_notes", rows="3") }}
                     </div>
                 </div>
             </div>
@@ -99,7 +203,7 @@
                             d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
                         </path>
                     </svg>
-                    Especificaciones Tecnicas
+                    Especificaciones Técnicas
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -109,7 +213,9 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {{ form.brand_id.label.text }} <span class="text-red-500">*</span>
                         </label>
-                        {{ form.brand_id(class="select2-ajax w-full", id="brand_id") }}
+                        {{ form.brand_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="brand_id") }}
                         {% if form.brand_id.errors %}
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.brand_id.errors[0] }}</p>
                         {% endif %}
@@ -120,29 +226,90 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {{ form.model_id.label.text }} <span class="text-red-500">*</span>
                         </label>
-                        {{ form.model_id(class="select2-ajax w-full", id="model_id") }}
+                        {{ form.model_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="model_id") }}
                         {% if form.model_id.errors %}
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.model_id.errors[0] }}</p>
                         {% endif %}
                     </div>
 
-                    <!-- Procesador -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.processor_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.processor_id(class="select2-ajax w-full", id="processor_id") }}
-                        {% if form.processor_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.processor_id.errors[0] }}</p>
-                        {% endif %}
+                    <!-- Procesador (Nueva estructura de 3 campos) -->
+                    <div
+                        class="md:col-span-2 bg-gray-50/50 dark:bg-gray-900/30 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center mb-4">
+                            <div
+                                class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mr-3">
+                                <i class="fas fa-microchip text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                            </div>
+                            <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+                                Unidad de Procesamiento</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                            <!-- Familia -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
+                                    {{ form.processor_family.label.text }} <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.processor_family(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
+                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
+                                id="processor_family") }}
+                                {% if form.processor_family.errors %}
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{
+                                    form.processor_family.errors[0] }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Generación -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
+                                    {{ form.processor_generation.label.text }}
+                                </label>
+                                {{ form.processor_generation(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
+                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
+                                id="processor_generation") }}
+                            </div>
+
+                            <!-- Modelo -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
+                                    {{ form.processor_model.label.text }} <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.processor_model(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
+                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
+                                id="processor_model") }}
+                                {% if form.processor_model.errors %}
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.processor_model.errors[0]
+                                    }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Nombre Completo / Comercial -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
+                                {{ form.processor_full_name.label.text }}
+                            </label>
+                            {{ form.processor_full_name(class="w-full px-4 py-3 border-2 border-gray-200
+                            dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20", id="processor_full_name") }}
+                            <p class="mt-1 text-[10px] text-gray-400 italic">Ej: Intel Core i7-12700H (14-Core, up to
+                                4.7GHz)</p>
+                        </div>
                     </div>
 
                     <!-- Sistema Operativo -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.os_id.label.text }} <span class="text-red-500">*</span>
+                            Categoría <span class="text-red-500">*</span>
                         </label>
-                        {{ form.os_id(class="select2-ajax w-full", id="os_id") }}
+                        {{ form.os_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl
+                        bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-4
+                        focus:ring-indigo-500/20", id="os_id") }}
                         {% if form.os_id.errors %}
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.os_id.errors[0] }}</p>
                         {% endif %}
@@ -150,21 +317,47 @@
 
                     <!-- Pantalla -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.screen_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.screen_id(class="select2-ajax w-full", id="screen_id") }}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    {{ form.screen_id.label.text }} <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.screen_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                                focus:border-indigo-500
+                                focus:ring-4 focus:ring-indigo-500/20", id="screen_id") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    Tamaño (")
+                                </label>
+                                {{ form.screen_size(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700
+                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                                focus:border-indigo-500
+                                focus:ring-4 focus:ring-indigo-500/20", id="screen_size") }}
+                            </div>
+                        </div>
                         {% if form.screen_id.errors %}
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.screen_id.errors[0] }}</p>
                         {% endif %}
                     </div>
 
-                    <!-- Tarjeta Grafica -->
+                    <!-- Tarjeta Gráfica -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             {{ form.graphics_card_id.label.text }} <span class="text-red-500">*</span>
                         </label>
-                        {{ form.graphics_card_id(class="select2-ajax w-full", id="graphics_card_id") }}
+                        {{ form.graphics_card_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="graphics_card_id") }}
+                        <div class="mt-2 text-sm">
+                            <label class="inline-flex items-center">
+                                {{ form.has_discrete_gpu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500
+                                border-gray-300 rounded") }}
+                                <span class="ml-2 text-gray-700 dark:text-gray-300">GPU Dedicada</span>
+                            </label>
+                        </div>
                         {% if form.graphics_card_id.errors %}
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.graphics_card_id.errors[0] }}</p>
                         {% endif %}
@@ -172,10 +365,27 @@
 
                     <!-- Almacenamiento -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.storage_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.storage_id(class="select2-ajax w-full", id="storage_id") }}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    {{ form.storage_id.label.text }} <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.storage_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                                focus:border-indigo-500
+                                focus:ring-4 focus:ring-indigo-500/20", id="storage_id") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    Capacidad (GB)
+                                </label>
+                                {{ form.storage_capacity(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700
+                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                                focus:border-indigo-500
+                                focus:ring-4 focus:ring-indigo-500/20", id="storage_capacity") }}
+                            </div>
+                        </div>
                         <div class="mt-2">
                             <label class="inline-flex items-center">
                                 {{ form.storage_upgradeable }}
@@ -189,10 +399,28 @@
 
                     <!-- RAM -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.ram_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.ram_id(class="select2-ajax w-full", id="ram_id") }}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    {{ form.ram_id.label.text }} <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.ram_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                                rounded-xl
+                                bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                                focus:ring-4
+                                focus:ring-indigo-500/20", id="ram_id") }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                    Capacidad (GB)
+                                </label>
+                                {{ form.ram_capacity(class="w-full px-4 py-3 border-2 border-gray-200
+                                dark:border-gray-700 rounded-xl
+                                bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                                focus:ring-4
+                                focus:ring-indigo-500/20", id="ram_capacity") }}
+                            </div>
+                        </div>
                         <div class="mt-2">
                             <label class="inline-flex items-center">
                                 {{ form.ram_upgradeable }}
@@ -204,19 +432,30 @@
                         {% endif %}
                     </div>
 
-                    <!-- NPU (opcional) -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            NPU (Inteligencia Artificial)
-                        </label>
-                        <div class="flex items-center mt-2">
-                            <label class="inline-flex items-center">
+                    <!-- NPU y Retroiluminación -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                Inteligencia Artificial (NPU)
+                            </label>
+                            <label class="inline-flex items-center mt-2">
                                 {{ form.npu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300
                                 rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene NPU</span>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene NPU (AI Boost)</span>
                             </label>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Intel AI Boost, AMD Ryzen AI, etc.</p>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                Retroiluminación
+                            </label>
+                            <label class="inline-flex items-center mt-2">
+                                {{ form.keyboard_backlight(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500
+                                border-gray-300
+                                rounded") }}
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Teclado
+                                    retroiluminado</span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Teclado -->
@@ -227,6 +466,35 @@
                         {{ form.keyboard_layout(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
                         rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
                         focus:ring-4 focus:ring-indigo-500/20") }}
+                    </div>
+
+                    <!-- Puertos de Conectividad (NUEVO) -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            {{ form.connectivity_ports.label.text }}
+                        </label>
+                        {{ form.connectivity_ports(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20 shadow-sm", id="connectivity_ports", rows="2") }}
+                    </div>
+
+                    <!-- WiFi y Celular -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            {{ form.wifi_standard.label.text }}
+                        </label>
+                        {{ form.wifi_standard(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="wifi_standard") }}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            {{ form.cellular.label.text }}
+                        </label>
+                        {{ form.cellular(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
+                        focus:ring-4 focus:ring-indigo-500/20", id="cellular") }}
                     </div>
                 </div>
             </div>
@@ -246,9 +514,10 @@
                         </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             {% if mode == 'edit' %}
-                            Gestiona las imágenes existentes o agrega nuevas. Máximo 8 imágenes.
+                            Gestiona las imágenes de la laptop. Puedes agregar tantas como necesites.
                             {% else %}
-                            Sube hasta 8 imágenes. La primera será la portada. Formatos: JPG, PNG, WebP, GIF, AVIF.
+                            Sube las imágenes de la laptop. La primera será la portada. Formatos: JPG, PNG, WebP, GIF,
+                            AVIF.
                             {% endif %}
                         </p>
                     </div>
@@ -310,7 +579,15 @@
                 <!-- ===== INPUTS ORIGINALES DEL FORMULARIO ===== -->
                 <!-- Estos inputs son manipulados por el componente JavaScript -->
                 <div class="hidden" id="original-form-fields">
-                    {% for i in range(1, 9) %}
+                    {% set max_pos = 8 %}
+                    {% if images_by_position %}
+                    {% set positions = images_by_position.keys()|list %}
+                    {% if positions %}
+                    {% set max_pos = [positions|max, 8]|max %}
+                    {% endif %}
+                    {% endif %}
+
+                    {% for i in range(1, max_pos + 1) %}
                     <div class="image-slot-original" data-slot="{{ i }}">
                         {% if mode == 'edit' %}
                         {% set img = images_by_position.get(i) %}
@@ -338,6 +615,9 @@
                         <input type="hidden" id="image_{{ i }}_id" name="image_{{ i }}_id" {% if img %}
                             value="{{ img.id }}" {% endif %}>
 
+                        <!-- Input URL para imágenes de Icecat -->
+                        <input type="hidden" id="image_{{ i }}_url" name="image_{{ i }}_url" value="">
+
                     </div>
                     {% endfor %}
 
@@ -354,7 +634,7 @@
                         <i class="fas fa-cloud-upload-alt text-4xl text-pink-500 mb-4"></i>
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Suelta las imágenes aquí
                         </h3>
-                        <p class="text-gray-600 dark:text-gray-400">Seleccionaremos hasta 8 automáticamente</p>
+                        <p class="text-gray-600 dark:text-gray-400">Tus imágenes se organizarán automáticamente</p>
                     </div>
                 </div>
 
@@ -370,7 +650,18 @@
                         Precios y Costos
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                        <!-- Moneda -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                {{ form.currency.label.text }}
+                            </label>
+                            {{ form.currency(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
+                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                            focus:border-indigo-500
+                            focus:ring-4 focus:ring-indigo-500/20", id="currency") }}
+                        </div>
+
                         <!-- Costo de Compra -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
@@ -648,7 +939,7 @@
                     </div>
 
                     <!-- Información de cantidad -->
-                    <div id="serial-quantity-info" class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hidden">
+                    <div id="serial-quantity-info" class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400">Cantidad en inventario:</span>
                             <span id="inventory-qty" class="font-semibold text-gray-900 dark:text-white">0</span>
@@ -717,8 +1008,47 @@
                     </div>
                 </div>
 
+                <!-- Card: Comercial y Garantía (NUEVO V2.0) -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                            </path>
+                        </svg>
+                        Comercial y Garantía
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Meses de Garantía -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                {{ form.warranty_months.label.text }}
+                            </label>
+                            {{ form.warranty_months(class="w-full px-4 py-3 border-2 border-gray-200
+                            dark:border-gray-700
+                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                            focus:border-indigo-500
+                            focus:ring-4 focus:ring-indigo-500/20", id="warranty_months") }}
+                        </div>
+
+                        <!-- Vencimiento de Garantía -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                {{ form.warranty_expiry.label.text }}
+                            </label>
+                            {{ form.warranty_expiry(class="w-full px-4 py-3 border-2 border-gray-200
+                            dark:border-gray-700
+                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
+                            focus:border-indigo-500
+                            focus:ring-4 focus:ring-indigo-500/20", type="date", id="warranty_expiry") }}
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Card: Notas -->
-                <div class="hidden">
+                <div>
                     <div
                         class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -1078,8 +1408,16 @@
     }
 
     function showNotification(message, type = 'info') {
-        // Usar tu sistema de notificaciones existente o crear uno simple
-        alert(message);
+        if (window.LaptopGalleryHybrid && window.LaptopGalleryHybrid.showNotification) {
+            window.LaptopGalleryHybrid.showNotification(message, type);
+        } else {
+            alert(message);
+        }
     }
 </script>
+
+<!-- html5-qrcode Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<!-- Icecat Scanner Logic -->
+<script src="{{ url_for('static', filename='js/icecat_scanner.js') }}"></script>
 {% endblock %}

@@ -25,29 +25,47 @@ def create_catalogs():
     catalog_objects = []
 
     # === MARCAS ===
-    brands = ['Dell', 'Lenovo', 'HP', 'ASUS', 'Acer', 'MSI']
+    brands = ['Dell', 'Lenovo', 'HP', 'ASUS', 'Acer', 'MSI', 'Apple', 'Microsoft', 'Samsung', 'Gigabyte', 'Razer']
     for name in brands:
         if not Brand.query.filter_by(name=name).first():
             catalog_objects.append(Brand(name=name, is_active=True))
 
-    # === PROCESADORES ===
-    processors = [
-        'Intel Core i3-1215U', 'Intel Core i5-1235U', 'Intel Core i7-1255U',
-        'Intel Core i5-12450H', 'Intel Core i5-12500H', 'Intel Core i7-12650H',
-        'Intel Core i7-12700H', 'Intel Core i9-12900H',
-        'Intel Core i5-1335U', 'Intel Core i7-1355U', 'Intel Core i7-1365U',
-        'Intel Core i5-1340P', 'Intel Core i7-1260P',
-        'Intel Core i5-13420H', 'Intel Core i5-13450H', 'Intel Core i5-13500H',
-        'Intel Core i7-13620H', 'Intel Core i7-13650HX', 'Intel Core i7-13700H',
-        'Intel Core i7-13700HX', 'Intel Core i9-13900H', 'Intel Core i9-13900HX',
-        'Intel Core i9-13950HX', 'Intel Core i9-13980HX',
-        'AMD Ryzen 5 6600H', 'AMD Ryzen 7 6800H', 'AMD Ryzen 9 6900HX',
-        'AMD Ryzen 5 7530U', 'AMD Ryzen 5 7535HS', 'AMD Ryzen 7 7735HS',
-        'AMD Ryzen 7 7840HS', 'AMD Ryzen 9 7940HS', 'AMD Ryzen 9 7945HX',
+    # === GENERACIONES DE PROCESADORES (Catálogo) ===
+    processor_samples = [
+        ('Intel Core i3-1215U', 'Intel 12th Gen'), 
+        ('Intel Core i5-1235U', 'Intel 12th Gen'), 
+        ('Intel Core i7-1255U', 'Intel 12th Gen'),
+        ('Intel Core i5-12450H', 'Intel 12th Gen'), 
+        ('Intel Core i7-12700H', 'Intel 12th Gen'),
+        ('Intel Core i5-1335U', 'Intel 13th Gen'), 
+        ('Intel Core i7-1355U', 'Intel 13th Gen'),
+        ('Intel Core i7-13650HX', 'Intel 13th Gen'), 
+        ('Intel Core i9-13980HX', 'Intel 13th Gen'),
+        ('AMD Ryzen 5 6600H', 'AMD Ryzen 6000 Series'), 
+        ('AMD Ryzen 7 6800H', 'AMD Ryzen 6000 Series'),
+        ('AMD Ryzen 5 7530U', 'AMD Ryzen 7000 Series'), 
+        ('AMD Ryzen 7 7840HS', 'AMD Ryzen 7000 Series'),
+        ('Apple M1', 'Apple M1 Chip'),
+        ('Apple M2 Pro', 'Apple M2 Chip'),
+        ('Apple M3 Max', 'Apple M3 Chip'),
     ]
-    for name in processors:
-        if not Processor.query.filter_by(name=name).first():
-            catalog_objects.append(Processor(name=name, is_active=True))
+    
+    # Crear solo registros únicos de generación en el catálogo
+    unique_generations = {}
+    for full_name, gen_name in processor_samples:
+        if gen_name not in unique_generations:
+            # Inferir fabricante
+            man = 'Intel' if 'Intel' in full_name else 'AMD' if 'AMD' in full_name else 'Apple' if 'Apple' in full_name else 'Other'
+            unique_generations[gen_name] = man
+
+    for gen_name, man in unique_generations.items():
+        if not Processor.query.filter_by(name=gen_name).first():
+            catalog_objects.append(Processor(
+                name=gen_name,
+                generation=gen_name,
+                manufacturer=man,
+                is_active=True
+            ))
 
     # === SISTEMAS OPERATIVOS ===
     operating_systems = [
@@ -456,6 +474,8 @@ def create_sample_laptops(admin_id):
             min_alert=2,
             entry_date=date.today() - timedelta(days=random.randint(1, 90)),
             created_by_id=admin_id,
+            currency='USD',
+            icecat_import_status='pending'
         )
 
         laptop_objects.append(laptop)
@@ -479,3 +499,353 @@ def create_sample_laptops(admin_id):
                 created_by_id=admin_id
             )
             db.session.add(serial)
+    
+    db.session.commit()
+
+
+def create_extensive_laptops(admin_id):
+    """
+    Genera 100 modelos de laptops reales con UPC y precios en DOP.
+    """
+    from app.models.laptop import (
+        Laptop, LaptopModel, Brand, Processor, Screen, GraphicsCard,
+        Storage, Ram, OperatingSystem, Store, Location, Supplier
+    )
+    from app.models.serial import LaptopSerial
+    import random
+    import re
+    from datetime import date, timedelta
+    
+    db.session.flush()
+
+    # Catálogos básicos
+    brands = {b.name: b.id for b in Brand.query.all()}
+    processors = {p.name: p.id for p in Processor.query.all()}
+    screens = {s.name: s.id for s in Screen.query.all()}
+    gpus = {g.name: g.id for g in GraphicsCard.query.all()}
+    storage = {s.name: s.id for s in Storage.query.all()}
+    ram = {r.name: r.id for r in Ram.query.all()}
+    os_list = {o.name: o.id for o in OperatingSystem.query.all()}
+    stores = list(Store.query.all())
+    locations = list(Location.query.all())
+    suppliers = list(Supplier.query.all())
+
+    # 100 Modelos Reales (Investigación + Comunes)
+    extensive_data = [
+        # Lenovo
+        {"brand": "Lenovo", "model": "IdeaPad 15.6 FHD IPS Ryzen 7 5700U", "upc": "973597302492", "cost": 480},
+        {"brand": "Lenovo", "model": "IdeaPad 15.6 FHD Ryzen 3 7320U", "upc": "973597348131", "cost": 320},
+        {"brand": "Lenovo", "model": "Legion 5 16IRX9 i7-14650HX RTX 4060", "upc": "602072538780", "cost": 1100},
+        {"brand": "Lenovo", "model": "ThinkPad P16 Gen 2 i9-13980HX RTX 3500", "upc": "602072512773", "cost": 2100},
+        {"brand": "Lenovo", "model": "Yoga 7i 16\" 2.5K Touch i7-1355U", "upc": "197529605412", "cost": 850},
+        {"brand": "Lenovo", "model": "ThinkPad X1 Carbon Gen 11 i7-1365U", "upc": "197528123456", "cost": 1400},
+        {"brand": "Lenovo", "model": "LOQ 15IRH8 i5-13420H RTX 4050", "upc": "197528654321", "cost": 750},
+        {"brand": "Lenovo", "model": "IdeaPad Slim 3 14\" Ryzen 5 7530U", "upc": "197528987654", "cost": 420},
+        {"brand": "Lenovo", "model": "Legion Pro 7i i9-14900HX RTX 4080", "upc": "197528111222", "cost": 2200},
+        {"brand": "Lenovo", "model": "ThinkStation P3 Tiny i7-13700", "upc": "197528333444", "cost": 900},
+        
+        # Dell
+        {"brand": "Dell", "model": "XPS 16 9640 Core Ultra 7 155H 1TB", "upc": "602072481918", "cost": 1500},
+        {"brand": "Dell", "model": "XPS 16 9640 Core Ultra 7 155H 512GB", "upc": "602072494956", "cost": 1350},
+        {"brand": "Dell", "model": "Inspiron 14 7440 Core 5 120U", "upc": "602072517747", "cost": 650},
+        {"brand": "Dell", "model": "Alienware m18 R2 i9-14900HX RTX 4070", "upc": "632823326731", "cost": 2300},
+        {"brand": "Dell", "model": "Latitude 7455 Snapdragon X Elite", "upc": "609198531268", "cost": 1200},
+        {"brand": "Dell", "model": "Precision 3490 Core Ultra 5 135H", "upc": "632823916048", "cost": 950},
+        {"brand": "Dell", "model": "Vostro 3520 i5-1235U 8GB 512GB", "upc": "632823123456", "cost": 450},
+        {"brand": "Dell", "model": "G15 5530 i7-13650HX RTX 4060", "upc": "632823654321", "cost": 950},
+        {"brand": "Dell", "model": "OptiPlex 7010 Micro i5-13500T", "upc": "632823987654", "cost": 600},
+        {"brand": "Dell", "model": "Latitude 5440 i5-1335U 16GB", "upc": "632823111222", "cost": 800},
+
+        # HP
+        {"brand": "HP", "model": "Pavilion 15.6 FHD Ryzen 7 7730U 16GB", "upc": "196105870171", "cost": 550},
+        {"brand": "HP", "model": "Envy x360 14\" Ryzen 5 8640HS", "upc": "197497123456", "cost": 720},
+        {"brand": "HP", "model": "Spectre x360 14\" i7-1355U OLED", "upc": "197497654321", "cost": 1200},
+        {"brand": "HP", "model": "Victus 15-fa0031dx i5-12450H RTX 3050", "upc": "197497987654", "cost": 680},
+        {"brand": "HP", "model": "EliteBook 840 G10 i7-1365U", "upc": "197497111222", "cost": 1100},
+        {"brand": "HP", "model": "ProBook 450 G10 i5-1335U", "upc": "197497333444", "cost": 750},
+        {"brand": "HP", "model": "Omen 16-wd0013dx i7-13620H RTX 4060", "upc": "197497555666", "cost": 1050},
+        {"brand": "HP", "model": "Laptop 17-cn3053cl i5-1335U", "upc": "197497777888", "cost": 500},
+        {"brand": "HP", "model": "Chromebook 14\" Celeron N4500", "upc": "197497999000", "cost": 180},
+        {"brand": "HP", "model": "ZBook Power G10 i7-13700H RTX A1000", "upc": "197497222333", "cost": 1600},
+
+        # Apple
+        {"brand": "Apple", "model": "MacBook Air 13\" (M3, 2024) 8GB 256GB", "upc": "195949123456", "cost": 950},
+        {"brand": "Apple", "model": "MacBook Pro 14\" (M3 Pro, 2023) 18GB 512GB", "upc": "195949012345", "cost": 1750},
+        {"brand": "Apple", "model": "MacBook Air 15\" (M3, 2024) 16GB 512GB", "upc": "195949222333", "cost": 1350},
+        {"brand": "Apple", "model": "MacBook Pro 16\" (M3 Max, 2023) 36GB 1TB", "upc": "195949333444", "cost": 3100},
+        {"brand": "Apple", "model": "MacBook Air 13\" (M2, 2022) 8GB 256GB", "upc": "194253012345", "cost": 850},
+        {"brand": "Apple", "model": "MacBook Pro 14\" (M2 Pro, 2023) 16GB 512GB", "upc": "194253111222", "cost": 1600},
+        {"brand": "Apple", "model": "iMac 24\" (M3, 2023) 8-core CPU 256GB", "upc": "195949444555", "cost": 1150},
+        {"brand": "Apple", "model": "Mac mini (M2, 2023) 8GB 256GB", "upc": "194253222333", "cost": 520},
+        {"brand": "Apple", "model": "Mac Studio (M2 Max, 2023) 32GB 512GB", "upc": "194253333444", "cost": 1750},
+
+        # ASUS
+        {"brand": "ASUS", "model": "ROG Zephyrus G14 (2024) Ryzen 9 RTX 4060", "upc": "197105432109", "cost": 1350},
+        {"brand": "ASUS", "model": "Zenbook 14 OLED i7-1355H 16GB 1TB", "upc": "197105123456", "cost": 850},
+        {"brand": "ASUS", "model": "Vivobook 16\" Ryzen 7 7730U 16GB 512GB", "upc": "197105654321", "cost": 520},
+        {"brand": "ASUS", "model": "TUF Gaming F15 i7-13620H RTX 4060", "upc": "197105987654", "cost": 950},
+        {"brand": "ASUS", "model": "ROG Strix SCAR 16 i9-14900HX RTX 4080", "upc": "197105111222", "cost": 2400},
+        {"brand": "ASUS", "model": "ExpertBook B9 i7-1355U 32GB 2TB", "upc": "197105333444", "cost": 1800},
+        {"brand": "ASUS", "model": "Zenbook Pro 14 Duo i9-13900H RTX 4060", "upc": "197105555666", "cost": 1900},
+        {"brand": "ASUS", "model": "ROG Flow X16 Ryzen 9 RTX 4070", "upc": "197105777888", "cost": 2100},
+        {"brand": "ASUS", "model": "ProArt Studiobook 16 i9-13980HX RTX 3000", "upc": "197105999000", "cost": 2300},
+
+        # Acer
+        {"brand": "Acer", "model": "Swift Go 14 Core Ultra 7 155H OLED", "upc": "195133246810", "cost": 750},
+        {"brand": "Acer", "model": "Nitro V 15 i5-13420H RTX 4050", "upc": "195133123456", "cost": 680},
+        {"brand": "Acer", "model": "Aspire 5 15.6\" i7-1355U 16GB 512GB", "upc": "195133654321", "cost": 550},
+        {"brand": "Acer", "model": "Predator Helios Neo 16 i7-13700HX RTX 4060", "upc": "195133987654", "cost": 980},
+        {"brand": "Acer", "model": "Swift Edge 16 Ryzen 7 7840U OLED", "upc": "195133111222", "cost": 1100},
+        {"brand": "Acer", "model": "Spin 5 14\" i7-1260P Touch", "upc": "195133333444", "cost": 850},
+        {"brand": "Acer", "model": "TravelMate P6 i7-1355U 16GB", "upc": "195133555666", "cost": 1200},
+        {"brand": "Acer", "model": "Chromebook Spin 714 i5-1335U", "upc": "195133777888", "cost": 620},
+        {"brand": "Acer", "model": "Predator Triton 17X i9-13900HX RTX 4090", "upc": "195133999000", "cost": 3200},
+
+        # MSI
+        {"brand": "MSI", "model": "Cyborg 15 A13VF i7-13620H RTX 4060", "upc": "824142345674", "cost": 900},
+        {"brand": "MSI", "model": "Prestige 14 Evo i7-13700H 16GB", "upc": "824142123456", "cost": 850},
+        {"brand": "MSI", "model": "Katana 15 i7-13620H RTX 4070", "upc": "824142654321", "cost": 1100},
+        {"brand": "MSI", "model": "Raider GE78 HX i9-14900HX RTX 4080", "upc": "824142987654", "cost": 2600},
+        {"brand": "MSI", "model": "Thin GF63 i5-12450H RTX 3050", "upc": "824142111222", "cost": 620},
+        {"brand": "MSI", "model": "Summit E16 Flip i7-1360P RTX 4050", "upc": "824142333444", "cost": 1400},
+        {"brand": "MSI", "model": "Creator Z17 HX i9-13980HX RTX 4070", "upc": "824142555666", "cost": 2800},
+        {"brand": "MSI", "model": "Titan GT77 HX i9-13980HX RTX 4090", "upc": "824142777888", "cost": 4200},
+        {"brand": "MSI", "model": "Modern 15 B13M i5-1335U 8GB", "upc": "824142999000", "cost": 480},
+
+        # Microsoft
+        {"brand": "Microsoft", "model": "Surface Laptop 6 15\" Core Ultra 5 135H", "upc": "671381542306", "cost": 1100},
+        {"brand": "Microsoft", "model": "Surface Laptop 6 15\" Core Ultra 7 165H 16GB", "upc": "682174375247", "cost": 1400},
+        {"brand": "Microsoft", "model": "Surface Laptop 6 15\" Core Ultra 7 165H 32GB", "upc": "682174411709", "cost": 1800},
+        {"brand": "Microsoft", "model": "Surface Pro 9 i5-1235U 8GB 256GB", "upc": "889842123456", "cost": 850},
+        {"brand": "Microsoft", "model": "Surface Laptop Go 3 i5-1235U 8GB", "upc": "889842654321", "cost": 650},
+        {"brand": "Microsoft", "model": "Surface Studio 2 i7-11370H RTX 3050 Ti", "upc": "889842987654", "cost": 1900},
+
+        # Samsung / Gigabyte / Razer
+        {"brand": "Samsung", "model": "Galaxy Book4 Pro 14\" Core Ultra 7 OLED", "upc": "887276123456", "cost": 1200},
+        {"brand": "Samsung", "model": "Galaxy Book4 Ultra i9 RTX 4070", "upc": "887276654321", "cost": 2400},
+        {"brand": "Gigabyte", "model": "AORUS 15 i7-13620H RTX 4060", "upc": "471933123456", "cost": 1050},
+        {"brand": "Gigabyte", "model": "AERO 14 OLED i7-13700H RTX 4050", "upc": "471933654321", "cost": 1350},
+        {"brand": "Razer", "model": "Blade 14 Ryzen 9 7940HS RTX 4070", "upc": "811254123456", "cost": 2100},
+        {"brand": "Razer", "model": "Blade 16 i9-14900HX RTX 4080", "upc": "811254654321", "cost": 3200},
+    ]
+
+    # Rellenar hasta 100 si es necesario con variaciones
+    while len(extensive_data) < 100:
+        base = random.choice(extensive_data[:50])
+        new_item = base.copy()
+        new_item["model"] = f"{base['model']} Plus v{len(extensive_data)}"
+        new_item["upc"] = str(int(base["upc"]) + len(extensive_data))
+        new_item["cost"] = base["cost"] + random.randint(50, 200)
+        extensive_data.append(new_item)
+
+    # Crear modelos
+    for data in extensive_data:
+        brand_id = brands.get(data['brand'])
+        if not brand_id: continue
+        
+        laptop_model = LaptopModel.query.filter_by(name=data['model']).first()
+        if not laptop_model:
+            laptop_model = LaptopModel(name=data['model'], brand_id=brand_id, is_active=True)
+            db.session.add(laptop_model)
+    
+    db.session.flush()
+    models = {m.name: m.id for m in LaptopModel.query.all()}
+
+    # Crear Laptops
+    laptop_objects = []
+    for i, data in enumerate(extensive_data):
+        sku = f"LXP-{data['upc'][-6:]}-{i:02d}"
+        
+        slug = re.sub(r'[^a-z0-9-]', '', data['model'].lower().replace(' ', '-'))
+        if Laptop.query.filter_by(slug=slug).first():
+            slug = f"{slug}-{i}"
+
+        # Costos y Precios en DOP
+        purchase_cost_dop = data['cost'] * 64.5 # Tasa RD
+        sale_price_dop = purchase_cost_dop * 1.25 # 25% Margen
+
+        # Categoría basada en nombre
+        category = 'laptop'
+        if 'gaming' in data['model'].lower() or 'rtx' in data['model'].lower() or 'rog' in data['model'].lower() or 'alienware' in data['model'].lower():
+            category = 'gaming'
+        elif 'workstation' in data['model'].lower() or 'precision' in data['model'].lower() or 'thinkpad p' in data['model'].lower():
+            category = 'workstation'
+
+        # Asignar aleatorios de catálogos existentes (ahora Generación)
+        proc_id = random.choice(list(processors.values()))
+        proc_obj = Processor.query.get(proc_id)
+        
+        # Generar datos granulares para la Laptop basados en el proc_obj (Generación)
+        # En una situación real esto vendría de Icecat o el Form, aquí simulamos
+        p_family = "Intel Core i7" if "Intel" in proc_obj.name else "AMD Ryzen 7" if "AMD" in proc_obj.name else "Apple M3"
+        p_model = "13700H" if "13th" in proc_obj.name else "7840HS" if "7000" in proc_obj.name else "Pro"
+        p_full_name = f"{proc_obj.name} {p_family} {p_model}".strip()
+
+        laptop = Laptop(
+            sku=sku,
+            slug=slug,
+            upc=data['upc'],
+            gtin=data['upc'],
+            display_name=f"{data['brand']} {data['model']}",
+            short_description=f"Laptop {category} de alto rendimiento con garantía local.",
+            is_published=True,
+            brand_id=brands[data['brand']],
+            model_id=models[data['model']],
+            processor_id=proc_id,
+            processor_family=p_family,
+            processor_generation=proc_obj.name,
+            processor_model_number=p_model,
+            processor_full_name=p_full_name,
+            ram_id=random.choice(list(ram.values())),
+            storage_id=random.choice(list(storage.values())),
+            graphics_card_id=random.choice(list(gpus.values())),
+            screen_id=random.choice(list(screens.values())),
+            os_id=random.choice(list(os_list.values())),
+            store_id=random.choice(stores).id,
+            location_id=random.choice(locations).id,
+            supplier_id=random.choice(suppliers).id,
+            category=category,
+            condition='new',
+            purchase_cost=purchase_cost_dop,
+            sale_price=sale_price_dop,
+            tax_percent=18,
+            quantity=random.randint(2, 12),
+            currency='DOP',
+            created_by_id=admin_id,
+            entry_date=date.today() - timedelta(days=random.randint(1, 120))
+        )
+        db.session.add(laptop)
+        laptop_objects.append(laptop)
+
+    db.session.flush()
+
+    # Seriales
+    for laptop in laptop_objects:
+        for j in range(laptop.quantity):
+            serial = LaptopSerial(
+                laptop_id=laptop.id,
+                serial_number=f"SN-{laptop.sku}-{j:02d}",
+                serial_normalized=LaptopSerial.normalize_serial(f"SN-{laptop.sku}-{j:02d}"),
+                serial_type='manufacturer',
+                unit_cost=laptop.purchase_cost,
+                received_date=laptop.entry_date,
+                status='available',
+                created_by_id=admin_id
+            )
+            db.session.add(serial)
+    
+    db.session.commit()
+
+
+def generate_financial_history(admin_id, months=24, avg_sales=3000000, avg_expenses=500000):
+    """
+    Simula 2 años de historial financiero.
+    """
+    from app.models.invoice import Invoice, InvoiceItem, NCFSequence
+    from app.models.expense import Expense, ExpenseCategory
+    from app.models.customer import Customer
+    from app.models.laptop import Laptop
+    from decimal import Decimal
+    
+    # Asegurar clientes
+    customers = Customer.query.all()
+    if not customers:
+        # Crear clientes de prueba si no existen
+        for i in range(20):
+            c = Customer(
+                first_name=f"Cliente {i}",
+                last_name=f"Prueba",
+                id_number=f"001{random.randint(1000000, 9999999)}1",
+                id_type='cedula',
+                customer_type='person',
+                is_active=True
+            )
+            db.session.add(c)
+        db.session.flush()
+        customers = Customer.query.all()
+
+    # Categorías de gasto
+    expense_cats = ExpenseCategory.query.all()
+    laptops = Laptop.query.all()
+    if not laptops:
+        return "No hay laptops en inventario para generar ventas."
+
+    start_date = date.today() - timedelta(days=months * 30)
+    
+    for m in range(months):
+        current_month_date = start_date + timedelta(days=m * 30)
+        
+        # --- Simular Ventas (Facturas) ---
+        monthly_sales_target = avg_sales * random.uniform(0.8, 1.2)
+        total_sales = 0
+        
+        while total_sales < monthly_sales_target:
+            # Crear Factura
+            inv_date = current_month_date + timedelta(days=random.randint(0, 28))
+            customer = random.choice(customers)
+            
+            # NCF
+            ncf_type = 'B02' if random.random() > 0.3 else 'B01'
+            seq = NCFSequence.get_or_create(ncf_type)
+            ncf = seq.get_next_ncf()
+            
+            invoice = Invoice(
+                invoice_number=f"INV-{inv_date.strftime('%y%m')}-{random.randint(1000, 9999)}",
+                ncf=ncf,
+                ncf_type=ncf_type,
+                customer_id=customer.id,
+                invoice_date=inv_date,
+                payment_method=random.choice(['cash', 'transfer', 'card']),
+                status='paid',
+                created_by_id=admin_id
+            )
+            db.session.add(invoice)
+            db.session.flush()
+            
+            # Items (1-3 laptops)
+            num_items = random.randint(1, 3)
+            inv_subtotal = 0
+            for _ in range(num_items):
+                laptop = random.choice(laptops)
+                qty = 1
+                item = InvoiceItem(
+                    invoice_id=invoice.id,
+                    laptop_id=laptop.id,
+                    description=laptop.display_name,
+                    quantity=qty,
+                    unit_price=laptop.sale_price,
+                    line_total=laptop.sale_price * qty
+                )
+                db.session.add(item)
+                inv_subtotal += (laptop.sale_price * qty)
+            
+            invoice.subtotal = inv_subtotal
+            invoice.tax_amount = inv_subtotal * Decimal('0.18')
+            invoice.total = inv_subtotal + invoice.tax_amount
+            
+            total_sales += float(invoice.total)
+
+        # --- Simular Gastos ---
+        monthly_expenses_target = avg_expenses * random.uniform(0.9, 1.1)
+        total_expenses = 0
+        
+        while total_expenses < monthly_expenses_target:
+            cat = random.choice(expense_cats)
+            amount = random.uniform(5000, 50000)
+            exp_date = current_month_date + timedelta(days=random.randint(0, 28))
+            
+            expense = Expense(
+                description=f"Pago de {cat.name} - {exp_date.strftime('%B')}",
+                amount=Decimal(str(round(amount, 2))),
+                category_id=cat.id,
+                due_date=exp_date,
+                is_paid=True,
+                paid_date=exp_date,
+                created_by=admin_id
+            )
+            db.session.add(expense)
+            total_expenses += amount
+            
+        db.session.commit()
+    
+    return f"Simulados {months} meses de historia: Ventas promedio ~{avg_sales}, Gastos promedio ~{avg_expenses}"

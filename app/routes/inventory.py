@@ -16,6 +16,7 @@ from app.forms.laptop_forms import LaptopForm, FilterForm
 from app.services.sku_service import SKUService
 from app.services.catalog_service import CatalogService
 from app.services.serial_service import SerialService
+from app.services.laptop_image_service import LaptopImageService
 from app.utils.decorators import admin_required, permission_required
 from datetime import datetime, date
 from sqlalchemy import or_
@@ -99,7 +100,13 @@ def process_connectivity_ports(form_data):
     if not form_data:
         return {}
 
-    # Convertir lista a diccionario con conteo
+    # Si es una cadena (TextAreaField), separar por comas
+    if isinstance(form_data, str):
+        ports_list = [p.strip() for p in form_data.split(',') if p.strip()]
+        # Usar el texto completo como llave y 1 como valor dummy
+        return {port: 1 for port in ports_list}
+
+    # Si es una lista (SelectMultipleField - Legacy o futuro), contar ocurrencias
     ports = {}
     for port in form_data:
         ports[port] = ports.get(port, 0) + 1
@@ -165,262 +172,168 @@ def validate_serial_quantity(quantity, serials_data, mode='add', laptop_id=None)
 
 def process_laptop_images(laptop, form):
     """
-    Procesa las imágenes del formulario (híbrido: nuevas + existentes)
-
-    Esta función maneja:
-    1. Eliminación de imágenes marcadas (images_to_delete)
-    2. Actualización de imágenes existentes (alt text, orden)
-    3. Guardado de imágenes nuevas
-    4. Asignación de portada
-
-    Args:
-        laptop: Objeto Laptop (debe tener un ID asignado)
-        form: Formulario LaptopForm validado
-
-    Returns:
-        tuple: (success_count, error_messages)
+    Procesa las imágenes del formulario (híbrido: nuevas subidas + URLs de Icecat + existentes).
+    Mantiene el orden exacto de los slots para asignar la portada correctamente.
     """
-
-    logger.info(f"\n{'=' * 60}")
-    logger.info(f"📸 PROCESANDO IMÁGENES PARA LAPTOP ID: {laptop.id}")
-    logger.info(f"{'=' * 60}\n")
-
     success_count = 0
     error_messages = []
-
-    # ===== PASO 1: ELIMINAR IMÁGENES MARCADAS =====
+    
+    # 1. Eliminar imágenes marcadas
     images_to_delete_json = request.form.get('images_to_delete', '[]')
-
     try:
-        images_to_delete = json.loads(images_to_delete_json)
-        logger.info(f"🗑️  Imágenes marcadas para eliminar: {len(images_to_delete)}")
-
-        for image_id in images_to_delete:
-            # Convertir a int si viene como string
-            try:
-                image_id = int(image_id)
-            except (ValueError, TypeError):
-                logger.warning(f"⚠️  ID inválido: {image_id}")
-                continue
-
-            image = LaptopImage.query.get(image_id)
-
-            if image and image.laptop_id == laptop.id:
-                # Eliminar archivo físico
-                image_full_path = os.path.join('app', 'static', image.image_path)
-                if os.path.exists(image_full_path):
-                    try:
-                        os.remove(image_full_path)
-                        logger.info(f"✅ Archivo eliminado: {image.image_path}")
-                    except Exception as e:
-                        logger.error(f"⚠️  Error al eliminar archivo {image.image_path}: {str(e)}")
-
-                # Eliminar registro de BD
-                db.session.delete(image)
-                logger.info(f"✅ Registro eliminado: imagen ID {image_id}")
-            else:
-                logger.warning(f"⚠️  Imagen ID {image_id} no encontrada o no pertenece al laptop")
-
-    except json.JSONDecodeError as e:
-        logger.error(f"⚠️  Error al decodificar images_to_delete: {str(e)}")
-        images_to_delete = []
-
-    # Flush para aplicar eliminaciones antes de continuar
+        to_delete_ids = json.loads(images_to_delete_json)
+        for img_id in to_delete_ids:
+            img = LaptopImage.query.get(img_id)
+            if img and img.laptop_id == laptop.id:
+                try: 
+                    from flask import current_app
+                    full_path = os.path.join(current_app.root_path, 'static', img.image_path)
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+                except Exception as e:
+                    logger.error(f"Error al eliminar archivo físico: {e}")
+                db.session.delete(img)
+    except: pass
     db.session.flush()
 
-    # ===== PASO 2: OBTENER IMÁGENES EXISTENTES (que NO fueron eliminadas) =====
-    existing_images = LaptopImage.query.filter_by(laptop_id=laptop.id).all()
-
-    logger.info(f"\n📊 Imágenes existentes en BD después de eliminaciones: {len(existing_images)}")
-
-    # ===== PASO 3: PROCESAR SLOTS DEL FORMULARIO (1-8) =====
-    processed_images = []
-
-    for i in range(1, 9):  # Slots 1-8
-        try:
-            file = request.files.get(f'image_{i}')
-            alt_text = request.form.get(f'image_{i}_alt', '')
-            image_path = request.form.get(f'image_{i}_path', '')
-            image_id = request.form.get(f'image_{i}_id', '')
-
-            # CASO A: Archivo nuevo subido
-            if file and file.filename and allowed_image_file(file.filename):
-                logger.info(f"\n➕ SLOT {i}: Nuevo archivo detectado")
-                logger.info(f"   Nombre: {file.filename}")
-
-                # Validar extensión del archivo
-                if not allowed_image_file(file.filename):
-                    error_msg = f'Imagen {i}: Formato no permitido. Use JPG, PNG, WebP, GIF o AVIF.'
-                    error_messages.append(error_msg)
-                    logger.warning(f'Laptop {laptop.sku}: {error_msg}')
-                    continue
-
-                # Validar tamaño del archivo
-                file.seek(0, os.SEEK_END)
-                file_size = file.tell()
-                file.seek(0)  # Volver al inicio para guardar
-
-                if file_size > MAX_IMAGE_SIZE:
-                    error_msg = f'Imagen {i}: Archivo muy grande ({file_size / 1024 / 1024:.1f}MB). Máximo 5MB.'
-                    error_messages.append(error_msg)
-                    logger.warning(f'Laptop {laptop.sku}: {error_msg}')
-                    continue
-
-                # Generar nombre seguro para el archivo
-                filename = secure_filename(file.filename)
-                # Agregar timestamp para evitar colisiones
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                original_extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-                filename = f"{laptop.sku}_{i}_{timestamp}.avif"
-
-                # Crear directorio si no existe
-                upload_folder = os.path.join('app', 'static', 'uploads', 'laptops', str(laptop.id))
-                os.makedirs(upload_folder, exist_ok=True)
-
-                # Guardar archivo original temporalmente
-                temp_path = os.path.join(upload_folder, f"temp_{filename}")
-                file.save(temp_path)
-
-                try:
-                    # Abrir imagen con PIL
-                    img = Image.open(temp_path)
-
-                    # Convertir a RGBA si tiene transparencia, de lo contrario a RGB
-                    if img.mode in ('RGBA', 'LA', 'P'):
-                        img = img.convert('RGBA')
-                    else:
-                        img = img.convert('RGB')
-
-                    # Crear fondo blanco para imágenes sin transparencia
-                    if img.mode == 'RGB':
-                        # Mantener imagen RGB sin cambios (fondo implícito)
-                        pass
-                    elif img.mode == 'RGBA':
-                        # Crear fondo blanco para imágenes con transparencia
-                        background = Image.new('RGB', img.size, (255, 255, 255))
-                        background.paste(img, mask=img.split()[-1])  # Usar canal alpha como máscara
-                        img = background
-
-                    # Guardar como AVIF
-                    filepath = os.path.join(upload_folder, filename)
-                    img.save(filepath, 'AVIF', quality=85)
-
-                    # Eliminar archivo temporal
-                    os.remove(temp_path)
-
-                except Exception as e:
-                    logger.error(f"Error procesando imagen {filename}: {str(e)}")
-                    # Si falla la conversión, usar el archivo original
-                    if os.path.exists(temp_path):
-                        os.rename(temp_path, os.path.join(upload_folder, filename))
-                    else:
-                        raise
-
-                # Ruta relativa para la base de datos
-                relative_path = f"uploads/laptops/{laptop.id}/{filename}"
-
-                # Crear registro de imagen
-                image = LaptopImage(
-                    laptop_id=laptop.id,
-                    image_path=relative_path,
-                    alt_text=alt_text or f"{laptop.display_name} - imagen {i}",
-                    is_cover=False,  # Se asigna después
-                    ordering=i,
-                    position=i
-                )
-
-                db.session.add(image)
-                db.session.flush()  # Para obtener el ID
-                processed_images.append(image)
-                success_count += 1
-
-                logger.info(f'   ✅ Guardado como: {filename} (convertido a AVIF)')
-                logger.info(f'   ✅ Registro creado: ID {image.id}')
-
-            # CASO B: Imagen existente (mantener y actualizar)
-            elif image_path or image_id:
-                logger.info(f"\n🔄 SLOT {i}: Verificando imagen existente")
-
-                # Buscar imagen existente por ID o por path
-                existing_img = None
-
-                # Primero por ID (si existe)
-                if image_id:
-                    try:
-                        image_id_int = int(image_id)
-                        for img in existing_images:
-                            if img.id == image_id_int:
-                                existing_img = img
-                                logger.info(f"   ✅ Encontrada por ID: {image_id_int}")
-                                break
-                    except (ValueError, TypeError):
-                        logger.warning(f"   ⚠️  ID inválido: {image_id}")
-
-                # Si no se encontró por ID, buscar por path
-                if not existing_img and image_path:
-                    for img in existing_images:
-                        if img.image_path == image_path or image_path.endswith(img.image_path):
-                            existing_img = img
-                            logger.info(f"   ✅ Encontrada por path: {image_path[:50]}...")
-                            break
-
-                if existing_img:
-                    logger.info(f"   ✅ Imagen ID {existing_img.id}")
-
-                    # Actualizar metadata
-                    existing_img.alt_text = alt_text or existing_img.alt_text
-                    existing_img.position = i
-                    existing_img.ordering = i
-                    processed_images.append(existing_img)
-
-                    logger.info(
-                        f"   ✅ Actualizada: posición {i}, alt: {alt_text[:30] if alt_text else 'sin cambios'}...")
-                else:
-                    logger.warning(f"   ⚠️  No encontrada en BD")
-
-        except Exception as e:
-            error_msg = f'Imagen {i}: Error al procesar - {str(e)}'
-            error_messages.append(error_msg)
-            logger.error(f'Laptop {laptop.sku}: {error_msg}', exc_info=True)
-
-    # ===== PASO 4: ELIMINAR IMÁGENES EXISTENTES NO PROCESADAS =====
-    # Obtener IDs de las imágenes procesadas (existentes)
-    processed_existing_ids = [img.id for img in processed_images if hasattr(img, 'id') and img.id]
-
-    # Eliminar imágenes existentes que no estén en processed_images
-    for existing_img in existing_images:
-        if existing_img.id not in processed_existing_ids:
-            # Eliminar archivo físico
+    # 2. Identificar todos los slots activos
+    all_keys = set(request.files.keys()) | set(request.form.keys())
+    image_slots = set()
+    for k in all_keys:
+        if k.startswith('image_'):
             try:
-                filepath = os.path.join('app', 'static', existing_img.image_path)
-                if os.path.exists(filepath):
-                    os.remove(filepath)
-                    logger.info(f'   🗑️  Archivo eliminado (no procesado): {existing_img.image_path}')
-            except Exception as e:
-                logger.error(f'Error al eliminar archivo {existing_img.image_path}: {str(e)}')
-            # Eliminar de la base de datos
-            db.session.delete(existing_img)
-            logger.info(f'   🗑️  Registro eliminado (no procesado): imagen ID {existing_img.id}')
+                parts = k.split('_')
+                if len(parts) >= 2 and parts[1].isdigit():
+                    image_slots.add(int(parts[1]))
+            except: pass
+    
+    sorted_slots = sorted(list(image_slots))
+    
+    # 3. Clasificar tareas por slot
+    slot_tasks = {} # slot_id -> task_info
+    icecat_download_tasks = [] # Lista para ThreadPoolExecutor
+    
+    for i in sorted_slots:
+        file = request.files.get(f'image_{i}')
+        url = request.form.get(f'image_{i}_url')
+        image_id = request.form.get(f'image_{i}_id')
+        alt_text = request.form.get(f'image_{i}_alt') or f"Imagen {i}"
 
-    # ===== PASO 5: ASIGNAR PORTADA Y POSICIONES FINALES =====
-    logger.info(f"\n👑 Asignando portada y posiciones finales")
-    logger.info(f"   Total imágenes procesadas: {len(processed_images)}")
+        # Prioridad de procesamiento:
+        # A. Archivo nuevo subido (Local upload)
+        if file and file.filename:
+            slot_tasks[i] = {
+                'type': 'upload',
+                'file': file,
+                'alt': alt_text
+            }
+        # B. URL de Icecat (Requiere descarga)
+        elif url and url.startswith('http'):
+            slot_tasks[i] = {
+                'type': 'icecat',
+                'url': url,
+                'alt': alt_text
+            }
+            icecat_download_tasks.append({'slot': i, 'url': url})
+        # C. Imagen existente (Reordenamiento o cambio de alt)
+        elif image_id:
+            slot_tasks[i] = {
+                'type': 'existing',
+                'id': int(image_id),
+                'alt': alt_text
+            }
 
-    # Asegurar que solo una imagen sea portada
+    # 4. Descargar imágenes de Icecat en paralelo
+    downloaded_contents = {} # slot -> (content, ext)
+    if icecat_download_tasks:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            future_to_slot = {
+                executor.submit(LaptopImageService._download_single_image, task['url']): task['slot'] 
+                for task in icecat_download_tasks
+            }
+            for future in as_completed(future_to_slot):
+                slot = future_to_slot[future]
+                try:
+                    url, content, error = future.result()
+                    if content:
+                        ext = 'jpg'
+                        if '.png' in url.lower(): ext = 'png'
+                        elif '.webp' in url.lower(): ext = 'webp'
+                        downloaded_contents[slot] = (content, ext, url)
+                    elif error:
+                        error_messages.append(f"Error descargando imagen slot {slot}: {error}")
+                except Exception as e:
+                    error_messages.append(f"Excepción descargando slot {slot}: {str(e)}")
+
+    # 5. Procesar cada slot en ORDEN para construir la lista final
+    processed_images = []
+    
+    for i in sorted_slots:
+        task = slot_tasks.get(i)
+        if not task: continue
+        
+        img_obj = None
+        is_cover = (i == 1) # EL SLOT 1 SIEMPRE ES PORTADA SEGÚN FRONTEND
+        
+        if task['type'] == 'upload':
+            img_obj = LaptopImageService.process_and_save_image(
+                laptop_id=laptop.id, sku=laptop.sku, source=task['file'],
+                position=i, is_cover=is_cover, alt_text=task['alt']
+            )
+            if img_obj: success_count += 1
+
+        elif task['type'] == 'icecat':
+            content_data = downloaded_contents.get(i)
+            if content_data:
+                content, ext, original_url = content_data
+                from werkzeug.datastructures import FileStorage
+                from io import BytesIO
+                file_obj = FileStorage(
+                    stream=BytesIO(content),
+                    filename=f"icecat_{i}.{ext}",
+                    content_type=f"image/{ext}"
+                )
+                img_obj = LaptopImageService.process_and_save_image(
+                    laptop_id=laptop.id, sku=laptop.sku, source=file_obj,
+                    position=i, is_cover=is_cover, alt_text=task['alt']
+                )
+                if img_obj:
+                    img_obj.source = 'icecat'
+                    success_count += 1
+            
+        elif task['type'] == 'existing':
+            img_obj = LaptopImage.query.get(task['id'])
+            if img_obj and img_obj.laptop_id == laptop.id:
+                img_obj.position = i
+                img_obj.ordering = i
+                img_obj.is_cover = is_cover
+                if task['alt']: img_obj.alt_text = task['alt']
+        
+        if img_obj:
+            processed_images.append(img_obj)
+
+    # 6. Limpieza final: Eliminar imágenes que ya no están en la lista procesada
+    db.session.flush()
+    keep_ids = [img.id for img in processed_images if img and img.id]
+    LaptopImageService.cleanup_laptop_images(laptop.id, keep_ids=keep_ids)
+
+    # 7. Sincronizar positions y orderings por si hubo fallos intermedios
     for idx, img in enumerate(processed_images):
-        # Solo la primera imagen es portada
-        img.is_cover = (idx == 0)
         img.position = idx + 1
         img.ordering = idx + 1
+        img.is_cover = (idx == 0)
 
-        if img.is_cover:
-            logger.info(f"   👑 PORTADA: {img.image_path}")
-
-    logger.info(f"\n{'=' * 60}")
-    logger.info(f"✅ PROCESO COMPLETADO")
-    logger.info(f"{'=' * 60}\n")
+    try:
+        db.session.flush()
+        logger.info(f"✅ Galería procesada: {len(processed_images)} imágenes listas.")
+    except Exception as e:
+        logger.error(f"❌ Error en flush final: {str(e)}")
+        error_messages.append(f"Error guardando galería: {str(e)}")
 
     return success_count, error_messages
+
+
 
 
 # ===== RUTA PRINCIPAL: LISTADO DE LAPTOPS =====
@@ -436,7 +349,8 @@ def laptops_list():
     store_filter = request.args.get('store', type=int, default=0)
     brand_filter = request.args.get('brand', type=int, default=0)
     category_filter = request.args.get('category', '')
-    processor_filter = request.args.get('processor', type=int, default=0)
+    processor_filter = request.args.get('processor', '')
+    generation_filter = request.args.get('generation', '')
     gpu_filter = request.args.get('gpu', type=int, default=0)
     screen_filter = request.args.get('screen', type=int, default=0)
     condition_filter = request.args.get('condition', '')
@@ -479,8 +393,12 @@ def laptops_list():
     if category_filter:
         query = query.filter(Laptop.category == category_filter)
 
-    if processor_filter and processor_filter > 0:
-        query = query.filter(Laptop.processor_id == processor_filter)
+    if processor_filter or generation_filter:
+        query = query.join(Laptop.processor)
+        if processor_filter:
+            query = query.filter(Processor.family == processor_filter)
+        if generation_filter:
+            query = query.filter(Processor.name == generation_filter)
 
     if gpu_filter and gpu_filter > 0:
         query = query.filter(Laptop.graphics_card_id == gpu_filter)
@@ -619,7 +537,9 @@ def laptop_add():
             catalog_data = CatalogService.process_laptop_form_data({
                 'brand_id': form.brand_id.data,
                 'model_id': form.model_id.data,
-                'processor_id': form.processor_id.data,
+                'processor_family': form.processor_family.data,
+                'processor_generation': form.processor_generation.data,
+                'processor_model': form.processor_model.data,
                 'os_id': form.os_id.data,
                 'screen_id': form.screen_id.data,
                 'graphics_card_id': form.graphics_card_id.data,
@@ -659,6 +579,10 @@ def laptop_add():
                 brand_id=catalog_data['brand_id'],
                 model_id=catalog_data['model_id'],
                 processor_id=catalog_data['processor_id'],
+                processor_family=form.processor_family.data,
+                processor_generation=form.processor_generation.data,
+                processor_model_number=form.processor_model.data,
+                processor_full_name=form.processor_full_name.data,
                 os_id=catalog_data['os_id'],
                 screen_id=catalog_data['screen_id'],
                 graphics_card_id=catalog_data['graphics_card_id'],
@@ -852,10 +776,51 @@ def laptop_edit(id):
     """
     laptop = Laptop.query.get_or_404(id)
     form = LaptopForm(obj=laptop)
+    
+    # ===== CORRECCIÓN: Convertir IDs a nombres para mostrar en el formulario =====
+    if request.method == 'GET':
+        # Cargar nombres en lugar de IDs para los selects
+        if laptop.brand_id:
+            brand = Brand.query.get(laptop.brand_id)
+            form.brand_id.data = brand.name if brand else str(laptop.brand_id)
+        
+        if laptop.model_id:
+            model = LaptopModel.query.get(laptop.model_id)
+            form.model_id.data = model.name if model else str(laptop.model_id)
+        
+        if laptop.processor_id:
+            processor = Processor.query.get(laptop.processor_id)
+            if processor:
+                form.processor_family.data = processor.family
+                form.processor_generation.data = processor.generation
+                form.processor_model.data = processor.model_number
+        
+        if laptop.os_id:
+            os_obj = OperatingSystem.query.get(laptop.os_id)
+            form.os_id.data = os_obj.name if os_obj else str(laptop.os_id)
+        
+        if laptop.screen_id:
+            screen = Screen.query.get(laptop.screen_id)
+            form.screen_id.data = screen.name if screen else str(laptop.screen_id)
+        
+        if laptop.graphics_card_id:
+            gpu = GraphicsCard.query.get(laptop.graphics_card_id)
+            form.graphics_card_id.data = gpu.name if gpu else str(laptop.graphics_card_id)
+        
+        if laptop.storage_id:
+            storage = Storage.query.get(laptop.storage_id)
+            form.storage_id.data = storage.name if storage else str(laptop.storage_id)
+        
+        if laptop.ram_id:
+            ram = Ram.query.get(laptop.ram_id)
+            form.ram_id.data = ram.name if ram else str(laptop.ram_id)
 
     # Pre-poblar connectivity_ports si existe
     if request.method == 'GET' and laptop.connectivity_ports:
-        form.connectivity_ports.data = list(laptop.connectivity_ports.keys())
+        # CORRECCIÓN: Convertir las llaves del diccionario a un string separado por comas
+        # Esto es lo que espera un TextAreaField, no una lista
+        keys_list = list(laptop.connectivity_ports.keys())
+        form.connectivity_ports.data = ", ".join(keys_list)
 
     if form.validate_on_submit():
         try:
@@ -863,7 +828,9 @@ def laptop_edit(id):
             catalog_data = CatalogService.process_laptop_form_data({
                 'brand_id': form.brand_id.data,
                 'model_id': form.model_id.data,
-                'processor_id': form.processor_id.data,
+                'processor_family': form.processor_family.data,
+                'processor_generation': form.processor_generation.data,
+                'processor_model': form.processor_model.data,
                 'os_id': form.os_id.data,
                 'screen_id': form.screen_id.data,
                 'graphics_card_id': form.graphics_card_id.data,
@@ -898,6 +865,10 @@ def laptop_edit(id):
             laptop.brand_id = catalog_data['brand_id']
             laptop.model_id = catalog_data['model_id']
             laptop.processor_id = catalog_data['processor_id']
+            laptop.processor_family = form.processor_family.data
+            laptop.processor_generation = form.processor_generation.data
+            laptop.processor_model_number = form.processor_model.data
+            laptop.processor_full_name = form.processor_full_name.data
             laptop.os_id = catalog_data['os_id']
             laptop.screen_id = catalog_data['screen_id']
             laptop.graphics_card_id = catalog_data['graphics_card_id']
@@ -1145,3 +1116,19 @@ def laptop_duplicate(id):
 
     flash('Laptop duplicada correctamente', 'success')
     return redirect(url_for('inventory.laptop_edit', id=duplicate.id))
+
+
+@inventory_bp.route('/get_generations/<family>')
+@login_required
+def get_generations(family):
+    """
+    API para obtener generaciones basadas en la familia del procesador
+    """
+    query = db.session.query(Processor.name).filter(Processor.is_active == True)
+    
+    if family and family != 'all' and family != 'None':
+        query = query.filter(Processor.family == family)
+        
+    generations = query.distinct().order_by(Processor.name).all()
+    
+    return jsonify([g[0] for g in generations if g[0]])

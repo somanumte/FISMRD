@@ -2,7 +2,7 @@
 // FORMULARIO DE LAPTOPS - FUNCIONALIDAD PRINCIPAL
 // ============================================
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     // ===== FUNCIONES HELPER PARA ESTILO ZOHO =====
 
@@ -55,8 +55,8 @@ $(document).ready(function() {
             var newText = data.text.replace('+ Crear: "', '').replace('"', '');
             return $(
                 '<div class="select2-create-new">' +
-                    '<span class="select2-create-new-icon">+</span>' +
-                    '<span class="select2-create-new-text">Nuevo: ' + escapeHtml(newText) + '</span>' +
+                '<span class="select2-create-new-icon">+</span>' +
+                '<span class="select2-create-new-text">Nuevo: ' + escapeHtml(newText) + '</span>' +
                 '</div>'
             );
         }
@@ -67,12 +67,12 @@ $(document).ready(function() {
 
         return $(
             '<div class="select2-item-wrapper">' +
-                '<span class="select2-item-avatar" style="background-color: ' + color.bg + '; color: ' + color.text + ';">' +
-                    escapeHtml(initials) +
-                '</span>' +
-                '<div class="select2-item-content">' +
-                    '<div class="select2-item-name">' + escapeHtml(data.text) + '</div>' +
-                '</div>' +
+            '<span class="select2-item-avatar" style="background-color: ' + color.bg + '; color: ' + color.text + ';">' +
+            escapeHtml(initials) +
+            '</span>' +
+            '<div class="select2-item-content">' +
+            '<div class="select2-item-name">' + escapeHtml(data.text) + '</div>' +
+            '</div>' +
             '</div>'
         );
     }
@@ -94,10 +94,10 @@ $(document).ready(function() {
 
         return $(
             '<span class="select2-selection-item">' +
-                '<span class="select2-selection-avatar" style="background-color: ' + color.bg + '; color: ' + color.text + ';">' +
-                    escapeHtml(initials) +
-                '</span>' +
-                '<span class="select2-selection-text">' + escapeHtml(data.text) + '</span>' +
+            '<span class="select2-selection-avatar" style="background-color: ' + color.bg + '; color: ' + color.text + ';">' +
+            escapeHtml(initials) +
+            '</span>' +
+            '<span class="select2-selection-text">' + escapeHtml(data.text) + '</span>' +
             '</span>'
         );
     }
@@ -117,14 +117,14 @@ $(document).ready(function() {
             $select2Container.wrap('<div class="select2-zoho-container"></div>');
             $select2Container.after(
                 '<button type="button" class="select2-search-btn" tabindex="-1">' +
-                    '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>' +
-                    '</svg>' +
+                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>' +
+                '</svg>' +
                 '</button>'
             );
 
             // Al hacer clic en la lupa, abrir el dropdown
-            $select2Container.next('.select2-search-btn').on('click', function() {
+            $select2Container.next('.select2-search-btn').on('click', function () {
                 $(selector).select2('open');
             });
         }
@@ -141,13 +141,13 @@ $(document).ready(function() {
                 url: endpoint,
                 dataType: 'json',
                 delay: 250,
-                data: function(params) {
+                data: function (params) {
                     return {
                         q: params.term || '',
                         page: params.page || 1
                     };
                 },
-                processResults: function(data, params) {
+                processResults: function (data, params) {
                     params.page = params.page || 1;
                     return {
                         results: data.results,
@@ -158,7 +158,7 @@ $(document).ready(function() {
                 },
                 cache: true
             },
-            createTag: function(params) {
+            createTag: function (params) {
                 var term = $.trim(params.term);
                 if (term === '') {
                     return null;
@@ -174,7 +174,7 @@ $(document).ready(function() {
         });
 
         // Creación inmediata al seleccionar una opción "new:"
-        $(selector).on('select2:select', function(e) {
+        $(selector).on('select2:select', function (e) {
             var data = e.params.data;
             if (data.id && data.id.toString().startsWith('new:')) {
                 var newName = data.id.substring(4);
@@ -185,13 +185,13 @@ $(document).ready(function() {
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(postData),
-                    success: function(response) {
+                    success: function (response) {
                         if (response && response.id) {
                             var newOption = new Option(newName, response.id, true, true);
                             $(selector).append(newOption).trigger('change');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error creando item:', error);
                         alert('Error al crear: ' + newName + '. Intente de nuevo.');
                         $(selector).val(null).trigger('change');
@@ -205,102 +205,17 @@ $(document).ready(function() {
     }
 
     // ===== INICIALIZAR CAMPOS SELECT2 =====
-    initSelect2WithTags('#brand_id', '/api/catalog/brands', 'Buscar o crear marca...');
+    // Los campos de especificaciones técnicas (brand, model, processor, etc.) 
+    // ahora son StringFields (Inputs simples) para facilitar el auto-llenado de Icecat.
+    // Solo inicializamos Select2 para campos de catálogo real que siguen siendo IDs.
 
-    $('#model_id').select2({
-        tags: true,
-        placeholder: 'Buscar modelo... (primero selecciona marca)',
-        allowClear: true,
-        width: '100%',
-        ajax: {
-            url: '/api/catalog/models',
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                var brandId = $('#brand_id').val();
-                return {
-                    q: params.term || '',
-                    page: params.page || 1,
-                    brand_id: brandId && !brandId.toString().startsWith('new:') ? brandId : ''
-                };
-            },
-            processResults: function(data, params) {
-                params.page = params.page || 1;
-                return {
-                    results: data.results,
-                    pagination: {
-                        more: data.pagination && data.pagination.more
-                    }
-                };
-            },
-            cache: true
-        },
-        createTag: function(params) {
-            var term = $.trim(params.term);
-            if (term === '') {
-                return null;
-            }
-            return {
-                id: 'new:' + term,
-                text: '+ Crear: "' + term + '"',
-                newTag: true
-            };
-        },
-        templateResult: formatResultWithAvatar,
-        templateSelection: formatSelectionWithAvatar
-    });
-    wrapWithSearchButton('#model_id');
+    // Se elimina la creación inmediata para campos que ahora son texto libre.
 
-    // Creación inmediata para modelos
-    $('#model_id').on('select2:select', function(e) {
-        var data = e.params.data;
-        if (data.id && data.id.toString().startsWith('new:')) {
-            var newName = data.id.substring(4);
-            var postData = { name: newName };
-            var brandId = $('#brand_id').val();
-            if (brandId && !brandId.toString().startsWith('new:')) {
-                postData.brand_id = brandId;
-            }
-
-            $.ajax({
-                url: '/api/catalog/models',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(postData),
-                success: function(response) {
-                    if (response && response.id) {
-                        var newOption = new Option(newName, response.id, true, true);
-                        $('#model_id').append(newOption).trigger('change');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error creando modelo:', error);
-                    alert('Error al crear modelo: ' + newName + '. Intente de nuevo.');
-                    $('#model_id').val(null).trigger('change');
-                }
-            });
-        }
-    });
-
-    // Cuando cambia la marca, limpiar el modelo
-    $('#brand_id').on('change', function() {
-        var brandVal = $(this).val();
-        $('#model_id').val(null).trigger('change');
-
-        if (brandVal && !brandVal.toString().startsWith('new:')) {
-            $('#model_id').data('select2').options.options.placeholder = 'Buscar modelo...';
-        } else {
-            $('#model_id').data('select2').options.options.placeholder = 'Buscar modelo... (primero selecciona marca)';
-        }
-    });
+    // Se elimina el trigger de cambio de marca que limpiaba el modelo Select2.
 
     // Otros campos de catalogo
-    initSelect2WithTags('#processor_id', '/api/catalog/processors', 'Buscar o crear procesador...');
-    initSelect2WithTags('#os_id', '/api/catalog/operating-systems', 'Buscar o crear SO...');
-    initSelect2WithTags('#screen_id', '/api/catalog/screens', 'Buscar o crear pantalla...');
-    initSelect2WithTags('#graphics_card_id', '/api/catalog/graphics-cards', 'Buscar o crear GPU...');
-    initSelect2WithTags('#storage_id', '/api/catalog/storage', 'Buscar o crear almacenamiento...');
-    initSelect2WithTags('#ram_id', '/api/catalog/ram', 'Buscar o crear RAM...');
+    // Otros campos que ahora son de texto libre
+    // (Ya no se inicializan como Select2)
     initSelect2WithTags('#store_id', '/api/catalog/stores', 'Buscar o crear tienda...');
 
     // Ubicación necesita manejo especial por store_id
@@ -313,7 +228,7 @@ $(document).ready(function() {
             url: '/api/catalog/locations',
             dataType: 'json',
             delay: 250,
-            data: function(params) {
+            data: function (params) {
                 var storeId = $('#store_id').val();
                 return {
                     q: params.term || '',
@@ -321,7 +236,7 @@ $(document).ready(function() {
                     store_id: storeId && !storeId.toString().startsWith('new:') ? storeId : ''
                 };
             },
-            processResults: function(data, params) {
+            processResults: function (data, params) {
                 params.page = params.page || 1;
                 return {
                     results: data.results,
@@ -332,7 +247,7 @@ $(document).ready(function() {
             },
             cache: true
         },
-        createTag: function(params) {
+        createTag: function (params) {
             var term = $.trim(params.term);
             if (term === '') {
                 return null;
@@ -349,7 +264,7 @@ $(document).ready(function() {
     wrapWithSearchButton('#location_id');
 
     // Creación inmediata para ubicaciones
-    $('#location_id').on('select2:select', function(e) {
+    $('#location_id').on('select2:select', function (e) {
         var data = e.params.data;
         if (data.id && data.id.toString().startsWith('new:')) {
             var newName = data.id.substring(4);
@@ -364,13 +279,13 @@ $(document).ready(function() {
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(postData),
-                success: function(response) {
+                success: function (response) {
                     if (response && response.id) {
                         var newOption = new Option(newName, response.id, true, true);
                         $('#location_id').append(newOption).trigger('change');
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error creando ubicación:', error);
                     alert('Error al crear ubicación: ' + newName + '. Intente de nuevo.');
                     $('#location_id').val(null).trigger('change');
@@ -385,49 +300,50 @@ $(document).ready(function() {
     function generateDisplayName() {
         var parts = [];
 
-        // Obtener texto de cada campo Select2
-        var brand = $('#brand_id').select2('data')[0];
-        var model = $('#model_id').select2('data')[0];
-        var processor = $('#processor_id').select2('data')[0];
-        var ram = $('#ram_id').select2('data')[0];
-        var storage = $('#storage_id').select2('data')[0];
-        var screen = $('#screen_id').select2('data')[0];
+        // Obtener valores de los campos (ahora son StringFields/Inputs simples)
+        var brand = $('#brand_id').val();
+        var model = $('#model_id').val();
+
+        // Procesador (Combinar los 3 campos)
+        var pFamily = $('#processor_family').val() || '';
+        var pGen = $('#processor_generation').val() || '';
+        var pModel = $('#processor_model').val() || '';
+
+        var processor = [pFamily, pGen, pModel].filter(p => p.trim() !== '').join(' ');
+
+        var ram = $('#ram_id').val();
+        var storage = $('#storage_id').val();
+        var screen = $('#screen_id').val();
         var category = $('#category').val();
 
         // Agregar marca
-        if (brand && brand.text && brand.id != 0) {
-            var brandText = brand.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(brandText);
+        if (brand && brand.trim() !== '') {
+            parts.push(brand.trim());
         }
 
         // Agregar modelo
-        if (model && model.text && model.id != 0) {
-            var modelText = model.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(modelText);
+        if (model && model.trim() !== '') {
+            parts.push(model.trim());
         }
 
         // Agregar procesador
-        if (processor && processor.text && processor.id != 0) {
-            var processorText = processor.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(processorText);
+        if (processor && processor.trim() !== '') {
+            parts.push(processor.trim());
         }
 
         // Agregar RAM
-        if (ram && ram.text && ram.id != 0) {
-            var ramText = ram.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(ramText);
+        if (ram && ram.trim() !== '') {
+            parts.push(ram.trim());
         }
 
         // Agregar almacenamiento
-        if (storage && storage.text && storage.id != 0) {
-            var storageText = storage.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(storageText);
+        if (storage && storage.trim() !== '') {
+            parts.push(storage.trim());
         }
 
         // Agregar pantalla
-        if (screen && screen.text && screen.id != 0) {
-            var screenText = screen.text.replace('+ Crear: "', '').replace('"', '');
-            parts.push(screenText);
+        if (screen && screen.trim() !== '') {
+            parts.push(screen.trim());
         }
 
         // Agregar categoria
@@ -448,9 +364,12 @@ $(document).ready(function() {
     }
 
     // Escuchar cambios en los campos
-    $('#brand_id, #model_id, #processor_id, #ram_id, #storage_id, #screen_id, #category').on('change', function() {
+    $('#brand_id, #model_id, #processor_family, #processor_generation, #processor_model, #ram_id, #storage_id, #screen_id, #category').on('change', function () {
         generateDisplayName();
     });
+
+    // Exponer globalmente para la integración con Icecat
+    window.updateDisplayName = generateDisplayName;
 
     // Generar al cargar
     setTimeout(generateDisplayName, 100);

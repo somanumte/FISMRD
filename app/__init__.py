@@ -31,8 +31,8 @@ def create_app(config_name='development'):
     # User loader para Flask-Login
     from app.models.user import User
     
-    # Importar modelos RBAC para registro en SQLAlchemy/Migraciones
-    from app.models import rbac
+    # Importar modelos para registro en SQLAlchemy/Migraciones
+    from app.models import rbac, laptop, user
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -93,6 +93,7 @@ def create_app(config_name='development'):
     from app.routes.dashboard import dashboard_bp
     from app.routes.reports import reports_bp
     from app.routes.admin import admin_bp  # <--- Agregado
+    from app.routes.api.icecat_api import icecat_api_bp
 
     app.register_blueprint(public_bp)
     app.register_blueprint(expenses_bp)
@@ -106,6 +107,7 @@ def create_app(config_name='development'):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(admin_bp)  # <--- Agregado
+    app.register_blueprint(icecat_api_bp)
 
     # Configuración de CORS para APIs
     from flask_cors import CORS
@@ -121,10 +123,9 @@ def create_app(config_name='development'):
     from app.routes.main import register_error_handlers
     register_error_handlers(app)
 
-    # Configurar logging desde módulo separado (solo en producción)
-    if not app.debug and not app.testing:
-        from app.utils.logging_config import setup_logging
-        setup_logging(app)
+    # Configurar logging COMPLETO siempre (para debug)
+    from app.utils.logging_config import setup_logging
+    setup_logging(app)
 
     # Registrar comandos CLI desde módulo separado
     from app.cli import register_cli_commands

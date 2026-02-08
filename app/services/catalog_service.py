@@ -117,17 +117,66 @@ class CatalogService:
         return None
 
     @staticmethod
-    def get_or_create_processor(value):
+    def get_or_create_processor(family, generation=None, model=None, manufacturer=None):
         """
-        Obtiene o crea un procesador
+        Obtiene o crea un registro de generación de procesador
 
         Args:
-            value: ID (int) o nombre (str) del procesador
+            family: Familia del procesador (str)
+            generation: Nombre de la generación (str)
+            model: Modelo/Número (str, informativo para crear el objeto si no existe)
+            manufacturer: Fabricante (str, opcional)
 
         Returns:
-            int: ID del procesador, o None si value es inválido
+            int: ID de la generación del procesador, o None
         """
-        return CatalogService._get_or_create_generic(Processor, value)
+        # La prioridad ahora es el campo generation para el catálogo
+        if not generation and not family:
+            return None
+
+        # Si no hay generación, usamos la familia como nombre de catálogo
+        cat_name = (generation or family).strip()
+        if not cat_name:
+            return None
+
+        # Normalizar datos para los campos técnicos
+        family = family.strip() if family else ""
+        generation = generation.strip() if generation else ""
+        model = model.strip() if model else ""
+        manufacturer = manufacturer.strip() if manufacturer else ""
+
+        # Inferir fabricante si falta
+        if not manufacturer and family:
+            fam_lower = family.lower()
+            if 'intel' in fam_lower:
+                manufacturer = 'Intel'
+            elif 'amd' in fam_lower:
+                manufacturer = 'AMD'
+            elif 'apple' in fam_lower or fam_lower.startswith('m1') or fam_lower.startswith('m2') or fam_lower.startswith('m3'):
+                manufacturer = 'Apple'
+            elif 'snapdragon' in fam_lower or 'qualcomm' in fam_lower:
+                manufacturer = 'Qualcomm'
+
+        # Buscar si ya existe por NOMBRE (que ahora representa la generación)
+        existing = Processor.query.filter(
+            db.func.lower(Processor.name) == cat_name.lower()
+        ).first()
+
+        if existing:
+            return existing.id
+
+        # Crear nuevo registro de generación
+        new_processor = Processor(
+            name=cat_name,
+            family=family,
+            generation=generation,
+            model_number=model,
+            manufacturer=manufacturer,
+            is_active=True
+        )
+        db.session.add(new_processor)
+        db.session.flush()
+        return new_processor.id
 
     @staticmethod
     def get_or_create_os(value):
@@ -294,7 +343,10 @@ class CatalogService:
 
         # Procesar otros catálogos de especificaciones
         processed_data['processor_id'] = CatalogService.get_or_create_processor(
-            form_data.get('processor_id')
+            family=form_data.get('processor_family'),
+            generation=form_data.get('processor_generation'),
+            model=form_data.get('processor_model'),
+            manufacturer=form_data.get('processor_manufacturer')
         )
 
         processed_data['os_id'] = CatalogService.get_or_create_os(

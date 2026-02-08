@@ -96,6 +96,25 @@ def audit_log():
     """Vista de logs de auditoría"""
     return render_template('admin/audit_log.html')
 
+@admin_bp.route('/icecat-settings')
+@login_required
+@admin_required
+def icecat_settings():
+    """Vista de configuración de API de Icecat"""
+    from app.models.system_setting import SystemSetting
+    
+    # Obtener configuraciones actuales
+    api_username = SystemSetting.get_value('icecat_api_username', '')
+    content_username = SystemSetting.get_value('icecat_content_username', '')
+    language = SystemSetting.get_value('icecat_language', 'es')
+    
+    return render_template(
+        'admin/icecat_settings.html',
+        api_username=api_username,
+        content_username=content_username,
+        language=language
+    )
+
 # ============================================
 # API ENDPOINTS - USUARIOS
 # ============================================
@@ -398,17 +417,228 @@ def get_permissions():
 @login_required
 @permission_required('reports.audit.view')
 def get_audit_logs():
-    """Obtener logs de auditoría con filtros"""
-    limit = request.args.get('limit', 100, type=int)
-    module = request.args.get('module')
-    user_id = request.args.get('user_id', type=int)
-    action = request.args.get('action')
+    """Obtener logs de auditoría con paginación"""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
     
-    logs = AuditService.search_logs(
-        user_id=user_id,
-        module=module,
-        action=action,
-        limit=limit
-    )
+    logs = AuditService.get_logs(page=page, per_page=per_page)
     
-    return jsonify([log.to_dict() for log in logs])
+    return jsonify({
+        'logs': [log.to_dict() for log in logs.items],
+        'total': logs.total,
+        'pages': logs.pages,
+        'current_page': logs.page
+    })
+
+# ============================================
+# API ENDPOINTS - ICECAT CONFIGURATION
+# ============================================
+
+@admin_bp.route('/api/icecat-settings', methods=['GET'])
+@login_required
+@admin_required
+def get_icecat_settings():
+    """Obtener configuración actual de Icecat"""
+    from app.models.system_setting import SystemSetting
+    
+    return jsonify({
+        'api_token': SystemSetting.get_value('icecat_api_token', ''),
+        'content_token': SystemSetting.get_value('icecat_content_token', ''),
+        'api_username': SystemSetting.get_value('icecat_api_username', ''),
+        'app_key': SystemSetting.get_value('icecat_app_key', ''),
+        'content_username': SystemSetting.get_value('icecat_content_username', ''),
+        'language': SystemSetting.get_value('icecat_language', 'es')
+    })
+
+@admin_bp.route('/api/icecat-settings', methods=['POST'])
+@login_required
+@admin_required
+def save_icecat_settings():
+    """Guardar configuración de Icecat"""
+    from app.models.system_setting import SystemSetting
+    
+    data = request.get_json()
+    
+    try:
+        # Guardar configuraciones
+        SystemSetting.set_value(
+            'icecat_api_token',
+            data.get('api_token', ''),
+            description='Icecat API Access Token',
+            category='icecat'
+        )
+        
+        SystemSetting.set_value(
+            'icecat_content_token',
+            data.get('content_token', ''),
+            description='Icecat Content Access Token',
+            category='icecat'
+        )
+
+        SystemSetting.set_value(
+            'icecat_api_username',
+            data.get('api_username', ''),
+            description='Icecat API Access Token (Username)',
+            category='icecat'
+        )
+        
+        SystemSetting.set_value(
+            'icecat_app_key',
+            data.get('app_key', ''),
+            description='Icecat AppKey (Full Icecat)',
+            category='icecat'
+        )
+        
+        SystemSetting.set_value(
+            'icecat_content_username',
+            data.get('content_username', ''),
+            description='Icecat Content Access Token (Username)',
+            category='icecat'
+        )
+        
+        SystemSetting.set_value(
+            'icecat_language',
+            data.get('language', 'es'),
+            description='Idioma por defecto para Icecat',
+            category='icecat'
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': 'Configuración guardada exitosamente'
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error al guardar configuración: {str(e)}'
+        }), 500
+
+@admin_bp.route('/api/icecat-settings/test', methods=['POST'])
+@login_required
+@admin_required
+def test_icecat_connection():
+    """Probar conexión con Icecat usando las credenciales proporcionadas"""
+    from app.services.icecat_service import IcecatService
+    import requests
+    
+    data = request.get_json()
+    username = data.get('username', '')
+    app_key = data.get('app_key', '')
+    api_token = data.get('api_token', '')
+    content_token = data.get('content_token', '')
+    
+    # Validar requerimientos
+    if not api_token and not username:
+        return jsonify({
+            'success': False,
+            'message': 'Se requiere un API Token o un Username'
+        }), 400
+    
+    try:
+        # Probar con una lista de GTINs conocidos (Open Icecat friendly y Full Icecat)
+        # ASUS Zenbook, Dell Vostro, HP 250 G10
+        test_gtins = ['5397184771327', '197105780767', '198122307951']
+        
+        last_response = None
+        success = False
+        
+        for test_gtin in test_gtins:
+            try:
+                # Determinar modo de autenticación
+                params = {
+                    'GTIN': test_gtin,
+                    'Language': 'es',
+                    'Content': 'All'
+                }
+                headers = {}
+                
+                if api_token:
+                    # Modo Token (Headers)
+                    headers['Api-Token'] = api_token
+                    if content_token:
+                        headers['Content-Token'] = content_token
+                else:
+                    # Modo Legacy (Params)
+                    params['UserName'] = username
+                    if app_key:
+                        params['AppKey'] = app_key
+
+                # Realizar petición (con reintentos SSL)
+                # Intento 1: Conexión segura
+                try:
+                    response = requests.get(
+                        IcecatService.BASE_URL,
+                        params=params,
+                        headers=headers,
+                        timeout=5
+                    )
+                except requests.exceptions.SSLError:
+                    # Intento 2: Fallback SSL
+                    import urllib3
+                    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                    response = requests.get(
+                        IcecatService.BASE_URL,
+                        params=params,
+                        headers=headers,
+                        timeout=5,
+                        verify=False
+                    )
+                
+                last_response = response
+                
+                if response.status_code == 200:
+                    json_data = response.json()
+                    # Verificar que hay data real (no error disfrazado)
+                    if 'data' in json_data and json_data['data']:
+                        success = True
+                        break # Éxito, salir del loop
+                    elif 'StatusCode' in json_data and json_data['StatusCode'] != 1:
+                         # Es un error de Icecat (ej. 401 User/AppKey mismatch)
+                         continue 
+            except Exception as e:
+                continue # Intentar siguiente GTIN
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Conexión exitosa con Icecat'
+            })
+        
+        # Si fallaron todos, analizar el último error
+        if last_response:
+            if last_response.status_code == 401:
+                return jsonify({
+                    'success': False,
+                    'message': 'Credenciales inválidas. Verifica tu username/token.'
+                }), 401
+            else:
+                 # Intentar dar un mensaje más descriptivo
+                error_msg = f'Error de API: {last_response.status_code}'
+                try:
+                    error_json = last_response.json()
+                    if error_json.get('Message'):
+                        error_msg = error_json.get('Message')
+                except:
+                    pass
+                
+                return jsonify({
+                    'success': False,
+                    'message': f'No se pudo verificar. {error_msg}'
+                }), last_response.status_code
+        else:
+             return jsonify({
+                'success': False,
+                'message': 'Error de conexión (Timeout o Red)'
+            }), 500
+    
+    except requests.exceptions.Timeout:
+        return jsonify({
+            'success': False,
+            'message': 'Timeout al conectar con Icecat'
+        }), 504
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        }), 500

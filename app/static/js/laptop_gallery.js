@@ -15,15 +15,15 @@ const LaptopGalleryHybrid = {
         maxSize: 5 * 1024 * 1024,      // 5MB
         minWidth: 400,
         minHeight: 300,
-        validTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
-        maxImages: 8
+        validTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
+        maxImages: 999  // Sin límite práctico
     },
 
     objectUrls: new Set(),
 
     // ===== INICIALIZACIÓN =====
 
-    init: function() {
+    init: function () {
         console.log('🚀 Inicializando galería híbrida...');
         this.cacheElements();
         this.loadExistingImages();
@@ -34,7 +34,7 @@ const LaptopGalleryHybrid = {
         window.addEventListener('beforeunload', this.cleanup.bind(this));
     },
 
-    cacheElements: function() {
+    cacheElements: function () {
         this.elements = {
             uploadArea: document.getElementById('upload-area-premium'),
             dragOverlay: document.getElementById('drag-overlay-premium'),
@@ -48,7 +48,7 @@ const LaptopGalleryHybrid = {
 
     // ===== CARGA DE IMÁGENES EXISTENTES =====
 
-    loadExistingImages: function() {
+    loadExistingImages: function () {
         console.log('📂 Cargando imágenes existentes...');
 
         // Buscar todas las imágenes existentes en el formulario
@@ -112,7 +112,7 @@ const LaptopGalleryHybrid = {
 
     // ===== RENDERIZADO =====
 
-    render: function() {
+    render: function () {
         const { imagesContainer } = this.elements;
         if (!imagesContainer) return;
 
@@ -141,17 +141,22 @@ const LaptopGalleryHybrid = {
         this.syncFormInputs();
     },
 
-    createImageCard: function(imageData, index) {
+    createImageCard: function (imageData, index) {
         const card = document.createElement('div');
         card.className = `image-card-premium ${imageData.isCover ? 'cover' : ''}`;
         card.draggable = true;
         card.dataset.imageId = imageData.id;
         card.dataset.index = index;
 
-        // Agregar indicador de tipo (opcional pero útil)
-        const typeIndicator = imageData.type === 'existing'
-            ? '<span class="type-badge existing"><i class="fas fa-cloud"></i></span>'
-            : '<span class="type-badge new"><i class="fas fa-upload"></i></span>';
+        // Agregar indicador de tipo según el origen
+        let typeIndicator = '';
+        if (imageData.type === 'existing') {
+            typeIndicator = '<span class="type-badge existing"><i class="fas fa-cloud"></i></span>';
+        } else if (imageData.type === 'icecat') {
+            typeIndicator = '<span class="type-badge icecat"><i class="fas fa-cloud-download-alt"></i></span>';
+        } else {
+            typeIndicator = '<span class="type-badge new"><i class="fas fa-upload"></i></span>';
+        }
 
         card.innerHTML = `
             <div class="image-preview-premium">
@@ -188,7 +193,7 @@ const LaptopGalleryHybrid = {
         return card;
     },
 
-    addCardEventListeners: function(card, index) {
+    addCardEventListeners: function (card, index) {
         // Botón de portada
         card.querySelector('.set-cover')?.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -220,7 +225,7 @@ const LaptopGalleryHybrid = {
 
     // ===== OPERACIONES SOBRE IMÁGENES =====
 
-    setAsCover: function(index) {
+    setAsCover: function (index) {
         if (index < 0 || index >= this.images.length) return;
 
         // Obtener la imagen seleccionada
@@ -245,7 +250,7 @@ const LaptopGalleryHybrid = {
         this.showNotification('Portada actualizada', 'success');
     },
 
-    deleteImage: function(index) {
+    deleteImage: function (index) {
         if (index < 0 || index >= this.images.length) return;
 
         if (!confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
@@ -286,7 +291,7 @@ const LaptopGalleryHybrid = {
         this.showNotification('Imagen eliminada', 'success');
     },
 
-    updateAltText: function(index, newAlt) {
+    updateAltText: function (index, newAlt) {
         if (index >= 0 && index < this.images.length) {
             this.images[index].alt = newAlt;
             this.syncFormInputs();
@@ -335,7 +340,7 @@ const LaptopGalleryHybrid = {
         }
     },
 
-    addNewImage: function(file) {
+    addNewImage: function (file) {
         const url = URL.createObjectURL(file);
         this.objectUrls.add(url);
 
@@ -354,10 +359,77 @@ const LaptopGalleryHybrid = {
         console.log('➕ Nueva imagen agregada:', imageData.name);
     },
 
-    getNextSlot: function() {
+    getNextSlot: function () {
         if (this.images.length === 0) return 1;
         const maxSlot = Math.max(...this.images.map(img => img.slot));
         return maxSlot + 1;
+    },
+
+    // ===== CARGA DE IMÁGENES POR URL (ICECAT) =====
+
+    addImagesFromUrls: function (urls) {
+        console.log('🔗 === INICIO addImagesFromUrls ===');
+        console.log('URLs recibidas:', urls);
+        console.log('¿Es array?:', Array.isArray(urls));
+        console.log('Cantidad de URLs:', urls ? urls.length : 0);
+        console.log('Estado actual images:', this.images.length);
+        console.log('Has imageConfig?:', !!this.imageConfig);
+        console.log('maxImages:', this.imageConfig?.maxImages);
+
+        const availableSlots = this.imageConfig.maxImages - this.images.length;
+        console.log('Slots disponibles:', availableSlots);
+
+        if (availableSlots <= 0) {
+            console.warn('⚠️ No hay slots disponibles');
+            this.showNotification('Galería llena, no se pueden agregar más imágenes', 'warning');
+            return;
+        }
+
+        const urlsToAdd = urls.slice(0, availableSlots);
+        console.log('URLs a agregar (después de slice):', urlsToAdd.length);
+        let addedCount = 0;
+
+        urlsToAdd.forEach((url, index) => {
+            console.log(`\n--- Procesando URL ${index + 1}/${urlsToAdd.length} ---`);
+            console.log('URL:', url);
+
+            // Evitar duplicados por URL
+            const isDuplicate = this.images.some(img => img.url === url);
+            if (isDuplicate) {
+                console.log('⚠️ URL duplicada, omitiendo:', url);
+                return;
+            }
+
+            const imageData = {
+                id: `icecat-${this.nextTempId++}`,
+                type: 'icecat',  // Tipo interno para identificación
+                source: url, // Es un string URL, no un File
+                url: url,
+                alt: `Imagen ${addedCount + 1}`,
+                isCover: this.images.length === 0,
+                slot: this.getNextSlot(),
+                name: `Imagen ${addedCount + 1}`
+            };
+
+            console.log('Datos de imagen creados:', imageData);
+            this.images.push(imageData);
+            addedCount++;
+            console.log(`✅ Imagen Icecat ${addedCount} agregada:`, url.substring(0, 60));
+        });
+
+        console.log(`\n🎯 Resumen: ${addedCount} imágenes agregadas de ${urls.length} recibidas`);
+        console.log('Estado final images.length:', this.images.length);
+
+        if (addedCount > 0) {
+            console.log('⏳ Llamando a render()...');
+            this.render();
+            this.showNotification(`${addedCount} imagen${addedCount !== 1 ? 'es' : ''} cargada${addedCount !== 1 ? 's' : ''}`, 'success');
+            console.log('📊 Estado actual de la galería:', this.getState());
+        } else {
+            console.warn('⚠️ No se agregaron imágenes de Icecat (addedCount = 0)');
+        }
+
+        console.log('🔗 === FIN addImagesFromUrls ===\n');
     },
 
     // ===== VALIDACIÓN =====
@@ -386,7 +458,7 @@ const LaptopGalleryHybrid = {
         }
     },
 
-    getImageDimensions: function(file) {
+    getImageDimensions: function (file) {
         return new Promise((resolve, reject) => {
             const url = URL.createObjectURL(file);
             const img = new Image();
@@ -405,44 +477,43 @@ const LaptopGalleryHybrid = {
         });
     },
 
-    showEmptyState: function() {
+    showEmptyState: function () {
         // El estado vacío ya está en el HTML, solo asegurar que esté visible
     },
 
     // ===== SINCRONIZACIÓN CON FORMULARIO =====
 
-    syncFormInputs: function() {
+    syncFormInputs: function () {
         console.log('🔄 Sincronizando con formulario...');
 
-        // Limpiar todos los inputs primero
-        for (let i = 1; i <= this.imageConfig.maxImages; i++) {
-            const input = document.getElementById(`image_${i}`);
-            const altInput = document.getElementById(`image_${i}_alt`);
-            const pathInput = document.getElementById(`image_${i}_path`);
-            const idInput = document.getElementById(`image_${i}_id`);  // CORRECCIÓN: Agregar referencia al input de ID
-
-            if (input) {
-                // No limpiar el value de inputs existentes, solo actualizar los nuevos
-                if (!input.value || input.value === '') {
-                    input.value = '';
-                }
-                // Limpiar los data attributes para evitar datos obsoletos
+        // Limpiar todos los inputs existentes que sigan el patrón
+        const existingInputs = document.querySelectorAll('input[id^="image_"]');
+        existingInputs.forEach(input => {
+            if (input.type === 'file') {
+                input.value = '';
                 input.removeAttribute('data-image-id');
                 input.removeAttribute('data-image-url');
                 input.removeAttribute('data-is-cover');
+            } else if (input.id.includes('_alt') || input.id.includes('_path') || input.id.includes('_id') || input.id.includes('_url')) {
+                input.value = '';
             }
-            if (altInput) altInput.value = '';
-            if (pathInput) pathInput.value = '';
-            if (idInput) idInput.value = '';  // CORRECCIÓN: Limpiar el ID también
-        }
+        });
 
         // Sincronizar cada imagen con su slot correspondiente
         this.images.forEach((imageData, index) => {
             const slot = index + 1;
-            const input = document.getElementById(`image_${slot}`);
+            let input = document.getElementById(`image_${slot}`);
+
+            // Si el slot no existe, crearlo dinámicamente
+            if (!input) {
+                this.createSlotInputs(slot);
+                input = document.getElementById(`image_${slot}`);
+            }
+
             const altInput = document.getElementById(`image_${slot}_alt`);
             const pathInput = document.getElementById(`image_${slot}_path`);
-            const idInput = document.getElementById(`image_${slot}_id`);  // CORRECCIÓN: Obtener el input de ID
+            const idInput = document.getElementById(`image_${slot}_id`);
+            const urlInput = document.getElementById(`image_${slot}_url`);
 
             if (!input) return;
 
@@ -471,6 +542,12 @@ const LaptopGalleryHybrid = {
                 }
             }
 
+            // Para imágenes de Icecat (tipo 'icecat'), actualizar el campo de URL
+            if (imageData.type === 'icecat' && urlInput) {
+                urlInput.value = imageData.source; // La URL de Icecat
+                console.log(`📝 Sincronizando imagen Icecat slot ${slot}:`, imageData.source.substring(0, 60));
+            }
+
             // Actualizar alt text
             if (altInput) {
                 altInput.value = imageData.alt;
@@ -480,13 +557,18 @@ const LaptopGalleryHybrid = {
             if (pathInput && imageData.type === 'existing') {
                 pathInput.value = imageData.url.replace('/static/', '');
             }
+
+            // Para imágenes nuevas desde URL (Icecat), actualizar el campo de URL
+            if (urlInput && imageData.type === 'new' && typeof imageData.source === 'string') {
+                urlInput.value = imageData.source;
+            }
         });
 
         // Agregar campo oculto con IDs de imágenes a eliminar
         this.syncDeletedImages();
     },
 
-    syncDeletedImages: function() {
+    syncDeletedImages: function () {
         // Buscar o crear input oculto para las imágenes a eliminar
         let deleteInput = document.getElementById('images_to_delete');
 
@@ -504,9 +586,32 @@ const LaptopGalleryHybrid = {
         console.log('🗑️ Imágenes marcadas para eliminar:', this.imagesToDelete);
     },
 
+    createSlotInputs: function (slot) {
+        console.log(`🏗️ Creando inputs dinámicos para slot ${slot}...`);
+
+        let dynamicContainer = document.getElementById('dynamic-image-inputs');
+        if (!dynamicContainer) {
+            dynamicContainer = document.createElement('div');
+            dynamicContainer.id = 'dynamic-image-inputs';
+            dynamicContainer.style.display = 'none';
+            this.elements.form.appendChild(dynamicContainer);
+        }
+
+        const html = `
+            <div id="slot_group_${slot}">
+                <input type="file" id="image_${slot}" name="image_${slot}">
+                <input type="hidden" id="image_${slot}_alt" name="image_${slot}_alt">
+                <input type="hidden" id="image_${slot}_path" name="image_${slot}_path">
+                <input type="hidden" id="image_${slot}_id" name="image_${slot}_id">
+                <input type="hidden" id="image_${slot}_url" name="image_${slot}_url">
+            </div>
+        `;
+        dynamicContainer.insertAdjacentHTML('beforeend', html);
+    },
+
     // ===== DRAG & DROP =====
 
-    initDragDrop: function() {
+    initDragDrop: function () {
         const { uploadArea, dragOverlay } = this.elements;
         if (!uploadArea || !dragOverlay) return;
 
@@ -529,19 +634,19 @@ const LaptopGalleryHybrid = {
         document.body.addEventListener('drop', this.handleBodyDrop.bind(this), false);
     },
 
-    handleDrop: function(e) {
+    handleDrop: function (e) {
         const files = e.dataTransfer.files;
         this.handleFiles(files);
     },
 
-    handleBodyDrop: function(e) {
+    handleBodyDrop: function (e) {
         if (!e.target.closest('#upload-area-premium')) {
             const files = e.dataTransfer.files;
             this.handleFiles(files);
         }
     },
 
-    dragStart: function(e, index) {
+    dragStart: function (e, index) {
         this.draggedCard = e.currentTarget;
         this.draggedIndex = index;
         e.dataTransfer.effectAllowed = 'move';
@@ -552,12 +657,12 @@ const LaptopGalleryHybrid = {
         }, 0);
     },
 
-    allowDrop: function(e) {
+    allowDrop: function (e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     },
 
-    drop: function(e, targetIndex) {
+    drop: function (e, targetIndex) {
         e.preventDefault();
 
         if (this.draggedIndex !== undefined && this.draggedIndex !== targetIndex) {
@@ -577,7 +682,7 @@ const LaptopGalleryHybrid = {
         this.dragEnd();
     },
 
-    dragEnd: function() {
+    dragEnd: function () {
         if (this.draggedCard) {
             this.draggedCard.classList.remove('dragging');
             this.draggedCard = null;
@@ -587,7 +692,7 @@ const LaptopGalleryHybrid = {
 
     // ===== EVENT LISTENERS =====
 
-    initEventListeners: function() {
+    initEventListeners: function () {
         const { bulkUpload, browseBtn } = this.elements;
 
         browseBtn?.addEventListener('click', (e) => {
@@ -609,7 +714,7 @@ const LaptopGalleryHybrid = {
         });
     },
 
-    initTipsTooltip: function() {
+    initTipsTooltip: function () {
         const infoIcon = document.getElementById('info-icon-premium');
         const tipsTooltip = document.getElementById('tips-tooltip-premium');
         if (!infoIcon || !tipsTooltip) return;
@@ -624,13 +729,13 @@ const LaptopGalleryHybrid = {
         });
     },
 
-    updateCounter: function() {
+    updateCounter: function () {
         if (this.elements.imageCounter) {
             this.elements.imageCounter.textContent = this.images.length;
         }
     },
 
-    showNotification: function(message, type = 'success') {
+    showNotification: function (message, type = 'success') {
         const notification = document.createElement('div');
 
         const colors = {
@@ -699,7 +804,7 @@ const LaptopGalleryHybrid = {
 
     // ===== CLEANUP =====
 
-    cleanup: function() {
+    cleanup: function () {
         this.objectUrls.forEach(url => {
             try {
                 URL.revokeObjectURL(url);
@@ -710,14 +815,14 @@ const LaptopGalleryHybrid = {
         this.objectUrls.clear();
     },
 
-    preventDefaults: function(e) {
+    preventDefaults: function (e) {
         e.preventDefault();
         e.stopPropagation();
     },
 
     // ===== API PÚBLICA =====
 
-    getState: function() {
+    getState: function () {
         return {
             images: this.images,
             imagesToDelete: this.imagesToDelete,
@@ -730,7 +835,7 @@ const LaptopGalleryHybrid = {
 
 // ===== INICIALIZACIÓN =====
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🎬 DOM listo, inicializando galería en 50ms...');
 
     setTimeout(() => {

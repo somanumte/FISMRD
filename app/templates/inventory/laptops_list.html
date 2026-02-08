@@ -214,6 +214,51 @@
                             </select>
                         </div>
 
+                        <!-- Combined Processor Filter -->
+                        <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                                    </path>
+                                </svg>
+                                Procesador
+                            </h4>
+
+                            <div class="space-y-3">
+                                <!-- Family -->
+                                <div>
+                                    <label
+                                        class="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Familia</label>
+                                    <select name="processor" id="processor-filter"
+                                        class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none">
+                                        <option value="">Todas</option>
+                                        {% for family in filter_form.processor_id.choices[1:] %}
+                                        <option value="{{ family[0] }}" {% if
+                                            request.args.get('processor')==family[0]|string %}selected{% endif %}>{{
+                                            family[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- Generation (Hidden by default) -->
+                                <div id="generation-container" {% if not request.args.get('processor')
+                                    %}style="display: none;" {% endif %}>
+                                    <label
+                                        class="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1.5 block">Generación</label>
+                                    <select name="generation" id="generation-filter"
+                                        class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none">
+                                        <option value="">Todas</option>
+                                        {% for gen in filter_form.processor_generation.choices[1:] %}
+                                        <option value="{{ gen[0] }}" {% if request.args.get('generation')==gen[0]|string
+                                            %}selected{% endif %}>{{ gen[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Category Filter -->
                         <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
                             <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-2 flex items-center gap-2">
@@ -1265,6 +1310,40 @@
         // Inicializar vista guardada
         const savedView = localStorage.getItem('inventoryViewMode') || 'list';
         setViewMode(savedView);
+
+        // Dependent Processor Generation Filter
+        const processorSelect = document.getElementById('processor-filter');
+        const generationSelect = document.getElementById('generation-filter');
+        const generationContainer = document.getElementById('generation-container');
+
+        if (processorSelect && generationSelect && generationContainer) {
+            processorSelect.addEventListener('change', async function () {
+                const family = this.value;
+
+                if (!family) {
+                    generationContainer.style.display = 'none';
+                    generationSelect.innerHTML = '<option value="">Todas</option>';
+                    return;
+                }
+
+                generationContainer.style.display = 'block';
+                generationSelect.innerHTML = '<option value="">Cargando...</option>';
+
+                try {
+                    const url = `/inventory/get_generations/${encodeURIComponent(family)}`;
+                    const response = await fetch(url);
+                    const generations = await response.json();
+
+                    generationSelect.innerHTML = '<option value="">Todas</option>';
+                    generations.forEach(gen => {
+                        generationSelect.innerHTML += `<option value="${gen}">${gen}</option>`;
+                    });
+                } catch (error) {
+                    console.error('Error fetching generations:', error);
+                    generationSelect.innerHTML = '<option value="">Todas</option>';
+                }
+            });
+        }
     });
 
     // Función para cambiar el modo de vista

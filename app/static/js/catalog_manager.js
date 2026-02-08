@@ -6,7 +6,7 @@
 // 10 Catalogs (Models and Locations are managed hierarchically)
 const CATALOG_CONFIG = {
     'brands': { label: 'Marcas', icon: 'fa-tag', hierarchical: true },
-    'processors': { label: 'Procesadores', icon: 'fa-microchip' },
+    'processors': { label: 'Generaciones de Procesador', icon: 'fa-microchip' },
     'operating-systems': { label: 'Sistemas Operativos', icon: 'fa-compact-disc' },
     'screens': { label: 'Pantallas', icon: 'fa-desktop' },
     'graphics-cards': { label: 'Tarjetas Gráficas', icon: 'fa-memory' },

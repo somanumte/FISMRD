@@ -22,15 +22,15 @@ def obtener_db_password():
     """
     password_vault = keyring.get_password(VAULT_SERVICE_NAME, DB_USER)
     if password_vault:
-        print(f"🔑 Contraseña recuperada desde Windows Vault ({VAULT_SERVICE_NAME})")
+        print(f"Contraseña recuperada desde Windows Vault ({VAULT_SERVICE_NAME})")
         return password_vault
 
     password_env = os.environ.get('DB_PASSWORD')
     if password_env:
-        print("🔑 Contraseña recuperada desde variable de entorno (.env)")
+        print("Contraseña recuperada desde variable de entorno (.env)")
         return password_env
 
-    print("⚠️  Usando contraseña por defecto (cambiar en producción)")
+    print("Usando contraseña por defecto (cambiar en producción)")
     return "******"
 
 

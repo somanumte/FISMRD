@@ -389,6 +389,7 @@ class SerialMovement(TimestampMixin, db.Model):
     serial = db.relationship('LaptopSerial', backref=db.backref(
         'movements', 
         lazy='dynamic',
+        cascade='all, delete-orphan',  # Eliminar movimientos cuando se elimina el serial
         order_by='desc(SerialMovement.created_at)'
     ))
     invoice = db.relationship('Invoice', backref=db.backref('serial_movements', lazy='dynamic'))

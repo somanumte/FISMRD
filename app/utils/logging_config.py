@@ -36,6 +36,11 @@ def setup_logging(app):
     # Añadir handler al logger de la aplicación
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
+    
+    # TAMBIÉN añadir al logger raíz para capturar todo (servicios, etc.)
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+    root_logger.setLevel(logging.INFO)
 
     # Mensaje inicial
     app.logger.info('Luxera startup - Logging configurado')

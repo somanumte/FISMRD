@@ -4,6 +4,7 @@
 # ============================================
 # Actualizado al nuevo modelo de datos
 
+from app import db
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, MultipleFileField
 from wtforms import (
@@ -95,10 +96,16 @@ class FilterForm(FlaskForm):
         render_kw={'class': 'form-input'}
     )
 
-    # Filtro por procesador
+    # Filtro por procesador (Familia)
     processor_id = SelectField(
         'Procesador',
-        coerce=int,
+        validators=[Optional()],
+        render_kw={'class': 'form-input'}
+    )
+
+    # Filtro por generación de procesador
+    processor_generation = SelectField(
+        'Generación',
         validators=[Optional()],
         render_kw={'class': 'form-input'}
     )
@@ -159,9 +166,20 @@ class FilterForm(FlaskForm):
             (b.id, b.name) for b in Brand.query.filter_by(is_active=True).order_by(Brand.name).all()
         ]
 
-        # Processors
-        self.processor_id.choices = [(0, 'Todos los procesadores')] + [
-            (p.id, p.name) for p in Processor.query.filter_by(is_active=True).order_by(Processor.name).all()
+        # Processors (Grouped by Family)
+        self.processor_id.choices = [('', 'Todos los procesadores')] + [
+            (f[0], f[0]) for f in db.session.query(Processor.family).filter(
+                Processor.is_active == True,
+                Processor.family != None
+            ).distinct().order_by(Processor.family).all()
+        ]
+
+        # Processor Generations
+        self.processor_generation.choices = [('', 'Todas las generaciones')] + [
+            (g[0], g[0]) for g in db.session.query(Processor.name).filter(
+                Processor.is_active == True,
+                Processor.name != None
+            ).distinct().order_by(Processor.name).all()
         ]
 
         # Graphics Cards
@@ -192,8 +210,23 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    icecat_id = HiddenField('Icecat ID')
+    full_specs_json = HiddenField('Icecat Full Specs')
+    normalized_specs = HiddenField('Icecat Normalized Specs')
+
+    gtin = StringField(
+        'EAN / UPC (GTIN)',
+        validators=[Optional(), Length(max=50)],
+        render_kw={
+            'placeholder': 'Escanea o ingresa el codigo de barras',
+            'class': 'form-input',
+            'id': 'gtin-input'
+        }
+    )
+
+
     slug = StringField(
-        'Slug (URL amigable)',
+        'URL amigable',
         validators=[
             Optional(),
             Length(max=255),
@@ -273,87 +306,123 @@ class LaptopForm(FlaskForm):
     )
 
     # ===== 3. ESPECIFICACIONES TÉCNICAS =====
-    brand_id = SelectField(
+    brand_id = StringField(
         'Marca',
-        coerce=int,
         validators=[DataRequired(message='La marca es requerida')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Selecciona o crea una marca',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/brands'
+            'placeholder': 'Ej: Dell, HP, ASUS',
+            'class': 'form-input spec-field',
+            'id': 'brand_id'
         }
     )
 
-    model_id = SelectField(
+    model_id = StringField(
         'Modelo',
-        coerce=int,
         validators=[DataRequired(message='El modelo es requerido')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Selecciona o crea un modelo',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/models'
+            'placeholder': 'Ej: Inspiron 15, ROG Strix G18',
+            'class': 'form-input spec-field',
+            'id': 'model_id'
         }
     )
 
-    processor_id = SelectField(
-        'Procesador',
-        coerce=int,
-        validators=[DataRequired(message='El procesador es requerido')],
+    # Procesador (Nueva estructura de 3 campos)
+    processor_family = StringField(
+        'Familia del Procesador',
+        validators=[DataRequired(message='La familia del procesador es requerida')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: Intel Core i7-12700H',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/processors'
+            'placeholder': 'Ej: Intel Core i7 / AMD Ryzen 9',
+            'class': 'form-input spec-field',
+            'id': 'processor_family'
+        }
+    )
+    processor_generation = StringField(
+        'Generación',
+        validators=[Optional(), Length(max=100)],
+        render_kw={
+            'placeholder': 'Ej: 12th Gen / AMD Ryzen 8000 Series',
+            'class': 'form-input spec-field',
+            'id': 'processor_generation'
+        }
+    )
+    processor_model = StringField(
+        'Modelo / Número',
+        validators=[DataRequired(message='El modelo del procesador es requerido')],
+        render_kw={
+            'placeholder': 'Ej: 12700H / 8940HX',
+            'class': 'form-input spec-field',
+            'id': 'processor_model'
         }
     )
 
-    os_id = SelectField(
+    processor_full_name = StringField(
+        'Nombre Completo (Ejecución)',
+        validators=[Optional(), Length(max=255)],
+        render_kw={
+            'placeholder': 'Ej: 12th Gen Intel Core i7-12700H',
+            'class': 'form-input',
+            'id': 'processor_full_name'
+        }
+    )
+
+    os_id = StringField(
         'Sistema Operativo',
-        coerce=int,
         validators=[DataRequired(message='El sistema operativo es requerido')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: Windows 11 Pro',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/operating-systems'
+            'placeholder': 'Ej: Windows 11 Pro',
+            'class': 'form-input spec-field',
+            'id': 'os_id'
         }
     )
 
-    screen_id = SelectField(
-        'Pantalla',
-        coerce=int,
+    screen_id = StringField(
+        'Resolución de Pantalla',
         validators=[DataRequired(message='La pantalla es requerida')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: 15.6" FHD IPS',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/screens'
+            'placeholder': 'Ej: 15.6" FHD IPS',
+            'class': 'form-input spec-field',
+            'id': 'screen_id'
         }
     )
 
-    graphics_card_id = SelectField(
-        'Tarjeta Grafica',
-        coerce=int,
+    screen_size = DecimalField(
+        'Tamaño de Pantalla (Pulgadas)',
+        places=1,
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={
+            'placeholder': 'Ej: 15.6',
+            'class': 'form-input',
+            'step': '0.1',
+            'id': 'screen_size'
+        }
+    )
+
+    graphics_card_id = StringField(
+        'Tarjeta Gráfica',
         validators=[DataRequired(message='La tarjeta grafica es requerida')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: NVIDIA RTX 4060',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/graphics-cards'
+            'placeholder': 'Ej: NVIDIA RTX 4060',
+            'class': 'form-input spec-field',
+            'id': 'graphics_card_id'
         }
     )
 
-    storage_id = SelectField(
+    has_discrete_gpu = BooleanField(
+        'Tiene GPU Dedicada',
+        default=False,
+        render_kw={
+            'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded',
+            'id': 'has_discrete_gpu'
+        }
+    )
+
+    storage_id = StringField(
         'Almacenamiento',
-        coerce=int,
         validators=[DataRequired(message='El almacenamiento es requerido')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: 512GB SSD NVMe',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/storage'
+            'placeholder': 'Ej: 512GB SSD NVMe',
+            'class': 'form-input spec-field',
+            'id': 'storage_id'
         }
     )
 
@@ -365,15 +434,23 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    ram_id = SelectField(
+    storage_capacity = IntegerField(
+        'Capacidad Almacenamiento (GB)',
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={
+            'placeholder': 'Ej: 512',
+            'class': 'form-input',
+            'id': 'storage_capacity'
+        }
+    )
+
+    ram_id = StringField(
         'RAM',
-        coerce=int,
         validators=[DataRequired(message='La RAM es requerida')],
         render_kw={
-            'class': 'form-input select2-dynamic',
-            'data-placeholder': 'Ej: 16GB DDR5',
-            'data-allow-clear': 'true',
-            'data-endpoint': '/api/catalog/ram'
+            'placeholder': 'Ej: 16GB DDR5',
+            'class': 'form-input spec-field',
+            'id': 'ram_id'
         }
     )
 
@@ -385,12 +462,31 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    ram_capacity = IntegerField(
+        'Capacidad RAM (GB)',
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={
+            'placeholder': 'Ej: 16',
+            'class': 'form-input',
+            'id': 'ram_capacity'
+        }
+    )
+
     # ===== 4. DETALLES TÉCNICOS ESPECÍFICOS =====
     npu = BooleanField(
         'Tiene NPU (Procesador de IA)',
         default=False,
         render_kw={
             'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
+        }
+    )
+
+    keyboard_backlight = BooleanField(
+        'Teclado retroiluminado',
+        default=False,
+        render_kw={
+            'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded',
+            'id': 'keyboard_backlight'
         }
     )
 
@@ -404,20 +500,92 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    connectivity_ports = SelectMultipleField(
+    connectivity_ports = TextAreaField(
         'Puertos de Conectividad',
-        choices=CONNECTIVITY_PORTS_CHOICES,
+        validators=[Optional(), Length(max=2000)],
+        render_kw={
+            'class': 'form-input',
+            'placeholder': 'Ej: 2x USB 3.2, 1x HDMI, 1x RJ-45...',
+            'rows': '3',
+            'id': 'connectivity_ports'
+        }
+    )
+
+    wifi_standard = StringField(
+        'Estandar Wi-Fi',
+        validators=[Optional(), Length(max=100)],
+        render_kw={
+            'placeholder': 'Ej: Wi-Fi 6 (802.11ax)',
+            'class': 'form-input',
+            'id': 'wifi_standard'
+        }
+    )
+
+    cellular = StringField(
+        'Conectividad Celular',
+        validators=[Optional(), Length(max=100)],
+        render_kw={
+            'placeholder': 'Ej: 4G LTE, 5G (Opcional)',
+            'class': 'form-input',
+            'id': 'cellular'
+        }
+    )
+
+    # ===== 10. COMERCIAL Y GARANTÍA =====
+    keywords = StringField(
+        'Palabras clave (SEO)',
+        validators=[Optional(), Length(max=500)],
+        render_kw={
+            'placeholder': 'Ej: gaming, ultrabook, workstation, dell, xps',
+            'class': 'form-input',
+            'id': 'keywords'
+        }
+    )
+
+    currency = StringField(
+        'Moneda',
+        default='USD',
+        validators=[Optional(), Length(max=10)],
+        render_kw={
+            'class': 'form-input',
+            'id': 'currency'
+        }
+    )
+
+    warranty_months = IntegerField(
+        'Meses de Garantía',
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={
+            'placeholder': 'Ej: 12',
+            'class': 'form-input',
+            'id': 'warranty_months'
+        }
+    )
+
+    warranty_expiry = DateField(
+        'Vencimiento de Garantía',
         validators=[Optional()],
         render_kw={
-            'class': 'form-input select2-multiple',
-            'data-placeholder': 'Selecciona los puertos disponibles',
-            'multiple': 'multiple'
+            'class': 'form-input',
+            'type': 'date',
+            'id': 'warranty_expiry'
+        }
+    )
+
+    public_notes = TextAreaField(
+        'Notas Públicas',
+        validators=[Optional(), Length(max=2000)],
+        render_kw={
+            'placeholder': 'Notas visibles para el cliente...',
+            'class': 'form-input',
+            'rows': '3',
+            'id': 'public_notes'
         }
     )
 
     # ===== 5. ESTADO Y CATEGORÍA =====
     category = SelectField(
-        'Categoria',
+        'Categoría',
         choices=[
             ('', 'Selecciona una categoria'),
             ('laptop', ' Laptop'),
@@ -770,38 +938,16 @@ class LaptopForm(FlaskForm):
         super(LaptopForm, self).__init__(*args, **kwargs)
 
         # Cargar opciones para los SelectFields desde la base de datos
-        # Solo cargamos las opciones iniciales, Select2 manejara la busqueda dinamica
+        # Nota: brand_id, model_id, etc. ahora son StringFields, no se cargan opciones aquí.
 
-        # Brands
-        self.brand_id.choices = [(0, 'Selecciona o crea una marca')] + [
-            (b.id, b.name) for b in Brand.query.filter_by(is_active=True).order_by(Brand.name).all()
+        # Catalog Fields (Ubicación y Logística)
+        self.store_id.choices = [(0, 'Selecciona una tienda')] + [
+            (s.id, s.name) for s in Store.query.filter_by(is_active=True).order_by(Store.name).all()
         ]
 
-        # Models
-        self.model_id.choices = [(0, 'Selecciona o crea un modelo')] + [
-            (m.id, m.name) for m in LaptopModel.query.filter_by(is_active=True).order_by(LaptopModel.name).all()
-        ]
-
-        # Processors
-        self.processor_id.choices = [(0, 'Selecciona o crea un procesador')] + [
-            (p.id, p.name) for p in Processor.query.filter_by(is_active=True).order_by(Processor.name).all()
-        ]
-
-        # Operating Systems
-        self.os_id.choices = [(0, 'Selecciona o crea un SO')] + [
-            (os.id, os.name) for os in
-            OperatingSystem.query.filter_by(is_active=True).order_by(OperatingSystem.name).all()
-        ]
-
-        # Screens
-        self.screen_id.choices = [(0, 'Selecciona o crea una pantalla')] + [
-            (s.id, s.name) for s in Screen.query.filter_by(is_active=True).order_by(Screen.name).all()
-        ]
-
-        # Graphics Cards
-        self.graphics_card_id.choices = [(0, 'Selecciona o crea una GPU')] + [
-            (g.id, g.name) for g in GraphicsCard.query.filter_by(is_active=True).order_by(GraphicsCard.name).all()
-        ]
+        # La inicialización de choices para brand_id, model_id, etc. fue removida 
+        # porque esos campos ahora son de tipo Texto (StringField) para mejorar
+        # la integración con el auto-llenado de Icecat.
 
         # Storage
         self.storage_id.choices = [(0, 'Selecciona o crea almacenamiento')] + [
@@ -811,11 +957,6 @@ class LaptopForm(FlaskForm):
         # RAM
         self.ram_id.choices = [(0, 'Selecciona o crea RAM')] + [
             (r.id, r.name) for r in Ram.query.filter_by(is_active=True).order_by(Ram.name).all()
-        ]
-
-        # Stores
-        self.store_id.choices = [(0, 'Selecciona o crea una tienda')] + [
-            (s.id, s.name) for s in Store.query.filter_by(is_active=True).order_by(Store.name).all()
         ]
 
         # Locations

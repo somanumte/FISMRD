@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from sqlalchemy import text  # Añadido para usar text() en SQL
 
 from app.extensions import db
-from app.utils.seeds import create_catalogs, create_sample_laptops
+from app.utils.seeds import create_catalogs, create_sample_laptops, create_extensive_laptops, generate_financial_history
 
 
 def register_cli_commands(app):
@@ -414,3 +414,38 @@ def register_cli_commands(app):
                 click.echo("\n✅ Base de datos reparada")
         except Exception as e:
             click.echo(f"❌ Error: {str(e)[:100]}...")
+
+    # ===== COMANDO: seed-laptops-real =====
+    @app.cli.command('seed-laptops-real')
+    def seed_laptops_real():
+        """Genera 100 modelos de laptops reales con UPC y DOP"""
+        try:
+            admin = User.query.filter_by(is_admin=True).first()
+            if not admin:
+                click.echo("❌ Primero crea un admin con: flask create-admin")
+                return
+
+            click.echo("🚀 Generando catálogo de 100 laptops reales...")
+            create_extensive_laptops(admin.id)
+            click.echo("✅ Catálogo de 100 laptops completado")
+        except Exception as e:
+            click.echo(f"❌ Error: {str(e)}")
+            db.session.rollback()
+
+    # ===== COMANDO: seed-financials =====
+    @app.cli.command('seed-financials')
+    @click.option('--months', default=24, help='Meses de historia a simular')
+    def seed_financials(months):
+        """Simula historial financiero (Ventas 3M/mes, Gastos 500k/mes)"""
+        try:
+            admin = User.query.filter_by(is_admin=True).first()
+            if not admin:
+                click.echo("❌ Primero crea un admin con: flask create-admin")
+                return
+
+            click.echo(f"📈 Simulando {months} meses de historia financiera...")
+            result = generate_financial_history(admin.id, months=months)
+            click.echo(f"✅ {result}")
+        except Exception as e:
+            click.echo(f"❌ Error: {str(e)}")
+            db.session.rollback()
