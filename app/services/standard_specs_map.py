@@ -60,11 +60,12 @@ STANDARD_SPECS_MAP = {
             "description": "Modelo específico del procesador (ej: i7-12700H)"
         },
         "generation": {
-            "ids": [29830],
+            "ids": [29830, 44870],
             "names": [
                 "Generación de procesador",
                 "Processor generation",
-                "Processor Generation"
+                "Processor Generation",
+                "Generación del procesador"
             ],
             "required": False,
             "description": "Generación del procesador (ej: 12th Gen, Ryzen 8000)"
@@ -81,12 +82,14 @@ STANDARD_SPECS_MAP = {
             "description": "Frecuencia base del procesador en GHz"
         },
         "frequency_turbo": {
-            "ids": [6084, 11380],
+            "ids": [6084, 11380, 29860, 29861, 7978],
             "names": [
                 "Frecuencia del procesador turbo",
                 "Processor boost frequency",
                 "Max turbo frequency",
-                "Turbo Boost"
+                "Turbo Boost",
+                "Performance-core Max Turbo Frequency",
+                "Maximum turbo frequency"
             ],
             "required": False,
             "description": "Frecuencia turbo máxima en GHz"
@@ -192,7 +195,7 @@ STANDARD_SPECS_MAP = {
             "description": "Tipo de memoria (DDR4, DDR5, LPDDR5)"
         },
         "speed": {
-            "ids": [2931, 11384],
+            "ids": [2931, 11384, 2900],
             "names": [
                 "Velocidad de memoria del reloj",
                 "Memory clock speed",
@@ -251,6 +254,25 @@ STANDARD_SPECS_MAP = {
             ],
             "required": False,
             "description": "Canales de memoria (Single, Dual, Quad)"
+        },
+        "layout": {
+            "ids": [11389],
+            "names": [
+                "Memory layout (slots x size)",
+                "Memory layout",
+                "Distribución de memoria"
+            ],
+            "required": False,
+            "description": "Distribución de memoria (ej: 2 x 8 GB)"
+        },
+        "transfer_rate": {
+            "ids": [5538, 5540], # IDs hipotéticos o genéricos
+            "names": [
+                "Memory data transfer rate",
+                "Tasa de transferencia de datos de memoria"
+            ],
+            "required": False,
+            "description": "Tasa de transferencia (MT/s)"
         }
     },
 
@@ -406,7 +428,7 @@ STANDARD_SPECS_MAP = {
             "description": "Si la pantalla es táctil"
         },
         "refresh_rate": {
-            "ids": [29829, 11395],
+            "ids": [7450, 29829, 11395],
             "names": [
                 "Máxima velocidad de actualización",
                 "Maximum refresh rate",
@@ -498,6 +520,16 @@ STANDARD_SPECS_MAP = {
             "required": True,
             "description": "GPU integrada en el procesador"
         },
+        "onboard_memory": {
+            "ids": [11400], # Generic placeholder ID, relies on name
+            "names": [
+                "On-board graphics card memory",
+                "Memoria de adaptador gráfico incorporado",
+                "Integrated graphics memory"
+            ],
+            "required": False,
+            "description": "Memoria de la GPU integrada"
+        },
         # Campos opcionales
         "discrete_brand": {
             "ids": [11402],
@@ -534,6 +566,27 @@ STANDARD_SPECS_MAP = {
             ],
             "required": False,
             "description": "Soporte para tecnologías de upscaling"
+        },
+        "discrete_memory_type": {
+            "ids": [9020, 18404],
+            "names": [
+                "Tipo de memoria de gráficos discretos",
+                "Discrete graphics memory type",
+                "Tipo memoria GPU dedicada",
+                "GPU memory type"
+            ],
+            "required": False,
+            "description": "Tipo de memoria de GPU dedicada (GDDR6, GDDR6X, etc.)"
+        },
+        "onboard_family": {
+            "ids": [9017],
+            "names": [
+                "On-board graphics card family",
+                "Familia GPU integrada",
+                "Integrated graphics family"
+            ],
+            "required": False,
+            "description": "Familia de GPU integrada (Intel Graphics, Arc Graphics)"
         }
     },
 
@@ -639,6 +692,71 @@ STANDARD_SPECS_MAP = {
             ],
             "required": False,
             "description": "Grosor del laptop"
+        }
+    },
+
+    # =========================================================================
+    # TECLADO (Keyboard)
+    # =========================================================================
+    "keyboard": {
+        "layout": {
+            "ids": [11480],
+            "names": [
+                "Idioma del teclado",
+                "Keyboard language",
+                "Keyboard layout"
+            ],
+            "required": False,
+            "description": "Distribución o idioma del teclado"
+        },
+        "numeric_keypad": {
+            "ids": [11481],
+            "names": [
+                "Teclado numérico",
+                "Numeric keypad"
+            ],
+            "required": False,
+            "description": "Si tiene teclado numérico"
+        },
+        "pointing_device": {
+            "ids": [11482],
+            "names": [
+                "Dispositivo apuntador",
+                "Pointing device",
+                "Touchpad"
+            ],
+            "required": False,
+            "description": "Tipo de dispositivo apuntador"
+        },
+        "backlight": {
+            "ids": [11483],
+            "names": [
+                "Retroiluminación de teclado",
+                "Keyboard backlit",
+                "Keyboard backlight"
+            ],
+            "required": False,
+            "description": "Si el teclado es retroiluminado"
+        },
+        "backlight_color": {
+            "ids": [11484],
+            "names": [
+                "Color de la retroiluminación del teclado",
+                "Keyboard backlit colour",
+                "Keyboard backlight color"
+            ],
+            "required": False,
+            "description": "Color de la retroiluminación"
+        },
+        "backlight_zone": {
+            "ids": [11485],
+            "names": [
+                "Zona de retroiluminación del teclado",
+                "Keyboard backlit zone",
+                "Keyboard backlight zone"
+            ],
+            "required": False,
+            "description": "Zonas de retroiluminación"
         }
     },
 
@@ -844,6 +962,17 @@ STANDARD_SPECS_MAP = {
             ],
             "required": False,
             "description": "Estándar Wi-Fi"
+        },
+        "wifi_standards": {
+            "ids": [11418, 432, 24993],
+            "names": [
+                "Estándares Wi-Fi",
+                "Wi-Fi standards",
+                "Wi-Fi estándares",
+                "Estándar Wi-Fi"
+            ],
+            "required": False,
+            "description": "Lista de estándares Wi-Fi soportados"
         },
         "bluetooth": {
             "ids": [11429],

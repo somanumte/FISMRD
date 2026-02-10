@@ -2,7 +2,7 @@
 # ============================================
 # RUTAS DE INVENTARIO - LAPTOPS
 # ============================================
-# Actualizado con sistema híbrido de imágenes
+# Actualizado con sistema hÃ­brido de imÃ¡genes
 
 import logging
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
@@ -12,19 +12,21 @@ from app.models.laptop import (
     Laptop, LaptopImage, Brand, LaptopModel, Processor, OperatingSystem,
     Screen, GraphicsCard, Storage, Ram, Store, Location, Supplier
 )
+from app.models.serial import LaptopSerial, SERIAL_STATUS_CHOICES
 from app.forms.laptop_forms import LaptopForm, FilterForm
 from app.services.sku_service import SKUService
 from app.services.catalog_service import CatalogService
 from app.services.serial_service import SerialService
 from app.services.laptop_image_service import LaptopImageService
-from app.utils.decorators import admin_required, permission_required
+from app.utils.task_manager import TaskManager
+from app.utils.decorators import admin_required, permission_required, any_permission_required
 from datetime import datetime, date
 from sqlalchemy import or_
 import re
 import os
 import json
 from werkzeug.utils import secure_filename
-from PIL import Image  # Importar PIL para procesamiento de imágenes
+from PIL import Image  # Importar PIL para procesamiento de imÃ¡genes
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -32,7 +34,7 @@ logger = logging.getLogger(__name__)
 # Crear Blueprint
 inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')
 
-# Configuración de imágenes
+# ConfiguraciÃ³n de imÃ¡genes
 UPLOAD_FOLDER = 'static/uploads/laptops'
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'}
@@ -116,7 +118,7 @@ def process_connectivity_ports(form_data):
 
 def allowed_image_file(filename):
     """
-    Verifica si el archivo tiene una extensión de imagen permitida
+    Verifica si el archivo tiene una extensiÃ³n de imagen permitida
 
     Args:
         filename: Nombre del archivo
@@ -137,7 +139,7 @@ def validate_serial_quantity(quantity, serials_data, mode='add', laptop_id=None)
         quantity: Cantidad en inventario
         serials_data: Lista de seriales del formulario
         mode: 'add' o 'edit'
-        laptop_id: ID de la laptop (para modo edición)
+        laptop_id: ID de la laptop (para modo ediciÃ³n)
 
     Returns:
         tuple: (es_valido, mensaje_error)
@@ -145,7 +147,7 @@ def validate_serial_quantity(quantity, serials_data, mode='add', laptop_id=None)
     try:
         total_serials = len(serials_data)
 
-        # En modo edición, contar seriales existentes + nuevos
+        # En modo ediciÃ³n, contar seriales existentes + nuevos
         if mode == 'edit' and laptop_id:
             # Obtener seriales existentes para esta laptop
             existing_serials = SerialService.get_available_serials_for_laptop(laptop_id)
@@ -162,23 +164,23 @@ def validate_serial_quantity(quantity, serials_data, mode='add', laptop_id=None)
             return False, f"La cantidad de seriales ({total_serials}) no puede ser mayor que la cantidad en inventario ({quantity})"
 
         if total_serials < quantity:
-            return False, f"La cantidad de seriales ({total_serials}) no puede ser menor que la cantidad en inventario ({quantity}). Agrega más seriales o reduce la cantidad."
+            return False, f"La cantidad de seriales ({total_serials}) no puede ser menor que la cantidad en inventario ({quantity}). Agrega mÃ¡s seriales o reduce la cantidad."
 
         return True, ""
 
     except Exception as e:
-        return False, f"Error en validación: {str(e)}"
+        return False, f"Error en validaciÃ³n: {str(e)}"
 
 
 def process_laptop_images(laptop, form):
     """
-    Procesa las imágenes del formulario (híbrido: nuevas subidas + URLs de Icecat + existentes).
+    Procesa las imÃ¡genes del formulario (hÃ­brido: nuevas subidas + URLs de Icecat + existentes).
     Mantiene el orden exacto de los slots para asignar la portada correctamente.
     """
     success_count = 0
     error_messages = []
     
-    # 1. Eliminar imágenes marcadas
+    # 1. Eliminar imÃ¡genes marcadas
     images_to_delete_json = request.form.get('images_to_delete', '[]')
     try:
         to_delete_ids = json.loads(images_to_delete_json)
@@ -191,7 +193,7 @@ def process_laptop_images(laptop, form):
                     if os.path.exists(full_path):
                         os.remove(full_path)
                 except Exception as e:
-                    logger.error(f"Error al eliminar archivo físico: {e}")
+                    logger.error(f"Error al eliminar archivo fÃ­sico: {e}")
                 db.session.delete(img)
     except: pass
     db.session.flush()
@@ -243,77 +245,65 @@ def process_laptop_images(laptop, form):
                 'alt': alt_text
             }
 
-    # 4. Descargar imágenes de Icecat en paralelo
-    downloaded_contents = {} # slot -> (content, ext)
-    if icecat_download_tasks:
-        from concurrent.futures import ThreadPoolExecutor, as_completed
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_slot = {
-                executor.submit(LaptopImageService._download_single_image, task['url']): task['slot'] 
-                for task in icecat_download_tasks
-            }
-            for future in as_completed(future_to_slot):
-                slot = future_to_slot[future]
-                try:
-                    url, content, error = future.result()
-                    if content:
-                        ext = 'jpg'
-                        if '.png' in url.lower(): ext = 'png'
-                        elif '.webp' in url.lower(): ext = 'webp'
-                        downloaded_contents[slot] = (content, ext, url)
-                    elif error:
-                        error_messages.append(f"Error descargando imagen slot {slot}: {error}")
-                except Exception as e:
-                    error_messages.append(f"Excepción descargando slot {slot}: {str(e)}")
-
-    # 5. Procesar cada slot en ORDEN para construir la lista final
-    processed_images = []
+    # 4. Procesar imÃ¡genes en paralelo (Nuevas + Icecat)
+    processed_images_dict = {} # slot -> img_obj
     
-    for i in sorted_slots:
-        task = slot_tasks.get(i)
-        if not task: continue
+    # Identificar tareas para ejecuciÃ³n paralela
+    new_tasks = {i: t for i, t in slot_tasks.items() if t['type'] in ['upload', 'icecat']}
+    existing_tasks = {i: t for i, t in slot_tasks.items() if t['type'] == 'existing'}
+    
+    if new_tasks:
+        from flask import current_app
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        app = current_app._get_current_object()
         
-        img_obj = None
-        is_cover = (i == 1) # EL SLOT 1 SIEMPRE ES PORTADA SEGÚN FRONTEND
-        
-        if task['type'] == 'upload':
-            img_obj = LaptopImageService.process_and_save_image(
-                laptop_id=laptop.id, sku=laptop.sku, source=task['file'],
-                position=i, is_cover=is_cover, alt_text=task['alt']
-            )
-            if img_obj: success_count += 1
-
-        elif task['type'] == 'icecat':
-            content_data = downloaded_contents.get(i)
-            if content_data:
-                content, ext, original_url = content_data
-                from werkzeug.datastructures import FileStorage
-                from io import BytesIO
-                file_obj = FileStorage(
-                    stream=BytesIO(content),
-                    filename=f"icecat_{i}.{ext}",
-                    content_type=f"image/{ext}"
-                )
-                img_obj = LaptopImageService.process_and_save_image(
-                    laptop_id=laptop.id, sku=laptop.sku, source=file_obj,
-                    position=i, is_cover=is_cover, alt_text=task['alt']
-                )
-                if img_obj:
-                    img_obj.source = 'icecat'
-                    success_count += 1
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            # IMPORTANTE: db_session=False para obtener solo metadata y evitar conflictos de hilos
+            future_to_slot = {
+                executor.submit(
+                    LaptopImageService.process_and_save_image,
+                    laptop_id=laptop.id, sku=laptop.sku, 
+                    source=task.get('file') or task.get('url'),
+                    position=slot_id, is_cover=(slot_id == 1), 
+                    alt_text=task['alt'],
+                    db_session=False, # SOLO DISCO
+                    app=app
+                ): slot_id
+                for slot_id, task in new_tasks.items()
+            }
             
-        elif task['type'] == 'existing':
-            img_obj = LaptopImage.query.get(task['id'])
-            if img_obj and img_obj.laptop_id == laptop.id:
-                img_obj.position = i
-                img_obj.ordering = i
-                img_obj.is_cover = is_cover
-                if task['alt']: img_obj.alt_text = task['alt']
-        
-        if img_obj:
-            processed_images.append(img_obj)
+            for future in as_completed(future_to_slot):
+                slot_id = future_to_slot[future]
+                try:
+                    result = future.result()
+                    if result and isinstance(result, dict):
+                        # Crear el objeto en el HILO PRINCIPAL para evitar errores de sesión
+                        img_obj = LaptopImage(**result)
+                        if new_tasks[slot_id]['type'] == 'icecat':
+                            img_obj.source = 'icecat'
+                        
+                        db.session.add(img_obj)
+                        processed_images_dict[slot_id] = img_obj
+                        success_count += 1
+                    else:
+                        error_messages.append(f"Fallo al procesar imagen slot {slot_id}")
+                except Exception as e:
+                    error_messages.append(f"ExcepciÃ³n en slot {slot_id}: {str(e)}")
 
-    # 6. Limpieza final: Eliminar imágenes que ya no están en la lista procesada
+    # 5. Procesar imÃ¡genes existentes (Secuencial, es rÃ¡pido)
+    for i, task in existing_tasks.items():
+        img_obj = LaptopImage.query.get(task['id'])
+        if img_obj and img_obj.laptop_id == laptop.id:
+            img_obj.position = i
+            img_obj.ordering = i
+            img_obj.is_cover = (i == 1)
+            if task['alt']: img_obj.alt_text = task['alt']
+            processed_images_dict[i] = img_obj
+
+    # Construir lista final en ORDEN
+    processed_images = [processed_images_dict[i] for i in sorted_slots if i in processed_images_dict]
+
+    # 6. Limpieza final: Eliminar imÃ¡genes que ya no estÃ¡n en la lista procesada
     db.session.flush()
     keep_ids = [img.id for img in processed_images if img and img.id]
     LaptopImageService.cleanup_laptop_images(laptop.id, keep_ids=keep_ids)
@@ -326,10 +316,10 @@ def process_laptop_images(laptop, form):
 
     try:
         db.session.flush()
-        logger.info(f"✅ Galería procesada: {len(processed_images)} imágenes listas.")
+        logger.info(f"âœ… GalerÃ­a procesada: {len(processed_images)} imÃ¡genes listas.")
     except Exception as e:
-        logger.error(f"❌ Error en flush final: {str(e)}")
-        error_messages.append(f"Error guardando galería: {str(e)}")
+        logger.error(f"âŒ Error en flush final: {str(e)}")
+        error_messages.append(f"Error guardando galerÃ­a: {str(e)}")
 
     return success_count, error_messages
 
@@ -424,7 +414,7 @@ def laptops_list():
         query = query.filter(Laptop.quantity <= 0)
 
     if has_npu_filter:
-        query = query.filter(Laptop.npu == (has_npu_filter == '1'))
+        query = query.join(Laptop.processor).filter(Processor.has_npu == (has_npu_filter == '1'))
 
     if min_price > 0:
         query = query.filter(Laptop.sale_price >= min_price)
@@ -432,7 +422,7 @@ def laptops_list():
     if max_price > 0:
         query = query.filter(Laptop.sale_price <= max_price)
 
-    # Ordenar según el filtro seleccionado
+    # Ordenar segÃºn el filtro seleccionado
     if sort_by == 'entry_date_desc':
         query = query.order_by(Laptop.entry_date.desc())
     elif sort_by == 'entry_date_asc':
@@ -547,15 +537,53 @@ def laptop_add():
                 'ram_id': form.ram_id.data,
                 'store_id': form.store_id.data,
                 'location_id': form.location_id.data,
-                'supplier_id': form.supplier_id.data
+                'supplier_id': form.supplier_id.data,
+                
+                # Campos granulares - Pantalla
+                'screen_diagonal_inches': form.screen_diagonal_inches.data,
+                'screen_resolution': form.screen_resolution.data,
+                'screen_hd_type': form.screen_hd_type.data,
+                'screen_panel_type': form.screen_panel_type.data,
+                'screen_refresh_rate': form.screen_refresh_rate.data,
+                'screen_touchscreen_override': form.screen_touchscreen_override.data,
+                
+                # Campos granulares - GPU
+                'has_discrete_gpu': form.has_discrete_gpu.data,
+                'discrete_gpu_brand': form.discrete_gpu_brand.data,
+                'discrete_gpu_model': form.discrete_gpu_model.data,
+                'discrete_gpu_memory_gb': form.discrete_gpu_memory_gb.data,
+                'discrete_gpu_memory_type': form.discrete_gpu_memory_type.data,
+                'onboard_gpu_brand': form.onboard_gpu_brand.data,
+                'onboard_gpu_model': form.onboard_gpu_model.data,
+                'onboard_gpu_family': form.onboard_gpu_family.data,
+                
+                # Campos granulares - Almacenamiento
+                'storage_capacity': form.storage_capacity.data,
+                'storage_media': form.storage_media.data,
+                'storage_nvme': form.storage_nvme.data,
+                'storage_form_factor': form.storage_form_factor.data,
+                
+                # Campos granulares - RAM
+                'ram_capacity': form.ram_capacity.data,
+                'ram_type_detailed': form.ram_type_detailed.data,
+                'ram_speed_mhz': form.ram_speed_mhz.data,
+                'ram_transfer_rate': form.ram_transfer_rate.data,
+                'processor_full_name': form.processor_full_name.data,
+                'screen_full_name': form.screen_full_name.data,
+                'discrete_gpu_full_name': form.discrete_gpu_full_name.data,
+                'onboard_gpu_full_name': form.onboard_gpu_full_name.data,
+                'storage_full_name': form.storage_full_name.data,
+                'ram_full_name': form.ram_full_name.data
             })
 
             # Generar SKU automaticamente
             sku = SKUService.generate_laptop_sku()
 
             # Generar slug
-            base_slug = generate_slug(form.display_name.data)
-            slug = form.slug.data if form.slug.data else ensure_unique_slug(base_slug)
+            if form.slug.data:
+                slug = ensure_unique_slug(generate_slug(form.slug.data))
+            else:
+                slug = ensure_unique_slug(generate_slug(form.display_name.data))
 
             # Procesar puertos de conectividad
             connectivity_ports = process_connectivity_ports(form.connectivity_ports.data)
@@ -579,10 +607,7 @@ def laptop_add():
                 brand_id=catalog_data['brand_id'],
                 model_id=catalog_data['model_id'],
                 processor_id=catalog_data['processor_id'],
-                processor_family=form.processor_family.data,
-                processor_generation=form.processor_generation.data,
-                processor_model_number=form.processor_model.data,
-                processor_full_name=form.processor_full_name.data,
+                # processor fields removed (delegated to Processor model)
                 os_id=catalog_data['os_id'],
                 screen_id=catalog_data['screen_id'],
                 graphics_card_id=catalog_data['graphics_card_id'],
@@ -592,12 +617,34 @@ def laptop_add():
                 location_id=catalog_data.get('location_id'),
                 supplier_id=catalog_data.get('supplier_id'),
 
+                # Campos adicionales
+                gtin=form.gtin.data,
+                keywords=form.keywords.data,
+                warranty_months=form.warranty_months.data,
+                warranty_expiry=form.warranty_expiry.data,
+                public_notes=form.public_notes.data,
+                pointing_device=form.pointing_device.data,
+                keyboard_backlight_color=form.keyboard_backlight_color.data,
+                keyboard_backlight_zone=form.keyboard_backlight_zone.data,
+
                 # Detalles tecnicos
                 npu=form.npu.data,
                 storage_upgradeable=form.storage_upgradeable.data,
                 ram_upgradeable=form.ram_upgradeable.data,
+                touchscreen_override=form.screen_touchscreen_override.data,
                 keyboard_layout=form.keyboard_layout.data,
+                keyboard_backlight=form.keyboard_backlight.data,
+                numeric_keypad=form.numeric_keypad.data,
+                keyboard_language=form.keyboard_language.data,
+                fingerprint_reader=form.fingerprint_reader.data,
+                face_recognition=form.face_recognition.data,
+                stylus_support=form.stylus_support.data,
                 connectivity_ports=connectivity_ports,
+                wifi_standard=form.wifi_standard.data,
+                bluetooth_version=form.bluetooth_version.data,
+                ethernet_port=form.ethernet_port.data,
+                cellular=form.cellular.data,
+                weight_lbs=form.weight_lbs.data,
 
                 # Estado y categoria
                 category=form.category.data,
@@ -643,7 +690,7 @@ def laptop_add():
 
                 if not is_valid:
                     db.session.rollback()
-                    flash(f'❌ {error_msg}', 'error')
+                    flash(f'âŒ {error_msg}', 'error')
                     return render_template('inventory/laptop_form.html', form=form, mode='add')
 
                 for serial_info in serials_data:
@@ -667,29 +714,49 @@ def laptop_add():
             if serial_errors:
                 db.session.rollback()
                 error_msg = "Errores al guardar seriales:<br>" + "<br>".join(serial_errors)
-                flash(f'❌ {error_msg}', 'error')
+                flash(f'âŒ {error_msg}', 'error')
                 return render_template('inventory/laptop_form.html', form=form, mode='add')
 
-            # Procesar imágenes
-            img_success, img_errors = process_laptop_images(laptop, form)
+            # Procesar imÃ¡genes
+            # Si hay URLs de Icecat pero no imÃ¡genes locales nuevas, podemos hacerlo en background
+            icecat_urls = catalog_data.get('images', []) if 'catalog_data' in locals() else []
+            
+            # Solo si NO hay archivos subidos manualmente, lo hacemos en background
+            manual_files = [f for f in request.files if f.startswith('image_') and request.files[f].filename]
+            
+            if icecat_urls and not manual_files:
+                from flask import current_app
+                app = current_app._get_current_object()
+                TaskManager.run_async(
+                    LaptopImageService.background_save_icecat_images,
+                    laptop_id=laptop.id, 
+                    sku=laptop.sku, 
+                    image_urls=icecat_urls,
+                    app=app
+                )
+                img_success = len(icecat_urls) # Estimado para el mensaje
+                img_errors = []
+            else:
+                img_success, img_errors = process_laptop_images(laptop, form)
+            
             db.session.commit()
 
-            # Mensaje de éxito
+            # Mensaje de Ã©xito
             if img_success > 0:
-                flash(f'✅ Laptop {sku} agregada con {img_success} imagen(es)', 'success')
+                flash(f'âœ… Laptop {sku} agregada con {img_success} imagen(es)', 'success')
             else:
-                flash(f'✅ Laptop {sku} agregada exitosamente', 'success')
+                flash(f'âœ… Laptop {sku} agregada exitosamente', 'success')
 
-            # Mostrar errores de imágenes si los hay
+            # Mostrar errores de imÃ¡genes si los hay
             for error in img_errors:
-                flash(f'⚠️ {error}', 'warning')
+                flash(f'âš ï¸ {error}', 'warning')
 
             return redirect(url_for('inventory.laptop_detail', id=laptop.id))
 
         except Exception as e:
             db.session.rollback()
             logger.error(f'Error al agregar laptop: {str(e)}', exc_info=True)
-            flash(f'❌ Error al agregar laptop: {str(e)}', 'error')
+            flash(f'âŒ Error al agregar laptop: {str(e)}', 'error')
 
     # Si hay errores en el formulario
     if form.errors:
@@ -719,8 +786,8 @@ def laptop_detail(id):
         Laptop.is_published == True
     ).limit(5).all()
 
-    # CORRECCIÓN: Obtener imágenes ordenadas usando sorted() en lugar de order_by()
-    # ¡laptop.images es una lista, no un objeto Query!
+    # CORRECCIÃ“N: Obtener imÃ¡genes ordenadas usando sorted() en lugar de order_by()
+    # Â¡laptop.images es una lista, no un objeto Query!
     images = sorted(laptop.images, key=lambda img: img.ordering)
 
     # Imagen de portada
@@ -752,7 +819,7 @@ def laptop_by_slug(slug):
         Laptop.is_published == True
     ).limit(5).all()
 
-    # CORRECCIÓN: Obtener imágenes ordenadas usando sorted() en lugar de order_by()
+    # CORRECCIÃ“N: Obtener imÃ¡genes ordenadas usando sorted() en lugar de order_by()
     images = sorted(laptop.images, key=lambda img: img.ordering)
     cover_image = next((img for img in laptop.images if img.is_cover), None)
 
@@ -777,7 +844,7 @@ def laptop_edit(id):
     laptop = Laptop.query.get_or_404(id)
     form = LaptopForm(obj=laptop)
     
-    # ===== CORRECCIÓN: Convertir IDs a nombres para mostrar en el formulario =====
+    # ===== CORRECCIÃ“N: Convertir IDs a nombres para mostrar en el formulario =====
     if request.method == 'GET':
         # Cargar nombres en lugar de IDs para los selects
         if laptop.brand_id:
@@ -794,6 +861,7 @@ def laptop_edit(id):
                 form.processor_family.data = processor.family
                 form.processor_generation.data = processor.generation
                 form.processor_model.data = processor.model_number
+                form.processor_full_name.data = processor.full_name
         
         if laptop.os_id:
             os_obj = OperatingSystem.query.get(laptop.os_id)
@@ -801,23 +869,62 @@ def laptop_edit(id):
         
         if laptop.screen_id:
             screen = Screen.query.get(laptop.screen_id)
-            form.screen_id.data = screen.name if screen else str(laptop.screen_id)
+            if screen:
+                form.screen_id.data = screen.name
+                form.screen_resolution.data = screen.resolution
+                form.screen_diagonal_inches.data = screen.diagonal_inches
+                form.screen_hd_type.data = screen.hd_type
+                form.screen_panel_type.data = screen.panel_type
+                form.screen_refresh_rate.data = screen.refresh_rate
+                form.screen_touchscreen_override.data = laptop.touchscreen # Usar el override del laptop
+                form.screen_full_name.data = laptop.screen_full_name
+            else:
+                form.screen_id.data = str(laptop.screen_id)
         
         if laptop.graphics_card_id:
             gpu = GraphicsCard.query.get(laptop.graphics_card_id)
-            form.graphics_card_id.data = gpu.name if gpu else str(laptop.graphics_card_id)
+            if gpu:
+                form.graphics_card_id.data = gpu.name
+                form.has_discrete_gpu.data = gpu.has_discrete_gpu
+                form.discrete_gpu_brand.data = gpu.discrete_brand
+                form.discrete_gpu_model.data = gpu.discrete_model
+                form.discrete_gpu_memory_gb.data = gpu.discrete_memory_gb
+                form.discrete_gpu_memory_type.data = gpu.discrete_memory_type
+                form.onboard_gpu_brand.data = gpu.onboard_brand
+                form.onboard_gpu_model.data = gpu.onboard_model
+                form.onboard_gpu_family.data = gpu.onboard_family
+                form.discrete_gpu_full_name.data = laptop.discrete_gpu_full_name
+                form.onboard_gpu_full_name.data = laptop.onboard_gpu_full_name
+            else:
+                form.graphics_card_id.data = str(laptop.graphics_card_id)
         
         if laptop.storage_id:
             storage = Storage.query.get(laptop.storage_id)
-            form.storage_id.data = storage.name if storage else str(laptop.storage_id)
+            if storage:
+                form.storage_id.data = storage.name
+                form.storage_capacity.data = storage.capacity_gb
+                form.storage_media.data = storage.media_type
+                form.storage_nvme.data = storage.nvme
+                form.storage_form_factor.data = storage.form_factor
+                form.storage_full_name.data = laptop.storage_full_name
+            else:
+                form.storage_id.data = str(laptop.storage_id)
         
         if laptop.ram_id:
             ram = Ram.query.get(laptop.ram_id)
-            form.ram_id.data = ram.name if ram else str(laptop.ram_id)
+            if ram:
+                form.ram_id.data = ram.name
+                form.ram_capacity.data = ram.capacity_gb
+                form.ram_type_detailed.data = ram.ram_type
+                form.ram_speed_mhz.data = ram.speed_mhz
+                form.ram_transfer_rate.data = ram.transfer_rate
+                form.ram_full_name.data = laptop.ram_full_name
+            else:
+                form.ram_id.data = str(laptop.ram_id)
 
     # Pre-poblar connectivity_ports si existe
     if request.method == 'GET' and laptop.connectivity_ports:
-        # CORRECCIÓN: Convertir las llaves del diccionario a un string separado por comas
+        # CORRECCIÃ“N: Convertir las llaves del diccionario a un string separado por comas
         # Esto es lo que espera un TextAreaField, no una lista
         keys_list = list(laptop.connectivity_ports.keys())
         form.connectivity_ports.data = ", ".join(keys_list)
@@ -838,12 +945,49 @@ def laptop_edit(id):
                 'ram_id': form.ram_id.data,
                 'store_id': form.store_id.data,
                 'location_id': form.location_id.data,
-                'supplier_id': form.supplier_id.data
+                'supplier_id': form.supplier_id.data,
+                
+                # Campos granulares - Pantalla
+                'screen_diagonal_inches': form.screen_diagonal_inches.data,
+                'screen_resolution': form.screen_resolution.data,
+                'screen_hd_type': form.screen_hd_type.data,
+                'screen_panel_type': form.screen_panel_type.data,
+                'screen_refresh_rate': form.screen_refresh_rate.data,
+                'screen_touchscreen_override': form.screen_touchscreen_override.data,
+                
+                # Campos granulares - GPU
+                'has_discrete_gpu': form.has_discrete_gpu.data,
+                'discrete_gpu_brand': form.discrete_gpu_brand.data,
+                'discrete_gpu_model': form.discrete_gpu_model.data,
+                'discrete_gpu_memory_gb': form.discrete_gpu_memory_gb.data,
+                'discrete_gpu_memory_type': form.discrete_gpu_memory_type.data,
+                'onboard_gpu_brand': form.onboard_gpu_brand.data,
+                'onboard_gpu_model': form.onboard_gpu_model.data,
+                'onboard_gpu_family': form.onboard_gpu_family.data,
+                
+                # Campos granulares - Almacenamiento
+                'storage_capacity': form.storage_capacity.data,
+                'storage_media': form.storage_media.data,
+                'storage_nvme': form.storage_nvme.data,
+                'storage_form_factor': form.storage_form_factor.data,
+                
+                # Campos granulares - RAM
+                'ram_capacity': form.ram_capacity.data,
+                'ram_type_detailed': form.ram_type_detailed.data,
+                'ram_speed_mhz': form.ram_speed_mhz.data,
+                'ram_transfer_rate': form.ram_transfer_rate.data,
+                'processor_full_name': form.processor_full_name.data,
+                'screen_full_name': form.screen_full_name.data,
+                'discrete_gpu_full_name': form.discrete_gpu_full_name.data,
+                'onboard_gpu_full_name': form.onboard_gpu_full_name.data,
+                'storage_full_name': form.storage_full_name.data,
+                'ram_full_name': form.ram_full_name.data
             })
 
-            # Actualizar slug si cambio el nombre
+            # Actualizar slug
             if form.slug.data:
-                laptop.slug = ensure_unique_slug(form.slug.data, laptop.id)
+                sanitized_slug = generate_slug(form.slug.data)
+                laptop.slug = ensure_unique_slug(sanitized_slug, laptop.id)
             elif form.display_name.data != laptop.display_name:
                 base_slug = generate_slug(form.display_name.data)
                 laptop.slug = ensure_unique_slug(base_slug, laptop.id)
@@ -865,10 +1009,21 @@ def laptop_edit(id):
             laptop.brand_id = catalog_data['brand_id']
             laptop.model_id = catalog_data['model_id']
             laptop.processor_id = catalog_data['processor_id']
-            laptop.processor_family = form.processor_family.data
-            laptop.processor_generation = form.processor_generation.data
-            laptop.processor_model_number = form.processor_model.data
-            laptop.processor_full_name = form.processor_full_name.data
+            # processor fields removed (delegated to Processor model)
+            # laptop.processor_family = form.processor_family.data
+            # laptop.processor_generation = form.processor_generation.data
+            # laptop.processor_model = form.processor_model.data
+            # laptop.processor_full_name = form.processor_full_name.data
+              
+            # Add missing fields
+            laptop.gtin = form.gtin.data
+            laptop.keywords = form.keywords.data
+            laptop.warranty_months = form.warranty_months.data
+            laptop.warranty_expiry = form.warranty_expiry.data
+            laptop.public_notes = form.public_notes.data
+            laptop.pointing_device = form.pointing_device.data
+            laptop.keyboard_backlight_color = form.keyboard_backlight_color.data
+            laptop.keyboard_backlight_zone = form.keyboard_backlight_zone.data
             laptop.os_id = catalog_data['os_id']
             laptop.screen_id = catalog_data['screen_id']
             laptop.graphics_card_id = catalog_data['graphics_card_id']
@@ -882,8 +1037,20 @@ def laptop_edit(id):
             laptop.npu = form.npu.data
             laptop.storage_upgradeable = form.storage_upgradeable.data
             laptop.ram_upgradeable = form.ram_upgradeable.data
+            laptop.touchscreen_override = form.screen_touchscreen_override.data
             laptop.keyboard_layout = form.keyboard_layout.data
+            laptop.keyboard_backlight = form.keyboard_backlight.data
+            laptop.numeric_keypad = form.numeric_keypad.data
+            laptop.keyboard_language = form.keyboard_language.data
+            laptop.fingerprint_reader = form.fingerprint_reader.data
+            laptop.face_recognition = form.face_recognition.data
+            laptop.stylus_support = form.stylus_support.data
             laptop.connectivity_ports = connectivity_ports
+            laptop.wifi_standard = form.wifi_standard.data
+            laptop.bluetooth_version = form.bluetooth_version.data
+            laptop.ethernet_port = form.ethernet_port.data
+            laptop.cellular = form.cellular.data
+            laptop.weight_lbs = form.weight_lbs.data
 
             # Estado y categoria
             laptop.category = form.category.data
@@ -905,11 +1072,11 @@ def laptop_edit(id):
 
             laptop.updated_at = datetime.utcnow()
 
-            # ===== PROCESAR SERIALES EN MODO EDICIÓN =====
+            # ===== PROCESAR SERIALES EN MODO EDICIÃ“N =====
             serials_json = request.form.get('serials_json', '[]')
             serial_errors = []
 
-            # Validar cantidad de seriales vs inventario (en modo edición)
+            # Validar cantidad de seriales vs inventario (en modo ediciÃ³n)
             try:
                 serials_data = json.loads(serials_json)
                 is_valid, error_msg = validate_serial_quantity(
@@ -921,7 +1088,7 @@ def laptop_edit(id):
 
                 if not is_valid:
                     db.session.rollback()
-                    flash(f'❌ {error_msg}', 'error')
+                    flash(f'âŒ {error_msg}', 'error')
                     return render_template('inventory/laptop_form.html', form=form, mode='edit', laptop=laptop)
 
                 # Obtener seriales existentes para esta laptop
@@ -929,10 +1096,10 @@ def laptop_edit(id):
                 existing_serial_numbers = {s.serial_number for s in existing_serials}
                 submitted_serial_numbers = {s['serial_number'] for s in serials_data if 'serial_number' in s}
 
-                # Identificar seriales a eliminar (están en BD pero no en formulario)
+                # Identificar seriales a eliminar (estÃ¡n en BD pero no en formulario)
                 serials_to_delete = existing_serial_numbers - submitted_serial_numbers
 
-                # Identificar seriales a agregar (están en formulario pero no en BD)
+                # Identificar seriales a agregar (estÃ¡n en formulario pero no en BD)
                 serials_to_add = submitted_serial_numbers - existing_serial_numbers
 
                 # Validar que no se eliminen seriales vendidos
@@ -963,34 +1130,34 @@ def laptop_edit(id):
                             serial_errors.append(f"Serial {serial_number}: {result}")
 
             except Exception as e:
-                logger.error(f"Error procesando seriales en edición: {str(e)}")
+                logger.error(f"Error procesando seriales en ediciÃ³n: {str(e)}")
                 serial_errors.append(f"Error general: {str(e)}")
 
             # Si hubo errores en seriales, mostrar pero no hacer rollback completo
             if serial_errors:
                 for error in serial_errors:
-                    flash(f'⚠️ {error}', 'warning')
+                    flash(f'âš ï¸ {error}', 'warning')
 
-            # Procesar imágenes
+            # Procesar imÃ¡genes
             img_success, img_errors = process_laptop_images(laptop, form)
             db.session.commit()
 
-            # Mensaje de éxito
+            # Mensaje de Ã©xito
             if img_success > 0:
-                flash(f'✅ Laptop {laptop.sku} actualizada con {img_success} nueva(s) imagen(es)', 'success')
+                flash(f'âœ… Laptop {laptop.sku} actualizada con {img_success} nueva(s) imagen(es)', 'success')
             else:
-                flash(f'✅ Laptop {laptop.sku} actualizada exitosamente', 'success')
+                flash(f'âœ… Laptop {laptop.sku} actualizada exitosamente', 'success')
 
-            # Mostrar errores de imágenes si los hay
+            # Mostrar errores de imÃ¡genes si los hay
             for error in img_errors:
-                flash(f'⚠️ {error}', 'warning')
+                flash(f'âš ï¸ {error}', 'warning')
 
             return redirect(url_for('inventory.laptop_detail', id=laptop.id))
 
         except Exception as e:
             db.session.rollback()
             logger.error(f'Error al actualizar laptop {laptop.sku}: {str(e)}', exc_info=True)
-            flash(f'❌ Error al actualizar laptop: {str(e)}', 'error')
+            flash(f'âŒ Error al actualizar laptop: {str(e)}', 'error')
 
     # Si hay errores en el formulario
     if form.errors:
@@ -998,7 +1165,7 @@ def laptop_edit(id):
             for error in errors:
                 flash(f'Error en {field}: {error}', 'error')
 
-    # CORRECCIÓN: Obtener imágenes ordenadas usando sorted() en lugar de order_by()
+    # CORRECCIÃ“N: Obtener imÃ¡genes ordenadas usando sorted() en lugar de order_by()
     images_list = sorted(laptop.images, key=lambda img: img.ordering)
     images_by_position = {img.position: img for img in images_list}
 
@@ -1018,10 +1185,10 @@ def laptop_delete(id):
     laptop = Laptop.query.get_or_404(id)
 
     try:
-        # Obtener y eliminar imágenes asociadas
+        # Obtener y eliminar imÃ¡genes asociadas
         images = laptop.images
 
-        # Eliminar archivos de imágenes del sistema de archivos
+        # Eliminar archivos de imÃ¡genes del sistema de archivos
         for image in images:
             try:
                 filepath = os.path.join('app', 'static', image.image_path)
@@ -1031,26 +1198,26 @@ def laptop_delete(id):
             except Exception as e:
                 logger.error(f'Error al eliminar imagen {image.image_path}: {str(e)}')
 
-        # Eliminar directorio de imágenes si existe
+        # Eliminar directorio de imÃ¡genes si existe
         image_folder = os.path.join('app', 'static', 'uploads', 'laptops', str(laptop.id))
         if os.path.exists(image_folder):
             try:
                 os.rmdir(image_folder)
-                logger.info(f'Laptop {laptop.sku}: Directorio de imágenes eliminado')
+                logger.info(f'Laptop {laptop.sku}: Directorio de imÃ¡genes eliminado')
             except Exception as e:
-                logger.error(f'Error al eliminar directorio de imágenes: {str(e)}')
+                logger.error(f'Error al eliminar directorio de imÃ¡genes: {str(e)}')
 
         # Eliminar la laptop de la base de datos
         db.session.delete(laptop)
         db.session.commit()
 
-        flash(f'✅ Laptop {laptop.sku} eliminada exitosamente', 'success')
+        flash(f'âœ… Laptop {laptop.sku} eliminada exitosamente', 'success')
         return redirect(url_for('inventory.laptops_list'))
 
     except Exception as e:
         db.session.rollback()
         logger.error(f'Error al eliminar laptop {laptop.sku}: {str(e)}', exc_info=True)
-        flash(f'❌ Error al eliminar laptop: {str(e)}', 'error')
+        flash(f'âŒ Error al eliminar laptop: {str(e)}', 'error')
         return redirect(url_for('inventory.laptop_detail', id=id))
 
 
@@ -1076,7 +1243,7 @@ def laptop_duplicate(id):
         display_name=new_display_name,
         short_description=original.short_description,
         long_description_html=original.long_description_html,
-        is_published=False,  # La copia no se publica automáticamente
+        is_published=False,  # La copia no se publica automÃ¡ticamente
         is_featured=False,  # Tampoco se destaca
         seo_title=original.seo_title,
         seo_description=original.seo_description,
@@ -1120,6 +1287,7 @@ def laptop_duplicate(id):
 
 @inventory_bp.route('/get_generations/<family>')
 @login_required
+@any_permission_required('inventory.laptops.view', 'inventory.laptops.create', 'inventory.laptops.edit')
 def get_generations(family):
     """
     API para obtener generaciones basadas en la familia del procesador
@@ -1132,3 +1300,76 @@ def get_generations(family):
     generations = query.distinct().order_by(Processor.name).all()
     
     return jsonify([g[0] for g in generations if g[0]])
+
+    # ===== GESTIÓN DE SERIALES =====
+
+@inventory_bp.route('/serials')
+@login_required
+@permission_required('inventory.laptops.view')
+def serials_list():
+    """
+    Página de gestión de seriales con filtros por estado.
+    URL: /inventory/serials
+    """
+    # Parámetros de filtrado
+    status_filter = request.args.get('status', '')
+    search = request.args.get('search', '').strip()
+    brand_filter = request.args.get('brand', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 25, type=int)
+
+    # Query base con join a Laptop y Brand
+    query = db.session.query(LaptopSerial).join(
+        Laptop, LaptopSerial.laptop_id == Laptop.id
+    ).join(
+        Brand, Laptop.brand_id == Brand.id
+    )
+
+    # Filtrar por estado
+    if status_filter:
+        query = query.filter(LaptopSerial.status == status_filter)
+
+    # Búsqueda
+    if search:
+        query = query.filter(
+            or_(
+                LaptopSerial.serial_number.ilike(f'%{search}%'),
+                LaptopSerial.barcode.ilike(f'%{search}%'),
+                Laptop.display_name.ilike(f'%{search}%'),
+                Laptop.sku.ilike(f'%{search}%')
+            )
+        )
+
+    # Filtrar por marca
+    if brand_filter:
+        query = query.filter(Brand.name == brand_filter)
+
+    # Estadísticas por estado (sin filtros de búsqueda para totales globales)
+    stats_query = db.session.query(
+        LaptopSerial.status,
+        db.func.count(LaptopSerial.id)
+    ).group_by(LaptopSerial.status).all()
+
+    stats = {s[0]: s[1] for s in stats_query}
+    total_serials = sum(stats.values())
+
+    # Obtener marcas para filtro
+    brands = Brand.query.filter_by(is_active=True).order_by(Brand.name).all()
+
+    # Ordenar y paginar
+    query = query.order_by(LaptopSerial.updated_at.desc())
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    serials = pagination.items
+
+    return render_template(
+        'inventory/serials_list.html',
+        serials=serials,
+        pagination=pagination,
+        stats=stats,
+        total_serials=total_serials,
+        status_filter=status_filter,
+        search=search,
+        brand_filter=brand_filter,
+        brands=brands,
+        status_choices=SERIAL_STATUS_CHOICES
+    )

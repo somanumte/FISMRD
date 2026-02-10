@@ -35,7 +35,7 @@ SERIAL_STATUS_CHOICES = [
 
 class LaptopSerial(TimestampMixin, db.Model):
     """
-    Modelo para almacenar números de serie individuales de fabricante.
+    Modelo para almacenar nÃºmeros de serie individuales de fabricante.
     
     Cada laptop física tiene UN serial único del fabricante.
     Un modelo de laptop (Laptop) puede tener MÚLTIPLES seriales
@@ -84,7 +84,7 @@ class LaptopSerial(TimestampMixin, db.Model):
     # Fecha de ingreso de esta unidad específica
     received_date = db.Column(db.Date, nullable=True, default=date.today)
     
-    # ===== GARANTÍA =====
+    # ===== GARANTÃA =====
     warranty_start = db.Column(db.Date, nullable=True)
     warranty_end = db.Column(db.Date, nullable=True)
     warranty_provider = db.Column(db.String(100), nullable=True)
@@ -94,20 +94,20 @@ class LaptopSerial(TimestampMixin, db.Model):
     sold_date = db.Column(db.DateTime, nullable=True)
     sold_price = db.Column(db.Numeric(12, 2), nullable=True)
     
-    # ===== AUDITORÍA =====
-    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    # ===== AUDITORÃA =====
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_by = db.relationship('User', foreign_keys=[created_by_id])
     
     # ===== PROPIEDADES =====
     
     @property
     def is_available(self):
-        """Verifica si el serial está disponible para venta"""
+        """Verifica si el serial estÃ¡ disponible para venta"""
         return self.status == 'available'
     
     @property
     def is_sold(self):
-        """Verifica si el serial está vendido"""
+        """Verifica si el serial estÃ¡ vendido"""
         return self.status == 'sold'
     
     @property
@@ -132,14 +132,14 @@ class LaptopSerial(TimestampMixin, db.Model):
     
     @property
     def has_warranty(self):
-        """Verifica si tiene garantía activa"""
+        """Verifica si tiene garantÃ­a activa"""
         if self.warranty_end:
             return date.today() <= self.warranty_end
         return False
     
     @property
     def warranty_days_remaining(self):
-        """Días restantes de garantía"""
+        """DÃ­as restantes de garantÃ­a"""
         if self.warranty_end:
             delta = self.warranty_end - date.today()
             return max(0, delta.days)
@@ -250,7 +250,7 @@ class LaptopSerial(TimestampMixin, db.Model):
     def __repr__(self):
         return f'<LaptopSerial {self.serial_number} - {self.status}>'
     
-    # ===== ÍNDICES COMPUESTOS =====
+    # ===== ÃNDICES COMPUESTOS =====
     __table_args__ = (
         db.Index('idx_serial_laptop_status', 'laptop_id', 'status'),
         db.Index('idx_serial_status', 'status'),
@@ -280,7 +280,7 @@ class InvoiceItemSerial(TimestampMixin, db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     
-    # Relación con item de factura
+    # RelaciÃ³n con item de factura
     invoice_item_id = db.Column(
         db.Integer, 
         db.ForeignKey('invoice_items.id', ondelete='CASCADE'), 
@@ -288,18 +288,18 @@ class InvoiceItemSerial(TimestampMixin, db.Model):
         index=True
     )
     
-    # Relación con serial
+    # RelaciÃ³n con serial
     serial_id = db.Column(
         db.Integer, 
-        db.ForeignKey('laptop_serials.id', ondelete='RESTRICT'),  # No permitir borrar si está en factura
+        db.ForeignKey('laptop_serials.id', ondelete='RESTRICT'),  # No permitir borrar si estÃ¡ en factura
         nullable=False,
         index=True
     )
     
-    # Precio de venta de esta unidad específica (puede diferir del unit_price del item)
+    # Precio de venta de esta unidad especÃ­fica (puede diferir del unit_price del item)
     unit_sale_price = db.Column(db.Numeric(12, 2), nullable=True)
     
-    # Notas específicas de esta unidad en la venta
+    # Notas especÃ­ficas de esta unidad en la venta
     notes = db.Column(db.Text, nullable=True)
     
     # Relaciones
@@ -375,14 +375,14 @@ class SerialMovement(TimestampMixin, db.Model):
     # Referencias opcionales
     invoice_id = db.Column(db.Integer, db.ForeignKey('invoices.id'), nullable=True)
     
-    # Descripción del movimiento
+    # DescripciÃ³n del movimiento
     description = db.Column(db.Text, nullable=True)
     
     # Datos adicionales (JSON) - No usar 'metadata' que es reservado en SQLAlchemy
     extra_data = db.Column(db.JSON, nullable=True)
     
     # Usuario que realizó el movimiento
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     user = db.relationship('User', foreign_keys=[user_id])
     
     # Relaciones
@@ -405,7 +405,7 @@ class SerialMovement(TimestampMixin, db.Model):
             'invoice_id': self.invoice_id,
             'description': self.description,
             'extra_data': self.extra_data,
-            'user': self.user.username if self.user else None,
+            'user': (self.user.full_name or self.user.username) if self.user else 'Sistema',
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
     

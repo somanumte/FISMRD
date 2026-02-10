@@ -38,19 +38,19 @@ class SoftDeleteMixin:
 
 class AuditMixin:
     """
-    Auditoría: quién creó y quién modificó
+    AuditorÃ­a: quiÃ©n creÃ³ y quiÃ©n modificÃ³
     """
-    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    updated_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    updated_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    # Nota: Las relaciones se deben definir en el modelo específico
+    # Nota: Las relaciones se deben definir en el modelo especÃ­fico
     # para evitar conflictos con foreign_keys
 
 
 class CatalogMixin(TimestampMixin):
     """
-    Mixin para todos los modelos de catálogo
-    Incluye: name, timestamps, métodos comunes
+    Mixin para todos los modelos de catÃ¡logo
+    Incluye: name, timestamps, mÃ©todos comunes
     """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), unique=True, nullable=False, index=True)

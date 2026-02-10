@@ -229,7 +229,7 @@ class LaptopForm(FlaskForm):
         'URL amigable',
         validators=[
             Optional(),
-            Length(max=255),
+            Length(max=400),
             Regexp(r'^[a-z0-9]+(?:-[a-z0-9]+)*$', message='Solo letras minusculas, numeros y guiones')
         ],
         render_kw={
@@ -243,7 +243,7 @@ class LaptopForm(FlaskForm):
         'Nombre Comercial',
         validators=[
             DataRequired(message='El nombre comercial es requerido'),
-            Length(max=200)
+            Length(max=400)
         ],
         render_kw={
             'placeholder': 'Ej: Dell XPS 15 - Intel i7 - 16GB RAM - 512GB SSD',
@@ -326,6 +326,35 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    category = SelectField(
+        'Categoría',
+        choices=[
+            ('laptop', ' Laptop'),
+            ('workstation', ' Workstation'),
+            ('gaming', ' Gaming')
+        ],
+        default='laptop',
+        validators=[DataRequired(message='La categoría es requerida')],
+        render_kw={
+            'class': 'form-input'
+        }
+    )
+
+    condition = SelectField(
+        'Condición',
+        choices=[
+            ('new', ' Nuevo'),
+            ('used', ' Usado'),
+            ('refurbished', ' Reacondicionado')
+        ],
+        validators=[DataRequired(message='La condición es requerida')],
+        default='new',
+        render_kw={
+            'class': 'form-input',
+            'id': 'condition'
+        }
+    )
+
     # Procesador (Nueva estructura de 3 campos)
     processor_family = StringField(
         'Familia del Procesador',
@@ -376,7 +405,7 @@ class LaptopForm(FlaskForm):
     )
 
     screen_id = StringField(
-        'Resolución de Pantalla',
+        'Modelo / Descripción de Pantalla',
         validators=[DataRequired(message='La pantalla es requerida')],
         render_kw={
             'placeholder': 'Ej: 15.6" FHD IPS',
@@ -385,16 +414,47 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    screen_size = DecimalField(
-        'Tamaño de Pantalla (Pulgadas)',
+    screen_resolution = StringField(
+        'Resolución de Pantalla',
+        validators=[Optional(), Length(max=50)],
+        render_kw={
+            'placeholder': 'Ej: 1920x1080',
+            'class': 'form-input',
+            'id': 'screen_resolution'
+        }
+    )
+
+    # Campos Granulares de Pantalla (Icecat)
+    screen_diagonal_inches = DecimalField(
+        'Diagonal (Pulgadas)',
         places=1,
         validators=[Optional(), NumberRange(min=0)],
-        render_kw={
-            'placeholder': 'Ej: 15.6',
-            'class': 'form-input',
-            'step': '0.1',
-            'id': 'screen_size'
-        }
+        render_kw={'class': 'form-input', 'id': 'screen_diagonal_inches'}
+    )
+    screen_hd_type = StringField(
+        'Tipo HD',
+        validators=[Optional(), Length(max=50)],
+        render_kw={'class': 'form-input', 'id': 'screen_hd_type'}
+    )
+    screen_panel_type = StringField(
+        'Tipo de Panel',
+        validators=[Optional(), Length(max=50)],
+        render_kw={'class': 'form-input', 'id': 'screen_panel_type'}
+    )
+    screen_refresh_rate = IntegerField(
+        'Refresh rate',
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={'class': 'form-input', 'id': 'screen_refresh_rate'}
+    )
+    screen_touchscreen_override = BooleanField(
+        'Pantalla Táctil',
+        default=False,
+        render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'screen_touchscreen_override'}
+    )
+    screen_full_name = StringField(
+        'Nombre Completo Pantalla',
+        validators=[Optional(), Length(max=255)],
+        render_kw={'class': 'form-input', 'id': 'screen_full_name'}
     )
 
     graphics_card_id = StringField(
@@ -416,6 +476,20 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    # Campos Granulares de GPU Dedicada
+    discrete_gpu_brand = StringField('Marca GPU Dedicada', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'discrete_gpu_brand'})
+    discrete_gpu_model = StringField('Modelo GPU Dedicada', validators=[Optional(), Length(max=100)], render_kw={'class': 'form-input', 'id': 'discrete_gpu_model'})
+    discrete_gpu_memory_gb = DecimalField('VRAM (GB)', places=1, validators=[Optional(), NumberRange(min=0)], render_kw={'class': 'form-input', 'id': 'discrete_gpu_memory_gb'})
+    discrete_gpu_memory_type = StringField('Tipo VRAM', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'discrete_gpu_memory_type'})
+    discrete_gpu_full_name = StringField('Nombre GPU Dedicada', validators=[Optional(), Length(max=255)], render_kw={'class': 'form-input', 'id': 'discrete_gpu_full_name'})
+
+    # Campos Granulares de GPU Integrada
+    onboard_gpu_brand = StringField('Marca GPU Integrada', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'onboard_gpu_brand'})
+    onboard_gpu_model = StringField('Modelo GPU Integrada', validators=[Optional(), Length(max=100)], render_kw={'class': 'form-input', 'id': 'onboard_gpu_model'})
+    onboard_gpu_family = StringField('Familia GPU Integrada', validators=[Optional(), Length(max=100)], render_kw={'class': 'form-input', 'id': 'onboard_gpu_family'})
+    onboard_gpu_memory_gb = DecimalField('Memoria GPU Integrada (GB)', places=1, validators=[Optional(), NumberRange(min=0)], render_kw={'class': 'form-input', 'id': 'onboard_gpu_memory_gb'})
+    onboard_gpu_full_name = StringField('Nombre GPU Integrada', validators=[Optional(), Length(max=255)], render_kw={'class': 'form-input', 'id': 'onboard_gpu_full_name'})
+
     storage_id = StringField(
         'Almacenamiento',
         validators=[DataRequired(message='El almacenamiento es requerido')],
@@ -426,13 +500,12 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    storage_upgradeable = BooleanField(
-        'Almacenamiento ampliable',
-        default=False,
-        render_kw={
-            'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
-        }
-    )
+    # Campos Granulares de Almacenamiento
+    storage_media = StringField('Tipo Media', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'storage_media'})
+    storage_nvme = BooleanField('NVMe', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'storage_nvme'})
+    storage_form_factor = StringField('Factor de Forma', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'storage_form_factor'})
+    storage_full_name = StringField('Nombre Completo Almacenamiento', validators=[Optional(), Length(max=255)], render_kw={'class': 'form-input', 'id': 'storage_full_name'})
+
 
     storage_capacity = IntegerField(
         'Capacidad Almacenamiento (GB)',
@@ -454,13 +527,12 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    ram_upgradeable = BooleanField(
-        'RAM ampliable',
-        default=False,
-        render_kw={
-            'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
-        }
-    )
+    # Campos Granulares de RAM
+    ram_type_detailed = StringField('Tipo Detallado', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'ram_type_detailed'})
+    ram_speed_mhz = IntegerField('Velocidad (MHz)', validators=[Optional(), NumberRange(min=0)], render_kw={'class': 'form-input', 'id': 'ram_speed_mhz'})
+    ram_transfer_rate = StringField('Tasa Transferencia', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'ram_transfer_rate'})
+    ram_full_name = StringField('Nombre Completo RAM', validators=[Optional(), Length(max=255)], render_kw={'class': 'form-input', 'id': 'ram_full_name'})
+
 
     ram_capacity = IntegerField(
         'Capacidad RAM (GB)',
@@ -472,12 +544,31 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    # Físico
+    weight_lbs = DecimalField(
+        'Peso (lbs)',
+        places=2,
+        validators=[Optional(), NumberRange(min=0)],
+        render_kw={'class': 'form-input', 'id': 'weight_lbs'}
+    )
+
     # ===== 4. DETALLES TÉCNICOS ESPECÍFICOS =====
     npu = BooleanField(
         'Tiene NPU (Procesador de IA)',
         default=False,
         render_kw={
             'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
+        }
+    )
+
+
+    keyboard_layout = SelectField(
+        'Distribucion del Teclado',
+        choices=KEYBOARD_LAYOUT_CHOICES,
+        default='US',
+        validators=[DataRequired(message='La distribucion del teclado es requerida')],
+        render_kw={
+            'class': 'form-input'
         }
     )
 
@@ -490,15 +581,22 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    keyboard_layout = SelectField(
-        'Distribucion del Teclado',
-        choices=KEYBOARD_LAYOUT_CHOICES,
-        default='US',
-        validators=[DataRequired(message='La distribucion del teclado es requerida')],
-        render_kw={
-            'class': 'form-input'
-        }
-    )
+    # Mejoras de amplibilidad
+    storage_upgradeable = BooleanField('Almacenamiento ampliable', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'storage_upgradeable'})
+    ram_upgradeable = BooleanField('RAM ampliable', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'ram_upgradeable'})
+
+    # Nuevos campos de Teclado
+    pointing_device = StringField('Dispositivo Apuntador', validators=[Optional(), Length(max=100)], render_kw={'class': 'form-input', 'id': 'pointing_device'})
+    numeric_keypad = BooleanField('Teclado Numérico', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'numeric_keypad'})
+    keyboard_backlight_color = StringField('Color Retroiluminación', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'keyboard_backlight_color'})
+    keyboard_backlight_zone = StringField('Zona Retroiluminación', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'keyboard_backlight_zone'})
+    keyboard_language = StringField('Idioma del Teclado', validators=[Optional(), Length(max=50)], render_kw={'class': 'form-input', 'id': 'keyboard_language'})
+
+    # Biometría y Extras
+    fingerprint_reader = BooleanField('Lector de huellas', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'fingerprint_reader'})
+    face_recognition = BooleanField('Reconocimiento facial', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'face_recognition'})
+    stylus_support = BooleanField('Soporte para stylus', default=False, render_kw={'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded', 'id': 'stylus_support'})
+
 
     connectivity_ports = TextAreaField(
         'Puertos de Conectividad',
@@ -512,7 +610,7 @@ class LaptopForm(FlaskForm):
     )
 
     wifi_standard = StringField(
-        'Estandar Wi-Fi',
+        'Estándar Wi-Fi',
         validators=[Optional(), Length(max=100)],
         render_kw={
             'placeholder': 'Ej: Wi-Fi 6 (802.11ax)',
@@ -531,6 +629,25 @@ class LaptopForm(FlaskForm):
         }
     )
 
+    bluetooth_version = StringField(
+        'Versión Bluetooth',
+        validators=[Optional(), Length(max=20)],
+        render_kw={
+            'placeholder': 'Ej: 5.3',
+            'class': 'form-input',
+            'id': 'bluetooth_version'
+        }
+    )
+
+    ethernet_port = BooleanField(
+        'Puerto Ethernet (RJ-45)',
+        default=False,
+        render_kw={
+            'class': 'h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded',
+            'id': 'ethernet_port'
+        }
+    )
+
     # ===== 10. COMERCIAL Y GARANTÍA =====
     keywords = StringField(
         'Palabras clave (SEO)',
@@ -544,7 +661,7 @@ class LaptopForm(FlaskForm):
 
     currency = StringField(
         'Moneda',
-        default='USD',
+        default='DOP',
         validators=[Optional(), Length(max=10)],
         render_kw={
             'class': 'form-input',
@@ -554,6 +671,7 @@ class LaptopForm(FlaskForm):
 
     warranty_months = IntegerField(
         'Meses de Garantía',
+        default=12,
         validators=[Optional(), NumberRange(min=0)],
         render_kw={
             'placeholder': 'Ej: 12',
@@ -583,36 +701,7 @@ class LaptopForm(FlaskForm):
         }
     )
 
-    # ===== 5. ESTADO Y CATEGORÍA =====
-    category = SelectField(
-        'Categoría',
-        choices=[
-            ('', 'Selecciona una categoria'),
-            ('laptop', ' Laptop'),
-            ('workstation', ' Workstation'),
-            ('gaming', ' Gaming')
-        ],
-        validators=[DataRequired(message='La categoria es requerida')],
-        render_kw={
-            'class': 'form-input'
-        }
-    )
 
-    condition = SelectField(
-        'Condicion',
-        choices=[
-            ('', 'Selecciona condicion'),
-            ('new', ' Nuevo'),
-            ('used', ' Usado'),
-            ('refurbished', ' Reacondicionado')
-        ],
-        validators=[DataRequired(message='La condicion es requerida')],
-        default='used',
-        render_kw={
-            'class': 'form-input',
-            'id': 'condition'
-        }
-    )
 
     # ===== 6. IMÁGENES =====
     # Campos para hasta 8 imágenes
@@ -795,7 +884,7 @@ class LaptopForm(FlaskForm):
     )
 
     discount_price = DecimalField(
-        'Precio con Descuento ($)',
+        'Precio de oferta',
         places=2,
         validators=[
             Optional(),
@@ -877,6 +966,7 @@ class LaptopForm(FlaskForm):
     store_id = SelectField(
         'Tienda',
         coerce=int,
+        default=1,
         validators=[DataRequired(message='La tienda es requerida')],
         render_kw={
             'class': 'form-input select2-dynamic',
@@ -889,6 +979,7 @@ class LaptopForm(FlaskForm):
     location_id = SelectField(
         'Ubicacion',
         coerce=int,
+        default=1,
         validators=[Optional()],
         render_kw={
             'class': 'form-input select2-dynamic',
@@ -901,6 +992,7 @@ class LaptopForm(FlaskForm):
     supplier_id = SelectField(
         'Proveedor',
         coerce=int,
+        default=1,
         validators=[Optional()],
         render_kw={
             'class': 'form-input select2-dynamic',
@@ -936,6 +1028,12 @@ class LaptopForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         """Inicializa el formulario y carga las opciones de los selectores"""
         super(LaptopForm, self).__init__(*args, **kwargs)
+
+        # Establecer vencimiento de garantía a 12 meses por defecto si no hay datos
+        if not self.warranty_expiry.data:
+            from datetime import date
+            from dateutil.relativedelta import relativedelta
+            self.warranty_expiry.data = date.today() + relativedelta(months=12)
 
         # Cargar opciones para los SelectFields desde la base de datos
         # Nota: brand_id, model_id, etc. ahora son StringFields, no se cargan opciones aquí.

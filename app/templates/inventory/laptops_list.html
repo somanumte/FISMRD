@@ -2,44 +2,148 @@
 
 {% block title %}Inventario de Laptops{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ─────────────────────────────────────────────────────────────────────────────
+       LIST PAGE — Matching laptop_form aesthetic
+       ───────────────────────────────────────────────────────────────────────────── */
+    .list-hero {
+        background: linear-gradient(135deg, #4338ca 0%, #6366f1 40%, #818cf8 100%);
+        border-radius: 1.5rem;
+        padding: 1.75rem 2rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .list-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .stat-card {
+        border-radius: 1.25rem;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .dark .stat-card {
+        border-color: #374151;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-sidebar {
+        border-radius: 1.5rem !important;
+    }
+
+    .toolbar-bar {
+        border-radius: 1.25rem !important;
+    }
+
+    .table-container {
+        border-radius: 1.5rem !important;
+        overflow: hidden;
+    }
+
+    .pagination-bar {
+        border-radius: 1.5rem !important;
+    }
+
+    .grid-card {
+        border-radius: 1.5rem !important;
+        transition: all 0.4s ease;
+    }
+
+    .grid-card:hover {
+        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
+    }
+
+    .action-btn-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.875rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition: all 0.2s;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-btn-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .filter-btn-apply {
+        background: linear-gradient(135deg, #4338ca, #6366f1);
+        border-radius: 0.75rem;
+    }
+
+    .filter-btn-apply:hover {
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Header: Título y Botones -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    Inventario de Laptops
-                </h1>
-                <p class="mt-1 text-gray-600 dark:text-gray-400">
-                    Gestiona tu inventario de manera eficiente
-                </p>
-            </div>
+        <!-- Hero Header -->
+        <div class="list-hero">
+            <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-white">
+                        Inventario de Laptops
+                    </h1>
+                    <p class="mt-1 text-indigo-200 text-sm">
+                        Gestiona tu inventario de manera eficiente
+                    </p>
+                </div>
 
-            <div class="flex space-x-3">
-                <!-- Botón para crear factura con laptops seleccionadas -->
-                <button id="create-invoice-btn"
-                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled>
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
-                    </svg>
-                    Crear Factura (<span id="selected-count">0</span>)
-                </button>
+                <div class="flex flex-wrap gap-3">
+                    <button id="create-invoice-btn"
+                        class="action-btn-hero bg-white/15 text-white backdrop-blur-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                        disabled>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Crear Factura (<span id="selected-count">0</span>)
+                    </button>
 
-                {% if current_user.is_admin %}
-                <a href="{{ url_for('inventory.laptop_add') }}"
-                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Agregar Laptop
-                </a>
-                {% endif %}
+                    {% if current_user.has_permission('inventory.laptops.create') %}
+                    <a href="{{ url_for('inventory.serials_list') }}"
+                        class="action-btn-hero bg-indigo-500/20 text-white border border-white/20 hover:bg-white/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                        Seriales
+                    </a>
+                    <a href="{{ url_for('inventory.laptop_add') }}" class="action-btn-hero bg-white text-indigo-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Agregar Laptop
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -359,7 +463,7 @@
                         <!-- Action Buttons -->
                         <div class="flex space-x-2 pt-2">
                             <button type="submit"
-                                class="flex-1 bg-indigo-600 text-white rounded-lg py-2 px-4 hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                class="flex-1 filter-btn-apply text-white py-2.5 px-4 transition-all text-sm font-bold">
                                 Aplicar
                             </button>
                             <a href="{{ url_for('inventory.laptops_list') }}"
@@ -443,7 +547,7 @@
                                             class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                                        colspan="2">
+                                        colspan="3">
                                         <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='name_desc' if sort_by == 'name_asc' else 'name_asc')) }}"
                                             class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                             Laptop
@@ -462,24 +566,6 @@
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                            </svg>
-                                            {% endif %}
-                                        </a>
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        <a href="{{ url_for('inventory.laptops_list', **dict(request.args, sort_by='category_desc' if sort_by == 'category_asc' else 'category_asc')) }}"
-                                            class="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                                            Categoría
-                                            {% if sort_by == 'category_asc' %}
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 15l7-7 7 7"></path>
-                                            </svg>
-                                            {% elif sort_by == 'category_desc' %}
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7"></path>
                                             </svg>
                                             {% endif %}
                                         </a>
@@ -553,8 +639,8 @@
                                         <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
                                             data-laptop-id="{{ laptop.id }}"
                                             data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                            data-laptop-price="{{ laptop.sale_price }}"
-                                            data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | Pantalla: {{ (laptop.screen.name if laptop.screen else 'N/A')|e }} | GPU: {{ (laptop.graphics_card.name if laptop.graphics_card else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                            data-laptop-price="{{ laptop.effective_price }}"
+                                            data-laptop-description="CPU: {{ (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else 'N/A'))|e }} | Pantalla: {{ (laptop.screen_full_name if laptop.screen_full_name else (laptop.screen.name if laptop.screen else 'N/A'))|e }} | GPU: {{ (laptop.discrete_gpu_full_name if laptop.discrete_gpu_full_name else (laptop.graphics_card.name if laptop.graphics_card else 'N/A'))|e }} | RAM: {{ (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else 'N/A'))|e }} | SSD: {{ (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else 'N/A'))|e }}"
                                             class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
                                     </td>
                                     <!-- Mobile Selection Bar (Top) -->
@@ -564,25 +650,27 @@
                                             <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
                                                 data-laptop-id="{{ laptop.id }}"
                                                 data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                                data-laptop-price="{{ laptop.sale_price }}"
-                                                data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                                data-laptop-price="{{ laptop.effective_price }}"
+                                                data-laptop-description="CPU: {{ (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else 'N/A'))|e }} | RAM: {{ (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else 'N/A'))|e }} | SSD: {{ (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else 'N/A'))|e }}"
                                                 class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0 cursor-pointer shadow-sm transition-transform active:scale-95">
                                             <span
                                                 class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Seleccionar
                                                 para factura</span>
                                         </div>
                                     </td>
-                                    <!-- Laptop Info (Colspan 2 for Desktop) -->
-                                    <td class="px-6 py-4 sm:table-cell sm:col-span-2" colspan="2">
+                                    <!-- Laptop Info (Colspan 3 for Desktop) -->
+                                    <td class="px-6 py-4 sm:table-cell sm:col-span-3" colspan="3">
                                         <div class="flex items-center gap-4">
                                             <div
                                                 class="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 sm:group-hover:border-indigo-200 dark:sm:group-hover:border-indigo-800 transition-colors">
                                                 {% set cover_image = none %}
-                                                {% for image in laptop.images if image.is_cover %}
+                                                {% for image in laptop.images|sort(attribute='ordering') %}
+                                                {% if image.is_cover %}
                                                 {% set cover_image = image %}
+                                                {% endif %}
                                                 {% endfor %}
                                                 {% if not cover_image and laptop.images %}
-                                                {% set cover_image = laptop.images[0] %}
+                                                {% set cover_image = (laptop.images|sort(attribute='ordering'))[0] %}
                                                 {% endif %}
 
                                                 {% if cover_image %}
@@ -607,52 +695,52 @@
                                             <div class="flex-1 min-w-0 pr-8 sm:pr-0 relative">
                                                 <div class="flex items-center justify-between sm:block">
                                                     <h3
-                                                        class="text-sm sm:text-base font-black text-gray-900 dark:text-white truncate mb-0.5 sm:group-hover:text-indigo-600 transition-colors">
+                                                        class="text-base sm:text-lg font-black text-gray-900 dark:text-white truncate mb-0.5 sm:group-hover:text-indigo-600 transition-colors">
                                                         {{ laptop.brand.name }} {{ laptop.model.name }}
                                                     </h3>
                                                 </div>
                                                 <div
-                                                    class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                    class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400">
                                                     <span class="flex items-center gap-1"><span
-                                                            class="text-indigo-500">CPU:</span> {{ laptop.processor.name
-                                                        if laptop.processor else '-' }}</span>
+                                                            class="text-indigo-500">CPU:</span> {{
+                                                        laptop.processor_full_name or (laptop.processor.name
+                                                        if laptop.processor else '-') }}</span>
                                                     <span class="flex items-center gap-1"><span
                                                             class="text-indigo-500">GPU:</span> {{
-                                                        laptop.graphics_card.name if laptop.graphics_card else '-'
+                                                        laptop.discrete_gpu_full_name or (laptop.graphics_card.name if
+                                                        laptop.graphics_card else '-')
                                                         }}</span>
                                                     <span class="flex items-center gap-1"><span
-                                                            class="text-indigo-500">RAM:</span> {{ laptop.ram.name if
-                                                        laptop.ram else '-' }}</span>
+                                                            class="text-indigo-500">RAM:</span> {{ laptop.ram_full_name
+                                                        or (laptop.ram.name if
+                                                        laptop.ram else '-') }}</span>
                                                     <span class="flex items-center gap-1"><span
-                                                            class="text-indigo-500">SSD:</span> {{ laptop.storage.name
-                                                        if laptop.storage else '-' }}</span>
+                                                            class="text-indigo-500">SSD:</span> {{
+                                                        laptop.storage_full_name or (laptop.storage.name
+                                                        if laptop.storage else '-') }}</span>
                                                     <span class="flex items-center gap-1"><span
                                                             class="text-indigo-500">Pantalla:</span> {{
-                                                        laptop.screen.name if laptop.screen else '-' }}</span>
+                                                        laptop.screen_full_name or (laptop.screen.name if laptop.screen
+                                                        else '-') }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
 
 
-                                    <!-- Desktop Category -->
-                                    <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
-                                        {% if laptop.category == 'gaming' %}
-                                        <span
-                                            class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-1 ring-purple-600/20">Gaming</span>
-                                        {% elif laptop.category == 'workstation' %}
-                                        <span
-                                            class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-1 ring-blue-600/20">WS</span>
-                                        {% else %}
-                                        <span class="text-gray-400 text-xs">-</span>
-                                        {% endif %}
-                                    </td>
 
                                     <!-- Desktop Price -->
                                     <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
-                                        <span class="text-base font-black text-indigo-600 dark:text-indigo-400">
-                                            {{ "{:,.0f}".format(laptop.sale_price) }}
-                                        </span>
+                                        <div class="flex flex-col">
+                                            <span class="text-base font-black text-indigo-600 dark:text-indigo-400">
+                                                {{ "{:,.0f}".format(laptop.effective_price) }}
+                                            </span>
+                                            {% if laptop.discount_price and laptop.discount_price > 0 %}
+                                            <span class="text-[10px] font-semibold text-gray-400 line-through">
+                                                {{ "{:,.0f}".format(laptop.sale_price) }}
+                                            </span>
+                                            {% endif %}
+                                        </div>
                                     </td>
 
                                     <!-- Desktop Stock -->
@@ -687,7 +775,7 @@
                                         <div class="flex items-center justify-end gap-2">
                                             <!-- Invoice Action (Desktop) -->
                                             <button type="button"
-                                                onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                                onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.effective_price|tojson }}, {{ ("CPU: " + (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else "N/A")) + " | RAM: " + (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else "N/A")) + " | SSD: " + (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else "N/A")))|tojson }})'
                                                 class="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-all hover:scale-110"
                                                 title="Crear Factura">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -712,7 +800,7 @@
                                                     </path>
                                                 </svg>
                                             </a>
-                                            {% if current_user.is_admin %}
+                                            {% if current_user.has_permission('inventory.laptops.edit') %}
                                             <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
                                                 class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all hover:scale-110"
                                                 title="Editar">
@@ -734,10 +822,18 @@
                                         <div class="flex items-center justify-between gap-2">
                                             <!-- Price & Stock -->
                                             <div class="flex items-baseline gap-3 sm:flex-col sm:gap-0">
-                                                <span
-                                                    class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400">
-                                                    {{ "{:,.0f}".format(laptop.sale_price) }}
-                                                </span>
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400">
+                                                        {{ "{:,.0f}".format(laptop.effective_price) }}
+                                                    </span>
+                                                    {% if laptop.discount_price and laptop.discount_price > 0 %}
+                                                    <span
+                                                        class="text-[10px] sm:text-[11px] font-semibold text-gray-400 line-through">
+                                                        {{ "{:,.0f}".format(laptop.sale_price) }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
                                                 <span
                                                     class="px-2 py-0.5 text-[10px] sm:text-[11px] font-black rounded-lg {{ 'bg-red-100 text-red-700' if laptop.quantity <= 0 else 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' if laptop.quantity > laptop.min_alert else 'bg-amber-100 text-amber-700' }}">
                                                     {{ laptop.quantity }} uds
@@ -749,7 +845,7 @@
                                                 <!-- Invoice Action -->
                                                 <!-- Invoice Action -->
                                                 <button type="button"
-                                                    onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                                    onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.effective_price|tojson }}, {{ ("CPU: " + (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else "N/A")) + " | RAM: " + (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else "N/A")) + " | SSD: " + (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else "N/A")))|tojson }})'
                                                     class="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
                                                     title="Crear Factura">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -774,7 +870,7 @@
                                                         </path>
                                                     </svg>
                                                 </a>
-                                                {% if current_user.is_admin %}
+                                                {% if current_user.has_permission('inventory.laptops.edit') %}
                                                 <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
                                                     class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -828,11 +924,13 @@
                         <!-- Image Container with Aspect Ratio -->
                         <div class="relative aspect-video w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
                             {% set cover_image = none %}
-                            {% for image in laptop.images if image.is_cover %}
+                            {% for image in laptop.images|sort(attribute='ordering') %}
+                            {% if image.is_cover %}
                             {% set cover_image = image %}
+                            {% endif %}
                             {% endfor %}
                             {% if not cover_image and laptop.images %}
-                            {% set cover_image = laptop.images[0] %}
+                            {% set cover_image = (laptop.images|sort(attribute='ordering'))[0] %}
                             {% endif %}
 
                             {% if cover_image %}
@@ -890,7 +988,7 @@
                                         </path>
                                     </svg>
                                     <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
-                                        laptop.processor.name if laptop.processor else 'N/A' }}</span>
+                                        (laptop.processor.full_name if laptop.processor else 'N/A') }}</span>
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
@@ -901,7 +999,8 @@
                                         </path>
                                     </svg>
                                     <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
-                                        laptop.screen.name if laptop.screen else 'N/A' }}</span>
+                                        laptop.screen_full_name if laptop.screen_full_name else (laptop.screen.name if
+                                        laptop.screen else 'N/A') }}</span>
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
@@ -912,7 +1011,8 @@
                                         </path>
                                     </svg>
                                     <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
-                                        laptop.graphics_card.name if laptop.graphics_card else 'N/A' }}</span>
+                                        laptop.discrete_gpu_full_name if laptop.discrete_gpu_full_name else
+                                        (laptop.graphics_card.name if laptop.graphics_card else 'N/A') }}</span>
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2">
@@ -923,7 +1023,8 @@
                                         </path>
                                     </svg>
                                     <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
-                                        laptop.ram.name if laptop.ram else 'N/A' }}</span>
+                                        laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram
+                                        else 'N/A') }}</span>
                                 </div>
                                 <div
                                     class="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-xl border border-gray-100 dark:border-gray-600/50 flex items-center gap-2 col-span-2">
@@ -934,7 +1035,8 @@
                                         </path>
                                     </svg>
                                     <span class="text-[11px] font-bold text-gray-700 dark:text-gray-200 truncate">{{
-                                        laptop.storage.name if laptop.storage else 'N/A' }}</span>
+                                        laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name
+                                        if laptop.storage else 'N/A') }}</span>
                                 </div>
                             </div>
 
@@ -946,8 +1048,12 @@
                                     <div class="flex items-baseline gap-1">
                                         <span
                                             class="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 leading-tight group-hover:scale-105 transition-transform duration-500 origin-left">{{
-                                            "{:,.0f}".format(laptop.sale_price) }}</span>
-
+                                            "{:,.0f}".format(laptop.effective_price) }}</span>
+                                        {% if laptop.discount_price and laptop.discount_price > 0 %}
+                                        <span class="text-xs font-semibold text-gray-500 line-through">
+                                            {{ "{:,.0f}".format(laptop.sale_price) }}
+                                        </span>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-end">
@@ -967,7 +1073,7 @@
                                 <div class="flex items-center gap-1.5">
                                     <!-- Invoice -->
                                     <button type="button"
-                                        onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor.name if laptop.processor else "N/A") + " | RAM: " + (laptop.ram.name if laptop.ram else "N/A") + " | SSD: " + (laptop.storage.name if laptop.storage else "N/A"))|tojson }})'
+                                        onclick='event.stopPropagation(); createInvoiceForLaptop({{ laptop.id|tojson }}, {{ ((laptop.brand.name if laptop.brand else "N/A") + " " + (laptop.model.name if laptop.model else "N/A"))|tojson }}, {{ laptop.effective_price|tojson }}, {{ ("CPU: " + (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else "N/A")) + " | RAM: " + (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else "N/A")) + " | SSD: " + (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else "N/A")))|tojson }})'
                                         class="p-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl transition-colors active:scale-95"
                                         title="Crear Factura">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -988,7 +1094,7 @@
                                         </svg>
                                     </a>
                                     <!-- Edit -->
-                                    {% if current_user.is_admin %}
+                                    {% if current_user.has_permission('inventory.laptops.edit') %}
                                     <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
                                         class="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/10 rounded-xl transition-colors active:scale-95">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1006,8 +1112,8 @@
                                         <input type="checkbox" name="selected_laptop" value="{{ laptop.id }}"
                                             data-laptop-id="{{ laptop.id }}"
                                             data-laptop-name="{{ (laptop.brand.name if laptop.brand else 'N/A')|e }} {{ (laptop.model.name if laptop.model else 'N/A')|e }}"
-                                            data-laptop-price="{{ laptop.sale_price }}"
-                                            data-laptop-description="CPU: {{ (laptop.processor.name if laptop.processor else 'N/A')|e }} | RAM: {{ (laptop.ram.name if laptop.ram else 'N/A')|e }} | SSD: {{ (laptop.storage.name if laptop.storage else 'N/A')|e }}"
+                                            data-laptop-price="{{ laptop.effective_price }}"
+                                            data-laptop-description="CPU: {{ (laptop.processor_full_name if laptop.processor_full_name else (laptop.processor.name if laptop.processor else 'N/A'))|e }} | RAM: {{ (laptop.ram_full_name if laptop.ram_full_name else (laptop.ram.name if laptop.ram else 'N/A'))|e }} | SSD: {{ (laptop.storage_full_name if laptop.storage_full_name else (laptop.storage.name if laptop.storage else 'N/A'))|e }}"
                                             class="laptop-checkbox h-6 w-6 rounded-lg border-gray-300 text-indigo-600 focus:ring-0">
                                     </label>
                                 </div>

@@ -3,6 +3,8 @@
 Servicio para manejar la creación dinámica de catálogos
 Actualizado al nuevo modelo de datos
 """
+import re
+
 from app import db
 from app.models.laptop import (
     Brand, LaptopModel, Processor, OperatingSystem,
@@ -46,9 +48,18 @@ class CatalogService:
             ).first()
 
             if existing:
+                # Actualizar campos adicionales si no existen
+                base_changed = False
+                for key, val in extra_fields.items():
+                    if hasattr(existing, key) and val and getattr(existing, key) != val:
+                        setattr(existing, key, val)
+                        base_changed = True
+                if base_changed:
+                    db.session.flush()
                 return existing.id
 
             # Crear nuevo item
+            extra_fields.pop('name', None)
             new_item = model(name=name, is_active=True, **extra_fields)
             db.session.add(new_item)
             db.session.flush()  # Para obtener el ID sin commit
@@ -117,15 +128,16 @@ class CatalogService:
         return None
 
     @staticmethod
-    def get_or_create_processor(family, generation=None, model=None, manufacturer=None):
+    def get_or_create_processor(family, generation=None, model=None, manufacturer=None, has_npu=False, **extra_fields):
         """
-        Obtiene o crea un registro de generación de procesador
+        Obtiene o crea un registro de generación de procesador con soporte técnico para NPU.
 
         Args:
             family: Familia del procesador (str)
             generation: Nombre de la generación (str)
-            model: Modelo/Número (str, informativo para crear el objeto si no existe)
+            model: Modelo/Número (str)
             manufacturer: Fabricante (str, opcional)
+            has_npu: Si tiene NPU para AI
 
         Returns:
             int: ID de la generación del procesador, o None
@@ -138,6 +150,8 @@ class CatalogService:
         cat_name = (generation or family).strip()
         if not cat_name:
             return None
+
+        full_name = extra_fields.get('full_name')
 
         # Normalizar datos para los campos técnicos
         family = family.strip() if family else ""
@@ -163,6 +177,17 @@ class CatalogService:
         ).first()
 
         if existing:
+            # Si existe, actualizamos has_npu si es True o full_name si falta
+            changed = False
+            if has_npu and not existing.has_npu:
+                existing.has_npu = True
+                changed = True
+            if full_name and existing.full_name != full_name:
+                existing.full_name = full_name
+                changed = True
+            
+            if changed:
+                db.session.flush()
             return existing.id
 
         # Crear nuevo registro de generación
@@ -172,6 +197,8 @@ class CatalogService:
             generation=generation,
             model_number=model,
             manufacturer=manufacturer,
+            has_npu=has_npu,
+            full_name=full_name,
             is_active=True
         )
         db.session.add(new_processor)
@@ -192,56 +219,116 @@ class CatalogService:
         return CatalogService._get_or_create_generic(OperatingSystem, value)
 
     @staticmethod
-    def get_or_create_screen(value):
+    def get_or_create_screen(value=None, **fields):
         """
-        Obtiene o crea una pantalla
-
-        Args:
-            value: ID (int) o nombre (str) de la pantalla
-
-        Returns:
-            int: ID de la pantalla, o None si value es inválido
+        Obtiene o crea una pantalla con campos técnicos
         """
-        return CatalogService._get_or_create_generic(Screen, value)
+        if not value and not fields:
+            return None
+
+        # Si es un ID, retornar tal cual
+        if isinstance(value, int) and value > 0:
+            return value
+
+        # Asegurar que resolution se capture de value si viene ahí (ej: del scanner o seeder)
+        resolution = fields.get('resolution')
+        if not resolution and value:
+            # Buscar patrones tipo 1920x1080 o 1920 x 1080
+            match = re.search(r'(\d{3,4}\s*[xX]\s*\d{3,4})', str(value))
+            if match:
+                resolution = match.group(1).replace(' ', '').lower()
+                fields['resolution'] = resolution
+
+        # Intentar construir un nombre descriptivo si tenemos datos
+        # Si value es la resolución, buscamos algo más visual (diag + hd + res)
+        name = value
+        if not name or (resolution and name == resolution):
+            parts = []
+            diag = fields.get('diagonal_inches')
+            if diag: parts.append(f"{diag}\"")
+            
+            hd = fields.get('hd_type')
+            if hd: parts.append(hd)
+            elif resolution: parts.append(resolution)
+            
+            panel = fields.get('panel_type')
+            if panel: parts.append(panel.replace('-Level', ''))
+            
+            refresh = fields.get('refresh_rate')
+            if refresh and refresh > 60: parts.append(f"{refresh}Hz")
+            
+            if fields.get('touchscreen'): parts.append('Touch')
+            
+            name = ' '.join(parts) if parts else (resolution or value or 'Generic Screen')
+
+        return CatalogService._get_or_create_generic(Screen, name, **fields)
 
     @staticmethod
-    def get_or_create_graphics_card(value):
+    def get_or_create_graphics_card(value=None, **fields):
         """
-        Obtiene o crea una tarjeta gráfica
-
-        Args:
-            value: ID (int) o nombre (str) de la tarjeta gráfica
-
-        Returns:
-            int: ID de la tarjeta gráfica, o None si value es inválido
+        Obtiene o crea una tarjeta gráfica con campos técnicos
         """
-        return CatalogService._get_or_create_generic(GraphicsCard, value)
+        if not value and not fields:
+            return None
+
+        if isinstance(value, int) and value > 0:
+            return value
+
+        name = value
+        if not name:
+            parts = []
+            if fields.get('brand'): parts.append(fields.get('brand'))
+            if fields.get('name'): parts.append(fields.get('name')) # Nombre del modelo GPU
+            elif fields.get('onboard_model'): parts.append(fields.get('onboard_model'))
+            elif fields.get('discrete_model'): parts.append(fields.get('discrete_model'))
+                
+            if fields.get('memory_gb'): parts.append(f"{fields.get('memory_gb')}GB")
+            name = ' '.join(parts) if parts else 'Generic GPU'
+
+        return CatalogService._get_or_create_generic(GraphicsCard, name, **fields)
 
     @staticmethod
-    def get_or_create_storage(value):
+    def get_or_create_storage(value=None, **fields):
         """
-        Obtiene o crea un tipo de almacenamiento
-
-        Args:
-            value: ID (int) o nombre (str) del almacenamiento
-
-        Returns:
-            int: ID del almacenamiento, o None si value es inválido
+        Obtiene o crea almacenamiento con campos técnicos
         """
-        return CatalogService._get_or_create_generic(Storage, value)
+        if not value and not fields:
+            return None
+
+        if isinstance(value, int) and value > 0:
+            return value
+
+        name = value
+        if not name:
+            parts = []
+            if fields.get('capacity_gb'): parts.append(f"{fields.get('capacity_gb')}GB")
+            if fields.get('media_type'): parts.append(fields.get('media_type'))
+            if fields.get('nvme'): parts.append('NVMe')
+            if fields.get('form_factor'): parts.append(fields.get('form_factor'))
+            name = ' '.join(parts) if parts else 'Generic Storage'
+
+        return CatalogService._get_or_create_generic(Storage, name, **fields)
 
     @staticmethod
-    def get_or_create_ram(value):
+    def get_or_create_ram(value=None, **fields):
         """
-        Obtiene o crea un tipo de RAM
-
-        Args:
-            value: ID (int) o nombre (str) de la RAM
-
-        Returns:
-            int: ID de la RAM, o None si value es inválido
+        Obtiene o crea RAM con campos técnicos
         """
-        return CatalogService._get_or_create_generic(Ram, value)
+        if not value and not fields:
+            return None
+
+        if isinstance(value, int) and value > 0:
+            return value
+
+        name = value
+        if not name:
+            parts = []
+            if fields.get('capacity_gb'): parts.append(f"{fields.get('capacity_gb')}GB")
+            if fields.get('ram_type'): parts.append(fields.get('ram_type'))
+            if fields.get('speed_mhz'): parts.append(f"{fields.get('speed_mhz')}MHz")
+            name = ' '.join(parts) if parts else 'Generic RAM'
+
+        return CatalogService._get_or_create_generic(Ram, name, **fields)
 
     @staticmethod
     def get_or_create_store(value):
@@ -341,32 +428,64 @@ class CatalogService:
         )
         processed_data['model_id'] = model_id
 
-        # Procesar otros catálogos de especificaciones
+        # Procesar procesador
         processed_data['processor_id'] = CatalogService.get_or_create_processor(
             family=form_data.get('processor_family'),
             generation=form_data.get('processor_generation'),
             model=form_data.get('processor_model'),
-            manufacturer=form_data.get('processor_manufacturer')
+            manufacturer=form_data.get('processor_manufacturer'),
+            full_name=form_data.get('processor_full_name')
         )
 
         processed_data['os_id'] = CatalogService.get_or_create_os(
             form_data.get('os_id')
         )
 
+        # Procesar pantalla (con campos granulares)
         processed_data['screen_id'] = CatalogService.get_or_create_screen(
-            form_data.get('screen_id')
+            value=form_data.get('screen_id'),
+            diagonal_inches=form_data.get('screen_diagonal_inches'),
+            resolution=form_data.get('screen_resolution'),
+            hd_type=form_data.get('screen_hd_type'),
+            panel_type=form_data.get('screen_panel_type'),
+            refresh_rate=form_data.get('screen_refresh_rate'),
+            touchscreen=form_data.get('screen_touchscreen_override'),
+            full_name=form_data.get('screen_full_name')
         )
 
+        # Procesar gráfica (con campos granulares)
         processed_data['graphics_card_id'] = CatalogService.get_or_create_graphics_card(
-            form_data.get('graphics_card_id')
+            value=form_data.get('graphics_card_id'),
+            has_discrete_gpu=form_data.get('has_discrete_gpu'),
+            discrete_brand=form_data.get('discrete_gpu_brand'),
+            discrete_model=form_data.get('discrete_gpu_model'),
+            discrete_memory_gb=form_data.get('discrete_gpu_memory_gb'),
+            discrete_memory_type=form_data.get('discrete_gpu_memory_type'),
+            onboard_brand=form_data.get('onboard_gpu_brand'),
+            onboard_model=form_data.get('onboard_gpu_model'),
+            onboard_family=form_data.get('onboard_gpu_family'),
+            discrete_full_name=form_data.get('discrete_gpu_full_name'),
+            onboard_full_name=form_data.get('onboard_gpu_full_name')
         )
 
+        # Procesar almacenamiento (con campos granulares)
         processed_data['storage_id'] = CatalogService.get_or_create_storage(
-            form_data.get('storage_id')
+            value=form_data.get('storage_id'),
+            capacity_gb=form_data.get('storage_capacity'),
+            media_type=form_data.get('storage_media'),
+            nvme=form_data.get('storage_nvme'),
+            form_factor=form_data.get('storage_form_factor'),
+            full_name=form_data.get('storage_full_name')
         )
 
+        # Procesar RAM (con campos granulares)
         processed_data['ram_id'] = CatalogService.get_or_create_ram(
-            form_data.get('ram_id')
+            value=form_data.get('ram_id'),
+            capacity_gb=form_data.get('ram_capacity'),
+            ram_type=form_data.get('ram_type_detailed'), # Nota: mapped to detailed type
+            speed_mhz=form_data.get('ram_speed_mhz'),
+            transfer_rate=form_data.get('ram_transfer_rate'),
+            full_name=form_data.get('ram_full_name')
         )
 
         # Procesar tienda primero (se necesita para ubicación)

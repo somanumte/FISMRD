@@ -141,18 +141,18 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Header: Título y Botón Agregar -->
+        <!-- Header: TÃ­tulo y BotÃ³n Agregar -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    👥 Clientes
+                    ðŸ‘¥ Clientes
                 </h1>
                 <p class="mt-1 text-gray-600 dark:text-gray-400">
                     Gestiona tu base de clientes
                 </p>
             </div>
 
-            <!-- Botón para abrir el modal -->
+            <!-- BotÃ³n para abrir el modal -->
             <button id="open-customer-modal"
                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@
             </button>
         </div>
 
-        <!-- Estadísticas Cards -->
+        <!-- EstadÃ­sticas Cards -->
         <div class="hidden md:grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- Total Clientes -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
@@ -285,9 +285,9 @@
                                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
                                 <option value="">Todos</option>
                                 <option value="person" {% if request.args.get('customer_type')=='person' %}selected{%
-                                    endif %}>👤 Persona</option>
+                                    endif %}>ðŸ‘¤ Persona</option>
                                 <option value="company" {% if request.args.get('customer_type')=='company' %}selected{%
-                                    endif %}>🏢 Empresa</option>
+                                    endif %}>ðŸ¢ Empresa</option>
                             </select>
                         </div>
 
@@ -312,9 +312,9 @@
                             <select name="is_active"
                                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
                                 <option value="">Todos</option>
-                                <option value="1" {% if request.args.get('is_active')=='1' %}selected{% endif %}>✅
+                                <option value="1" {% if request.args.get('is_active')=='1' %}selected{% endif %}>âœ…
                                     Activo</option>
-                                <option value="0" {% if request.args.get('is_active')=='0' %}selected{% endif %}>❌
+                                <option value="0" {% if request.args.get('is_active')=='0' %}selected{% endif %}>âŒ
                                     Inactivo</option>
                             </select>
                         </div>
@@ -360,13 +360,13 @@
                                         Cliente</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Identificación</th>
+                                        IdentificaciÃ³n</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Contacto</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Ubicación</th>
+                                        UbicaciÃ³n</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Estado</th>
@@ -388,7 +388,7 @@
                                         <div class="flex items-center gap-3">
                                             <span
                                                 class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
-                                                {% if customer.customer_type == 'person' %}👤 Persona{% else %}🏢
+                                                {% if customer.customer_type == 'person' %}ðŸ‘¤ Persona{% else %}ðŸ¢
                                                 Empresa{%
                                                 endif %}
                                             </span>
@@ -412,7 +412,7 @@
                                                     {{ customer.display_name }}
                                                 </div>
                                                 <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                                                    {% if customer.customer_type == 'person' %}👤 Persona{% else %}🏢
+                                                    {% if customer.customer_type == 'person' %}ðŸ‘¤ Persona{% else %}ðŸ¢
                                                     Empresa{%
                                                     endif %}
                                                 </div>
@@ -420,13 +420,13 @@
                                         </div>
                                     </td>
 
-                                    <!-- Identificación -->
+                                    <!-- IdentificaciÃ³n -->
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="text-sm text-gray-900 dark:text-white font-mono">{{
                                             customer.formatted_id }}
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                                            {% if customer.id_type == 'cedula' %}🪪 Cédula{% else %}🏢 RNC{% endif %}
+                                            {% if customer.id_type == 'cedula' %}ðŸªª CÃ©dula{% else %}ðŸ¢ RNC{% endif %}
                                         </div>
                                     </td>
 
@@ -460,7 +460,7 @@
                                         </div>
                                     </td>
 
-                                    <!-- Ubicación -->
+                                    <!-- UbicaciÃ³n -->
                                     <td class="px-4 py-3 whitespace-nowrap hidden sm:table-cell">
                                         {% if customer.city or customer.province %}
                                         <div class="text-sm font-black text-gray-900 dark:text-white">{{ customer.city
@@ -472,7 +472,7 @@
                                             }}
                                         </div>
                                         {% else %}
-                                        <span class="text-sm text-gray-400">—</span>
+                                        <span class="text-sm text-gray-400">â€”</span>
                                         {% endif %}
                                     </td>
 
@@ -507,7 +507,7 @@
                                                     </path>
                                                 </svg>
                                             </a>
-                                            {% if current_user.is_admin %}
+                                            {% if current_user.has_permission('customers.edit') %}
                                             <a href="{{ url_for('customers.customer_edit', id=customer.id) }}"
                                                 class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all hover:scale-110"
                                                 title="Editar">
@@ -558,7 +558,7 @@
                                                         </path>
                                                     </svg>
                                                 </a>
-                                                {% if current_user.is_admin %}
+                                                {% if current_user.has_permission('customers.edit') %}
                                                 <a href="{{ url_for('customers.customer_edit', id=customer.id) }}"
                                                     class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -601,7 +601,7 @@
                         </table>
                     </div>
 
-                    <!-- Paginación -->
+                    <!-- PaginaciÃ³n -->
                     {% if pagination.pages > 1 %}
                     <div
                         class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
@@ -666,7 +666,7 @@
                 </button>
             </div>
             <div class="modal-content" id="modal-content">
-                <!-- El contenido del formulario se cargará aquí via AJAX -->
+                <!-- El contenido del formulario se cargarÃ¡ aquÃ­ via AJAX -->
                 <div class="text-center py-8">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
                     <p class="mt-4 text-gray-600 dark:text-gray-400">Cargando formulario...</p>
@@ -723,7 +723,7 @@
         const closeModalBtn = document.getElementById('close-customer-modal');
         const modalContent = document.getElementById('modal-content');
 
-        // Función para cargar el formulario en el modal
+        // FunciÃ³n para cargar el formulario en el modal
         function loadCustomerForm() {
             modalContent.innerHTML = `
             <div class="text-center py-8">
@@ -757,7 +757,7 @@
                 });
         }
 
-        // Función para inicializar los scripts del formulario
+        // FunciÃ³n para inicializar los scripts del formulario
         function initializeFormScripts() {
             // Seleccionar elementos del formulario
             const customerTypeSelect = document.getElementById('customer_type');
@@ -774,7 +774,7 @@
             const phoneErrorMessage = document.getElementById('phone-error-message');
             const customerForm = document.getElementById('customer-form');
 
-            // Función para formatear el número de identificación
+            // FunciÃ³n para formatear el nÃºmero de identificaciÃ³n
             function formatIdNumber(value) {
                 const digits = value.replace(/\D/g, '');
                 if (digits.length === 11) {
@@ -785,7 +785,7 @@
                 return digits;
             }
 
-            // Función para detectar automáticamente el tipo de identificación
+            // FunciÃ³n para detectar automÃ¡ticamente el tipo de identificaciÃ³n
             function autoDetectIdType(value) {
                 const digits = value.replace(/\D/g, '');
                 if (digits.length === 11) {
@@ -799,7 +799,7 @@
                 } else if (digits.length > 0 && digits.length !== 11 && digits.length !== 9) {
                     if (idErrorMessage) {
                         idErrorMessage.classList.remove('hidden');
-                        idErrorMessage.textContent = 'Debe tener 9 (RNC) u 11 (Cédula) dígitos.';
+                        idErrorMessage.textContent = 'Debe tener 9 (RNC) u 11 (CÃ©dula) dÃ­gitos.';
                     }
                     return null;
                 } else {
@@ -810,11 +810,11 @@
                 }
             }
 
-            // Función para actualizar los campos del formulario según el tipo de cliente
+            // FunciÃ³n para actualizar los campos del formulario segÃºn el tipo de cliente
             function updateFormFields() {
                 const customerType = customerTypeSelect ? customerTypeSelect.value : 'person';
                 if (infoHeader) {
-                    infoHeader.textContent = customerType === 'person' ? 'Información Personal' : 'Información de la Empresa';
+                    infoHeader.textContent = customerType === 'person' ? 'InformaciÃ³n Personal' : 'InformaciÃ³n de la Empresa';
                 }
 
                 if (personFields && personFields2 && companyFields) {
@@ -830,19 +830,19 @@
                 }
             }
 
-            // Función para validar email
+            // FunciÃ³n para validar email
             function validateEmail() {
                 const email = emailInput ? emailInput.value.trim() : '';
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!email) {
                     if (emailErrorMessage) {
-                        emailErrorMessage.textContent = 'El correo electrónico es requerido.';
+                        emailErrorMessage.textContent = 'El correo electrÃ³nico es requerido.';
                         emailErrorMessage.classList.remove('hidden');
                     }
                     return false;
                 } else if (!emailRegex.test(email)) {
                     if (emailErrorMessage) {
-                        emailErrorMessage.textContent = 'Por favor ingrese un correo electrónico válido.';
+                        emailErrorMessage.textContent = 'Por favor ingrese un correo electrÃ³nico vÃ¡lido.';
                         emailErrorMessage.classList.remove('hidden');
                     }
                     return false;
@@ -854,12 +854,12 @@
                 }
             }
 
-            // Función para validar teléfono
+            // FunciÃ³n para validar telÃ©fono
             function validatePhone() {
                 const phonePrimary = phonePrimaryInput ? phonePrimaryInput.value.trim() : '';
                 if (!phonePrimary) {
                     if (phoneErrorMessage) {
-                        phoneErrorMessage.textContent = 'El teléfono principal es requerido.';
+                        phoneErrorMessage.textContent = 'El telÃ©fono principal es requerido.';
                         phoneErrorMessage.classList.remove('hidden');
                     }
                     return false;
@@ -871,7 +871,7 @@
                 }
             }
 
-            // Función para validar el formulario completo
+            // FunciÃ³n para validar el formulario completo
             function validateForm() {
                 const isEmailValid = validateEmail();
                 const isPhoneValid = validatePhone();
@@ -881,13 +881,13 @@
 
                 if (digits.length === 0) {
                     if (idErrorMessage) {
-                        idErrorMessage.textContent = 'El número de identificación es requerido.';
+                        idErrorMessage.textContent = 'El nÃºmero de identificaciÃ³n es requerido.';
                         idErrorMessage.classList.remove('hidden');
                     }
                     isIdValid = false;
                 } else if (digits.length !== 11 && digits.length !== 9) {
                     if (idErrorMessage) {
-                        idErrorMessage.textContent = 'Debe tener 9 (RNC) u 11 (Cédula) dígitos.';
+                        idErrorMessage.textContent = 'Debe tener 9 (RNC) u 11 (CÃ©dula) dÃ­gitos.';
                         idErrorMessage.classList.remove('hidden');
                     }
                     isIdValid = false;
@@ -973,14 +973,14 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Mostrar mensaje de éxito
+                                // Mostrar mensaje de Ã©xito
                                 showNotification(data.message, 'success');
 
-                                // Cerrar modal después de 1.5 segundos
+                                // Cerrar modal despuÃ©s de 1.5 segundos
                                 setTimeout(() => {
                                     modal.classList.remove('active');
 
-                                    // Recargar la página para mostrar el nuevo cliente
+                                    // Recargar la pÃ¡gina para mostrar el nuevo cliente
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 500);
@@ -1018,7 +1018,7 @@
                 });
             }
 
-            // Agregar botón de cancelar específico para el modal
+            // Agregar botÃ³n de cancelar especÃ­fico para el modal
             const formFooter = form ? form.querySelector('.flex.items-center.justify-end') : null;
             if (formFooter) {
                 const cancelBtn = document.createElement('button');
@@ -1031,7 +1031,7 @@
                 formFooter.prepend(cancelBtn);
             }
 
-            // Inicialización
+            // InicializaciÃ³n
             if (idNumberInput && idNumberInput.value) {
                 idNumberInput.value = formatIdNumber(idNumberInput.value);
                 autoDetectIdType(idNumberInput.value);
@@ -1039,7 +1039,7 @@
             updateFormFields();
         }
 
-        // Función para mostrar notificaciones
+        // FunciÃ³n para mostrar notificaciones
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
@@ -1084,7 +1084,7 @@
             }
         });
 
-        // Inicializar el formulario si ya está cargado (para recarga)
+        // Inicializar el formulario si ya estÃ¡ cargado (para recarga)
         if (document.getElementById('customer-form')) {
             initializeFormScripts();
         }

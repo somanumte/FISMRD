@@ -2,7 +2,7 @@
 # ============================================
 # API DE SERIALES
 # ============================================
-# Endpoints REST para gestiÃ³n de nÃºmeros de serie
+# Endpoints REST para gestiÃƒÂ³n de nÃƒÂºmeros de serie
 #
 # Endpoints:
 # - GET  /api/serials/search       - Buscar serial
@@ -11,10 +11,10 @@
 # - POST /api/serials              - Crear serial
 # - PUT  /api/serials/<id>         - Actualizar serial
 # - DELETE /api/serials/<id>       - Eliminar serial
-# - POST /api/serials/batch        - Crear mÃºltiples seriales
+# - POST /api/serials/batch        - Crear mÃƒÂºltiples seriales
 # - GET  /api/serials/laptop/<id>  - Seriales de una laptop
 # - POST /api/serials/<id>/status  - Cambiar estado
-# - GET  /api/serials/search-for-invoice - BÃºsqueda rÃ¡pida para facturas (NUEVO)
+# - GET  /api/serials/search-for-invoice - BÃƒÂºsqueda rÃƒÂ¡pida para facturas (NUEVO)
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
@@ -22,6 +22,7 @@ from app import db
 from app.models.serial import LaptopSerial, InvoiceItemSerial, SerialMovement, SERIAL_STATUS_CHOICES
 from app.models.laptop import Laptop
 from app.services.serial_service import SerialService
+from app.utils.decorators import permission_required, any_permission_required
 from functools import wraps
 import logging
 
@@ -68,27 +69,28 @@ def require_json(f):
 
 
 # ============================================
-# ENDPOINTS DE BÃšSQUEDA
+# ENDPOINTS DE BÃƒÅ¡SQUEDA
 # ============================================
 
 @serial_api.route('/search')
 @login_required
+@any_permission_required('inventory.serials.view', 'inventory.laptops.view')
 @json_response
 def search_serial():
     """
-    Busca un serial por nÃºmero o cÃ³digo de barras.
+    Busca un serial por nÃƒÂºmero o cÃƒÂ³digo de barras.
 
     Query params:
-        q: Texto de bÃºsqueda (requerido)
+        q: Texto de bÃƒÂºsqueda (requerido)
         laptop_id: Filtrar por laptop (opcional)
         status: Filtrar por estado (opcional)
-        limit: LÃ­mite de resultados (default: 50)
+        limit: LÃƒÂ­mite de resultados (default: 50)
 
     Returns:
         {
             found: bool,
             serial: {...} | null,
-            results: [...] (si hay mÃºltiples)
+            results: [...] (si hay mÃƒÂºltiples)
         }
     """
     query = request.args.get('q', '').strip()
@@ -101,7 +103,7 @@ def search_serial():
             'found': False,
             'serial': None,
             'results': [],
-            'error': 'Se requiere parÃ¡metro de bÃºsqueda (q)'
+            'error': 'Se requiere parÃƒÂ¡metro de bÃƒÂºsqueda (q)'
         })
 
     # Buscar coincidencia exacta primero
@@ -131,17 +133,18 @@ def search_serial():
 
 @serial_api.route('/search-for-invoice')
 @login_required
+@any_permission_required('invoices.create', 'invoices.edit')
 @json_response
 def search_serial_for_invoice():
     """
-    Busca un serial por nÃºmero y devuelve datos listos para agregar a factura.
+    Busca un serial por nÃƒÂºmero y devuelve datos listos para agregar a factura.
     NUEVO ENDPOINT para sistema de escaneo en facturas.
 
     Query Params:
-        serial (str): NÃºmero de serie a buscar
+        serial (str): NÃƒÂºmero de serie a buscar
 
     Returns:
-        JSON con informaciÃ³n del serial, laptop y disponibilidad
+        JSON con informaciÃƒÂ³n del serial, laptop y disponibilidad
 
     Ejemplo de uso:
         GET /api/serials/search-for-invoice?serial=ABC123XYZ
@@ -180,7 +183,7 @@ def search_serial_for_invoice():
     if not serial_number:
         return jsonify({
             'found': False,
-            'error': 'ParÃ¡metro serial requerido'
+            'error': 'ParÃƒÂ¡metro serial requerido'
         }), 400
 
     try:
@@ -193,7 +196,7 @@ def search_serial_for_invoice():
                 'error': 'Serial no encontrado en el sistema'
             })
 
-        # Verificar si estÃ¡ disponible para venta
+        # Verificar si estÃƒÂ¡ disponible para venta
         available_for_sale = serial.status == 'available'
 
         # Obtener laptop asociada
@@ -230,7 +233,7 @@ def search_serial_for_invoice():
             'suggested_item': {
                 'laptop_id': laptop.id,
                 'description': laptop.display_name,
-                'quantity': 1,  # Siempre 1 para seriales específicos
+                'quantity': 1,  # Siempre 1 para seriales especÃ­ficos
                 'unit_price': float(laptop.sale_price),
                 'serial_ids': [serial.id]
             }
@@ -247,16 +250,17 @@ def search_serial_for_invoice():
 
 @serial_api.route('/validate', methods=['POST'])
 @login_required
+@any_permission_required('inventory.serials.create', 'inventory.serials.edit')
 @json_response
 @require_json
 def validate_serial():
     """
-    Valida un nÃºmero de serial.
+    Valida un nÃƒÂºmero de serial.
 
     Body JSON:
-        serial_number: NÃºmero de serie a validar (requerido)
+        serial_number: NÃƒÂºmero de serie a validar (requerido)
         serial_type: Tipo de serial (opcional, default: 'manufacturer')
-        exclude_id: ID a excluir de validaciÃ³n de unicidad (opcional)
+        exclude_id: ID a excluir de validaciÃƒÂ³n de unicidad (opcional)
 
     Returns:
         {
@@ -276,7 +280,7 @@ def validate_serial():
         return jsonify({
             'valid': False,
             'unique': False,
-            'errors': ['El nÃºmero de serie es requerido']
+            'errors': ['El nÃƒÂºmero de serie es requerido']
         })
 
     errors = []
@@ -304,6 +308,7 @@ def validate_serial():
 
 @serial_api.route('/<int:serial_id>')
 @login_required
+@permission_required('inventory.serials.view')
 @json_response
 def get_serial(serial_id):
     """Obtiene un serial por ID"""
@@ -315,7 +320,7 @@ def get_serial(serial_id):
             'error': f'Serial con ID {serial_id} no encontrado'
         }), 404
 
-    # Obtener informaciÃ³n de venta si existe
+    # Obtener informaciÃƒÂ³n de venta si existe
     sale_info = SerialService.get_serial_sale_info(serial_id)
 
     data = serial.to_dict()
@@ -329,6 +334,7 @@ def get_serial(serial_id):
 
 @serial_api.route('', methods=['POST'])
 @login_required
+@permission_required('inventory.serials.create')
 @json_response
 @require_json
 def create_serial():
@@ -337,14 +343,14 @@ def create_serial():
 
     Body JSON:
         laptop_id: ID de la laptop (requerido)
-        serial_number: NÃºmero de serie (requerido)
+        serial_number: NÃƒÂºmero de serie (requerido)
         serial_type: Tipo de serial (opcional)
-        barcode: CÃ³digo de barras (opcional)
+        barcode: CÃƒÂ³digo de barras (opcional)
         notes: Notas (opcional)
         unit_cost: Costo unitario (opcional)
-        warranty_start: Inicio garantÃ­a (opcional, formato YYYY-MM-DD)
-        warranty_end: Fin garantÃ­a (opcional, formato YYYY-MM-DD)
-        warranty_provider: Proveedor de garantÃ­a (opcional)
+        warranty_start: Inicio garantÃƒÂ­a (opcional, formato YYYY-MM-DD)
+        warranty_end: Fin garantÃƒÂ­a (opcional, formato YYYY-MM-DD)
+        warranty_provider: Proveedor de garantÃƒÂ­a (opcional)
     """
     data = request.get_json()
 
@@ -408,21 +414,22 @@ def create_serial():
 
 @serial_api.route('/batch', methods=['POST'])
 @login_required
+@permission_required('inventory.serials.create')
 @json_response
 @require_json
 def create_serials_batch():
     """
-    Crea mÃºltiples seriales para una laptop.
+    Crea mÃƒÂºltiples seriales para una laptop.
 
     Body JSON:
         laptop_id: ID de la laptop (requerido)
-        serial_numbers: Lista de nÃºmeros de serie (requerido)
+        serial_numbers: Lista de nÃƒÂºmeros de serie (requerido)
         serial_type: Tipo de serial (opcional)
         notes: Notas comunes (opcional)
-        unit_cost: Costo unitario comÃºn (opcional)
-        warranty_start: Inicio garantÃ­a comÃºn (opcional)
-        warranty_end: Fin garantÃ­a comÃºn (opcional)
-        warranty_provider: Proveedor de garantÃ­a comÃºn (opcional)
+        unit_cost: Costo unitario comÃƒÂºn (opcional)
+        warranty_start: Inicio garantÃƒÂ­a comÃƒÂºn (opcional)
+        warranty_end: Fin garantÃƒÂ­a comÃƒÂºn (opcional)
+        warranty_provider: Proveedor de garantÃƒÂ­a comÃƒÂºn (opcional)
     """
     data = request.get_json()
 
@@ -438,7 +445,7 @@ def create_serials_batch():
     if not serial_numbers or not isinstance(serial_numbers, list):
         return jsonify({
             'success': False,
-            'error': 'serial_numbers debe ser una lista no vacÃ­a'
+            'error': 'serial_numbers debe ser una lista no vacÃƒÂ­a'
         }), 400
 
     # Parsear fechas
@@ -479,6 +486,7 @@ def create_serials_batch():
 
 @serial_api.route('/<int:serial_id>', methods=['PUT'])
 @login_required
+@permission_required('inventory.serials.edit')
 @json_response
 @require_json
 def update_serial(serial_id):
@@ -521,6 +529,7 @@ def update_serial(serial_id):
 
 @serial_api.route('/<int:serial_id>', methods=['DELETE'])
 @login_required
+@permission_required('inventory.serials.delete')
 @json_response
 def delete_serial(serial_id):
     """Elimina un serial"""
@@ -544,6 +553,7 @@ def delete_serial(serial_id):
 
 @serial_api.route('/laptop/<int:laptop_id>')
 @login_required
+@permission_required('inventory.serials.view')
 @json_response
 def get_serials_for_laptop(laptop_id):
     """
@@ -568,7 +578,7 @@ def get_serials_for_laptop(laptop_id):
 
     serials = query.order_by(LaptopSerial.created_at.desc()).all()
 
-    # EstadÃ­sticas
+    # EstadÃƒÂ­sticas
     stats = SerialService.count_serials_by_status(laptop_id)
     validation = SerialService.validate_laptop_serial_count(laptop_id)
 
@@ -589,6 +599,7 @@ def get_serials_for_laptop(laptop_id):
 
 @serial_api.route('/laptop/<int:laptop_id>/available')
 @login_required
+@any_permission_required('inventory.serials.view', 'invoices.create', 'invoices.edit')
 @json_response
 def get_available_serials_for_laptop(laptop_id):
     """Obtiene solo los seriales disponibles de una laptop"""
@@ -607,6 +618,7 @@ def get_available_serials_for_laptop(laptop_id):
 
 @serial_api.route('/<int:serial_id>/status', methods=['POST'])
 @login_required
+@permission_required('inventory.serials.change_status')
 @json_response
 @require_json
 def change_serial_status(serial_id):
@@ -615,7 +627,7 @@ def change_serial_status(serial_id):
 
     Body JSON:
         status: Nuevo estado (requerido)
-        reason: RazÃ³n del cambio (opcional)
+        reason: RazÃƒÂ³n del cambio (opcional)
     """
     data = request.get_json()
 
@@ -654,6 +666,7 @@ def change_serial_status(serial_id):
 
 @serial_api.route('/<int:serial_id>/history')
 @login_required
+@permission_required('inventory.serials.view')
 @json_response
 def get_serial_history(serial_id):
     """Obtiene el historial de movimientos de un serial"""
@@ -677,14 +690,15 @@ def get_serial_history(serial_id):
 
 
 # ============================================
-# ENDPOINTS DE ESTADÃSTICAS
+# ENDPOINTS DE ESTADÃƒÂSTICAS
 # ============================================
 
 @serial_api.route('/stats')
 @login_required
+@permission_required('inventory.serials.view')
 @json_response
 def get_serial_stats():
-    """Obtiene estadÃ­sticas generales de seriales"""
+    """Obtiene estadÃƒÂ­sticas generales de seriales"""
     stats = SerialService.get_serial_stats()
 
     return jsonify({
@@ -694,11 +708,12 @@ def get_serial_stats():
 
 
 # ============================================
-# ENDPOINTS DE SINCRONIZACIÃ“N
+# ENDPOINTS DE SINCRONIZACIÃƒâ€œN
 # ============================================
 
 @serial_api.route('/laptop/<int:laptop_id>/sync', methods=['POST'])
 @login_required
+@permission_required('inventory.serials.edit')
 @json_response
 def sync_laptop_quantity(laptop_id):
     """
@@ -710,7 +725,7 @@ def sync_laptop_quantity(laptop_id):
         return jsonify({
             'success': True,
             'result': result,
-            'message': 'Cantidad sincronizada' if result['synced'] else 'No se requiriÃ³ sincronizaciÃ³n'
+            'message': 'Cantidad sincronizada' if result['synced'] else 'No se requiriÃƒÂ³ sincronizaciÃƒÂ³n'
         })
     else:
         return jsonify({
@@ -725,6 +740,7 @@ def sync_laptop_quantity(laptop_id):
 
 @serial_api.route('/status-options')
 @login_required
+@permission_required('inventory.serials.view')
 @json_response
 def get_status_options():
     """Obtiene las opciones de estado para selects"""

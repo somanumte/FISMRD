@@ -469,18 +469,18 @@ class InvoiceInventoryService(InvoiceInventoryServiceWithSerials):
         return valid, error
 
     @staticmethod
-    def update_inventory_for_invoice(invoice, action='subtract'):
+    def update_inventory_for_invoice(invoice, action='subtract', user_id=None):
         """Versión compatible para actualizar inventario"""
         if action == 'subtract':
             success, result = InvoiceInventoryServiceWithSerials.process_sale_with_serials(
                 invoice,
                 [],  # Sin datos de seriales específicos
-                user_id=None
+                user_id=user_id
             )
         else:
             success, result = InvoiceInventoryServiceWithSerials.reverse_sale_with_serials(
                 invoice,
-                user_id=None
+                user_id=user_id
             )
 
         if success:

@@ -1,14 +1,14 @@
 {# ============================================
-   MODAL DE GESTIÓN DE SERIALES
-   ============================================
-   Modal para agregar/editar seriales de una laptop.
-   
-   Incluir en laptop_detail.html o laptop_form.html
-   
-   Uso:
-   1. Incluir este partial en el template
-   2. Llamar a openSerialModal(laptopId) para abrir
-   3. Los cambios se guardan automáticamente vía API
+MODAL DE GESTIÓN DE SERIALES
+============================================
+Modal para agregar/editar seriales de una laptop.
+
+Incluir en laptop_detail.html o laptop_form.html
+
+Uso:
+1. Incluir este partial en el template
+2. Llamar a openSerialModal(laptopId) para abrir
+3. Los cambios se guardan automáticamente vía API
 #}
 
 <!-- Estilos del modal de seriales -->
@@ -29,12 +29,12 @@
         visibility: hidden;
         transition: all 0.3s ease;
     }
-    
+
     .serial-modal-overlay.active {
         opacity: 1;
         visibility: visible;
     }
-    
+
     .serial-modal {
         background: white;
         border-radius: 1rem;
@@ -46,11 +46,11 @@
         transform: scale(0.95) translateY(20px);
         transition: transform 0.3s ease;
     }
-    
+
     .serial-modal-overlay.active .serial-modal {
         transform: scale(1) translateY(0);
     }
-    
+
     .serial-modal-header {
         display: flex;
         justify-content: space-between;
@@ -60,7 +60,7 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
-    
+
     .serial-modal-header h3 {
         margin: 0;
         font-size: 1.25rem;
@@ -69,7 +69,7 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .serial-modal-close {
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -83,18 +83,18 @@
         justify-content: center;
         transition: all 0.2s;
     }
-    
+
     .serial-modal-close:hover {
         background: rgba(255, 255, 255, 0.3);
         transform: rotate(90deg);
     }
-    
+
     .serial-modal-body {
         padding: 1.5rem;
         max-height: calc(90vh - 180px);
         overflow-y: auto;
     }
-    
+
     .serial-modal-footer {
         padding: 1rem 1.5rem;
         border-top: 1px solid #e5e7eb;
@@ -103,7 +103,7 @@
         align-items: center;
         background: #f9fafb;
     }
-    
+
     /* Stats bar */
     .serial-stats-bar {
         display: flex;
@@ -113,30 +113,41 @@
         border-radius: 0.5rem;
         margin-bottom: 1.5rem;
     }
-    
+
     .serial-stat {
         text-align: center;
         flex: 1;
     }
-    
+
     .serial-stat-value {
         font-size: 1.5rem;
         font-weight: 700;
         color: #1f2937;
     }
-    
+
     .serial-stat-label {
         font-size: 0.75rem;
         color: #6b7280;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
-    
-    .serial-stat.available .serial-stat-value { color: #10b981; }
-    .serial-stat.sold .serial-stat-value { color: #3b82f6; }
-    .serial-stat.warning .serial-stat-value { color: #f59e0b; }
-    .serial-stat.error .serial-stat-value { color: #ef4444; }
-    
+
+    .serial-stat.available .serial-stat-value {
+        color: #10b981;
+    }
+
+    .serial-stat.sold .serial-stat-value {
+        color: #3b82f6;
+    }
+
+    .serial-stat.warning .serial-stat-value {
+        color: #f59e0b;
+    }
+
+    .serial-stat.error .serial-stat-value {
+        color: #ef4444;
+    }
+
     /* Formulario de agregar */
     .serial-add-form {
         display: flex;
@@ -147,18 +158,25 @@
         border-radius: 0.5rem;
         border: 2px dashed #93c5fd;
     }
-    
+
     .serial-add-form.scanning {
         border-color: #10b981;
         background: #ecfdf5;
         animation: pulse-border 2s infinite;
     }
-    
+
     @keyframes pulse-border {
-        0%, 100% { border-color: #10b981; }
-        50% { border-color: #6ee7b7; }
+
+        0%,
+        100% {
+            border-color: #10b981;
+        }
+
+        50% {
+            border-color: #6ee7b7;
+        }
     }
-    
+
     .serial-add-input {
         flex: 1;
         padding: 0.75rem 1rem;
@@ -168,13 +186,13 @@
         font-family: monospace;
         text-transform: uppercase;
     }
-    
+
     .serial-add-input:focus {
         outline: none;
         border-color: #6366f1;
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
-    
+
     .serial-add-btn {
         padding: 0.75rem 1.5rem;
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -188,12 +206,12 @@
         gap: 0.5rem;
         transition: all 0.2s;
     }
-    
+
     .serial-add-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
-    
+
     .serial-scan-btn {
         padding: 0.75rem;
         background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -203,16 +221,16 @@
         cursor: pointer;
         transition: all 0.2s;
     }
-    
+
     .serial-scan-btn:hover {
         transform: scale(1.05);
     }
-    
+
     .serial-scan-btn.active {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         animation: pulse 1.5s infinite;
     }
-    
+
     /* Modo batch */
     .serial-batch-area {
         width: 100%;
@@ -224,20 +242,20 @@
         font-size: 0.875rem;
         resize: vertical;
     }
-    
+
     .serial-batch-hint {
         font-size: 0.75rem;
         color: #6b7280;
         margin-top: 0.25rem;
     }
-    
+
     /* Lista de seriales */
     .serial-list-container {
         border: 1px solid #e5e7eb;
         border-radius: 0.5rem;
         overflow: hidden;
     }
-    
+
     .serial-list-header {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr 80px;
@@ -250,12 +268,12 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
-    
+
     .serial-list-body {
         max-height: 400px;
         overflow-y: auto;
     }
-    
+
     .serial-list-item {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr 1fr 80px;
@@ -265,21 +283,21 @@
         align-items: center;
         transition: background 0.2s;
     }
-    
+
     .serial-list-item:hover {
         background: #f9fafb;
     }
-    
+
     .serial-list-item:first-child {
         border-top: none;
     }
-    
+
     .serial-number {
         font-family: monospace;
         font-weight: 600;
         color: #1f2937;
     }
-    
+
     .serial-status-badge {
         display: inline-flex;
         padding: 0.25rem 0.75rem;
@@ -287,51 +305,51 @@
         font-size: 0.75rem;
         font-weight: 500;
     }
-    
+
     .serial-status-badge.available {
         background: #d1fae5;
         color: #065f46;
     }
-    
+
     .serial-status-badge.sold {
         background: #dbeafe;
         color: #1e40af;
     }
-    
+
     .serial-status-badge.reserved {
         background: #fef3c7;
         color: #92400e;
     }
-    
+
     .serial-status-badge.damaged {
         background: #fee2e2;
         color: #991b1b;
     }
-    
+
     .serial-warranty {
         display: flex;
         align-items: center;
         gap: 0.25rem;
         font-size: 0.875rem;
     }
-    
+
     .serial-warranty.active {
         color: #10b981;
     }
-    
+
     .serial-warranty.expired {
         color: #ef4444;
     }
-    
+
     .serial-warranty.none {
         color: #9ca3af;
     }
-    
+
     .serial-actions {
         display: flex;
         gap: 0.25rem;
     }
-    
+
     .serial-action-btn {
         padding: 0.375rem;
         border: none;
@@ -339,39 +357,39 @@
         cursor: pointer;
         transition: all 0.2s;
     }
-    
+
     .serial-action-btn.edit {
         background: #e0e7ff;
         color: #4338ca;
     }
-    
+
     .serial-action-btn.edit:hover {
         background: #c7d2fe;
     }
-    
+
     .serial-action-btn.delete {
         background: #fee2e2;
         color: #991b1b;
     }
-    
+
     .serial-action-btn.delete:hover {
         background: #fecaca;
     }
-    
+
     /* Empty state */
     .serial-empty-state {
         text-align: center;
         padding: 3rem 2rem;
         color: #6b7280;
     }
-    
+
     .serial-empty-state svg {
         width: 64px;
         height: 64px;
         margin: 0 auto 1rem;
         color: #d1d5db;
     }
-    
+
     /* Alertas */
     .serial-alert {
         padding: 0.75rem 1rem;
@@ -381,25 +399,25 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .serial-alert.warning {
         background: #fef3c7;
         color: #92400e;
         border: 1px solid #fcd34d;
     }
-    
+
     .serial-alert.error {
         background: #fee2e2;
         color: #991b1b;
         border: 1px solid #fca5a5;
     }
-    
+
     .serial-alert.success {
         background: #d1fae5;
         color: #065f46;
         border: 1px solid #6ee7b7;
     }
-    
+
     /* Tabs */
     .serial-tabs {
         display: flex;
@@ -409,7 +427,7 @@
         padding: 0.25rem;
         border-radius: 0.5rem;
     }
-    
+
     .serial-tab {
         flex: 1;
         padding: 0.5rem 1rem;
@@ -421,23 +439,23 @@
         color: #6b7280;
         transition: all 0.2s;
     }
-    
+
     .serial-tab:hover {
         color: #374151;
     }
-    
+
     .serial-tab.active {
         background: white;
         color: #6366f1;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
-    
+
     /* Loading */
     .serial-loading {
         text-align: center;
         padding: 2rem;
     }
-    
+
     .serial-loading-spinner {
         width: 40px;
         height: 40px;
@@ -447,11 +465,13 @@
         animation: spin 1s linear infinite;
         margin: 0 auto 1rem;
     }
-    
+
     @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+            transform: rotate(360deg);
+        }
     }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
         .serial-modal {
@@ -460,21 +480,21 @@
             max-height: 100vh;
             border-radius: 0;
         }
-        
+
         .serial-list-header,
         .serial-list-item {
             grid-template-columns: 1fr 1fr;
         }
-        
-        .serial-list-header > *:nth-child(n+3),
-        .serial-list-item > *:nth-child(n+3) {
+
+        .serial-list-header>*:nth-child(n+3),
+        .serial-list-item>*:nth-child(n+3) {
             display: none;
         }
-        
+
         .serial-stats-bar {
             flex-wrap: wrap;
         }
-        
+
         .serial-stat {
             min-width: calc(50% - 0.75rem);
         }
@@ -487,7 +507,8 @@
         <!-- Header -->
         <div class="serial-modal-header">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
                     <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                     <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                     <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -497,13 +518,14 @@
                 <span id="serial-modal-title">Gestión de Seriales</span>
             </h3>
             <button class="serial-modal-close" onclick="closeSerialModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
-        
+
         <!-- Body -->
         <div class="serial-modal-body">
             <!-- Loading state -->
@@ -511,7 +533,7 @@
                 <div class="serial-loading-spinner"></div>
                 <p>Cargando seriales...</p>
             </div>
-            
+
             <!-- Content -->
             <div id="serial-content">
                 <!-- Stats Bar -->
@@ -533,17 +555,20 @@
                         <div class="serial-stat-label">Sincronizado</div>
                     </div>
                 </div>
-                
+
                 <!-- Alert de validación -->
                 <div id="serial-validation-alert" class="serial-alert warning" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
                         <line x1="12" y1="9" x2="12" y2="13"></line>
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
                     <span id="serial-validation-message"></span>
                 </div>
-                
+
                 <!-- Tabs -->
                 <div class="serial-tabs">
                     <button class="serial-tab active" onclick="switchSerialTab('single')" id="tab-single">
@@ -553,21 +578,15 @@
                         Agregar Múltiples
                     </button>
                 </div>
-                
+
                 <!-- Formulario Single -->
                 <div id="serial-form-single" class="serial-add-form">
-                    <input type="text" 
-                           id="serial-add-input" 
-                           class="serial-add-input" 
-                           placeholder="Escanear o escribir número de serie..."
-                           autocomplete="off"
-                           spellcheck="false">
-                    <button type="button" 
-                            id="serial-scan-toggle" 
-                            class="serial-scan-btn" 
-                            onclick="toggleScanMode()"
-                            title="Activar modo escaneo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <input type="text" id="serial-add-input" class="serial-add-input"
+                        placeholder="Escanear o escribir número de serie..." autocomplete="off" spellcheck="false">
+                    <button type="button" id="serial-scan-toggle" class="serial-scan-btn" onclick="toggleScanMode()"
+                        title="Activar modo escaneo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
                             <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                             <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                             <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -576,31 +595,33 @@
                         </svg>
                     </button>
                     <button type="button" class="serial-add-btn" onclick="addSerialFromInput()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                         Agregar
                     </button>
                 </div>
-                
+
                 <!-- Formulario Batch -->
                 <div id="serial-form-batch" class="serial-add-form" style="display: none; flex-direction: column;">
-                    <textarea id="serial-batch-input" 
-                              class="serial-batch-area" 
-                              placeholder="Pegue múltiples seriales, uno por línea..."></textarea>
+                    <textarea id="serial-batch-input" class="serial-batch-area"
+                        placeholder="Pegue múltiples seriales, uno por línea..."></textarea>
                     <p class="serial-batch-hint">
                         💡 Puede pegar una lista de seriales separados por saltos de línea, comas o punto y coma.
                     </p>
-                    <button type="button" class="serial-add-btn" onclick="addSerialsFromBatch()" style="align-self: flex-end; margin-top: 0.5rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="serial-add-btn" onclick="addSerialsFromBatch()"
+                        style="align-self: flex-end; margin-top: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                         Agregar Todos
                     </button>
                 </div>
-                
+
                 <!-- Lista de Seriales -->
                 <div class="serial-list-container" id="serial-list-container">
                     <div class="serial-list-header">
@@ -614,10 +635,11 @@
                         <!-- Se llena dinámicamente -->
                     </div>
                 </div>
-                
+
                 <!-- Empty State -->
                 <div id="serial-empty-state" class="serial-empty-state" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
                         <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                         <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                         <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -629,21 +651,21 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Footer -->
         <div class="serial-modal-footer">
             <div id="serial-footer-info">
                 <span id="serial-laptop-info"></span>
             </div>
             <div>
-                <button type="button" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                        onclick="syncLaptopQuantity()">
+                <button type="button"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    onclick="syncLaptopQuantity()">
                     🔄 Sincronizar Inventario
                 </button>
-                <button type="button" 
-                        class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                        onclick="closeSerialModal()">
+                <button type="button"
+                    class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    onclick="closeSerialModal()">
                     Cerrar
                 </button>
             </div>
@@ -653,97 +675,97 @@
 
 <!-- Script del Modal -->
 <script>
-// Estado del modal
-const SerialModal = {
-    laptopId: null,
-    serials: [],
-    scanModeActive: false,
-    
-    // Abrir modal
-    open: function(laptopId, laptopInfo = {}) {
-        this.laptopId = laptopId;
-        
-        // Mostrar modal
-        document.getElementById('serial-modal-overlay').classList.add('active');
-        
-        // Actualizar título
-        document.getElementById('serial-modal-title').textContent = 
-            `Seriales: ${laptopInfo.sku || ''} ${laptopInfo.name || ''}`.trim() || 'Gestión de Seriales';
-        
-        // Info en footer
-        document.getElementById('serial-laptop-info').textContent = 
-            `SKU: ${laptopInfo.sku || 'N/A'} | Stock: ${laptopInfo.quantity || 0}`;
-        
+    // Estado del modal
+    const SerialModal = {
+        laptopId: null,
+        serials: [],
+        scanModeActive: false,
+
+        // Abrir modal
+        open: function (laptopId, laptopInfo = {}) {
+            this.laptopId = laptopId;
+
+            // Mostrar modal
+            document.getElementById('serial-modal-overlay').classList.add('active');
+
+            // Actualizar título
+            document.getElementById('serial-modal-title').textContent =
+                `Seriales: ${laptopInfo.sku || ''} ${laptopInfo.name || ''}`.trim() || 'Gestión de Seriales';
+
+            // Info en footer
+            document.getElementById('serial-laptop-info').textContent =
+                `SKU: ${laptopInfo.sku || 'N/A'} | Stock: ${laptopInfo.quantity || 0}`;
+
+            // Cargar seriales
+            this.loadSerials();
+
+            // Focus en input
+            setTimeout(() => {
+                document.getElementById('serial-add-input').focus();
+            }, 300);
+        },
+
+        // Cerrar modal
+        close: function () {
+            document.getElementById('serial-modal-overlay').classList.remove('active');
+            this.laptopId = null;
+            this.serials = [];
+            this.scanModeActive = false;
+            document.getElementById('serial-scan-toggle').classList.remove('active');
+        },
+
         // Cargar seriales
-        this.loadSerials();
-        
-        // Focus en input
-        setTimeout(() => {
-            document.getElementById('serial-add-input').focus();
-        }, 300);
-    },
-    
-    // Cerrar modal
-    close: function() {
-        document.getElementById('serial-modal-overlay').classList.remove('active');
-        this.laptopId = null;
-        this.serials = [];
-        this.scanModeActive = false;
-        document.getElementById('serial-scan-toggle').classList.remove('active');
-    },
-    
-    // Cargar seriales
-    loadSerials: async function() {
-        if (!this.laptopId) return;
-        
-        document.getElementById('serial-loading').style.display = 'block';
-        document.getElementById('serial-content').style.display = 'none';
-        
-        try {
-            const response = await fetch(`/api/serials/laptop/${this.laptopId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.serials = data.serials || [];
-                this.renderSerials();
-                this.updateStats(data.stats, data.validation);
-            } else {
-                this.showError(data.error || 'Error al cargar seriales');
+        loadSerials: async function () {
+            if (!this.laptopId) return;
+
+            document.getElementById('serial-loading').style.display = 'block';
+            document.getElementById('serial-content').style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/serials/laptop/${this.laptopId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    this.serials = data.serials || [];
+                    this.renderSerials();
+                    this.updateStats(data.stats, data.validation);
+                } else {
+                    this.showError(data.error || 'Error al cargar seriales');
+                }
+            } catch (error) {
+                this.showError('Error de conexión');
+                console.error(error);
+            } finally {
+                document.getElementById('serial-loading').style.display = 'none';
+                document.getElementById('serial-content').style.display = 'block';
             }
-        } catch (error) {
-            this.showError('Error de conexión');
-            console.error(error);
-        } finally {
-            document.getElementById('serial-loading').style.display = 'none';
-            document.getElementById('serial-content').style.display = 'block';
-        }
-    },
-    
-    // Renderizar lista de seriales
-    renderSerials: function() {
-        const container = document.getElementById('serial-list-body');
-        const emptyState = document.getElementById('serial-empty-state');
-        const listContainer = document.getElementById('serial-list-container');
-        
-        if (this.serials.length === 0) {
-            listContainer.style.display = 'none';
-            emptyState.style.display = 'block';
-            return;
-        }
-        
-        listContainer.style.display = 'block';
-        emptyState.style.display = 'none';
-        
-        container.innerHTML = this.serials.map(serial => `
+        },
+
+        // Renderizar lista de seriales
+        renderSerials: function () {
+            const container = document.getElementById('serial-list-body');
+            const emptyState = document.getElementById('serial-empty-state');
+            const listContainer = document.getElementById('serial-list-container');
+
+            if (this.serials.length === 0) {
+                listContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            listContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            container.innerHTML = this.serials.map(serial => `
             <div class="serial-list-item" data-serial-id="${serial.id}">
                 <div class="serial-number">${serial.serial_number}</div>
                 <div>
                     <span class="serial-status-badge ${serial.status}">${serial.status_display}</span>
                 </div>
                 <div class="serial-warranty ${serial.has_warranty ? 'active' : (serial.warranty_end ? 'expired' : 'none')}">
-                    ${serial.has_warranty 
-                        ? `✓ ${serial.warranty_days_remaining} días` 
-                        : (serial.warranty_end ? '✗ Expirada' : '— Sin garantía')}
+                    ${serial.has_warranty
+                    ? `✓ ${serial.warranty_days_remaining} días`
+                    : (serial.warranty_end ? '✘ Expirada' : '— Sin garantía')}
                 </div>
                 <div class="text-sm text-gray-500">
                     ${serial.received_date || '—'}
@@ -766,251 +788,346 @@ const SerialModal = {
                 </div>
             </div>
         `).join('');
-    },
-    
-    // Actualizar estadísticas
-    updateStats: function(stats, validation) {
-        const total = Object.values(stats).reduce((a, b) => a + b, 0);
-        
-        document.getElementById('stat-total').textContent = total;
-        document.getElementById('stat-available').textContent = stats.available || 0;
-        document.getElementById('stat-sold').textContent = stats.sold || 0;
-        
-        // Estado de sincronización
-        const syncContainer = document.getElementById('stat-sync-container');
-        const syncValue = document.getElementById('stat-sync');
-        
-        if (validation && !validation.valid) {
-            syncContainer.classList.add('warning');
-            syncValue.textContent = '⚠️';
-            
-            // Mostrar alerta
-            const alert = document.getElementById('serial-validation-alert');
-            const message = document.getElementById('serial-validation-message');
-            message.textContent = validation.message;
-            alert.style.display = 'flex';
-        } else {
-            syncContainer.classList.remove('warning');
-            syncValue.textContent = '✓';
-            document.getElementById('serial-validation-alert').style.display = 'none';
-        }
-    },
-    
-    // Agregar serial
-    addSerial: async function(serialNumber) {
-        if (!serialNumber || !this.laptopId) return;
-        
-        try {
-            const response = await fetch('/api/serials', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    laptop_id: this.laptopId,
-                    serial_number: serialNumber.trim().toUpperCase()
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showSuccess(`Serial ${serialNumber} agregado`);
-                this.loadSerials(); // Recargar lista
+        },
+
+        // Actualizar estadísticas
+        updateStats: function (stats, validation) {
+            const total = Object.values(stats).reduce((a, b) => a + b, 0);
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-available').textContent = stats.available || 0;
+            document.getElementById('stat-sold').textContent = stats.sold || 0;
+
+            // Estado de sincronización
+            const syncContainer = document.getElementById('stat-sync-container');
+            const syncValue = document.getElementById('stat-sync');
+
+            if (validation && !validation.valid) {
+                syncContainer.classList.add('warning');
+                syncValue.textContent = '⚠️';
+
+                // Mostrar alerta
+                const alert = document.getElementById('serial-validation-alert');
+                const message = document.getElementById('serial-validation-message');
+                message.textContent = validation.message;
+                alert.style.display = 'flex';
             } else {
-                this.showError(data.error || 'Error al agregar serial');
+                syncContainer.classList.remove('warning');
+                syncValue.textContent = '✓';
+                document.getElementById('serial-validation-alert').style.display = 'none';
+            }
+        },
+
+        // Agregar serial
+        addSerial: async function (serialNumber) {
+            if (!serialNumber || !this.laptopId) return;
+
+            try {
+                const response = await fetch('/api/serials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        laptop_id: this.laptopId,
+                        serial_number: serialNumber.trim().toUpperCase()
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.showSuccess(`Serial ${serialNumber} agregado`);
+                    this.loadSerials(); // Recargar lista
+                } else {
+                    this.showError(data.error || 'Error al agregar serial');
+                }
+            } catch (error) {
+                this.showError('Error de conexión');
+                console.error(error);
+            }
+        },
+
+        // Agregar múltiples seriales
+        addSerialsBatch: async function (serials) {
+            if (!serials || serials.length === 0 || !this.laptopId) return;
+
+            try {
+                const response = await fetch('/api/serials/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        laptop_id: this.laptopId,
+                        serial_numbers: serials
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.showSuccess(`${data.created_count} seriales agregados`);
+                } else if (data.created_count > 0) {
+                    this.showSuccess(`${data.created_count} seriales agregados, ${data.error_count} errores`);
+                } else {
+                    this.showError(data.errors[0]?.error || 'Error al agregar seriales');
+                }
+
+                this.loadSerials();
+            } catch (error) {
+                this.showError('Error de conexión');
+                console.error(error);
+            }
+        },
+
+        // Mostrar mensaje de éxito
+        showSuccess: function (message) {
+            // Implementar notificación toast
+            console.log('✓', message);
+            // Si tienes un sistema de toast, úsalo aquí
+            if (typeof showToast === 'function') {
+                showToast(message, 'success');
+            } else {
+                alert(message);
+            }
+        },
+
+        // Mostrar error
+        showError: function (message) {
+            console.error('✘', message);
+            if (typeof showToast === 'function') {
+                showToast(message, 'error');
+            } else {
+                alert('Error: ' + message);
+            }
+        }
+    };
+
+    // Funciones globales para el modal
+
+    function openSerialModal(laptopId, laptopInfo = {}) {
+        SerialModal.open(laptopId, laptopInfo);
+    }
+
+    function closeSerialModal(event) {
+        if (event && event.target !== event.currentTarget) return;
+        SerialModal.close();
+    }
+
+    function switchSerialTab(tab) {
+        document.getElementById('tab-single').classList.toggle('active', tab === 'single');
+        document.getElementById('tab-batch').classList.toggle('active', tab === 'batch');
+        document.getElementById('serial-form-single').style.display = tab === 'single' ? 'flex' : 'none';
+        document.getElementById('serial-form-batch').style.display = tab === 'batch' ? 'flex' : 'none';
+    }
+
+    function toggleScanMode() {
+        const btn = document.getElementById('serial-scan-toggle');
+        const form = document.getElementById('serial-form-single');
+
+        SerialModal.scanModeActive = !SerialModal.scanModeActive;
+        btn.classList.toggle('active', SerialModal.scanModeActive);
+        form.classList.toggle('scanning', SerialModal.scanModeActive);
+
+        if (SerialModal.scanModeActive) {
+            document.getElementById('serial-add-input').focus();
+            // Activar escáner global si está disponible
+            if (typeof BarcodeScanner !== 'undefined') {
+                BarcodeScanner.setMode('add');
+                BarcodeScanner.setTargetInput('#serial-add-input');
+            }
+        }
+    }
+
+    function addSerialFromInput() {
+        const input = document.getElementById('serial-add-input');
+        const value = input.value.trim();
+
+        if (value) {
+            SerialModal.addSerial(value);
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function addSerialsFromBatch() {
+        const textarea = document.getElementById('serial-batch-input');
+        const text = textarea.value.trim();
+
+        if (text) {
+            // Separar por líneas, comas o punto y coma
+            const serials = text
+                .split(/[\n,;]+/)
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+
+            if (serials.length > 0) {
+                SerialModal.addSerialsBatch(serials);
+                textarea.value = '';
+            }
+        }
+    }
+
+    async function deleteSerial(serialId, serialNumber) {
+        if (!confirm(`\u00bfEliminar el serial ${serialNumber.toString()}?`)) return;
+
+        try {
+            const response = await fetch(`/api/serials/${serialId}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                SerialModal.showSuccess('Serial eliminado');
+                SerialModal.loadSerials();
+            } else {
+                SerialModal.showError(data.error);
             }
         } catch (error) {
-            this.showError('Error de conexión');
-            console.error(error);
+            SerialModal.showError('Error de conexión');
         }
-    },
-    
-    // Agregar múltiples seriales
-    addSerialsBatch: async function(serials) {
-        if (!serials || serials.length === 0 || !this.laptopId) return;
-        
+    }
+
+    function editSerial(serialId) {
+        // Buscar el serial en los datos cargados
+        const serial = SerialModal.serials.find(s => s.id === serialId);
+        if (!serial) return;
+
+        const statusOptions = [
+            { value: 'available', label: 'Disponible', color: '#16a34a' },
+            { value: 'reserved', label: 'Reservado', color: '#ca8a04' },
+            { value: 'sold', label: 'Vendido', color: '#2563eb' },
+            { value: 'damaged', label: 'Da\u00f1ado', color: '#dc2626' },
+            { value: 'returned', label: 'Devuelto', color: '#9333ea' },
+            { value: 'in_repair', label: 'En Reparaci\u00f3n', color: '#ea580c' },
+            { value: 'lost', label: 'Perdido', color: '#6b7280' }
+        ];
+
+        const optionsHtml = statusOptions.map(opt =>
+            `<option value="${opt.value}" ${serial.status === opt.value ? 'selected' : ''}>${opt.label}</option>`
+        ).join('');
+
+        // Crear mini-modal de edición inline
+        const overlay = document.createElement('div');
+        overlay.id = 'serial-edit-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:10001;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+        <div style="background:white;border-radius:1rem;padding:1.5rem;max-width:400px;width:90%;box-shadow:0 25px 50px rgba(0,0,0,0.2);" class="dark:bg-gray-800">
+            <h4 style="font-weight:700;font-size:1rem;margin-bottom:0.25rem;" class="text-gray-900 dark:text-white">
+                Editar Serial
+            </h4>
+            <p style="font-size:0.8rem;color:#9ca3af;margin-bottom:1rem;font-family:monospace;">${serial.serial_number}</p>
+
+            <label style="display:block;font-size:0.8rem;font-weight:600;margin-bottom:0.375rem;" class="text-gray-700 dark:text-gray-300">
+                Estado
+            </label>
+            <select id="edit-serial-status" style="width:100%;padding:0.5rem 0.75rem;border-radius:0.75rem;font-size:0.875rem;border:1px solid #e5e7eb;margin-bottom:0.75rem;" class="dark:bg-gray-900 dark:border-gray-600 dark:text-white">
+                ${optionsHtml}
+            </select>
+
+            <label style="display:block;font-size:0.8rem;font-weight:600;margin-bottom:0.375rem;" class="text-gray-700 dark:text-gray-300">
+                Raz\u00f3n <span style="color:#9ca3af;">(opcional)</span>
+            </label>
+            <textarea id="edit-serial-reason" rows="2" placeholder="Motivo del cambio..."
+                style="width:100%;padding:0.5rem 0.75rem;border-radius:0.75rem;font-size:0.875rem;border:1px solid #e5e7eb;resize:none;margin-bottom:1rem;" class="dark:bg-gray-900 dark:border-gray-600 dark:text-white"></textarea>
+
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button onclick="document.getElementById('serial-edit-overlay').remove()"
+                    style="padding:0.5rem 1rem;border-radius:0.75rem;font-size:0.8rem;font-weight:600;color:#6b7280;cursor:pointer;border:none;background:none;">
+                    Cancelar
+                </button>
+                <button id="edit-serial-save-btn" onclick="saveSerialEdit(${serialId})"
+                    style="padding:0.5rem 1.25rem;border-radius:0.75rem;font-size:0.8rem;font-weight:700;color:white;background:#7c3aed;border:none;cursor:pointer;">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    `;
+
+        // Cerrar con click en overlay
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.remove();
+        });
+
+        document.body.appendChild(overlay);
+    }
+
+    async function saveSerialEdit(serialId) {
+        const newStatus = document.getElementById('edit-serial-status').value;
+        const reason = document.getElementById('edit-serial-reason').value.trim();
+        const btn = document.getElementById('edit-serial-save-btn');
+
+        btn.textContent = 'Guardando...';
+        btn.disabled = true;
+
         try {
-            const response = await fetch('/api/serials/batch', {
+            const response = await fetch(`/api/serials/${serialId}/status`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    laptop_id: this.laptopId,
-                    serial_numbers: serials
+                    status: newStatus,
+                    reason: reason || null
                 })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
-                this.showSuccess(`${data.created_count} seriales agregados`);
-            } else if (data.created_count > 0) {
-                this.showSuccess(`${data.created_count} seriales agregados, ${data.error_count} errores`);
+                document.getElementById('serial-edit-overlay').remove();
+                SerialModal.showSuccess(`Estado cambiado a "${data.serial.status_display}"`);
+                SerialModal.loadSerials(); // Recargar lista
             } else {
-                this.showError(data.errors[0]?.error || 'Error al agregar seriales');
+                SerialModal.showError(data.error || 'Error al cambiar estado');
+                btn.textContent = 'Guardar';
+                btn.disabled = false;
             }
-            
-            this.loadSerials();
+        } catch (err) {
+            SerialModal.showError('Error de conexión');
+            btn.textContent = 'Guardar';
+            btn.disabled = false;
+        }
+    }
+
+    async function syncLaptopQuantity() {
+        if (!SerialModal.laptopId) return;
+
+        try {
+            const response = await fetch(`/api/serials/laptop/${SerialModal.laptopId}/sync`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                SerialModal.showSuccess(data.message);
+                SerialModal.loadSerials();
+            } else {
+                SerialModal.showError(data.error);
+            }
         } catch (error) {
-            this.showError('Error de conexión');
-            console.error(error);
-        }
-    },
-    
-    // Mostrar mensaje de éxito
-    showSuccess: function(message) {
-        // Implementar notificación toast
-        console.log('✅', message);
-        // Si tienes un sistema de toast, úsalo aquí
-        if (typeof showToast === 'function') {
-            showToast(message, 'success');
-        } else {
-            alert(message);
-        }
-    },
-    
-    // Mostrar error
-    showError: function(message) {
-        console.error('❌', message);
-        if (typeof showToast === 'function') {
-            showToast(message, 'error');
-        } else {
-            alert('Error: ' + message);
+            SerialModal.showError('Error de conexión');
         }
     }
-};
 
-// Funciones globales para el modal
-
-function openSerialModal(laptopId, laptopInfo = {}) {
-    SerialModal.open(laptopId, laptopInfo);
-}
-
-function closeSerialModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    SerialModal.close();
-}
-
-function switchSerialTab(tab) {
-    document.getElementById('tab-single').classList.toggle('active', tab === 'single');
-    document.getElementById('tab-batch').classList.toggle('active', tab === 'batch');
-    document.getElementById('serial-form-single').style.display = tab === 'single' ? 'flex' : 'none';
-    document.getElementById('serial-form-batch').style.display = tab === 'batch' ? 'flex' : 'none';
-}
-
-function toggleScanMode() {
-    const btn = document.getElementById('serial-scan-toggle');
-    const form = document.getElementById('serial-form-single');
-    
-    SerialModal.scanModeActive = !SerialModal.scanModeActive;
-    btn.classList.toggle('active', SerialModal.scanModeActive);
-    form.classList.toggle('scanning', SerialModal.scanModeActive);
-    
-    if (SerialModal.scanModeActive) {
-        document.getElementById('serial-add-input').focus();
-        // Activar escáner global si está disponible
-        if (typeof BarcodeScanner !== 'undefined') {
-            BarcodeScanner.setMode('add');
-            BarcodeScanner.setTargetInput('#serial-add-input');
+    // Manejar Enter en input
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('serial-add-input');
+        if (input) {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSerialFromInput();
+                }
+            });
         }
-    }
-}
+    });
 
-function addSerialFromInput() {
-    const input = document.getElementById('serial-add-input');
-    const value = input.value.trim();
-    
-    if (value) {
-        SerialModal.addSerial(value);
-        input.value = '';
-        input.focus();
-    }
-}
-
-function addSerialsFromBatch() {
-    const textarea = document.getElementById('serial-batch-input');
-    const text = textarea.value.trim();
-    
-    if (text) {
-        // Separar por líneas, comas o punto y coma
-        const serials = text
-            .split(/[\n,;]+/)
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
-        
-        if (serials.length > 0) {
-            SerialModal.addSerialsBatch(serials);
-            textarea.value = '';
+    // Cerrar con Escape
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeSerialModal();
         }
-    }
-}
-
-async function deleteSerial(serialId, serialNumber) {
-    if (!confirm(`¿Eliminar el serial ${serialNumber}?`)) return;
-    
-    try {
-        const response = await fetch(`/api/serials/${serialId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            SerialModal.showSuccess('Serial eliminado');
-            SerialModal.loadSerials();
-        } else {
-            SerialModal.showError(data.error);
-        }
-    } catch (error) {
-        SerialModal.showError('Error de conexión');
-    }
-}
-
-function editSerial(serialId) {
-    // Implementar modal de edición
-    alert('Función de edición en desarrollo');
-}
-
-async function syncLaptopQuantity() {
-    if (!SerialModal.laptopId) return;
-    
-    try {
-        const response = await fetch(`/api/serials/laptop/${SerialModal.laptopId}/sync`, {
-            method: 'POST'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            SerialModal.showSuccess(data.message);
-            SerialModal.loadSerials();
-        } else {
-            SerialModal.showError(data.error);
-        }
-    } catch (error) {
-        SerialModal.showError('Error de conexión');
-    }
-}
-
-// Manejar Enter en input
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('serial-add-input');
-    if (input) {
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addSerialFromInput();
-            }
-        });
-    }
-});
-
-// Cerrar con Escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeSerialModal();
-    }
-});
+    });
 </script>

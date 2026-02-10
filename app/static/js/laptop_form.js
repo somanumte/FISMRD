@@ -296,83 +296,7 @@ $(document).ready(function () {
 
     initSelect2WithTags('#supplier_id', '/api/catalog/suppliers', 'Buscar o crear proveedor...');
 
-    // ===== GENERAR DISPLAY_NAME AUTOMATICAMENTE =====
-    function generateDisplayName() {
-        var parts = [];
 
-        // Obtener valores de los campos (ahora son StringFields/Inputs simples)
-        var brand = $('#brand_id').val();
-        var model = $('#model_id').val();
-
-        // Procesador (Combinar los 3 campos)
-        var pFamily = $('#processor_family').val() || '';
-        var pGen = $('#processor_generation').val() || '';
-        var pModel = $('#processor_model').val() || '';
-
-        var processor = [pFamily, pGen, pModel].filter(p => p.trim() !== '').join(' ');
-
-        var ram = $('#ram_id').val();
-        var storage = $('#storage_id').val();
-        var screen = $('#screen_id').val();
-        var category = $('#category').val();
-
-        // Agregar marca
-        if (brand && brand.trim() !== '') {
-            parts.push(brand.trim());
-        }
-
-        // Agregar modelo
-        if (model && model.trim() !== '') {
-            parts.push(model.trim());
-        }
-
-        // Agregar procesador
-        if (processor && processor.trim() !== '') {
-            parts.push(processor.trim());
-        }
-
-        // Agregar RAM
-        if (ram && ram.trim() !== '') {
-            parts.push(ram.trim());
-        }
-
-        // Agregar almacenamiento
-        if (storage && storage.trim() !== '') {
-            parts.push(storage.trim());
-        }
-
-        // Agregar pantalla
-        if (screen && screen.trim() !== '') {
-            parts.push(screen.trim());
-        }
-
-        // Agregar categoria
-        if (category) {
-            var categoryLabels = {
-                'laptop': 'Laptop',
-                'workstation': 'Workstation',
-                'gaming': 'Gaming'
-            };
-            if (categoryLabels[category]) {
-                parts.push(categoryLabels[category]);
-            }
-        }
-
-        // Generar nombre
-        var displayName = parts.join(' - ');
-        $('#display_name').val(displayName);
-    }
-
-    // Escuchar cambios en los campos
-    $('#brand_id, #model_id, #processor_family, #processor_generation, #processor_model, #ram_id, #storage_id, #screen_id, #category').on('change', function () {
-        generateDisplayName();
-    });
-
-    // Exponer globalmente para la integración con Icecat
-    window.updateDisplayName = generateDisplayName;
-
-    // Generar al cargar
-    setTimeout(generateDisplayName, 100);
 
     // ===== CALCULAR MARGEN AUTOMATICAMENTE =====
     function calculateMargin() {
@@ -403,4 +327,31 @@ $(document).ready(function () {
 
     $('#purchase_cost, #sale_price').on('input', calculateMargin);
     calculateMargin();
+
+    // ===== AUTO-GENERAR SLUG =====
+    function generateSlug(text) {
+        return text.toString().toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+            .replace(/\s+/g, '-')           // Reemplazar espacios con -
+            .replace(/[^\w\-]+/g, '')       // Eliminar caracteres no alfanuméricos
+            .replace(/\-\-+/g, '-')         // Reemplazar múltiples - con uno solo
+            .replace(/^-+/, '')             // Eliminar - al inicio
+            .replace(/-+$/, '');            // Eliminar - al final
+    }
+
+    var $displayName = $('#display_name');
+    var $slug = $('#slug');
+    var isEditMode = window.location.pathname.includes('/edit/');
+    var slugManualOverride = isEditMode && $slug.val() !== '';
+
+    // Detectar si el usuario edita el slug manualmente
+    $slug.on('input', function () {
+        slugManualOverride = true;
+    });
+
+    $displayName.on('input', function () {
+        if (!slugManualOverride) {
+            $slug.val(generateSlug($(this).val()));
+        }
+    });
 });

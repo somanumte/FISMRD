@@ -20,7 +20,7 @@ class Expense(db.Model):
     advance_days = db.Column(db.Integer, default=7)
     auto_renew = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -52,19 +52,19 @@ class Expense(db.Model):
         elif self.frequency == 'weekly':
             next_date = next_date + timedelta(weeks=1)
         elif self.frequency == 'monthly':
-            # Avanzar un mes manejando días (ej: 31 Ene -> 28 Feb)
+            # Avanzar un mes manejando dÃ­as (ej: 31 Ene -> 28 Feb)
             year = next_date.year
             month = next_date.month + 1
             if month > 12:
                 month = 1
                 year += 1
             
-            # Obtener último día del próximo mes
+            # Obtener Ãºltimo dÃ­a del prÃ³ximo mes
             import calendar
             _, last_day = calendar.monthrange(year, month)
             
-            # Ajustar día si excede el último día del mes
-            # Intentamos mantener el día original del vencimiento base
+            # Ajustar dÃ­a si excede el Ãºltimo dÃ­a del mes
+            # Intentamos mantener el dÃ­a original del vencimiento base
             target_day = min(self.due_date.day, last_day)
             next_date = next_date.replace(year=year, month=month, day=target_day)
 
@@ -85,7 +85,7 @@ class Expense(db.Model):
         today = date.today()
         next_date = self.due_date
 
-        # Si el vencimiento base es futuro, ese es el próximo
+        # Si el vencimiento base es futuro, ese es el prÃ³ximo
         if next_date > today:
             return next_date
 
@@ -99,7 +99,7 @@ class Expense(db.Model):
         return next_date
 
     def generate_next_occurrence(self):
-        """Genera una nueva instancia para el próximo periodo"""
+        """Genera una nueva instancia para el prÃ³ximo periodo"""
         if not self.is_recurring:
             return None
         

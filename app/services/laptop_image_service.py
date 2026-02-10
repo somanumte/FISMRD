@@ -30,7 +30,7 @@ class LaptopImageService:
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in LaptopImageService.ALLOWED_EXTENSIONS
 
     @staticmethod
-    def process_and_save_image(laptop_id, sku, source, position, is_cover=False, alt_text=None, db_session=None):
+    def process_and_save_image(laptop_id, sku, source, position, is_cover=False, alt_text=None, db_session=None, app=None):
         """
         Procesa una imagen (desde archivo o URL), la guarda tal cual y extrae metadatos.
         
@@ -45,6 +45,7 @@ class LaptopImageService:
             
         Returns:
             LaptopImage: El objeto creado, o None si falló
+            o dict: Metadatos si se solicita no guardar inmediatamente
         """
         try:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -156,27 +157,41 @@ class LaptopImageService:
             
             # 4. Crear registro en BD (thread-safe)
             relative_path = f"uploads/laptops/{laptop_id}/{final_filename}"
-            new_image = LaptopImage(
-                laptop_id=laptop_id,
-                image_path=relative_path,
-                alt_text=alt_text or f"Imagen {position}",
-                is_cover=is_cover,
-                position=position,
-                ordering=position,
-                file_size=file_size,
-                width=width,
-                height=height,
-                mime_type=mime_type
-            )
+            
+            # Si solo queremos los metadatos (para guardar luego fuera de hilos paralelos)
+            metadata = {
+                'laptop_id': laptop_id,
+                'image_path': relative_path,
+                'alt_text': alt_text or f"Imagen {position}",
+                'is_cover': is_cover,
+                'position': position,
+                'ordering': position,
+                'file_size': file_size,
+                'width': width,
+                'height': height,
+                'mime_type': mime_type
+            }
+
+            if db_session is False: # Centinela para retornar solo metadata
+                return metadata
+
+            # Comportamiento legacy/directo
+            new_image = LaptopImage(**metadata)
             
             # Usar lock para operaciones de BD thread-safe
-            with LaptopImageService._db_lock:
-                if db_session:
-                    db_session.add(new_image)
-                else:
-                    db.session.add(new_image)
-            
-            # No hacemos commit aquí, el llamador debe encargarse o usar db.session.flush()
+            def _db_ops():
+                with LaptopImageService._db_lock:
+                    if db_session:
+                        db_session.add(new_image)
+                    else:
+                        db.session.add(new_image)
+
+            # Si se proporcionó el objeto app, usar su contexto
+            if app:
+                with app.app_context():
+                    _db_ops()
+            else:
+                _db_ops()
             
             return new_image
             
@@ -256,73 +271,68 @@ class LaptopImageService:
         errors = []
         successful_images = []
         
-        logger.info(f"🚀 Iniciando descarga PARALELA de {len(image_urls)} imágenes con {max_workers} workers...")
+        from flask import current_app
+        app = current_app._get_current_object()
         
-        # Usar ThreadPoolExecutor para descargas paralelas
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Crear tareas para cada imagen
-            future_to_idx = {
-                executor.submit(
-                    LaptopImageService._download_single_image,
-                    url
-                ): idx
-                for idx, url in enumerate(image_urls, start=1)
-            }
-            
-            # Procesar resultados conforme completan
-            for future in as_completed(future_to_idx):
-                idx = future_to_idx[future]
-                try:
-                    url, content, error = future.result()
-                    
-                    if content:
-                        from werkzeug.datastructures import FileStorage
-                        from io import BytesIO
-                        
-                        ext = 'jpg'
-                        if '.png' in url.lower(): ext = 'png'
-                        elif '.webp' in url.lower(): ext = 'webp'
-                        
-                        file_obj = FileStorage(
-                            stream=BytesIO(content),
-                            filename=f"icecat_{idx}.{ext}",
-                            content_type=f"image/{ext}"
-                        )
-                        
-                        img_obj = LaptopImageService.process_and_save_image(
-                            laptop_id=laptop_id,
-                            sku=sku,
-                            source=file_obj,
-                            position=idx,
-                            is_cover=(idx == 1),
-                            alt_text=f"Imagen {idx}"
-                        )
-                        
-                        if img_obj:
-                            img_obj.source = 'icecat'
-                            successful_images.append(img_obj)
-                            success_count += 1
-                        else:
-                            errors.append(f"Error procesando imagen {idx}")
-                    elif error:
-                        errors.append(f"Error descargando imagen {idx}: {error}")
-                        
-                except Exception as e:
-                    error_msg = f"Error inesperado en imagen {idx}: {str(e)}"
-                    logger.error(error_msg)
-                    errors.append(error_msg)
-        
-        # Hacer flush de todas las imágenes exitosas
-        if success_count > 0:
+        # Función interna para procesar una sola imagen en paralelo
+        def _target_process(idx, url):
             try:
-                with LaptopImageService._db_lock:
-                    db.session.flush()
-                logger.info(f"✅ Se guardaron {success_count} imágenes de Icecat para laptop {laptop_id}")
+                # Usamos el método existente que ya maneja descarga y guardado
+                img = LaptopImageService.process_and_save_image(
+                    laptop_id=laptop_id,
+                    sku=sku,
+                    source=url,
+                    position=idx,
+                    is_cover=(idx == 1),
+                    alt_text=f"Imagen {idx}",
+                    app=app
+                )
+                if img:
+                    img.source = 'icecat'
+                    return idx, img, None
+                return idx, None, f"Falla en process_and_save_image para {url}"
             except Exception as e:
-                logger.error(f"Error al hacer flush de imágenes: {str(e)}")
-                return 0, [f"Error al guardar en BD: {str(e)}"], []
+                return idx, None, str(e)
+
+        # Usar ThreadPoolExecutor para procesamiento paralelo (Descarga + Guardado)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(_target_process, idx, url) for idx, url in enumerate(image_urls, start=1)]
+            
+            for future in as_completed(futures):
+                idx, img_obj, error = future.result()
+                if img_obj:
+                    successful_images.append(img_obj)
+                    success_count += 1
+                elif error:
+                    errors.append(f"Error en imagen {idx}: {error}")
+                        
         
         return success_count, errors, successful_images
+
+    @staticmethod
+    def background_save_icecat_images(laptop_id, sku, image_urls, app):
+        """
+        Versión para segundo plano de la descarga de Icecat.
+        Maneja su propia sesión y commit.
+        """
+        with app.app_context():
+            logger.info(f"🧵 Hilo de background iniciado para laptop {laptop_id}")
+            # Usamos la versión paralela que ya optimizamos
+            # Pero necesitamos que use el app_context para cada operación individual
+            success, errors, images = LaptopImageService.save_icecat_images_parallel(
+                laptop_id=laptop_id, 
+                sku=sku, 
+                image_urls=image_urls
+            )
+            
+            if success > 0:
+                try:
+                    db.session.commit()
+                    logger.info(f"✅ Hilo de background completado: {success} imágenes guardadas.")
+                except Exception as e:
+                    logger.error(f"❌ Error al hacer commit en background: {str(e)}")
+            else:
+                logger.warning(f"⚠️ Hilo de background terminado sin imágenes guardadas. Errores: {errors}")
     
     @staticmethod
     def save_icecat_images(laptop_id, sku, image_urls):

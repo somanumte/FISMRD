@@ -196,17 +196,8 @@ def create_sample_laptops(admin_id):
     )
     from app.models.serial import LaptopSerial
 
-    # Hacer flush para asegurar que los IDs estén disponibles
-    db.session.flush()
-
-    # Obtener referencias
-    brands = {b.name: b.id for b in Brand.query.all()}
-    processors = {p.name: p.id for p in Processor.query.all()}
-    screens = {s.name: s.id for s in Screen.query.all()}
-    gpus = {g.name: g.id for g in GraphicsCard.query.all()}
-    storage = {s.name: s.id for s in Storage.query.all()}
-    ram = {r.name: r.id for r in Ram.query.all()}
-    os_list = {o.name: o.id for o in OperatingSystem.query.all()}
+    # Los catálogos se crearán bajo demanda usando CatalogService
+    from app.services.catalog_service import CatalogService
     stores = list(Store.query.all())
     locations = list(Location.query.all())
     suppliers = list(Supplier.query.all())
@@ -397,21 +388,8 @@ def create_sample_laptops(admin_id):
          'price': 2999},
     ]
 
-    # Crear modelos primero
-    model_objects = []
-    for laptop_data in laptops_data:
-        brand_id = brands.get(laptop_data['brand'])
-        laptop_model = LaptopModel.query.filter_by(name=laptop_data['model']).first()
-        if not laptop_model:
-            laptop_model = LaptopModel(name=laptop_data['model'], brand_id=brand_id, is_active=True)
-            model_objects.append(laptop_model)
-            db.session.add(laptop_model)
-
-    # Hacer flush para asignar IDs a los modelos
-    db.session.flush()
-
-    # Recargar modelos
-    models = {m.name: m.id for m in LaptopModel.query.all()}
+    # Catálogos dinámicos
+    # conditions...
 
     # Variables aleatorias
     conditions = ['new', 'used', 'refurbished']
@@ -440,6 +418,41 @@ def create_sample_laptops(admin_id):
         purchase_cost_dop = laptop_data['cost'] * 64
         sale_price_dop = purchase_cost_dop * 1.20  # Margen del 20%
 
+        brand_id = CatalogService.get_or_create_brand(laptop_data['brand'])
+        model_id = CatalogService.get_or_create_model(laptop_data['model'], brand_id)
+        
+        # Procesador
+        p_name = laptop_data['processor']
+        # Extraer familia y generacion burdamente para el seed
+        p_fam = p_name.split('-')[0] if '-' in p_name else p_name
+        p_id = CatalogService.get_or_create_processor(family=p_fam, generation=p_name, manufacturer=laptop_data['brand'])
+        
+        # RAM
+        ram_str = laptop_data['ram']
+        ram_cap = int(ram_str.split('GB')[0]) if 'GB' in ram_str else 8
+        ram_id = CatalogService.get_or_create_ram(ram_str, capacity_gb=ram_cap)
+        
+        # Storage
+        st_str = laptop_data['storage']
+        st_cap = 512
+        if 'TB' in st_str: st_cap = 1024
+        elif 'GB' in st_str: st_cap = int(st_str.split('GB')[0])
+        storage_id = CatalogService.get_or_create_storage(st_str, capacity_gb=st_cap)
+        
+        # GPU
+        gpu_id = CatalogService.get_or_create_graphics_card(laptop_data['gpu'])
+        
+        # Screen
+        sc_str = laptop_data['screen']
+        sc_size = 15.6
+        if '"' in sc_str:
+            try: sc_size = float(sc_str.split('"')[0])
+            except: pass
+        screen_id = CatalogService.get_or_create_screen(sc_str, diagonal_inches=sc_size)
+        
+        # OS
+        os_id = CatalogService.get_or_create_os(laptop_data['os'])
+
         laptop = Laptop(
             sku=sku,
             slug=slug,
@@ -447,14 +460,14 @@ def create_sample_laptops(admin_id):
             short_description=f"Laptop {laptop_data['category']} con {laptop_data['processor']} y {laptop_data['ram']}",
             is_published=random.choice([True, True, True, False]),
             is_featured=random.choice([True, False, False, False, False]),
-            brand_id=brands[laptop_data['brand']],
-            model_id=models[laptop_data['model']],
-            processor_id=processors.get(laptop_data['processor']),
-            ram_id=ram.get(laptop_data['ram']),
-            storage_id=storage.get(laptop_data['storage']),
-            graphics_card_id=gpus.get(laptop_data['gpu']),
-            screen_id=screens.get(laptop_data['screen']),
-            os_id=os_list.get(laptop_data['os']),
+            brand_id=brand_id,
+            model_id=model_id,
+            processor_id=p_id,
+            ram_id=ram_id,
+            storage_id=storage_id,
+            graphics_card_id=gpu_id,
+            screen_id=screen_id,
+            os_id=os_id,
             store_id=random.choice(stores).id,
             location_id=random.choice(locations).id,
             supplier_id=random.choice(suppliers).id,
@@ -519,13 +532,8 @@ def create_extensive_laptops(admin_id):
     db.session.flush()
 
     # Catálogos básicos
-    brands = {b.name: b.id for b in Brand.query.all()}
-    processors = {p.name: p.id for p in Processor.query.all()}
-    screens = {s.name: s.id for s in Screen.query.all()}
-    gpus = {g.name: g.id for g in GraphicsCard.query.all()}
-    storage = {s.name: s.id for s in Storage.query.all()}
-    ram = {r.name: r.id for r in Ram.query.all()}
-    os_list = {o.name: o.id for o in OperatingSystem.query.all()}
+    # CatalogService se encargará de esto
+    from app.services.catalog_service import CatalogService
     stores = list(Store.query.all())
     locations = list(Location.query.all())
     suppliers = list(Supplier.query.all())
@@ -638,18 +646,7 @@ def create_extensive_laptops(admin_id):
         new_item["cost"] = base["cost"] + random.randint(50, 200)
         extensive_data.append(new_item)
 
-    # Crear modelos
-    for data in extensive_data:
-        brand_id = brands.get(data['brand'])
-        if not brand_id: continue
-        
-        laptop_model = LaptopModel.query.filter_by(name=data['model']).first()
-        if not laptop_model:
-            laptop_model = LaptopModel(name=data['model'], brand_id=brand_id, is_active=True)
-            db.session.add(laptop_model)
-    
-    db.session.flush()
-    models = {m.name: m.id for m in LaptopModel.query.all()}
+    # Los modelos se crearán bajo demanda en el loop principal
 
     # Crear Laptops
     laptop_objects = []
@@ -671,15 +668,26 @@ def create_extensive_laptops(admin_id):
         elif 'workstation' in data['model'].lower() or 'precision' in data['model'].lower() or 'thinkpad p' in data['model'].lower():
             category = 'workstation'
 
-        # Asignar aleatorios de catálogos existentes (ahora Generación)
-        proc_id = random.choice(list(processors.values()))
-        proc_obj = Processor.query.get(proc_id)
+        brand_id = CatalogService.get_or_create_brand(data['brand'])
+        model_id = CatalogService.get_or_create_model(data['model'], brand_id)
         
-        # Generar datos granulares para la Laptop basados en el proc_obj (Generación)
-        # En una situación real esto vendría de Icecat o el Form, aquí simulamos
-        p_family = "Intel Core i7" if "Intel" in proc_obj.name else "AMD Ryzen 7" if "AMD" in proc_obj.name else "Apple M3"
-        p_model = "13700H" if "13th" in proc_obj.name else "7840HS" if "7000" in proc_obj.name else "Pro"
-        p_full_name = f"{proc_obj.name} {p_family} {p_model}".strip()
+        # Processor
+        proc_id = CatalogService.get_or_create_processor(family=data['model'], generation="Multiple")
+        
+        # RAM
+        ram_id = CatalogService.get_or_create_ram(capacity_gb=random.choice([8, 16, 32]))
+        
+        # Storage
+        storage_id = CatalogService.get_or_create_storage(capacity_gb=random.choice([256, 512, 1024]))
+        
+        # GPU
+        gpu_id = CatalogService.get_or_create_graphics_card(name="Integrated Graphics")
+        
+        # Screen
+        screen_id = CatalogService.get_or_create_screen(diagonal_inches=random.choice([14.0, 15.6, 16.0]))
+        
+        # OS
+        os_id = CatalogService.get_or_create_os("Windows 11 Home")
 
         laptop = Laptop(
             sku=sku,
@@ -689,18 +697,14 @@ def create_extensive_laptops(admin_id):
             display_name=f"{data['brand']} {data['model']}",
             short_description=f"Laptop {category} de alto rendimiento con garantía local.",
             is_published=True,
-            brand_id=brands[data['brand']],
-            model_id=models[data['model']],
+            brand_id=brand_id,
+            model_id=model_id,
             processor_id=proc_id,
-            processor_family=p_family,
-            processor_generation=proc_obj.name,
-            processor_model_number=p_model,
-            processor_full_name=p_full_name,
-            ram_id=random.choice(list(ram.values())),
-            storage_id=random.choice(list(storage.values())),
-            graphics_card_id=random.choice(list(gpus.values())),
-            screen_id=random.choice(list(screens.values())),
-            os_id=random.choice(list(os_list.values())),
+            ram_id=ram_id,
+            storage_id=storage_id,
+            graphics_card_id=gpu_id,
+            screen_id=screen_id,
+            os_id=os_id,
             store_id=random.choice(stores).id,
             location_id=random.choice(locations).id,
             supplier_id=random.choice(suppliers).id,

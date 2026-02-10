@@ -8,6 +8,26 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="{{ url_for('static', filename='css/laptop_form.css') }}" rel="stylesheet">
 <style>
+    /* ===== ENHANCED FORM STYLES ===== */
+    :root {
+        --form-accent: #6366f1;
+        --form-accent-light: #e0e7ff;
+        --form-accent-dark: #4338ca;
+        --form-success: #10b981;
+        --form-warning: #f59e0b;
+        --form-danger: #ef4444;
+        --form-radius: 14px;
+        --form-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+        --form-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        --form-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        --form-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Scanner styles */
     .scanner-active {
         border-color: #8b5cf6;
         ring: 4px;
@@ -28,1065 +48,1732 @@
     .dark .fetching-overlay {
         background-color: rgba(17, 24, 39, 0.7);
     }
+
+    /* ===== PROGRESS NAV ===== */
+    .form-progress-nav {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.88);
+        border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+        transition: var(--form-transition);
+    }
+
+    .dark .form-progress-nav {
+        background: rgba(17, 24, 39, 0.88);
+        border-bottom-color: rgba(55, 65, 81, 0.7);
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: var(--form-transition);
+        white-space: nowrap;
+        border: 1.5px solid transparent;
+        text-decoration: none;
+    }
+
+    .progress-step:hover {
+        color: #6366f1;
+        background: #eef2ff;
+    }
+
+    .dark .progress-step:hover {
+        color: #a5b4fc;
+        background: rgba(99, 102, 241, 0.12);
+    }
+
+    .progress-step.active {
+        color: #4f46e5;
+        background: #eef2ff;
+        border-color: #c7d2fe;
+    }
+
+    .dark .progress-step.active {
+        color: #a5b4fc;
+        background: rgba(99, 102, 241, 0.15);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .progress-step .step-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    .progress-step.active .step-dot {
+        opacity: 1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .progress-nav-scroll {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .progress-nav-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* ===== SECTION CARDS ===== */
+    .form-section {
+        background: white;
+        border-radius: var(--form-radius);
+        border: 1px solid #e5e7eb;
+        box-shadow: var(--form-shadow);
+        overflow: hidden;
+        transition: var(--form-transition);
+    }
+
+    .dark .form-section {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .form-section:hover {
+        box-shadow: var(--form-shadow-md);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        cursor: pointer;
+        user-select: none;
+        transition: var(--form-transition);
+        border-bottom: 1px solid transparent;
+    }
+
+    .section-header:hover {
+        background: #f9fafb;
+    }
+
+    .dark .section-header:hover {
+        background: rgba(55, 65, 81, 0.3);
+    }
+
+    .section-header.expanded {
+        border-bottom-color: #e5e7eb;
+    }
+
+    .dark .section-header.expanded {
+        border-bottom-color: #374151;
+    }
+
+    .section-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .section-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111827;
+        letter-spacing: -0.01em;
+    }
+
+    .dark .section-title {
+        color: #f3f4f6;
+    }
+
+    .section-subtitle {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-top: 1px;
+    }
+
+    .section-chevron {
+        width: 20px;
+        height: 20px;
+        color: #9ca3af;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+    }
+
+    .section-header.expanded .section-chevron {
+        transform: rotate(180deg);
+    }
+
+    .section-body {
+        padding: 24px;
+        display: none;
+    }
+
+    .section-body.open {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .section-body {
+            padding: 16px;
+        }
+
+        .section-header {
+            padding: 16px;
+        }
+    }
+
+    /* ===== INPUTS ===== */
+    .form-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+        letter-spacing: 0.01em;
+    }
+
+    .dark .form-label {
+        color: #d1d5db;
+    }
+
+    .form-label .required-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #ef4444;
+        border-radius: 50%;
+        margin-left: 4px;
+        vertical-align: middle;
+        position: relative;
+        top: -1px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        background: white;
+        color: #111827;
+        font-size: 0.875rem;
+        transition: var(--form-transition);
+        outline: none;
+    }
+
+    .dark .form-input {
+        background: #111827;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    .form-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .form-hint {
+        font-size: 0.6875rem;
+        color: #9ca3af;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+
+    .form-error {
+        font-size: 0.75rem;
+        color: #ef4444;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Sub-group cards */
+    .spec-subgroup {
+        background: #f9fafb;
+        border: 1px solid #f3f4f6;
+        border-radius: 12px;
+        padding: 20px;
+        transition: var(--form-transition);
+    }
+
+    .dark .spec-subgroup {
+        background: rgba(17, 24, 39, 0.4);
+        border-color: #1f2937;
+    }
+
+    .spec-subgroup:hover {
+        border-color: #e5e7eb;
+    }
+
+    .dark .spec-subgroup:hover {
+        border-color: #374151;
+    }
+
+    .subgroup-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .subgroup-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .subgroup-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7280;
+    }
+
+    .dark .subgroup-title {
+        color: #9ca3af;
+    }
+
+    .mini-label {
+        display: block;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #9ca3af;
+        margin-bottom: 4px;
+    }
+
+    .mini-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        color: #111827;
+        font-size: 0.8125rem;
+        transition: var(--form-transition);
+        outline: none;
+    }
+
+    .dark .mini-input {
+        background: #111827;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    .mini-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .readonly-input {
+        background: #f3f4f6 !important;
+        color: #6b7280 !important;
+        cursor: default;
+    }
+
+    .dark .readonly-input {
+        background: #1f2937 !important;
+        color: #6b7280 !important;
+    }
+
+    /* Checkboxes */
+    .check-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: var(--form-transition);
+        cursor: pointer;
+    }
+
+    .check-group:hover {
+        background: #f3f4f6;
+    }
+
+    .dark .check-group:hover {
+        background: rgba(55, 65, 81, 0.3);
+    }
+
+    .check-group span {
+        font-size: 0.8125rem;
+        color: #374151;
+    }
+
+    .dark .check-group span {
+        color: #d1d5db;
+    }
+
+    /* ===== STICKY BOTTOM BAR ===== */
+    .sticky-bottom-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 40;
+        padding: 14px 24px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.9);
+        border-top: 1px solid rgba(229, 231, 235, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 -1rem;
+        margin-top: 24px;
+    }
+
+    .dark .sticky-bottom-bar {
+        background: rgba(17, 24, 39, 0.9);
+        border-top-color: rgba(55, 65, 81, 0.8);
+    }
+
+    .btn-cancel {
+        padding: 10px 24px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6b7280;
+        background: #f3f4f6;
+        border-radius: 10px;
+        border: 1.5px solid #e5e7eb;
+        transition: var(--form-transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .dark .btn-cancel {
+        background: #374151;
+        border-color: #4b5563;
+        color: #d1d5db;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .dark .btn-cancel:hover {
+        background: #4b5563;
+    }
+
+    .btn-submit {
+        padding: 10px 32px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: var(--form-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px -3px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px -3px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+        .sticky-bottom-bar {
+            padding: 12px 16px;
+        }
+
+        .btn-submit {
+            padding: 10px 20px;
+            font-size: 0.8125rem;
+        }
+
+        .btn-cancel {
+            padding: 10px 16px;
+            font-size: 0.8125rem;
+        }
+    }
+
+    /* ===== SCANNER HERO ===== */
+    .scanner-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #6366f1 100%);
+        border-radius: var(--form-radius);
+        padding: 28px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px -8px rgba(79, 70, 229, 0.4);
+    }
+
+    .scanner-hero::before {
+        content: '';
+        position: absolute;
+        top: -60%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .scanner-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* ===== PROFITABILITY CARDS ===== */
+    .profit-card {
+        border-radius: 12px;
+        padding: 20px;
+        border: 1.5px solid;
+    }
+
+    .profit-card-normal {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .dark .profit-card-normal {
+        background: rgba(16, 185, 129, 0.08);
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .profit-card-promo {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .dark .profit-card-promo {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .margin-good {
+        color: #10b981;
+    }
+
+    .margin-warning {
+        color: #f59e0b;
+    }
+
+    .margin-danger {
+        color: #ef4444;
+    }
+
+    /* Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 99px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+
+    /* ===== UPLOAD PROGRESS OVERLAY ===== */
+    #upload-progress-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
+    }
+
+    .dark #upload-progress-overlay {
+        background: rgba(17, 24, 39, 0.85);
+    }
+
+    .progress-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 32px;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    .dark .progress-container {
+        background: #1f2937;
+        border-color: #374151;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+    }
+
+    .progress-bar-bg {
+        width: 100%;
+        height: 10px;
+        background: #f3f4f6;
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 20px 0;
+    }
+
+    .dark .progress-bar-bg {
+        background: #374151;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 999px;
+        transition: width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+    }
+
+    .progress-status {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .dark .progress-status {
+        color: #f3f4f6;
+    }
+
+    .progress-dots::after {
+        content: '.';
+        animation: dots 1.5s steps(5, end) infinite;
+    }
+
+    @keyframes dots {
+
+        0%,
+        20% {
+            content: '.';
+        }
+
+        40% {
+            content: '..';
+        }
+
+        60% {
+            content: '...';
+        }
+
+        80%,
+        100% {
+            content: '';
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+
+    <!-- Upload Progress Overlay -->
+    <div id="upload-progress-overlay">
+        <div class="progress-container">
+            <div class="flex flex-col items-center">
+                <div
+                    class="w-16 h-16 mb-6 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400 animate-bounce" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                </div>
+                <h3 class="progress-status" id="progress-status-text">Guardando Laptop</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Por favor, no cierres esta ventana <span
+                        class="progress-dots"></span></p>
+
+                <div class="progress-bar-bg">
+                    <div id="upload-progress-bar" class="progress-bar-fill"></div>
+                </div>
+
+                <p id="progress-percentage"
+                    class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
+                    Iniciando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PROGRESS NAV ===== -->
+    <nav class="form-progress-nav" id="form-progress-nav">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-1 py-3 overflow-x-auto progress-nav-scroll">
+                <a href="#section-scanner" class="progress-step active" data-section="section-scanner">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Scanner</span>
+                </a>
+                <a href="#section-product" class="progress-step" data-section="section-product">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Producto</span>
+                </a>
+                <a href="#section-specs" class="progress-step" data-section="section-specs">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Specs</span>
+                </a>
+                <a href="#section-images" class="progress-step" data-section="section-images">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Imágenes</span>
+                </a>
+                <a href="#section-pricing" class="progress-step" data-section="section-pricing">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Precios</span>
+                </a>
+                <a href="#section-inventory" class="progress-step" data-section="section-inventory">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Inventario</span>
+                </a>
+                <a href="#section-location" class="progress-step" data-section="section-location">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Ubicación</span>
+                </a>
+                <a href="#section-warranty" class="progress-step" data-section="section-warranty">
+                    <span class="step-dot"></span><span class="hidden sm:inline">Garantía</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- Header -->
         <div class="mb-8">
-            <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center space-x-3 mb-2">
                 <a href="{{ url_for('inventory.laptops_list') }}"
-                    class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-9 h-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-300 dark:hover:text-indigo-400 transition-all shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                 </a>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    {% if mode == 'edit' %}
-                    Editar Laptop
-                    {% else %}
-                    Agregar Nueva Laptop
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                        {% if mode == 'edit' %}Editar Laptop{% else %}Agregar Nueva Laptop{% endif %}
+                    </h1>
+                    {% if mode == 'edit' and laptop %}
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                        SKU: <span class="font-mono font-semibold text-indigo-600 dark:text-indigo-400">{{ laptop.sku
+                            }}</span>
+                    </p>
                     {% endif %}
-                </h1>
+                </div>
             </div>
-            {% if mode == 'edit' and laptop %}
-            <p class="text-gray-600 dark:text-gray-400">
-                SKU: <span class="font-mono font-semibold">{{ laptop.sku }}</span>
-            </p>
-            {% endif %}
         </div>
 
-        <!-- Formulario -->
-        <form method="POST" id="laptop-form" class="space-y-6" enctype="multipart/form-data">
+        <!-- ===== FORM ===== -->
+        <form method="POST" id="laptop-form" class="space-y-5" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
-            <!-- Card: Scanner Icecat (NUEVO) -->
-            <div class="bg-indigo-600 rounded-xl shadow-lg p-6 text-white overflow-hidden relative">
-                <div class="relative z-10">
-                    <h2 class="text-xl font-bold mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                        Escanear Código de Barras (Icecat)
-                    </h2>
+            <!-- ═══ SCANNER ═══ -->
+            <div id="section-scanner" class="scroll-mt-20">
+                <div class="scanner-hero">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold">Escanear Código de Barras (Icecat)</h2>
+                                <p class="text-indigo-200 text-xs mt-0.5">Carga automática de especificaciones e
+                                    imágenes</p>
+                            </div>
+                        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div class="space-y-4">
-                            <p class="text-indigo-100 mb-4">Escanea el código UPC/EAN de la laptop para cargar
-                                automáticamente todas las especificaciones e imágenes.</p>
-
-                            <div class="flex space-x-2">
-                                <div class="relative flex-1">
-                                    {{ form.gtin(class="w-full px-4 py-3 bg-indigo-700 border-2 border-indigo-500
-                                    rounded-xl text-white placeholder-indigo-300 focus:outline-none focus:border-white
-                                    transition-all", placeholder="O ingresa el código manualmente") }}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-3">
+                                <div class="flex space-x-2">
+                                    <div class="relative flex-1">
+                                        {{ form.gtin(class="w-full px-4 py-3 bg-white/10 border-2 border-white/20
+                                        rounded-xl text-white placeholder-indigo-200 focus:outline-none
+                                        focus:border-white/60 focus:bg-white/15 transition-all backdrop-blur-sm",
+                                        placeholder="Ingresa el código UPC/EAN") }}
+                                    </div>
+                                    <button type="button" id="btn-fetch-icecat"
+                                        class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl flex items-center">
+                                        <span id="fetch-text">Buscar</span>
+                                        <svg id="fetch-spinner" class="animate-spin ml-2 h-5 w-5 text-indigo-600 hidden"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button type="button" id="btn-fetch-icecat"
-                                    class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-colors shadow-md flex items-center">
-                                    <span id="fetch-text">Buscar</span>
-                                    <svg id="fetch-spinner" class="animate-spin ml-2 h-5 w-5 text-indigo-600 hidden"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                        </path>
+                                <button type="button" id="btn-toggle-scanner"
+                                    class="w-full py-2.5 bg-white/10 hover:bg-white/20 rounded-xl font-semibold text-sm flex items-center justify-center transition-all border border-white/20 backdrop-blur-sm">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
+                                    Iniciar Cámara Scanner
                                 </button>
                             </div>
 
-                            <button type="button" id="btn-toggle-scanner"
-                                class="w-full py-3 bg-indigo-500 hover:bg-indigo-400 rounded-xl font-semibold flex items-center justify-center transition-all border border-indigo-400">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Iniciar Cámara Scanner
-                            </button>
+                            <div id="scanner-container" class="hidden">
+                                <div id="reader"></div>
+                            </div>
+                            <div id="scanner-placeholder"
+                                class="bg-white/8 rounded-xl h-40 flex items-center justify-center border-2 border-dashed border-white/20 text-indigo-200 text-sm">
+                                <div class="text-center">
+                                    <svg class="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Cámara inactiva
+                                </div>
+                            </div>
                         </div>
-
-                        <div id="scanner-container" class="hidden">
-                            <div id="reader"></div>
-                        </div>
-
-                        <div id="scanner-placeholder"
-                            class="bg-indigo-700/50 rounded-xl h-48 flex items-center justify-center border-2 border-dashed border-indigo-400 text-indigo-200">
-                            Cámara inactiva
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Decoration -->
-                <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl"></div>
-                <div class="absolute -left-20 -top-20 w-48 h-48 bg-indigo-400/20 rounded-full blur-3xl"></div>
-            </div>
-
-            <!-- Card: Informacion del Producto -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                        </path>
-                    </svg>
-                    Información del Producto
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Nombre Comercial (display_name) - AUTO-GENERADO -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.display_name.label.text }} <span class="text-red-500">*</span>
-                            <span class="text-xs font-normal text-indigo-600 dark:text-indigo-400 ml-2">(Generado
-                                automáticamente)</span>
-                        </label>
-                        {{ form.display_name(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="display_name") }}
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Se genera automáticamente: Marca + Modelo + Procesador + RAM + Almacenamiento + Pantalla +
-                            Categoria
-                            <span class="text-indigo-600 dark:text-indigo-400">(Puedes editarlo manualmente)</span>
-                        </p>
-                        {% if form.display_name.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.display_name.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-
-                    <!-- URL amigable -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.slug.label.text }}
-                        </label>
-                        {{ form.slug(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="slug") }}
-                    </div>
-
-                    <!-- Descripcion Corta (opcional) -->
-                    <!-- Palabras Clave (SEO) -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.keywords.label.text }}
-                        </label>
-                        {{ form.keywords(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="keywords", placeholder="Ej: gaming, ultrabook, intel
-                        core i7") }}
-                    </div>
-
-                    <!-- Notas Públicas (Descripción para el cliente) -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            Notas Públicas (Descripción para el cliente)
-                        </label>
-                        {{ form.public_notes(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="public_notes", rows="3") }}
                     </div>
                 </div>
             </div>
 
-            <!-- Card: Especificaciones Tecnicas -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                        </path>
+            <!-- ═══ PRODUCTO ═══ -->
+            <div id="section-product" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-purple-100 dark:bg-purple-900/40">
+                            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="section-title">Información del Producto</div>
+                            <div class="section-subtitle">Nombre, slug, keywords y descripción</div>
+                        </div>
+                    </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
-                    Especificaciones Técnicas
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Marca -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.brand_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.brand_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="brand_id") }}
-                        {% if form.brand_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.brand_id.errors[0] }}</p>
-                        {% endif %}
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="form-label">{{ form.display_name.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.display_name(class="form-input", id="display_name") }}
+                            <p class="form-hint">{{ form.display_name.description or 'Nombre descriptivo del producto
+                                para la web.' }} <span class="text-indigo-500 dark:text-indigo-400">(Se llena
+                                    automáticamente desde Icecat al ingresar GTIN)</span></p>
+                            {% if form.display_name.errors %}<p class="form-error">{{ form.display_name.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.slug.label.text }}</label>
+                            {{ form.slug(class="form-input", id="slug") }}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.keywords.label.text }}</label>
+                            {{ form.keywords(class="form-input", id="keywords", placeholder="Ej: gaming, ultrabook,
+                            intel core i7") }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="form-label">Notas Públicas (Descripción para el cliente)</label>
+                            {{ form.public_notes(class="form-input", id="public_notes", rows="3",
+                            style="resize:vertical;min-height:80px") }}
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Modelo -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.model_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.model_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="model_id") }}
-                        {% if form.model_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.model_id.errors[0] }}</p>
-                        {% endif %}
+            <!-- ═══ SPECS ═══ -->
+            <div id="section-specs" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-indigo-100 dark:bg-indigo-900/40">
+                            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="section-title">Especificaciones Técnicas</div>
+                            <div class="section-subtitle">CPU, pantalla, GPU, RAM, almacenamiento y más</div>
+                        </div>
                     </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="form-label">{{ form.brand_id.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.brand_id(class="form-input", id="brand_id") }}
+                            {% if form.brand_id.errors %}<p class="form-error">{{ form.brand_id.errors[0] }}</p>{% endif
+                            %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.model_id.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.model_id(class="form-input", id="model_id") }}
+                            {% if form.model_id.errors %}<p class="form-error">{{ form.model_id.errors[0] }}</p>{% endif
+                            %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.category.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.category(class="form-input", id="category") }}
+                            {% if form.category.errors %}<p class="form-error">{{ form.category.errors[0] }}</p>{% endif
+                            %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.condition.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.condition(class="form-input", id="condition") }}
+                            {% if form.condition.errors %}<p class="form-error">{{ form.condition.errors[0] }}</p>{%
+                            endif %}
+                        </div>
 
-                    <!-- Procesador (Nueva estructura de 3 campos) -->
-                    <div
-                        class="md:col-span-2 bg-gray-50/50 dark:bg-gray-900/30 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center mb-4">
+                        <!-- Procesador -->
+                        <div class="md:col-span-2 spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+                                <span class="subgroup-title">Unidad de Procesamiento</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="mini-label">{{ form.processor_family.label.text }} <span
+                                            class="text-red-400">*</span></label>
+                                    {{ form.processor_family(class="mini-input", id="processor_family") }}
+                                    {% if form.processor_family.errors %}<p class="form-error text-xs">{{
+                                        form.processor_family.errors[0] }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label class="mini-label">{{ form.processor_generation.label.text }}</label>
+                                    {{ form.processor_generation(class="mini-input", id="processor_generation") }}
+                                </div>
+                                <div>
+                                    <label class="mini-label">{{ form.processor_model.label.text }} <span
+                                            class="text-red-400">*</span></label>
+                                    {{ form.processor_model(class="mini-input", id="processor_model") }}
+                                    {% if form.processor_model.errors %}<p class="form-error text-xs">{{
+                                        form.processor_model.errors[0] }}</p>{% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="mini-label">{{ form.processor_full_name.label.text }}</label>
+                                {{ form.processor_full_name(class="mini-input readonly-input", id="processor_full_name")
+                                }}
+                                <p class="form-hint" style="font-style:italic">Ej: Intel Core i7-12700H (14-Core, up to
+                                    4.7GHz)</p>
+                            </div>
+                        </div>
+
+                        <!-- OS + Peso -->
+                        <div>
+                            <label class="form-label">Sistema Operativo <span class="required-dot"></span></label>
+                            {{ form.os_id(class="form-input", id="os_id") }}
+                            {% if form.os_id.errors %}<p class="form-error">{{ form.os_id.errors[0] }}</p>{% endif %}
+                        </div>
+                        <div class="flex gap-4 items-end">
+                            <div class="flex-1">
+                                <label class="form-label">Peso (lbs)</label>
+                                {{ form.weight_lbs(class="form-input", id="weight_lbs") }}
+                            </div>
+                            <label class="check-group pb-1">
+                                {{ form.npu(class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300
+                                rounded") }}
+                                <span>NPU (AI)</span>
+                            </label>
+                        </div>
+
+                        <!-- Pantalla -->
+                        <div class="md:col-span-2 spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
+                                    <i class="fas fa-desktop"></i>
+                                </div>
+                                <span class="subgroup-title">Pantalla</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                <div class="sm:col-span-2">
+                                    <label class="mini-label">{{ form.screen_id.label.text }} <span
+                                            class="text-red-400">*</span></label>
+                                    {{ form.screen_id(class="mini-input", id="screen_id") }}
+                                    {% if form.screen_id.errors %}<p class="form-error text-xs">{{
+                                        form.screen_id.errors[0] }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label class="mini-label">{{ form.screen_resolution.label.text }}</label>
+                                    {{ form.screen_resolution(class="mini-input", id="screen_resolution") }}
+                                    {% if form.screen_resolution.errors %}<p class="form-error text-xs">{{
+                                        form.screen_resolution.errors[0] }}</p>{% endif %}
+                                </div>
+                                <div>
+                                    <label class="mini-label">Diagonal (")</label>
+                                    {{ form.screen_diagonal_inches(class="mini-input", id="screen_diagonal_inches") }}
+                                </div>
+                                <div>
+                                    <label class="mini-label">Tipo HD</label>
+                                    {{ form.screen_hd_type(class="mini-input", id="screen_hd_type") }}
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div><label class="mini-label">Panel</label>{{
+                                        form.screen_panel_type(class="mini-input", id="screen_panel_type") }}</div>
+                                    <div><label class="mini-label">Refresh rate</label>{{
+                                        form.screen_refresh_rate(class="mini-input", id="screen_refresh_rate") }}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="flex-grow">
+                                    <label class="mini-label">Nombre Completo Pantalla</label>
+                                    {{ form.screen_full_name(class="mini-input readonly-input", readonly=True,
+                                    id="screen_full_name") }}
+                                </div>
+                                <label class="check-group mt-4 flex-shrink-0">
+                                    {{ form.screen_touchscreen_override(class="h-5 w-5 text-indigo-600
+                                    focus:ring-indigo-500 border-gray-300 rounded", id="screen_touchscreen_override") }}
+                                    <span class="font-semibold">Touch</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Gráficos -->
+                        <div class="md:col-span-2 spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                                <span class="subgroup-title">Gráficos</span>
+                            </div>
+                            <div class="mb-4">
+                                <label class="mini-label">{{ form.graphics_card_id.label.text }} <span
+                                        class="text-red-400">*</span></label>
+                                {{ form.graphics_card_id(class="mini-input", id="graphics_card_id") }}
+                                {% if form.graphics_card_id.errors %}<p class="form-error text-xs">{{
+                                    form.graphics_card_id.errors[0] }}</p>{% endif %}
+                            </div>
                             <div
-                                class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mr-3">
-                                <i class="fas fa-microchip text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                                class="mb-4 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <label class="check-group mb-3 -mx-3">
+                                    {{ form.has_discrete_gpu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500
+                                    border-gray-300 rounded", id="has_discrete_gpu") }}
+                                    <span class="font-bold text-sm">GPU Dedicada</span>
+                                </label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div><label class="mini-label">Marca</label>{{
+                                        form.discrete_gpu_brand(class="mini-input", id="discrete_gpu_brand") }}</div>
+                                    <div><label class="mini-label">Modelo</label>{{
+                                        form.discrete_gpu_model(class="mini-input", id="discrete_gpu_model") }}</div>
+                                    <div><label class="mini-label">VRAM (GB)</label>{{
+                                        form.discrete_gpu_memory_gb(class="mini-input", id="discrete_gpu_memory_gb") }}
+                                    </div>
+                                    <div><label class="mini-label">Tipo Mem</label>{{
+                                        form.discrete_gpu_memory_type(class="mini-input", id="discrete_gpu_memory_type")
+                                        }}</div>
+                                    <div class="col-span-2 sm:col-span-4"><label class="mini-label">Nombre Completo
+                                            Dedicada</label>{{ form.discrete_gpu_full_name(class="mini-input
+                                        readonly-input", readonly=True, id="discrete_gpu_full_name") }}</div>
+                                </div>
                             </div>
-                            <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
-                                Unidad de Procesamiento</h3>
+                            <div
+                                class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <p class="mini-label mb-3">GPU Integrada</p>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div><label class="mini-label">Marca</label>{{
+                                        form.onboard_gpu_brand(class="mini-input", id="onboard_gpu_brand") }}</div>
+                                    <div><label class="mini-label">Modelo</label>{{
+                                        form.onboard_gpu_model(class="mini-input", id="onboard_gpu_model") }}</div>
+                                    <div><label class="mini-label">Familia</label>{{
+                                        form.onboard_gpu_family(class="mini-input", id="onboard_gpu_family") }}</div>
+                                    <div><label class="mini-label">Memoria (GB)</label>{{
+                                        form.onboard_gpu_memory_gb(class="mini-input", id="onboard_gpu_memory_gb") }}
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-4"><label class="mini-label">Nombre Completo
+                                            Integrada</label>{{ form.onboard_gpu_full_name(class="mini-input
+                                        readonly-input", readonly=True, id="onboard_gpu_full_name") }}</div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                            <!-- Familia -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
-                                    {{ form.processor_family.label.text }} <span class="text-red-500">*</span>
-                                </label>
-                                {{ form.processor_family(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
-                                id="processor_family") }}
-                                {% if form.processor_family.errors %}
-                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{
-                                    form.processor_family.errors[0] }}</p>
+                        <!-- Almacenamiento + RAM side by side -->
+                        <div class="spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-yellow-100 dark:bg-yellow-900/50 text-yellow-600 dark:text-yellow-400">
+                                    <i class="fas fa-hdd"></i>
+                                </div>
+                                <span class="subgroup-title">Almacenamiento</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="mini-label">{{ form.storage_id.label.text }} <span
+                                        class="text-red-400">*</span></label>
+                                {{ form.storage_id(class="mini-input", id="storage_id") }}
+                                {% if form.storage_id.errors %}<p class="form-error text-xs">{{
+                                    form.storage_id.errors[0] }}</p>{% endif %}
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div><label class="mini-label">Capacidad (GB)</label>{{
+                                    form.storage_capacity(class="mini-input", id="storage_capacity") }}</div>
+                                <div><label class="mini-label">Media</label>{{ form.storage_media(class="mini-input",
+                                    id="storage_media") }}</div>
+                                <div><label class="mini-label">Factor Forma</label>{{
+                                    form.storage_form_factor(class="mini-input", id="storage_form_factor") }}</div>
+                                <label class="check-group self-end">{{ form.storage_nvme(class="h-4 w-4 text-indigo-600
+                                    focus:ring-indigo-500 border-gray-300 rounded", id="storage_nvme") }}<span
+                                        class="font-bold text-xs">NVMe</span></label>
+                            </div>
+                            <div class="mb-2"><label class="mini-label">Nombre Completo Almacenamiento</label>{{
+                                form.storage_full_name(class="mini-input readonly-input", readonly=True,
+                                id="storage_full_name") }}</div>
+                            <label class="check-group -mx-3 mt-1">{{ form.storage_upgradeable }}<span
+                                    class="text-xs">Ampliable</span></label>
+                        </div>
+
+                        <div class="spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400">
+                                    <i class="fas fa-memory"></i>
+                                </div>
+                                <span class="subgroup-title">Memoria RAM</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="mini-label">{{ form.ram_id.label.text }} <span
+                                        class="text-red-400">*</span></label>
+                                {{ form.ram_id(class="mini-input", id="ram_id") }}
+                                {% if form.ram_id.errors %}<p class="form-error text-xs">{{ form.ram_id.errors[0] }}</p>
                                 {% endif %}
                             </div>
-
-                            <!-- Generación -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
-                                    {{ form.processor_generation.label.text }}
-                                </label>
-                                {{ form.processor_generation(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
-                                id="processor_generation") }}
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div><label class="mini-label">Capacidad (GB)</label>{{
+                                    form.ram_capacity(class="mini-input", id="ram_capacity") }}</div>
+                                <div><label class="mini-label">Tipo</label>{{ form.ram_type_detailed(class="mini-input",
+                                    id="ram_type_detailed") }}</div>
+                                <div><label class="mini-label">Velocidad (MHz)</label>{{
+                                    form.ram_speed_mhz(class="mini-input", id="ram_speed_mhz") }}</div>
+                                <div><label class="mini-label">Tasa Transf.</label>{{
+                                    form.ram_transfer_rate(class="mini-input", id="ram_transfer_rate") }}</div>
                             </div>
-
-                            <!-- Modelo -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
-                                    {{ form.processor_model.label.text }} <span class="text-red-500">*</span>
-                                </label>
-                                {{ form.processor_model(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20",
-                                id="processor_model") }}
-                                {% if form.processor_model.errors %}
-                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ form.processor_model.errors[0]
-                                    }}</p>
-                                {% endif %}
-                            </div>
+                            <div class="mb-2"><label class="mini-label">Nombre Completo RAM</label>{{
+                                form.ram_full_name(class="mini-input readonly-input", readonly=True, id="ram_full_name")
+                                }}</div>
+                            <label class="check-group -mx-3 mt-1">{{ form.ram_upgradeable }}<span
+                                    class="text-xs">Ampliable</span></label>
                         </div>
 
-                        <!-- Nombre Completo / Comercial -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase">
-                                {{ form.processor_full_name.label.text }}
-                            </label>
-                            {{ form.processor_full_name(class="w-full px-4 py-3 border-2 border-gray-200
-                            dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20", id="processor_full_name") }}
-                            <p class="mt-1 text-[10px] text-gray-400 italic">Ej: Intel Core i7-12700H (14-Core, up to
-                                4.7GHz)</p>
-                        </div>
-                    </div>
-
-                    <!-- Sistema Operativo -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            Categoría <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.os_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl
-                        bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-4
-                        focus:ring-indigo-500/20", id="os_id") }}
-                        {% if form.os_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.os_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Pantalla -->
-                    <div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    {{ form.screen_id.label.text }} <span class="text-red-500">*</span>
-                                </label>
-                                {{ form.screen_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                                focus:border-indigo-500
-                                focus:ring-4 focus:ring-indigo-500/20", id="screen_id") }}
+                        <!-- Teclado -->
+                        <div class="md:col-span-2 spec-subgroup">
+                            <div class="subgroup-header">
+                                <div
+                                    class="subgroup-icon bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                    <i class="fas fa-keyboard"></i>
+                                </div>
+                                <span class="subgroup-title">Teclado y Entrada</span>
                             </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    Tamaño (")
-                                </label>
-                                {{ form.screen_size(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700
-                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                                focus:border-indigo-500
-                                focus:ring-4 focus:ring-indigo-500/20", id="screen_size") }}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                <div><label class="mini-label">Distribución</label>{{
+                                    form.keyboard_layout(class="mini-input") }}</div>
+                                <div><label class="mini-label">Idioma</label>{{
+                                    form.keyboard_language(class="mini-input", id="keyboard_language") }}</div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                <div><label class="mini-label">Dispositivo Apuntador</label>{{
+                                    form.pointing_device(class="mini-input", id="pointing_device") }}</div>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                                    <label class="check-group">{{ form.numeric_keypad(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="numeric_keypad") }}<span
+                                            class="text-xs">Teclado Numérico</span></label>
+                                    <label class="check-group">{{ form.keyboard_backlight(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="keyboard_backlight") }}<span
+                                            class="text-xs">Retroiluminado</span></label>
+                                    <label class="check-group">{{ form.fingerprint_reader(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="fingerprint_reader") }}<span
+                                            class="text-xs">Huellas</span></label>
+                                    <label class="check-group">{{ form.face_recognition(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="face_recognition") }}<span
+                                            class="text-xs">Facial</span></label>
+                                    <label class="check-group">{{ form.stylus_support(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="stylus_support") }}<span
+                                            class="text-xs">Stylus</span></label>
+                                    <label class="check-group">{{ form.ethernet_port(class="h-4 w-4 text-indigo-600
+                                        focus:ring-indigo-500 border-gray-300 rounded", id="ethernet_port") }}<span
+                                            class="text-xs">Ethernet</span></label>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="mini-label">Color Retroiluminación</label>{{
+                                    form.keyboard_backlight_color(class="mini-input", id="keyboard_backlight_color") }}
+                                </div>
+                                <div><label class="mini-label">Zona Retroiluminación</label>{{
+                                    form.keyboard_backlight_zone(class="mini-input", id="keyboard_backlight_zone") }}
+                                </div>
                             </div>
                         </div>
-                        {% if form.screen_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.screen_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
 
-                    <!-- Tarjeta Gráfica -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.graphics_card_id.label.text }} <span class="text-red-500">*</span>
-                        </label>
-                        {{ form.graphics_card_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="graphics_card_id") }}
-                        <div class="mt-2 text-sm">
-                            <label class="inline-flex items-center">
-                                {{ form.has_discrete_gpu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500
-                                border-gray-300 rounded") }}
-                                <span class="ml-2 text-gray-700 dark:text-gray-300">GPU Dedicada</span>
-                            </label>
+                        <!-- Conectividad -->
+                        <div class="md:col-span-2">
+                            <label class="form-label">{{ form.connectivity_ports.label.text }}</label>
+                            {{ form.connectivity_ports(class="form-input", id="connectivity_ports", rows="2",
+                            style="resize:vertical;min-height:60px") }}
                         </div>
-                        {% if form.graphics_card_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.graphics_card_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Almacenamiento -->
-                    <div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    {{ form.storage_id.label.text }} <span class="text-red-500">*</span>
-                                </label>
-                                {{ form.storage_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                                focus:border-indigo-500
-                                focus:ring-4 focus:ring-indigo-500/20", id="storage_id") }}
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    Capacidad (GB)
-                                </label>
-                                {{ form.storage_capacity(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700
-                                rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                                focus:border-indigo-500
-                                focus:ring-4 focus:ring-indigo-500/20", id="storage_capacity") }}
-                            </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:col-span-2">
+                            <div><label class="form-label">{{ form.wifi_standard.label.text }}</label>{{
+                                form.wifi_standard(class="form-input", id="wifi_standard") }}</div>
+                            <div><label class="form-label">{{ form.bluetooth_version.label.text }}</label>{{
+                                form.bluetooth_version(class="form-input", id="bluetooth_version") }}</div>
+                            <div><label class="form-label">{{ form.cellular.label.text }}</label>{{
+                                form.cellular(class="form-input", id="cellular") }}</div>
                         </div>
-                        <div class="mt-2">
-                            <label class="inline-flex items-center">
-                                {{ form.storage_upgradeable }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ampliable</span>
-                            </label>
-                        </div>
-                        {% if form.storage_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.storage_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- RAM -->
-                    <div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    {{ form.ram_id.label.text }} <span class="text-red-500">*</span>
-                                </label>
-                                {{ form.ram_id(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                                rounded-xl
-                                bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                                focus:ring-4
-                                focus:ring-indigo-500/20", id="ram_id") }}
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    Capacidad (GB)
-                                </label>
-                                {{ form.ram_capacity(class="w-full px-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl
-                                bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                                focus:ring-4
-                                focus:ring-indigo-500/20", id="ram_capacity") }}
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <label class="inline-flex items-center">
-                                {{ form.ram_upgradeable }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ampliable</span>
-                            </label>
-                        </div>
-                        {% if form.ram_id.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.ram_id.errors[0] }}</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- NPU y Retroiluminación -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                Inteligencia Artificial (NPU)
-                            </label>
-                            <label class="inline-flex items-center mt-2">
-                                {{ form.npu(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300
-                                rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tiene NPU (AI Boost)</span>
-                            </label>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                Retroiluminación
-                            </label>
-                            <label class="inline-flex items-center mt-2">
-                                {{ form.keyboard_backlight(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500
-                                border-gray-300
-                                rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Teclado
-                                    retroiluminado</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Teclado -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.keyboard_layout.label.text }}
-                        </label>
-                        {{ form.keyboard_layout(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                    </div>
-
-                    <!-- Puertos de Conectividad (NUEVO) -->
-                    <div class="col-span-1 md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.connectivity_ports.label.text }}
-                        </label>
-                        {{ form.connectivity_ports(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20 shadow-sm", id="connectivity_ports", rows="2") }}
-                    </div>
-
-                    <!-- WiFi y Celular -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.wifi_standard.label.text }}
-                        </label>
-                        {{ form.wifi_standard(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="wifi_standard") }}
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            {{ form.cellular.label.text }}
-                        </label>
-                        {{ form.cellular(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20", id="cellular") }}
                     </div>
                 </div>
             </div>
 
-            <!-- Card: Galería de Imágenes HÍBRIDA -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor"
+            <!-- ═══ IMÁGENES ═══ -->
+            <div id="section-images" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-pink-100 dark:bg-pink-900/40">
+                            <svg class="w-5 h-5 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                 </path>
                             </svg>
-                            Galería de Imágenes
-                        </h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {% if mode == 'edit' %}
-                            Gestiona las imágenes de la laptop. Puedes agregar tantas como necesites.
-                            {% else %}
-                            Sube las imágenes de la laptop. La primera será la portada. Formatos: JPG, PNG, WebP, GIF,
-                            AVIF.
-                            {% endif %}
-                        </p>
-                    </div>
-
-                    <div class="info-icon-container-premium">
-                        <button type="button" class="info-icon-premium" id="info-icon-premium">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-
-                        <div class="tips-tooltip-premium" id="tips-tooltip-premium">
-                            <div class="tips-title-premium">
-                                <i class="fas fa-lightbulb"></i> Consejos para tu galería
-                            </div>
-                            <ul class="tips-list-premium">
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-star"></i>
-                                    <span>La primera imagen será la portada principal.</span>
-                                </li>
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-expand-alt"></i>
-                                    <span>Usa imágenes de alta calidad (mínimo 800×600px).</span>
-                                </li>
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-search"></i>
-                                    <span>El texto alternativo mejora el SEO y accesibilidad.</span>
-                                </li>
-                                {% if mode == 'edit' %}
-                                <li class="tip-item-premium">
-                                    <i class="fas fa-cloud"></i>
-                                    <span>Badge verde = Ya guardada | Badge azul = Nueva</span>
-                                </li>
-                                {% endif %}
-                            </ul>
+                        </div>
+                        <div>
+                            <div class="section-title">Galería de Imágenes</div>
+                            <div class="section-subtitle">{% if mode == 'edit' %}Gestiona las imágenes{% else %}La
+                                primera imagen será la portada{% endif %}</div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Área de Drag & Drop -->
-                <div class="upload-area-premium" id="upload-area-premium">
-                    <div class="upload-icon-premium">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <h3 class="upload-title">Arrastra y suelta tus imágenes aquí</h3>
-                    <p class="upload-subtitle">o haz clic en el botón para buscar archivos</p>
-                    <button type="button" class="browse-btn-premium" id="browse-btn-premium">
-                        <i class="fas fa-folder-open"></i> Buscar imágenes
-                    </button>
-
-                    <!-- Contenedor del grid (se llena dinámicamente) -->
-                    <div class="images-grid-premium" id="images-container-premium">
-                        <!-- El JavaScript renderizará aquí las tarjetas -->
-                    </div>
-
-                    <!-- Input para carga múltiple (oculto) -->
-                    <input type="file" id="bulk-upload-premium"
-                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" multiple class="hidden">
-                </div>
-
-                <!-- ===== INPUTS ORIGINALES DEL FORMULARIO ===== -->
-                <!-- Estos inputs son manipulados por el componente JavaScript -->
-                <div class="hidden" id="original-form-fields">
-                    {% set max_pos = 8 %}
-                    {% if images_by_position %}
-                    {% set positions = images_by_position.keys()|list %}
-                    {% if positions %}
-                    {% set max_pos = [positions|max, 8]|max %}
-                    {% endif %}
-                    {% endif %}
-
-                    {% for i in range(1, max_pos + 1) %}
-                    <div class="image-slot-original" data-slot="{{ i }}">
-                        {% if mode == 'edit' %}
-                        {% set img = images_by_position.get(i) %}
-                        {% else %}
-                        {% set img = None %}
-                        {% endif %}
-
-                        <!-- Input file -->
-                        <input type="file" id="image_{{ i }}" name="image_{{ i }}" class="hidden original-image-input"
-                            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" {% if img %}
-                            data-image-id="{{ img.id }}"
-                            data-image-url="{{ url_for('static', filename=img.image_path) }}"
-                            data-is-cover="{{ 'true' if img.is_cover else 'false' }}" value="{{ img.image_path }}" {%
-                            endif %}>
-
-                        <!-- Input alt text -->
-                        <input type="text" id="image_{{ i }}_alt" name="image_{{ i }}_alt"
-                            class="hidden original-alt-input" {% if img %} value="{{ img.alt_text or '' }}" {% endif %}>
-
-                        <!-- Input path para imágenes existentes -->
-                        <input type="hidden" id="image_{{ i }}_path" name="image_{{ i }}_path" {% if img %}
-                            value="{{ img.image_path }}" {% endif %}>
-
-                        <!-- Input ID para imágenes existentes -->
-                        <input type="hidden" id="image_{{ i }}_id" name="image_{{ i }}_id" {% if img %}
-                            value="{{ img.id }}" {% endif %}>
-
-                        <!-- Input URL para imágenes de Icecat -->
-                        <input type="hidden" id="image_{{ i }}_url" name="image_{{ i }}_url" value="">
-
-                    </div>
-                    {% endfor %}
-
-                    <!-- Input oculto para IDs de imágenes a eliminar -->
-                    <input type="hidden" id="images_to_delete" name="images_to_delete" value="[]">
-
-                    <!-- Input oculto para ID de imagen de portada -->
-                    <input type="hidden" id="cover_image_id" name="cover_image_id" {% if laptop and
-                        laptop.cover_image_id %} value="{{ laptop.cover_image_id }}" {% endif %}>
-                </div>
-                <!-- Overlay de arrastre -->
-                <div id="drag-overlay-premium" class="drag-overlay-premium">
-                    <div class="drag-message-premium">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-pink-500 mb-4"></i>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Suelta las imágenes aquí
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400">Tus imágenes se organizarán automáticamente</p>
-                    </div>
-                </div>
-
-                <!-- Card: Precios y Costos -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    <div class="flex items-center gap-3">
+                        <div class="info-icon-container-premium">
+                            <button type="button" class="info-icon-premium" id="info-icon-premium"
+                                onclick="event.stopPropagation()"><i class="fas fa-info-circle"></i></button>
+                            <div class="tips-tooltip-premium" id="tips-tooltip-premium">
+                                <div class="tips-title-premium"><i class="fas fa-lightbulb"></i> Consejos para tu
+                                    galería</div>
+                                <ul class="tips-list-premium">
+                                    <li class="tip-item-premium"><i class="fas fa-star"></i><span>La primera imagen será
+                                            la portada principal.</span></li>
+                                    <li class="tip-item-premium"><i class="fas fa-expand-alt"></i><span>Usa imágenes de
+                                            alta calidad (mínimo 800×600px).</span></li>
+                                    <li class="tip-item-premium"><i class="fas fa-search"></i><span>El texto alternativo
+                                            mejora el SEO y accesibilidad.</span></li>
+                                    {% if mode == 'edit' %}<li class="tip-item-premium"><i
+                                            class="fas fa-cloud"></i><span>Badge verde = Ya guardada | Badge azul =
+                                            Nueva</span></li>{% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
                         </svg>
-                        Precios y Costos
-                    </h2>
+                    </div>
+                </div>
+                <div class="section-body open">
+                    <div class="upload-area-premium" id="upload-area-premium">
+                        <div class="upload-icon-premium"><i class="fas fa-cloud-upload-alt"></i></div>
+                        <h3 class="upload-title">Arrastra y suelta tus imágenes aquí</h3>
+                        <p class="upload-subtitle">o haz clic en el botón para buscar archivos</p>
+                        <button type="button" class="browse-btn-premium" id="browse-btn-premium"><i
+                                class="fas fa-folder-open"></i> Buscar imágenes</button>
+                        <div class="images-grid-premium" id="images-container-premium"></div>
+                        <input type="file" id="bulk-upload-premium"
+                            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" multiple
+                            class="hidden">
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                        <!-- Moneda -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.currency.label.text }}
-                            </label>
-                            {{ form.currency(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500
-                            focus:ring-4 focus:ring-indigo-500/20", id="currency") }}
+                    <div class="hidden" id="original-form-fields">
+                        {% set max_pos = 8 %}
+                        {% if images_by_position %}{% set positions = images_by_position.keys()|list %}{% if positions
+                        %}{% set max_pos = [positions|max, 8]|max %}{% endif %}{% endif %}
+                        {% for i in range(1, max_pos + 1) %}
+                        <div class="image-slot-original" data-slot="{{ i }}">
+                            {% if mode == 'edit' %}{% set img = images_by_position.get(i) %}{% else %}{% set img = None
+                            %}{% endif %}
+                            <input type="file" id="image_{{ i }}" name="image_{{ i }}"
+                                class="hidden original-image-input"
+                                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/avif" {% if img
+                                %}data-image-id="{{ img.id }}"
+                                data-image-url="{{ url_for('static', filename=img.image_path) }}"
+                                data-is-cover="{{ 'true' if img.is_cover else 'false' }}" value="{{ img.image_path }}"
+                                {% endif %}>
+                            <input type="text" id="image_{{ i }}_alt" name="image_{{ i }}_alt"
+                                class="hidden original-alt-input" {% if img %}value="{{ img.alt_text or '' }}" {% endif
+                                %}>
+                            <input type="hidden" id="image_{{ i }}_path" name="image_{{ i }}_path" {% if img
+                                %}value="{{ img.image_path }}" {% endif %}>
+                            <input type="hidden" id="image_{{ i }}_id" name="image_{{ i }}_id" {% if img
+                                %}value="{{ img.id }}" {% endif %}>
+                            <input type="hidden" id="image_{{ i }}_url" name="image_{{ i }}_url" value="">
                         </div>
-
-                        <!-- Costo de Compra -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.purchase_cost.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.purchase_cost(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            {% if form.purchase_cost.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.purchase_cost.errors[0] }}
-                            </p>
-                            {% endif %}
+                        {% endfor %}
+                        <input type="hidden" id="images_to_delete" name="images_to_delete" value="[]">
+                        <input type="hidden" id="cover_image_id" name="cover_image_id" {% if laptop and
+                            laptop.cover_image_id %}value="{{ laptop.cover_image_id }}" {% endif %}>
+                    </div>
+                    <div id="drag-overlay-premium" class="drag-overlay-premium">
+                        <div class="drag-message-premium">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-pink-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Suelta las imágenes
+                                aquí</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Tus imágenes se organizarán automáticamente</p>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Precio de Venta -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.sale_price.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.sale_price(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            {% if form.sale_price.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.sale_price.errors[0] }}</p>
-                            {% endif %}
+            <!-- ═══ PRECIOS ═══ -->
+            <div id="section-pricing" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-green-100 dark:bg-green-900/40">
+                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
                         </div>
-
-                        <!-- Precio de Descuento -->
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.discount_price.label.text }}
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                {{ form.discount_price(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Opcional - precio promocional</p>
+                            <div class="section-title">Precios y Costos</div>
+                            <div class="section-subtitle">Costo, precio de venta, descuentos y rentabilidad</div>
                         </div>
-
-                        <!-- Impuesto -->
+                    </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                        <div><label class="form-label">{{ form.currency.label.text }}</label>{{
+                            form.currency(class="form-input", id="currency") }}</div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.tax_percent.label.text }}
-                            </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">%</span>
-                                {{ form.tax_percent(class="w-full pl-8 pr-4 py-3 border-2 border-gray-200
-                                dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900
-                                dark:text-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            </div>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Porcentaje de impuesto</p>
+                            <label class="form-label">{{ form.purchase_cost.label.text }} <span
+                                    class="required-dot"></span></label>
+                            <div class="relative"><span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm pointer-events-none">$</span>{{
+                                form.purchase_cost(class="form-input", style="padding-left:1.75rem") }}</div>
+                            {% if form.purchase_cost.errors %}<p class="form-error">{{ form.purchase_cost.errors[0] }}
+                            </p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.sale_price.label.text }} <span
+                                    class="required-dot"></span></label>
+                            <div class="relative"><span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm pointer-events-none">$</span>{{
+                                form.sale_price(class="form-input", style="padding-left:1.75rem") }}</div>
+                            {% if form.sale_price.errors %}<p class="form-error">{{ form.sale_price.errors[0] }}</p>{%
+                            endif %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.discount_price.label.text }}</label>
+                            <div class="relative"><span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm pointer-events-none">$</span>{{
+                                form.discount_price(class="form-input", style="padding-left:1.75rem") }}</div>
+                            <p class="form-hint">Opcional — precio promo</p>
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.tax_percent.label.text }}</label>
+                            <div class="relative"><span
+                                    class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-sm pointer-events-none">%</span>{{
+                                form.tax_percent(class="form-input", style="padding-left:1.75rem") }}</div>
                         </div>
                     </div>
 
                     <!-- Rentabilidades -->
-                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Rentabilidad Precio Normal -->
-                        <div
-                            class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor"
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="profit-card profit-card-normal">
+                            <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                Rentabilidad - Precio Normal
+                                Rentabilidad — Precio Normal
                             </h3>
                             <div class="space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
-                                    <span id="normal-margin-display" class="text-2xl font-bold margin-good">0%</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
-                                    <span id="normal-profit-display"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
-                                    <span id="normal-final-price"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Margen:</span><span id="normal-margin-display"
+                                        class="text-2xl font-bold margin-good">0%</span></div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Ganancia:</span><span id="normal-profit-display"
+                                        class="text-base font-semibold text-gray-900 dark:text-white">$0.00</span></div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Precio final:</span><span id="normal-final-price"
+                                        class="text-base font-semibold text-gray-900 dark:text-white">$0.00</span></div>
                             </div>
                         </div>
-
-                        <!-- Rentabilidad Precio Promocional -->
-                        <div
-                            class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800">
-                            <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor"
+                        <div class="profit-card profit-card-promo">
+                            <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                     </path>
                                 </svg>
-                                Rentabilidad - Precio Promocional
+                                Rentabilidad — Precio Promocional
                             </h3>
                             <div class="space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Margen:</span>
-                                    <span id="promo-margin-display" class="text-2xl font-bold margin-warning">0%</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Ganancia:</span>
-                                    <span id="promo-profit-display"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600 dark:text-gray-400">Precio final:</span>
-                                    <span id="promo-final-price"
-                                        class="text-lg font-semibold text-gray-900 dark:text-white">$0.00</span>
-                                </div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Margen:</span><span id="promo-margin-display"
+                                        class="text-2xl font-bold margin-warning">0%</span></div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Ganancia:</span><span id="promo-profit-display"
+                                        class="text-base font-semibold text-gray-900 dark:text-white">$0.00</span></div>
+                                <div class="flex justify-between items-center"><span
+                                        class="text-xs text-gray-500">Precio final:</span><span id="promo-final-price"
+                                        class="text-base font-semibold text-gray-900 dark:text-white">$0.00</span></div>
                                 <div id="promo-section" class="hidden">
                                     <div class="mt-2 pt-2 border-t border-yellow-200 dark:border-yellow-800">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">Descuento:</span>
-                                            <span id="discount-percentage"
+                                        <div class="flex justify-between items-center"><span
+                                                class="text-xs text-gray-500">Descuento:</span><span
+                                                id="discount-percentage"
                                                 class="text-sm font-semibold text-yellow-600 dark:text-yellow-400">0%</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="no-promo-message" class="text-sm text-gray-500 dark:text-gray-400 italic">
-                                    No hay precio promocional establecido
-                                </div>
+                                <div id="no-promo-message" class="text-xs text-gray-400 italic pt-1">No hay precio
+                                    promocional establecido</div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Card: Inventario y Categoria -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                        </svg>
-                        Inventario y Categoria
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Cantidad -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.quantity.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.quantity(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.quantity.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.quantity.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Alerta Minima -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.min_alert.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.min_alert(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.min_alert.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.min_alert.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Categoria -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.category.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.category(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20", id="category") }}
-                            {% if form.category.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.category.errors[0] }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Opciones de Publicacion -->
-                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Opciones de Publicacion
-                        </h3>
-                        <div class="flex flex-wrap gap-6">
-                            <label class="inline-flex items-center">
-                                {{ form.is_published(class="h-5 w-5 text-indigo-600 focus:ring-indigo-500
-                                border-gray-300 rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Publicado (visible al
-                                    publico)</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                {{ form.is_featured(class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 border-gray-300
-                                rounded") }}
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Destacado</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Números de Serie -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700"
-                    id="serials-card">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor"
+            <!-- ═══ INVENTARIO ═══ -->
+            <div id="section-inventory" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-blue-100 dark:bg-blue-900/40">
+                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="section-title">Inventario y Publicación</div>
+                            <div class="section-subtitle">Cantidad, alertas, seriales y visibilidad</div>
+                        </div>
+                    </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="form-label">{{ form.quantity.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.quantity(class="form-input", id="quantity") }}
+                            {% if form.quantity.errors %}<p class="form-error">{{ form.quantity.errors[0] }}</p>{% endif
+                            %}
+                        </div>
+                        <div>
+                            <label class="form-label">{{ form.min_alert.label.text }} <span
+                                    class="required-dot"></span></label>
+                            {{ form.min_alert(class="form-input") }}
+                            {% if form.min_alert.errors %}<p class="form-error">{{ form.min_alert.errors[0] }}</p>{%
+                            endif %}
+                        </div>
+                        <div class="flex flex-col justify-center gap-3 pt-2">
+                            <label class="check-group">{{ form.is_published(class="h-5 w-5 text-indigo-600
+                                focus:ring-indigo-500 border-gray-300 rounded") }}<span>Publicado
+                                    (visible)</span></label>
+                            <label class="check-group">{{ form.is_featured(class="h-5 w-5 text-yellow-500
+                                focus:ring-yellow-500 border-gray-300 rounded") }}<span>⭐ Destacado</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Seriales -->
+                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700" id="serials-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                        </path>
+                                    </svg>
+                                    Números de Serie <span class="text-xs font-normal text-gray-400">(opcional)</span>
+                                </h3>
+                                <p class="text-xs text-gray-400 mt-1">Registra seriales de fabricante para cada unidad
+                                </p>
+                            </div>
+                            <span id="serial-count"
+                                class="px-3 py-1 text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">0
+                                seriales</span>
+                        </div>
+                        <div class="flex gap-2 mb-4">
+                            <div class="flex-1 relative">
+                                <input type="text" id="serial-input"
+                                    placeholder="Escanea o escribe el número de serie..."
+                                    class="form-input pl-10 font-mono uppercase" autocomplete="off">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <button type="button" onclick="addSerialFromInput()"
+                                class="px-4 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <span class="hidden sm:inline text-sm font-medium">Agregar</span>
+                            </button>
+                        </div>
+                        <div id="serials-list" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar"></div>
+                        <input type="hidden" name="serials_json" id="serials-json" value="[]">
+                        <div id="no-serials-message" class="text-center py-6 text-gray-400">
+                            <svg class="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
                                 </path>
                             </svg>
-                            Números de Serie
-                            <span class="ml-2 text-sm font-normal text-gray-500">(opcional)</span>
-                        </h2>
-                        <span id="serial-count"
-                            class="px-3 py-1 text-sm bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full">
-                            0 seriales
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Registra los números de serie de fabricante para cada unidad. Esto permite rastrear cada laptop
-                        individualmente.
-                    </p>
-
-                    <!-- Input para agregar seriales -->
-                    <div class="flex gap-2 mb-4">
-                        <div class="flex-1 relative">
-                            <input type="text" id="serial-input" placeholder="Escanea o escribe el número de serie..."
-                                class="w-full px-4 py-3 pl-10 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 font-mono uppercase"
-                                autocomplete="off">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                                </path>
-                            </svg>
+                            <p class="text-xs">No hay seriales registrados</p>
                         </div>
-                        <button type="button" onclick="addSerialFromInput()"
-                            class="px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Lista de seriales agregados -->
-                    <div id="serials-list" class="space-y-2 max-h-60 overflow-y-auto">
-                        <!-- Los seriales se agregan aquí dinámicamente -->
-                    </div>
-
-                    <!-- Input oculto para enviar los seriales -->
-                    <input type="hidden" name="serials_json" id="serials-json" value="[]">
-
-                    <!-- Mensaje cuando no hay seriales -->
-                    <div id="no-serials-message" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-                            </path>
-                        </svg>
-                        <p class="text-sm">No hay seriales registrados</p>
-                        <p class="text-xs mt-1">Escanea o escribe los números de serie</p>
-                    </div>
-
-                    <!-- Información de cantidad -->
-                    <div id="serial-quantity-info" class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Cantidad en inventario:</span>
-                            <span id="inventory-qty" class="font-semibold text-gray-900 dark:text-white">0</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm mt-1">
-                            <span class="text-gray-600 dark:text-gray-400">Seriales registrados:</span>
-                            <span id="serials-qty" class="font-semibold text-purple-600 dark:text-purple-400">0</span>
+                        <div id="serial-quantity-info" class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg text-xs">
+                            <div class="flex items-center justify-between"><span class="text-gray-500">Cantidad en
+                                    inventario:</span><span id="inventory-qty"
+                                    class="font-semibold text-gray-900 dark:text-white">0</span></div>
+                            <div class="flex items-center justify-between mt-1"><span class="text-gray-500">Seriales
+                                    registrados:</span><span id="serials-qty"
+                                    class="font-semibold text-purple-600 dark:text-purple-400">0</span></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Card: Ubicacion y Estado -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                            </path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        Ubicacion y Estado
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Tienda -->
+            <!-- ═══ UBICACIÓN ═══ -->
+            <div id="section-location" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-violet-100 dark:bg-violet-900/40">
+                            <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.store_id.label.text }} <span class="text-red-500">*</span>
-                            </label>
+                            <div class="section-title">Ubicación y Estado</div>
+                            <div class="section-subtitle">Tienda, ubicación y proveedor</div>
+                        </div>
+                    </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="form-label">{{ form.store_id.label.text }} <span
+                                    class="required-dot"></span></label>
                             {{ form.store_id(class="select2-ajax w-full", id="store_id") }}
-                            {% if form.store_id.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.store_id.errors[0] }}</p>
-                            {% endif %}
+                            {% if form.store_id.errors %}<p class="form-error">{{ form.store_id.errors[0] }}</p>{% endif
+                            %}
                         </div>
-
-                        <!-- Ubicacion -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.location_id.label.text }}
-                            </label>
-                            {{ form.location_id(class="select2-ajax w-full", id="location_id") }}
-                        </div>
-
-                        <!-- Proveedor -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.supplier_id.label.text }}
-                            </label>
-                            {{ form.supplier_id(class="select2-ajax w-full", id="supplier_id") }}
-                        </div>
-
-                        <!-- Condicion -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.condition.label.text }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.condition(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20") }}
-                            {% if form.condition.errors %}
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.condition.errors[0] }}</p>
-                            {% endif %}
-                        </div>
+                        <div><label class="form-label">{{ form.location_id.label.text }}</label>{{
+                            form.location_id(class="select2-ajax w-full", id="location_id") }}</div>
+                        <div><label class="form-label">{{ form.supplier_id.label.text }}</label>{{
+                            form.supplier_id(class="select2-ajax w-full", id="supplier_id") }}</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Card: Comercial y Garantía (NUEVO V2.0) -->
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                            </path>
-                        </svg>
-                        Comercial y Garantía
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Meses de Garantía -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.warranty_months.label.text }}
-                            </label>
-                            {{ form.warranty_months(class="w-full px-4 py-3 border-2 border-gray-200
-                            dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500
-                            focus:ring-4 focus:ring-indigo-500/20", id="warranty_months") }}
-                        </div>
-
-                        <!-- Vencimiento de Garantía -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                {{ form.warranty_expiry.label.text }}
-                            </label>
-                            {{ form.warranty_expiry(class="w-full px-4 py-3 border-2 border-gray-200
-                            dark:border-gray-700
-                            rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
-                            focus:border-indigo-500
-                            focus:ring-4 focus:ring-indigo-500/20", type="date", id="warranty_expiry") }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Notas -->
-                <div>
-                    <div
-                        class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-yellow-600" fill="none" stroke="currentColor"
+            <!-- ═══ GARANTÍA + NOTAS ═══ -->
+            <div id="section-warranty" class="form-section scroll-mt-20">
+                <div class="section-header expanded" onclick="toggleSection(this)">
+                    <div class="section-header-left">
+                        <div class="section-icon-wrapper bg-teal-100 dark:bg-teal-900/40">
+                            <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="section-title">Garantía y Notas</div>
+                            <div class="section-subtitle">Información de garantía y notas internas</div>
+                        </div>
+                    </div>
+                    <svg class="section-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="section-body open">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                        <div><label class="form-label">{{ form.warranty_months.label.text }}</label>{{
+                            form.warranty_months(class="form-input", id="warranty_months") }}</div>
+                        <div><label class="form-label">{{ form.warranty_expiry.label.text }}</label>{{
+                            form.warranty_expiry(class="form-input", type="date", id="warranty_expiry") }}</div>
+                    </div>
+                    <div class="pt-5 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z">
                                 </path>
                             </svg>
-                            Notas Internas
-                        </h2>
-
-                        {{ form.internal_notes(class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700
-                        rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500
-                        focus:ring-4 focus:ring-indigo-500/20") }}
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Estas notas son internas y no se
-                            muestran al publico</p>
+                            <label class="form-label" style="margin-bottom:0">Notas Internas</label>
+                        </div>
+                        {{ form.internal_notes(class="form-input", rows="3", style="resize:vertical;min-height:80px") }}
+                        <p class="form-hint">Estas notas son internas y no se muestran al público</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Botones -->
-                <div class="flex items-center justify-between">
-                    <a href="{{ url_for('inventory.laptops_list') }}"
-                        class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
-                        Cancelar
-                    </a>
-
-                    <button type="submit" id="submit-btn"
-                        class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                        {{ form.submit.label.text or 'Guardar Laptop' }}
-                    </button>
-                </div>
+            <!-- ===== STICKY BOTTOM BAR ===== -->
+            <div class="sticky-bottom-bar">
+                <a href="{{ url_for('inventory.laptops_list') }}" class="btn-cancel">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                    Cancelar
+                </a>
+                <button type="submit" id="submit-btn" class="btn-submit">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {{ form.submit.label.text or 'Guardar Laptop' }}
+                </button>
+            </div>
         </form>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // ----- Form Submission & Progress Bar -----
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('laptop-form');
+        const overlay = document.getElementById('upload-progress-overlay');
+        const bar = document.getElementById('upload-progress-bar');
+        const statusText = document.getElementById('progress-status-text');
+        const percentText = document.getElementById('progress-percentage');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (form && overlay) {
+            form.addEventListener('submit', function (e) {
+                // Show overlay
+                overlay.style.display = 'flex';
+
+                // Disable button
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                // Simulate progress
+                let progress = 0;
+                const statusMessages = [
+                    "Analizando datos...",
+                    "Comprimiendo imágenes...",
+                    "Subiendo archivos al servidor...",
+                    "Procesando en paralelo...",
+                    "Finalizando optimizaciones...",
+                    "Guardando en base de datos..."
+                ];
+
+                const interval = setInterval(() => {
+                    if (progress < 90) {
+                        const step = Math.random() * 5;
+                        progress = Math.min(90, progress + step);
+                        bar.style.width = progress + '%';
+                        percentText.textContent = Math.round(progress) + '% COMPLETADO';
+
+                        // Change message based on progress
+                        const msgIndex = Math.floor((progress / 90) * statusMessages.length);
+                        if (statusMessages[msgIndex]) {
+                            statusText.textContent = statusMessages[msgIndex];
+                        }
+                    } else {
+                        clearInterval(interval);
+                        statusText.textContent = "Finalizando procesos...";
+                        percentText.textContent = "CASI LISTO";
+                    }
+                }, 400);
+
+                // The form will continue its standard POST submission
+            });
+        }
+    });
+</script>
 <!-- jQuery (requerido para Select2) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Select2 JS -->
@@ -1099,6 +1786,47 @@
 <script src="{{ url_for('static', filename='js/laptop_form_submit.js') }}"></script>
 <script src="{{ url_for('static', filename='js/laptop_gallery.js') }}"></script>
 
+<!-- Section toggle + Progress nav -->
+<script>
+    function toggleSection(header) {
+        const body = header.nextElementSibling;
+        const isOpen = body.classList.contains('open');
+        if (isOpen) { body.classList.remove('open'); header.classList.remove('expanded'); }
+        else { body.classList.add('open'); header.classList.add('expanded'); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const sections = document.querySelectorAll('[id^="section-"]');
+        const navLinks = document.querySelectorAll('.progress-step');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const header = target.querySelector('.section-header');
+                    const body = target.querySelector('.section-body');
+                    if (header && body && !body.classList.contains('open')) {
+                        body.classList.add('open'); header.classList.add('expanded');
+                    }
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(link => { link.classList.toggle('active', link.dataset.section === id); });
+                }
+            });
+        }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+        sections.forEach(section => observer.observe(section));
+    });
+</script>
+
 <!-- Script para calcular rentabilidades -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -1106,12 +1834,9 @@
         const salePriceInput = document.querySelector('#sale_price');
         const discountPriceInput = document.querySelector('#discount_price');
         const taxPercentInput = document.querySelector('#tax_percent');
-
-        // Elementos para mostrar rentabilidades
         const normalMarginDisplay = document.getElementById('normal-margin-display');
         const normalProfitDisplay = document.getElementById('normal-profit-display');
         const normalFinalPrice = document.getElementById('normal-final-price');
-
         const promoMarginDisplay = document.getElementById('promo-margin-display');
         const promoProfitDisplay = document.getElementById('promo-profit-display');
         const promoFinalPrice = document.getElementById('promo-final-price');
@@ -1119,77 +1844,44 @@
         const promoSection = document.getElementById('promo-section');
         const noPromoMessage = document.getElementById('no-promo-message');
 
-        // Función para calcular rentabilidades
         function calculateProfitabilities() {
             const purchaseCost = parseFloat(purchaseCostInput.value) || 0;
             const salePrice = parseFloat(salePriceInput.value) || 0;
             const discountPrice = parseFloat(discountPriceInput.value) || 0;
             const taxPercent = parseFloat(taxPercentInput.value) || 0;
-
-            // Calcular rentabilidad con precio normal
             const normalProfit = salePrice - purchaseCost;
             const normalMargin = purchaseCost > 0 ? (normalProfit / purchaseCost) * 100 : 0;
             const normalPriceWithTax = salePrice * (1 + taxPercent / 100);
-
-            // Actualizar displays precio normal
             normalProfitDisplay.textContent = `$${normalProfit.toFixed(2)}`;
             normalFinalPrice.textContent = `$${normalPriceWithTax.toFixed(2)}`;
-
-            // Determinar color del margen normal
             normalMarginDisplay.textContent = `${normalMargin.toFixed(1)}%`;
-            if (normalMargin >= 30) {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-good';
-            } else if (normalMargin >= 15) {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-warning';
-            } else {
-                normalMarginDisplay.className = 'text-2xl font-bold margin-danger';
-            }
+            if (normalMargin >= 30) { normalMarginDisplay.className = 'text-2xl font-bold margin-good'; }
+            else if (normalMargin >= 15) { normalMarginDisplay.className = 'text-2xl font-bold margin-warning'; }
+            else { normalMarginDisplay.className = 'text-2xl font-bold margin-danger'; }
 
-            // Calcular rentabilidad con precio promocional
             if (discountPrice > 0 && discountPrice < salePrice) {
                 const promoProfit = discountPrice - purchaseCost;
                 const promoMargin = purchaseCost > 0 ? (promoProfit / purchaseCost) * 100 : 0;
                 const promoPriceWithTax = discountPrice * (1 + taxPercent / 100);
                 const discountPercent = ((salePrice - discountPrice) / salePrice) * 100;
-
-                // Actualizar displays precio promocional
                 promoProfitDisplay.textContent = `$${promoProfit.toFixed(2)}`;
                 promoFinalPrice.textContent = `$${promoPriceWithTax.toFixed(2)}`;
                 discountPercentage.textContent = `${discountPercent.toFixed(1)}%`;
-
-                // Determinar color del margen promocional
                 promoMarginDisplay.textContent = `${promoMargin.toFixed(1)}%`;
-                if (promoMargin >= 30) {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-good';
-                } else if (promoMargin >= 15) {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
-                } else {
-                    promoMarginDisplay.className = 'text-2xl font-bold margin-danger';
-                }
-
-                // Mostrar sección promocional
-                promoSection.classList.remove('hidden');
-                noPromoMessage.classList.add('hidden');
+                if (promoMargin >= 30) { promoMarginDisplay.className = 'text-2xl font-bold margin-good'; }
+                else if (promoMargin >= 15) { promoMarginDisplay.className = 'text-2xl font-bold margin-warning'; }
+                else { promoMarginDisplay.className = 'text-2xl font-bold margin-danger'; }
+                promoSection.classList.remove('hidden'); noPromoMessage.classList.add('hidden');
             } else {
-                // No hay precio promocional
-                promoMarginDisplay.textContent = '0%';
-                promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
-                promoProfitDisplay.textContent = '$0.00';
-                promoFinalPrice.textContent = '$0.00';
-
-                // Ocultar sección promocional
-                promoSection.classList.add('hidden');
-                noPromoMessage.classList.remove('hidden');
+                promoMarginDisplay.textContent = '0%'; promoMarginDisplay.className = 'text-2xl font-bold margin-warning';
+                promoProfitDisplay.textContent = '$0.00'; promoFinalPrice.textContent = '$0.00';
+                promoSection.classList.add('hidden'); noPromoMessage.classList.remove('hidden');
             }
         }
-
-        // Escuchar cambios en los inputs de precio
         purchaseCostInput.addEventListener('input', calculateProfitabilities);
         salePriceInput.addEventListener('input', calculateProfitabilities);
         discountPriceInput.addEventListener('input', calculateProfitabilities);
         taxPercentInput.addEventListener('input', calculateProfitabilities);
-
-        // Calcular inicialmente
         calculateProfitabilities();
     });
 </script>
@@ -1210,76 +1902,42 @@
     {% endif %}
     {% endwith %}
 
-    // Manejar el caso cuando hay errores de validación en campos específicos
     $(document).ready(function () {
-        // Si hay errores, mostrar el formulario con los errores
-        $('.is-invalid').each(function () {
-            $(this).addClass('border-red-500');
-        });
+        $('.is-invalid').each(function () { $(this).addClass('border-red-500'); });
     });
 
-    // Sincronización de portada - actualizar campo cover_image_id cuando se cambie la portada
     document.addEventListener('DOMContentLoaded', function () {
-        // Función para actualizar el campo de portada
         function updateCoverImageId(imageId) {
             const coverInput = document.getElementById('cover_image_id');
-            if (coverInput) {
-                coverInput.value = imageId || '';
-            }
+            if (coverInput) { coverInput.value = imageId || ''; }
         }
-
-        // Inicializar con la primera imagen como portada (si existe)
         const firstImageInput = document.getElementById('image_1');
-        if (firstImageInput && firstImageInput.dataset.imageId) {
-            updateCoverImageId(firstImageInput.dataset.imageId);
-        }
-
-        // Escuchar cambios en los inputs de imagen para actualizar la portada
+        if (firstImageInput && firstImageInput.dataset.imageId) { updateCoverImageId(firstImageInput.dataset.imageId); }
         for (let i = 1; i <= 8; i++) {
             const imageInput = document.getElementById('image_' + i);
             if (imageInput) {
                 imageInput.addEventListener('change', function () {
-                    // Si esta es la primera imagen (posición 1), se convierte en portada
-                    if (i === 1 && this.files && this.files[0]) {
-                        // Para nuevas imágenes, el backend asignará el ID después de guardar
-                        // Por ahora dejamos vacío, el backend deberá manejar esto
-                        updateCoverImageId('');
-                    }
+                    if (i === 1 && this.files && this.files[0]) { updateCoverImageId(''); }
                 });
             }
         }
-
-        // Si el componente de galería JavaScript está presente, integrar con él
         if (window.LaptopGallery) {
-            // Cuando la galería establezca una portada, actualizar el campo
-            window.LaptopGallery.onCoverChange = function (imageId) {
-                updateCoverImageId(imageId);
-            };
+            window.LaptopGallery.onCoverChange = function (imageId) { updateCoverImageId(imageId); };
         }
     });
 </script>
 
 <!-- Script para gestión de seriales -->
 <script>
-    // ==========================================
-    // GESTIÓN DE SERIALES EN FORMULARIO
-    // ==========================================
-
     let serialsList = [];
 
-    // Inicializar con seriales existentes (modo edición)
     {% if mode == 'edit' and laptop %}
     document.addEventListener('DOMContentLoaded', function () {
-        // Cargar seriales existentes desde la API
         fetch('/api/serials/laptop/{{ laptop.id }}')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.serials) {
-                    data.serials.forEach(serial => {
-                        if (serial.status === 'available') {
-                            addSerialToList(serial.serial_number, serial.id);
-                        }
-                    });
+                    data.serials.forEach(serial => { if (serial.status === 'available') { addSerialToList(serial.serial_number, serial.id); } });
                     updateSerialsUI();
                 }
             })
@@ -1287,95 +1945,45 @@
     });
     {% endif %}
 
-    // Escuchar Enter en el input
     document.getElementById('serial-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addSerialFromInput();
-        }
+        if (e.key === 'Enter') { e.preventDefault(); addSerialFromInput(); }
     });
-
-    // Escuchar cambios en cantidad
     document.getElementById('quantity')?.addEventListener('change', updateQuantityInfo);
 
     function addSerialFromInput() {
         const input = document.getElementById('serial-input');
         const serialNumber = input.value.trim().toUpperCase();
-
-        if (!serialNumber) {
-            showNotification('Ingresa un número de serie', 'warning');
-            return;
-        }
-
-        // Verificar duplicados
-        if (serialsList.some(s => s.serial_number === serialNumber)) {
-            showNotification('Este serial ya está en la lista', 'warning');
-            input.value = '';
-            input.focus();
-            return;
-        }
-
-        addSerialToList(serialNumber);
-        input.value = '';
-        input.focus();
-        updateSerialsUI();
+        if (!serialNumber) { showNotification('Ingresa un número de serie', 'warning'); return; }
+        if (serialsList.some(s => s.serial_number === serialNumber)) { showNotification('Este serial ya está en la lista', 'warning'); input.value = ''; input.focus(); return; }
+        addSerialToList(serialNumber); input.value = ''; input.focus(); updateSerialsUI();
     }
 
     function addSerialToList(serialNumber, existingId = null) {
-        serialsList.push({
-            serial_number: serialNumber,
-            id: existingId,
-            isNew: !existingId
-        });
+        serialsList.push({ serial_number: serialNumber, id: existingId, isNew: !existingId });
     }
 
-    function removeSerial(index) {
-        serialsList.splice(index, 1);
-        updateSerialsUI();
-    }
+    function removeSerial(index) { serialsList.splice(index, 1); updateSerialsUI(); }
 
     function updateSerialsUI() {
         const listContainer = document.getElementById('serials-list');
         const noSerialsMsg = document.getElementById('no-serials-message');
         const countBadge = document.getElementById('serial-count');
         const jsonInput = document.getElementById('serials-json');
-
-        // Actualizar contador
         countBadge.textContent = serialsList.length + ' serial' + (serialsList.length !== 1 ? 'es' : '');
-
-        // Actualizar JSON oculto
-        jsonInput.value = JSON.stringify(serialsList.map(s => ({
-            serial_number: s.serial_number,
-            id: s.id
-        })));
-
-        // Mostrar/ocultar mensaje
-        if (serialsList.length === 0) {
-            noSerialsMsg.classList.remove('hidden');
-            listContainer.innerHTML = '';
-            return;
-        }
-
+        jsonInput.value = JSON.stringify(serialsList.map(s => ({ serial_number: s.serial_number, id: s.id })));
+        if (serialsList.length === 0) { noSerialsMsg.classList.remove('hidden'); listContainer.innerHTML = ''; return; }
         noSerialsMsg.classList.add('hidden');
-
-        // Renderizar lista
         listContainer.innerHTML = serialsList.map((serial, index) => `
         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 ${serial.isNew ? 'border-l-4 border-l-green-500' : ''}">
             <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                </svg>
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                 <span class="font-mono text-sm font-semibold text-gray-900 dark:text-white">${serial.serial_number}</span>
                 ${serial.isNew ? '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded">Nuevo</span>' : ''}
             </div>
             <button type="button" onclick="removeSerial(${index})" class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
-        </div>
-    `).join('');
-
+        </div>`).join('');
         updateQuantityInfo();
     }
 
@@ -1384,35 +1992,20 @@
         const infoContainer = document.getElementById('serial-quantity-info');
         const inventoryQty = document.getElementById('inventory-qty');
         const serialsQty = document.getElementById('serials-qty');
-
         if (qtyInput && infoContainer) {
             const qty = parseInt(qtyInput.value) || 0;
-            inventoryQty.textContent = qty;
-            serialsQty.textContent = serialsList.length;
-
+            inventoryQty.textContent = qty; serialsQty.textContent = serialsList.length;
             if (qty > 0 || serialsList.length > 0) {
                 infoContainer.classList.remove('hidden');
-
-                // Advertencia si no coinciden
-                if (serialsList.length > 0 && serialsList.length !== qty) {
-                    serialsQty.classList.add('text-yellow-600');
-                    serialsQty.classList.remove('text-purple-600');
-                } else {
-                    serialsQty.classList.remove('text-yellow-600');
-                    serialsQty.classList.add('text-purple-600');
-                }
-            } else {
-                infoContainer.classList.add('hidden');
-            }
+                if (serialsList.length > 0 && serialsList.length !== qty) { serialsQty.classList.add('text-yellow-600'); serialsQty.classList.remove('text-purple-600'); }
+                else { serialsQty.classList.remove('text-yellow-600'); serialsQty.classList.add('text-purple-600'); }
+            } else { infoContainer.classList.add('hidden'); }
         }
     }
 
     function showNotification(message, type = 'info') {
-        if (window.LaptopGalleryHybrid && window.LaptopGalleryHybrid.showNotification) {
-            window.LaptopGalleryHybrid.showNotification(message, type);
-        } else {
-            alert(message);
-        }
+        if (window.LaptopGalleryHybrid && window.LaptopGalleryHybrid.showNotification) { window.LaptopGalleryHybrid.showNotification(message, type); }
+        else { alert(message); }
     }
 </script>
 
@@ -1420,4 +2013,6 @@
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <!-- Icecat Scanner Logic -->
 <script src="{{ url_for('static', filename='js/icecat_scanner.js') }}"></script>
+<!-- Reactive Name Generaton -->
+<script src="{{ url_for('static', filename='js/laptop_reactive_names.js') }}"></script>
 {% endblock %}

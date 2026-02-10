@@ -3,7 +3,7 @@
 # MODELO DE FACTURAS CON NCF POR TIPO
 # ============================================
 # Sistema actualizado con secuencias independientes por tipo de NCF
-# Según regulaciones DGII República Dominicana
+# SegÃºn regulaciones DGII RepÃºblica Dominicana
 
 from app import db
 from app.models.mixins import TimestampMixin
@@ -13,12 +13,12 @@ from decimal import Decimal
 # ============================================
 # DICCIONARIO DE TIPOS DE NCF
 # ============================================
-# Según DGII República Dominicana
+# SegÃºn DGII RepÃºblica Dominicana
 
 NCF_TYPES = {
     # === COMPROBANTES DE VENTAS ===
     'B01': {
-        'name': 'Crédito Fiscal',
+        'name': 'CrÃ©dito Fiscal',
         'description': 'Para contribuyentes que pueden deducir gastos. Requiere RNC del cliente.',
         'category': 'ventas',
         'requires_id': True,
@@ -26,27 +26,27 @@ NCF_TYPES = {
     },
     'B02': {
         'name': 'Consumo',
-        'description': 'Para consumidores finales. No permite deducción de gastos.',
+        'description': 'Para consumidores finales. No permite deducciÃ³n de gastos.',
         'category': 'ventas',
         'requires_id': False,
         'default_for': 'cedula',
     },
     'B03': {
-        'name': 'Nota de Débito',
+        'name': 'Nota de DÃ©bito',
         'description': 'Para aumentar el valor de una factura emitida previamente.',
         'category': 'ventas',
         'requires_id': True,
         'default_for': None,
     },
     'B04': {
-        'name': 'Nota de Crédito',
+        'name': 'Nota de CrÃ©dito',
         'description': 'Para disminuir el valor o anular una factura emitida previamente.',
         'category': 'ventas',
         'requires_id': True,
         'default_for': None,
     },
     'B14': {
-        'name': 'Regímenes Especiales',
+        'name': 'RegÃ­menes Especiales',
         'description': 'Para ventas a zonas francas, embajadas, organismos internacionales.',
         'category': 'ventas',
         'requires_id': True,
@@ -91,7 +91,7 @@ NCF_TYPES = {
     },
 }
 
-# Tipos de NCF válidos para facturas de venta
+# Tipos de NCF vÃ¡lidos para facturas de venta
 NCF_SALES_TYPES = ['B01', 'B02', 'B03', 'B04', 'B14', 'B15', 'B16']
 
 # Tipos de NCF para gastos/compras
@@ -119,14 +119,14 @@ class NCFSequence(TimestampMixin, db.Model):
     # Nombre descriptivo
     name = db.Column(db.String(100), nullable=False)
 
-    # Secuencia actual (próximo número a usar)
+    # Secuencia actual (prÃ³ximo nÃºmero a usar)
     current_sequence = db.Column(db.Integer, nullable=False, default=1)
 
     # Rango autorizado por DGII
     range_start = db.Column(db.Integer, nullable=False, default=1)
-    range_end = db.Column(db.Integer, nullable=True)  # NULL = sin límite
+    range_end = db.Column(db.Integer, nullable=True)  # NULL = sin lÃ­mite
 
-    # Fecha de vencimiento de la autorización
+    # Fecha de vencimiento de la autorizaciÃ³n
     valid_until = db.Column(db.Date, nullable=True)
 
     # Estado
@@ -136,14 +136,14 @@ class NCFSequence(TimestampMixin, db.Model):
 
     @property
     def is_expired(self):
-        """Verifica si la secuencia está vencida"""
+        """Verifica si la secuencia estÃ¡ vencida"""
         if self.valid_until:
             return date.today() > self.valid_until
         return False
 
     @property
     def is_exhausted(self):
-        """Verifica si se agotó el rango de NCF"""
+        """Verifica si se agotÃ³ el rango de NCF"""
         if self.range_end:
             return self.current_sequence > self.range_end
         return False
@@ -159,16 +159,16 @@ class NCFSequence(TimestampMixin, db.Model):
         if self.range_end:
             remaining = self.range_end - self.current_sequence + 1
             return max(0, remaining)
-        return None  # Sin límite
+        return None  # Sin lÃ­mite
 
     @property
     def next_ncf_preview(self):
-        """Vista previa del próximo NCF que se generará"""
+        """Vista previa del prÃ³ximo NCF que se generarÃ¡"""
         return f"{self.ncf_type}{str(self.current_sequence).zfill(8)}"
 
     @property
     def type_info(self):
-        """Obtiene la información del tipo de NCF"""
+        """Obtiene la informaciÃ³n del tipo de NCF"""
         return NCF_TYPES.get(self.ncf_type, {})
 
     @property
@@ -190,7 +190,7 @@ class NCFSequence(TimestampMixin, db.Model):
             'next_ncf_preview': self.next_ncf_preview
         }
 
-    # ===== MÉTODOS =====
+    # ===== MÃ‰TODOS =====
 
     def get_next_ncf(self):
         """
@@ -200,21 +200,21 @@ class NCFSequence(TimestampMixin, db.Model):
             str: El NCF generado (ej: 'B0100000001')
 
         Raises:
-            ValueError: Si la secuencia no es válida
+            ValueError: Si la secuencia no es vÃ¡lida
         """
         if not self.is_active:
-            raise ValueError(f"La secuencia {self.ncf_type} está desactivada")
+            raise ValueError(f"La secuencia {self.ncf_type} estÃ¡ desactivada")
 
         if self.is_expired:
             raise ValueError(
-                f"La secuencia {self.ncf_type} está vencida desde {self.valid_until}. "
-                f"Solicite una nueva autorización a la DGII."
+                f"La secuencia {self.ncf_type} estÃ¡ vencida desde {self.valid_until}. "
+                f"Solicite una nueva autorizaciÃ³n a la DGII."
             )
 
         if self.is_exhausted:
             raise ValueError(
-                f"Se agotó el rango de NCF para {self.ncf_type} "
-                f"(máximo: {self.range_end}). Solicite más NCF a la DGII."
+                f"Se agotÃ³ el rango de NCF para {self.ncf_type} "
+                f"(mÃ¡ximo: {self.range_end}). Solicite mÃ¡s NCF a la DGII."
             )
 
         # Generar NCF
@@ -225,7 +225,7 @@ class NCFSequence(TimestampMixin, db.Model):
 
         return ncf
 
-    # ===== MÉTODOS DE CLASE =====
+    # ===== MÃ‰TODOS DE CLASE =====
 
     @classmethod
     def get_or_create(cls, ncf_type):
@@ -233,10 +233,10 @@ class NCFSequence(TimestampMixin, db.Model):
         Obtiene o crea una secuencia para el tipo de NCF especificado.
 
         Args:
-            ncf_type: Código del tipo de NCF (ej: 'B01')
+            ncf_type: CÃ³digo del tipo de NCF (ej: 'B01')
 
         Returns:
-            NCFSequence: La secuencia existente o recién creada
+            NCFSequence: La secuencia existente o reciÃ©n creada
         """
         sequence = cls.query.filter_by(ncf_type=ncf_type).first()
 
@@ -280,7 +280,7 @@ class NCFSequence(TimestampMixin, db.Model):
             tuple: (is_valid, error_message)
         """
         if not ncf:
-            return False, "El NCF no puede estar vacío"
+            return False, "El NCF no puede estar vacÃ­o"
 
         ncf = ncf.strip().upper()
 
@@ -291,10 +291,10 @@ class NCFSequence(TimestampMixin, db.Model):
         sequence = ncf[3:]
 
         if prefix not in NCF_TYPES:
-            return False, f"El prefijo '{prefix}' no es un tipo de NCF válido."
+            return False, f"El prefijo '{prefix}' no es un tipo de NCF vÃ¡lido."
 
         if not sequence.isdigit():
-            return False, "Los últimos 8 caracteres deben ser numéricos."
+            return False, "Los Ãºltimos 8 caracteres deben ser numÃ©ricos."
 
         return True, None
 
@@ -317,10 +317,10 @@ class Invoice(TimestampMixin, db.Model):
     # ===== IDENTIFICADORES =====
     id = db.Column(db.Integer, primary_key=True)
 
-    # Número de factura (generado automáticamente)
+    # NÃºmero de factura (generado automÃ¡ticamente)
     invoice_number = db.Column(db.String(50), unique=True, nullable=False, index=True)
 
-    # NCF (Número de Comprobante Fiscal) - RD
+    # NCF (NÃºmero de Comprobante Fiscal) - RD
     ncf = db.Column(db.String(19), unique=True, nullable=False, index=True)
 
     # ===== NUEVO: Tipo de NCF =====
@@ -334,7 +334,7 @@ class Invoice(TimestampMixin, db.Model):
     invoice_date = db.Column(db.Date, nullable=False, default=date.today, index=True)
     due_date = db.Column(db.Date, nullable=True)
 
-    # ===== MÉTODO DE PAGO =====
+    # ===== MÃ‰TODO DE PAGO =====
     payment_method = db.Column(db.String(50), default='cash')
 
     # ===== TOTALES =====
@@ -345,22 +345,22 @@ class Invoice(TimestampMixin, db.Model):
     # ===== ESTADO =====
     status = db.Column(db.String(20), nullable=False, default='draft', index=True)
 
-    # ===== INFORMACIÓN ADICIONAL =====
+    # ===== INFORMACIÃ“N ADICIONAL =====
     notes = db.Column(db.Text, nullable=True)
     terms = db.Column(db.Text, nullable=True)
 
-    # ===== AUDITORÍA =====
-    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    # ===== AUDITORÃA =====
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_by = db.relationship('User', foreign_keys=[created_by_id])
 
-    # Relación con items
+    # RelaciÃ³n con items
     items = db.relationship('InvoiceItem', backref='invoice', lazy='dynamic', cascade='all, delete-orphan')
 
     # ===== PROPIEDADES =====
 
     @property
     def formatted_invoice_number(self):
-        """Número de factura formateado"""
+        """NÃºmero de factura formateado"""
         return self.invoice_number
 
     @property
@@ -377,31 +377,31 @@ class Invoice(TimestampMixin, db.Model):
 
     @property
     def ncf_type_info(self):
-        """Información completa del tipo de NCF"""
+        """InformaciÃ³n completa del tipo de NCF"""
         return NCF_TYPES.get(self.ncf_type, {})
 
     @property
     def is_overdue(self):
-        """Verifica si la factura está vencida"""
+        """Verifica si la factura estÃ¡ vencida"""
         if self.due_date and self.status not in ['paid', 'cancelled']:
             return date.today() > self.due_date
         return False
 
     @property
     def days_until_due(self):
-        """Días hasta el vencimiento"""
+        """DÃ­as hasta el vencimiento"""
         if self.due_date:
             delta = self.due_date - date.today()
             return delta.days
         return None
 
-    # ===== MÉTODOS =====
+    # ===== MÃ‰TODOS =====
 
     def calculate_totals(self):
         """Calcula los totales de la factura usando la tasa de impuesto configurada"""
         self.subtotal = sum(item.line_total for item in self.items)
         
-        # Obtener configuración actual
+        # Obtener configuraciÃ³n actual
         settings = InvoiceSettings.get_settings()
         tax_rate_decimal = getattr(settings, 'tax_rate', Decimal('18.00')) / Decimal('100')
         
@@ -436,22 +436,22 @@ class Invoice(TimestampMixin, db.Model):
             'items': [item.to_dict() for item in self.items]
         }
 
-    # ===== MÉTODOS ESTÁTICOS PARA ASIGNACIÓN DE NCF =====
+    # ===== MÃ‰TODOS ESTÃTICOS PARA ASIGNACIÃ“N DE NCF =====
 
     @staticmethod
     def get_suggested_ncf_type(customer):
         """
-        Sugiere el tipo de NCF apropiado según el cliente.
+        Sugiere el tipo de NCF apropiado segÃºn el cliente.
 
         Args:
             customer: Objeto Customer
 
         Returns:
-            str: Código del tipo de NCF sugerido ('B01' o 'B02')
+            str: CÃ³digo del tipo de NCF sugerido ('B01' o 'B02')
         """
         if customer and hasattr(customer, 'id_type'):
             if customer.id_type == 'rnc':
-                return 'B01'  # Crédito Fiscal para empresas
+                return 'B01'  # CrÃ©dito Fiscal para empresas
         return 'B02'  # Consumo por defecto
 
     @staticmethod
@@ -460,23 +460,23 @@ class Invoice(TimestampMixin, db.Model):
         Valida que el tipo de NCF sea apropiado para el cliente.
 
         Args:
-            ncf_type: Código del tipo de NCF
+            ncf_type: CÃ³digo del tipo de NCF
             customer: Objeto Customer
 
         Returns:
             tuple: (is_valid, warning_message)
         """
         if ncf_type not in NCF_TYPES:
-            return False, f"El tipo de NCF '{ncf_type}' no es válido."
+            return False, f"El tipo de NCF '{ncf_type}' no es vÃ¡lido."
 
         type_info = NCF_TYPES[ncf_type]
 
-        # Verificar si requiere identificación
+        # Verificar si requiere identificaciÃ³n
         if type_info.get('requires_id', False):
             if not customer or not customer.id_number:
                 return False, (
                     f"El comprobante {ncf_type} ({type_info['name']}) "
-                    f"requiere que el cliente tenga RNC o Cédula registrado."
+                    f"requiere que el cliente tenga RNC o CÃ©dula registrado."
                 )
 
         # Advertencias (no bloquean, solo informan)
@@ -485,7 +485,7 @@ class Invoice(TimestampMixin, db.Model):
         if ncf_type == 'B01' and customer:
             if hasattr(customer, 'id_type') and customer.id_type == 'cedula':
                 warning = (
-                    f"El cliente tiene cédula. El comprobante B01 (Crédito Fiscal) "
+                    f"El cliente tiene cÃ©dula. El comprobante B01 (CrÃ©dito Fiscal) "
                     f"normalmente se usa con RNC. Si el cliente es contribuyente "
                     f"registrado en DGII, puede proceder."
                 )
@@ -493,9 +493,9 @@ class Invoice(TimestampMixin, db.Model):
         elif ncf_type == 'B02' and customer:
             if hasattr(customer, 'id_type') and customer.id_type == 'rnc':
                 warning = (
-                    f"El cliente tiene RNC y podría beneficiarse de un "
-                    f"comprobante B01 (Crédito Fiscal) para deducir gastos. "
-                    f"¿Desea continuar con B02 (Consumo)?"
+                    f"El cliente tiene RNC y podrÃ­a beneficiarse de un "
+                    f"comprobante B01 (CrÃ©dito Fiscal) para deducir gastos. "
+                    f"Â¿Desea continuar con B02 (Consumo)?"
                 )
 
         return True, warning
@@ -503,7 +503,7 @@ class Invoice(TimestampMixin, db.Model):
     def __repr__(self):
         return f'<Invoice {self.invoice_number} - {self.customer.full_name if self.customer else "No customer"}>'
 
-    # ===== ÍNDICES =====
+    # ===== ÃNDICES =====
     __table_args__ = (
         db.Index('idx_invoice_date_status', 'invoice_date', 'status'),
         db.Index('idx_invoice_customer', 'customer_id', 'status'),
@@ -533,7 +533,7 @@ class InvoiceItem(db.Model):
     line_order = db.Column(db.Integer, default=0)
 
     def calculate_line_total(self):
-        """Calcula el total de la línea"""
+        """Calcula el total de la lÃ­nea"""
         self.line_total = Decimal(str(self.quantity)) * self.unit_price
 
     def to_dict(self):
@@ -557,45 +557,45 @@ class InvoiceItem(db.Model):
 
 
 # ============================================
-# MODELO: CONFIGURACIÓN DE FACTURACIÓN
+# MODELO: CONFIGURACIÃ“N DE FACTURACIÃ“N
 # ============================================
 
 class InvoiceSettings(db.Model):
     """
-    Configuración global de facturación
+    ConfiguraciÃ³n global de facturaciÃ³n
     """
     __tablename__ = 'invoice_settings'
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Información de la empresa
+    # InformaciÃ³n de la empresa
     company_name = db.Column(db.String(200), nullable=False, default='LuxeraRD')
     company_rnc = db.Column(db.String(20), nullable=True)
     company_address = db.Column(db.Text, nullable=True)
     company_phone = db.Column(db.String(20), nullable=True)
     company_email = db.Column(db.String(120), nullable=True)
 
-    # Configuración de Impuestos y Moneda (NUEVO)
+    # ConfiguraciÃ³n de Impuestos y Moneda (NUEVO)
     tax_rate = db.Column(db.Numeric(5, 2), nullable=False, default=18.00)  # Porcentaje (ej: 18.00)
     tax_name = db.Column(db.String(20), nullable=False, default='ITBIS')   # Nombre (ej: ITBIS, IVA)
     currency_symbol = db.Column(db.String(5), nullable=False, default='RD$')
 
-    # Información Bancaria y Pie de Página (NUEVO)
-    bank_details = db.Column(db.Text, nullable=True)  # Información de cuentas
+    # InformaciÃ³n Bancaria y Pie de PÃ¡gina (NUEVO)
+    bank_details = db.Column(db.Text, nullable=True)  # InformaciÃ³n de cuentas
     invoice_footer = db.Column(db.Text, nullable=True) # Mensaje al pie
 
-    # Personalización (NUEVO)
+    # PersonalizaciÃ³n (NUEVO)
     brand_color = db.Column(db.String(7), nullable=False, default='#4f46e5') # Hex color
 
-    # Configuración de NCF (legacy - mantener para compatibilidad)
+    # ConfiguraciÃ³n de NCF (legacy - mantener para compatibilidad)
     ncf_prefix = db.Column(db.String(3), nullable=False, default='B02')
     ncf_sequence = db.Column(db.Integer, nullable=False, default=1)
 
-    # Configuración de numeración
+    # ConfiguraciÃ³n de numeraciÃ³n
     invoice_prefix = db.Column(db.String(10), nullable=False, default='INV')
     invoice_sequence = db.Column(db.Integer, nullable=False, default=1)
 
-    # Términos y condiciones
+    # TÃ©rminos y condiciones
     default_terms = db.Column(db.Text, nullable=True)
 
     # Validez del NCF (legacy)
@@ -604,7 +604,7 @@ class InvoiceSettings(db.Model):
     # Logo
     logo_path = db.Column(db.String(255), nullable=True)
 
-    # ===== MÉTODOS =====
+    # ===== MÃ‰TODOS =====
 
     def get_logo_url(self):
         """Obtiene la URL completa del logo"""
@@ -629,7 +629,7 @@ class InvoiceSettings(db.Model):
         return os.path.exists(logo_full_path)
 
     def get_next_invoice_number(self):
-        """Genera el siguiente número de factura"""
+        """Genera el siguiente nÃºmero de factura"""
         number = f"{self.invoice_prefix}-{str(self.invoice_sequence).zfill(8)}"
         self.invoice_sequence += 1
         return number
@@ -645,7 +645,7 @@ class InvoiceSettings(db.Model):
             str: El NCF generado
 
         Raises:
-            ValueError: Si la secuencia no es válida
+            ValueError: Si la secuencia no es vÃ¡lida
         """
         if ncf_type is None:
             ncf_type = self.ncf_prefix or 'B02'
@@ -685,18 +685,18 @@ class InvoiceSettings(db.Model):
         existing = Invoice.query.filter_by(ncf=ncf).first()
         if existing:
             return False, (
-                f"El NCF '{ncf}' ya está registrado.\n\n"
-                f"• Factura: {existing.invoice_number}\n"
-                f"• Cliente: {existing.customer.full_name if existing.customer else 'N/A'}\n"
-                f"• Fecha: {existing.invoice_date.strftime('%d/%m/%Y') if existing.invoice_date else 'N/A'}\n"
-                f"• Estado: {existing.status}"
+                f"El NCF '{ncf}' ya estÃ¡ registrado.\n\n"
+                f"â€¢ Factura: {existing.invoice_number}\n"
+                f"â€¢ Cliente: {existing.customer.full_name if existing.customer else 'N/A'}\n"
+                f"â€¢ Fecha: {existing.invoice_date.strftime('%d/%m/%Y') if existing.invoice_date else 'N/A'}\n"
+                f"â€¢ Estado: {existing.status}"
             )
 
         return True, None
 
     @classmethod
     def get_settings(cls):
-        """Obtiene la configuración (crea una por defecto si no existe)"""
+        """Obtiene la configuraciÃ³n (crea una por defecto si no existe)"""
         settings = cls.query.first()
         if not settings:
             settings = cls()
@@ -735,7 +735,7 @@ def get_ncf_types_for_sales():
     Obtiene la lista de tipos de NCF disponibles para ventas.
 
     Returns:
-        list: Lista de diccionarios con información de cada tipo
+        list: Lista de diccionarios con informaciÃ³n de cada tipo
     """
     result = []
     for code in NCF_SALES_TYPES:
@@ -759,10 +759,10 @@ def suggest_ncf_type_for_customer(customer):
 
     Returns:
         dict: {
-            'suggested_type': código del tipo sugerido,
+            'suggested_type': cÃ³digo del tipo sugerido,
             'type_name': nombre del tipo,
-            'reason': razón de la sugerencia,
-            'can_change': si el usuario puede cambiar la selección
+            'reason': razÃ³n de la sugerencia,
+            'can_change': si el usuario puede cambiar la selecciÃ³n
         }
     """
     suggested = Invoice.get_suggested_ncf_type(customer)
@@ -770,13 +770,13 @@ def suggest_ncf_type_for_customer(customer):
 
     if customer and hasattr(customer, 'id_type') and customer.id_type == 'rnc':
         reason = (
-            f"El cliente tiene RNC, lo que permite emitir Crédito Fiscal "
-            f"para deducción de gastos e ITBIS."
+            f"El cliente tiene RNC, lo que permite emitir CrÃ©dito Fiscal "
+            f"para deducciÃ³n de gastos e ITBIS."
         )
     else:
         reason = (
             f"Factura de consumo para cliente final. "
-            f"Si el cliente es contribuyente registrado, puede cambiar a Crédito Fiscal (B01)."
+            f"Si el cliente es contribuyente registrado, puede cambiar a CrÃ©dito Fiscal (B01)."
         )
 
     return {
@@ -790,11 +790,11 @@ def suggest_ncf_type_for_customer(customer):
 def initialize_default_ncf_sequences():
     """
     Inicializa las secuencias de NCF por defecto si no existen.
-    Llamar esto al iniciar la aplicación o cuando se necesite.
+    Llamar esto al iniciar la aplicaciÃ³n o cuando se necesite.
     """
     from datetime import timedelta
 
-    default_valid_until = date.today() + timedelta(days=730)  # 2 años
+    default_valid_until = date.today() + timedelta(days=730)  # 2 aÃ±os
 
     for code in NCF_SALES_TYPES:
         try:

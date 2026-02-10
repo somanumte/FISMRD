@@ -26,7 +26,7 @@ def calculate_percentage_change(current, previous):
 
 
 def get_date_range(period='month'):
-    """Obtiene rango de fechas según el período"""
+    """Obtiene rango de fechas segÃºn el perÃ­odo"""
     today = datetime.now()
 
     if period == 'today':
@@ -79,8 +79,8 @@ def get_time_ago(dt):
 
     if diff.days > 0:
         if diff.days == 1:
-            return 'hace 1 día'
-        return f'hace {diff.days} días'
+            return 'hace 1 dÃ­a'
+        return f'hace {diff.days} dÃ­as'
 
     hours = diff.seconds // 3600
     if hours > 0:
@@ -175,9 +175,9 @@ def admin_users():
 @login_required
 def admin_catalogs():
     """
-    Gestión unificada de catálogos
+    GestiÃ³n unificada de catÃ¡logos
     """
-    if not (current_user.is_admin or current_user.has_permission('inventory.view')):
+    if not (current_user.is_admin or current_user.has_permission('inventory.catalogs.view')):
         abort(403)
 
     return render_template('admin/catalogs.html')
@@ -189,7 +189,7 @@ def catalog_detail(catalog_type, item_id):
     """
     Vista detallada para Brands (con Models) o Stores (con Locations)
     """
-    if not (current_user.is_admin or current_user.has_permission('inventory.view')):
+    if not (current_user.is_admin or current_user.has_permission('inventory.catalogs.view')):
         abort(403)
 
     # Map catalog types to models
@@ -232,11 +232,11 @@ def register_error_handlers(app):
 
     @app.errorhandler(404)
     def page_not_found(error):
-        """Error 404: Página no encontrada"""
+        """Error 404: PÃ¡gina no encontrada"""
         return render_template('errors/404.html'), 404
 
     @app.errorhandler(500)
     def internal_server_error(error):
         """Error 500: Error interno del servidor"""
-        db.session.rollback()  # Revertir cualquier transacción pendiente
+        db.session.rollback()  # Revertir cualquier transacciÃ³n pendiente
         return render_template('errors/500.html'), 500

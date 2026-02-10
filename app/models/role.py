@@ -31,8 +31,8 @@ class Role(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Auditoría
-    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # AuditorÃ­a
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
     # Relaciones (se definen en Permission y User)
     # permissions = relationship via role_permissions table
@@ -43,7 +43,7 @@ class Role(db.Model):
     
     def has_permission(self, permission_name):
         """
-        Verifica si el rol tiene un permiso específico
+        Verifica si el rol tiene un permiso especÃ­fico
         
         Args:
             permission_name: Nombre del permiso (ej: 'inventory.create')
@@ -90,7 +90,7 @@ class Role(db.Model):
             include_permissions: Si incluir lista de permisos
         
         Returns:
-            dict: Representación del rol
+            dict: RepresentaciÃ³n del rol
         """
         data = {
             'id': self.id,

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# IMPORTACIONES DE MODELOS RBAC
+# IMPORTACIONES DE MODELOS RBAC V3.0
 # ============================================
-# Archivo central para importar todos los modelos RBAC
 
 from app import db
 from app.models.role import Role
@@ -17,8 +16,6 @@ Role.permissions = db.relationship(
     secondary=role_permissions,
     backref=db.backref('roles', lazy='dynamic')
 )
-
-# Las relaciones de User ya están definidas en user.py
 
 __all__ = [
     'Role',

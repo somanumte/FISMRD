@@ -62,13 +62,15 @@ class UnifiedProcessor:
 class UnifiedMemory:
     """Datos unificados de memoria RAM"""
     capacity_gb: int = 0
-    type: str = ""  # DDR4, DDR5, LPDDR5
+    type: str = ""  # DDR4, DDR5, LPDDR5 (normalizado sin -SDRAM)
     speed_mhz: int = 0
+    transfer_rate: str = ""  # MT/s
     max_capacity_gb: int = 0
     slots: str = ""
     form_factor: str = ""  # SO-DIMM, DIMM
     channels: str = ""
     upgradeable: bool = False
+    layout: str = ""  # "2 x 8 GB"
 
 
 @dataclass
@@ -107,8 +109,12 @@ class UnifiedGraphics:
     discrete_model: str = ""
     discrete_memory_gb: float = 0.0
     discrete_brand: str = ""
+    discrete_memory_type: str = ""  # GDDR6, GDDR6X
+    onboard_model: str = ""
     onboard_model: str = ""
     onboard_brand: str = ""
+    onboard_family: str = ""  # Intel Graphics, Arc Graphics
+    onboard_memory_gb: float = 0.0 # NEW
     has_discrete: bool = False
     ray_tracing: bool = False
     dlss: bool = False
@@ -128,6 +134,7 @@ class UnifiedConnectivity:
     """Datos unificados de conectividad"""
     ports: List[UnifiedPort] = field(default_factory=list)
     wifi_standard: str = ""
+    wifi_standards: str = "" # NEW
     bluetooth_version: str = ""
     ethernet: bool = False
     ethernet_speed: str = ""
@@ -142,6 +149,7 @@ class UnifiedInput:
     numeric_keypad: bool = False
     backlight: bool = False
     backlight_color: str = ""
+    backlight_zone: str = "" # NEW
     keyboard_language: str = ""
     pointing_device: str = ""
     fingerprint: bool = False
@@ -153,6 +161,7 @@ class UnifiedInput:
 class UnifiedPhysical:
     """Datos unificados físicos"""
     weight_kg: float = 0.0
+    weight_lbs: float = 0.0  # Peso convertido a libras
     width_mm: float = 0.0
     depth_mm: float = 0.0
     height_mm: float = 0.0
@@ -264,10 +273,12 @@ class UnifiedSpecs:
                 "capacidad_gb": self.memory.capacity_gb,
                 "tipo": self.memory.type,
                 "velocidad_mhz": self.memory.speed_mhz,
+                "tasa_transferencia": self.memory.transfer_rate,
                 "capacidad_maxima_gb": self.memory.max_capacity_gb,
                 "ranuras": self.memory.slots,
                 "factor_forma": self.memory.form_factor,
                 "canales": self.memory.channels,
+                "distribucion": self.memory.layout,
                 "ampliable": self.memory.upgradeable
             },
             
@@ -301,8 +312,11 @@ class UnifiedSpecs:
                 "modelo_dedicado": self.graphics.discrete_model,
                 "memoria_dedicada_gb": self.graphics.discrete_memory_gb,
                 "marca_dedicada": self.graphics.discrete_brand,
+                "tipo_memoria_dedicada": self.graphics.discrete_memory_type,
                 "modelo_integrado": self.graphics.onboard_model,
                 "marca_integrada": self.graphics.onboard_brand,
+                "familia_integrada": self.graphics.onboard_family,
+                "memoria_integrada_gb": self.graphics.onboard_memory_gb,
                 "tiene_dedicada": self.graphics.has_discrete,
                 "ray_tracing": self.graphics.ray_tracing,
                 "dlss": self.graphics.dlss
@@ -318,6 +332,7 @@ class UnifiedSpecs:
                     } for p in self.connectivity.ports
                 ],
                 "wifi": self.connectivity.wifi_standard,
+                "wifi_standards": self.connectivity.wifi_standards,
                 "bluetooth": self.connectivity.bluetooth_version,
                 "ethernet": self.connectivity.ethernet,
                 "velocidad_ethernet": self.connectivity.ethernet_speed,
@@ -330,6 +345,7 @@ class UnifiedSpecs:
                 "teclado_numerico": self.input.numeric_keypad,
                 "retroiluminacion": self.input.backlight,
                 "color_retroiluminacion": self.input.backlight_color,
+                "zona_retroiluminacion": self.input.backlight_zone,
                 "idioma_teclado": self.input.keyboard_language,
                 "dispositivo_apuntador": self.input.pointing_device,
                 "lector_huellas": self.input.fingerprint,
@@ -339,6 +355,7 @@ class UnifiedSpecs:
             
             "fisico": {
                 "peso_kg": self.physical.weight_kg,
+                "peso_lbs": self.physical.weight_lbs,
                 "ancho_mm": self.physical.width_mm,
                 "profundidad_mm": self.physical.depth_mm,
                 "altura_mm": self.physical.height_mm,
@@ -547,8 +564,8 @@ class IcecatService:
             specs.gtin = gtins[0].get('GTIN', '')
         
         # Construir nombre de visualización
-        specs.display_name = IcecatService._build_display_name(specs.brand, specs.model, 
-                                                                specs.commercial_name)
+        # Mapeo directo solicitado: display_name = GeneralInfo.Title
+        specs.display_name = specs.commercial_name
         
         # Extraer descripción
         specs.short_description = IcecatService._extract_description(general_info)
@@ -860,12 +877,17 @@ class IcecatService:
         capacity = IcecatService._get_spec_value(indexed_specs, 'memory.internal')
         mem.capacity_gb = IcecatService._parse_memory_capacity(capacity)
         
-        # Tipo
-        mem.type = IcecatService._get_spec_value(indexed_specs, 'memory.type')
+        # Tipo - normalizar removiendo -SDRAM
+        raw_type = IcecatService._get_spec_value(indexed_specs, 'memory.type')
+        mem.type = raw_type.replace('-SDRAM', '').strip() if raw_type else ''
         
         # Velocidad
         speed = IcecatService._get_spec_value(indexed_specs, 'memory.speed')
         mem.speed_mhz = IcecatService._parse_int(speed)
+
+        # Transfer Rate
+        transfer = IcecatService._get_spec_value(indexed_specs, 'memory.transfer_rate')
+        mem.transfer_rate = transfer
         
         # Capacidad máxima
         max_cap = IcecatService._get_spec_value(indexed_specs, 'memory.max')
@@ -879,6 +901,9 @@ class IcecatService:
         
         # Canales
         mem.channels = IcecatService._get_spec_value(indexed_specs, 'memory.channels')
+        
+        # Layout (distribución de memoria: "2 x 8 GB")
+        mem.layout = IcecatService._get_spec_value(indexed_specs, 'memory.layout')
         
         # Ampliable
         upgradeable = IcecatService._get_spec_value(indexed_specs, 'memory.upgradeable')
@@ -994,6 +1019,9 @@ class IcecatService:
         discrete_mem = IcecatService._get_spec_value(indexed_specs, 'graphics.discrete_memory')
         gpu.discrete_memory_gb = IcecatService._parse_memory_capacity(discrete_mem)
         
+        # Tipo de memoria dedicada (GDDR6, GDDR6X, etc.)
+        gpu.discrete_memory_type = IcecatService._get_spec_value(indexed_specs, 'graphics.discrete_memory_type')
+        
         # Marca dedicada
         gpu.discrete_brand = IcecatService._get_spec_value(indexed_specs, 'graphics.discrete_brand')
         
@@ -1004,6 +1032,11 @@ class IcecatService:
         # GPU integrada
         gpu.onboard_model = IcecatService._get_spec_value(indexed_specs, 'graphics.onboard_model')
         gpu.onboard_brand = IcecatService._get_spec_value(indexed_specs, 'graphics.onboard_brand')
+        gpu.onboard_family = IcecatService._get_spec_value(indexed_specs, 'graphics.onboard_family')
+
+        # Memoria integrada
+        onboard_mem = IcecatService._get_spec_value(indexed_specs, 'graphics.onboard_memory')
+        gpu.onboard_memory_gb = IcecatService._parse_memory_capacity(onboard_mem)
         
         # Tiene GPU dedicada
         gpu.has_discrete = bool(gpu.discrete_model and 
@@ -1154,7 +1187,21 @@ class IcecatService:
         conn.ports = ports
         
         # Wireless
-        conn.wifi_standard = IcecatService._get_spec_value(indexed_specs, 'connectivity.wifi')
+        wifi = IcecatService._get_spec_value(indexed_specs, 'connectivity.wifi')
+        wifi_standards = IcecatService._get_spec_value(indexed_specs, 'connectivity.wifi_standards')
+        
+        # Consolidar Wi-Fi en un solo campo
+        if wifi and wifi_standards:
+            if wifi.lower() in wifi_standards.lower():
+                conn.wifi_standard = wifi_standards
+            elif wifi_standards.lower() in wifi.lower():
+                conn.wifi_standard = wifi
+            else:
+                conn.wifi_standard = f"{wifi} ({wifi_standards})"
+        else:
+            conn.wifi_standard = wifi or wifi_standards or ""
+            
+        conn.wifi_standards = "" # Deshabilitado para consolidación
         conn.bluetooth_version = IcecatService._get_spec_value(indexed_specs, 'connectivity.bluetooth')
         
         # Celular
@@ -1188,6 +1235,7 @@ class IcecatService:
         backlight = IcecatService._get_spec_value(indexed_specs, 'input.backlight')
         inp.backlight = IcecatService._parse_boolean(backlight)
         inp.backlight_color = IcecatService._get_spec_value(indexed_specs, 'input.backlight_color')
+        inp.backlight_zone = IcecatService._get_spec_value(indexed_specs, 'keyboard.backlight_zone')
         
         inp.keyboard_language = IcecatService._get_spec_value(indexed_specs, 'input.keyboard_language')
         inp.pointing_device = IcecatService._get_spec_value(indexed_specs, 'input.pointing_device')
@@ -1213,6 +1261,8 @@ class IcecatService:
         
         weight = IcecatService._get_spec_value(indexed_specs, 'physical.weight')
         phys.weight_kg = IcecatService._parse_weight(weight)
+        # Convertir kg a libras
+        phys.weight_lbs = round(phys.weight_kg * 2.20462, 2) if phys.weight_kg else 0.0
         
         width = IcecatService._get_spec_value(indexed_specs, 'physical.width')
         phys.width_mm = IcecatService._parse_dimension(width)
@@ -1675,20 +1725,6 @@ class IcecatService:
         
         return ' '.join(modelo_limpio).strip()
 
-    @staticmethod
-    def _build_display_name(brand: str, model: str, commercial_name: str) -> str:
-        """Construye el nombre de visualización del producto."""
-        if commercial_name:
-            if brand and brand.lower() not in commercial_name.lower():
-                return f"{brand} {commercial_name}"
-            return commercial_name
-        
-        if model:
-            if brand and brand.lower() not in model.lower():
-                return f"{brand} {model}"
-            return model
-        
-        return brand or "Unknown Laptop"
     
     @staticmethod
     def _detect_npu(processor_name: str, npu_info: str) -> bool:
@@ -1740,9 +1776,7 @@ class IcecatService:
             # Extraer números de la cadena
             numbers = re.findall(r'\d+', value.replace(',', ''))
             if numbers:
-                # Si el número es absurdamente alto para un puerto (>32), ignorar
-                val = int(numbers[0])
-                return val if val <= 32 else 0
+                return int(numbers[0])
         
         try:
             return int(float(value))

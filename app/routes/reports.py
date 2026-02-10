@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# RUTAS DE REPORTES Y ANÁLISIS
+# RUTAS DE REPORTES Y ANÃLISIS
 # ============================================
 
 from flask import Blueprint, render_template, request, jsonify, send_file
@@ -12,7 +12,7 @@ from app.models.laptop import Laptop, Brand
 from app.models.expense import Expense, ExpenseCategory
 from app.models.serial import LaptopSerial, SerialMovement
 from app.models.user import User
-from app.utils.decorators import admin_required, permission_required
+from app.utils.decorators import permission_required
 from sqlalchemy import func, desc, and_, or_, extract, text
 from datetime import datetime, date, timedelta
 from decimal import Decimal
@@ -33,24 +33,24 @@ reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 @permission_required('reports.view')
 def index():
     """
-    Panel principal de reportes con todas las categorías
+    Panel principal de reportes con todas las categorÃ­as
     """
-    # Estadísticas rápidas para el dashboard
+    # EstadÃ­sticas rÃ¡pidas para el dashboard
     total_reports = 29
     
     categories = [
         {
             'id': 'sales',
             'name': 'Ventas',
-            'icon': '💰',
+            'icon': 'ðŸ’°',
             'count': 9,
             'color': 'blue',
-            'description': 'Análisis de ventas y facturación'
+            'description': 'AnÃ¡lisis de ventas y facturaciÃ³n'
         },
         {
             'id': 'inventory',
             'name': 'Inventario',
-            'icon': '📦',
+            'icon': 'ðŸ“¦',
             'count': 6,
             'color': 'green',
             'description': 'Control de stock y productos'
@@ -58,15 +58,15 @@ def index():
         {
             'id': 'customers',
             'name': 'Clientes',
-            'icon': '👥',
+            'icon': 'ðŸ‘¥',
             'count': 4,
             'color': 'purple',
-            'description': 'Análisis de base de clientes'
+            'description': 'AnÃ¡lisis de base de clientes'
         },
         {
             'id': 'financial',
             'name': 'Financiero',
-            'icon': '💵',
+            'icon': 'ðŸ’µ',
             'count': 3,
             'color': 'yellow',
             'description': 'Estados financieros y P&L'
@@ -74,7 +74,7 @@ def index():
         {
             'id': 'ncf',
             'name': 'NCF/DGII',
-            'icon': '📋',
+            'icon': 'ðŸ“‹',
             'count': 4,
             'color': 'red',
             'description': 'Comprobantes fiscales'
@@ -82,10 +82,10 @@ def index():
         {
             'id': 'operational',
             'name': 'Operacional',
-            'icon': '⚙️',
+            'icon': 'âš™ï¸',
             'count': 3,
             'color': 'gray',
-            'description': 'Sistema y auditoría'
+            'description': 'Sistema y auditorÃ­a'
         }
     ]
     
@@ -105,9 +105,9 @@ def index():
 @permission_required('reports.sales.view')
 def sales_summary():
     """
-    Reporte: Resumen de Ventas por Período
+    Reporte: Resumen de Ventas por PerÃ­odo
     """
-    # Obtener parámetros de filtro
+    # Obtener parÃ¡metros de filtro
     start_date = request.args.get('start_date', (date.today() - timedelta(days=30)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     status = request.args.get('status', 'paid')
@@ -149,12 +149,12 @@ def api_sales_summary():
         
         invoices = query.all()
         
-        # Calcular métricas
+        # Calcular mÃ©tricas
         total_sales = sum(float(inv.subtotal) for inv in invoices)
         total_invoices = len(invoices)
         avg_ticket = total_sales / total_invoices if total_invoices > 0 else 0
         
-        # Ventas por día para gráfico
+        # Ventas por dÃ­a para grÃ¡fico
         daily_sales_query = db.session.query(
             Invoice.invoice_date,
             func.sum(Invoice.subtotal).label('total'),
@@ -177,7 +177,7 @@ def api_sales_summary():
             'count': [d[2] for d in daily_sales]
         }
         
-        # Comparación con período anterior
+        # ComparaciÃ³n con perÃ­odo anterior
         period_days = (end_date - start_date).days
         prev_start = start_date - timedelta(days=period_days + 1)
         prev_end = start_date - timedelta(days=1)
@@ -347,7 +347,7 @@ def api_sales_by_customer():
 @login_required
 @permission_required('reports.sales.view')
 def sales_by_payment_method():
-    """Reporte: Ventas por Método de Pago"""
+    """Reporte: Ventas por MÃ©todo de Pago"""
     start_date = request.args.get('start_date', (date.today() - timedelta(days=30)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     return render_template('reports/sales/by_payment_method.html', start_date=start_date, end_date=end_date)
@@ -356,7 +356,7 @@ def sales_by_payment_method():
 @login_required
 @permission_required('reports.sales.view')
 def api_sales_by_payment_method():
-    """API: Ventas por Método de Pago"""
+    """API: Ventas por MÃ©todo de Pago"""
     try:
         start_date = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.args.get('end_date'), '%Y-%m-%d').date()
@@ -422,7 +422,7 @@ def api_sales_by_user():
 @login_required
 @permission_required('reports.sales.view')
 def sales_trends():
-    """Reporte: Análisis de Tendencias"""
+    """Reporte: AnÃ¡lisis de Tendencias"""
     return render_template('reports/sales/trends.html')
 
 @reports_bp.route('/api/sales/trends')
@@ -430,7 +430,7 @@ def sales_trends():
 @permission_required('reports.sales.view')
 def api_sales_trends():
     try:
-        # Últimos 12 meses
+        # Ãšltimos 12 meses
         today = date.today()
         start_date = today - timedelta(days=365)
         
@@ -489,6 +489,7 @@ def api_pending_invoices():
 
 @reports_bp.route('/inventory/current-status')
 @login_required
+@permission_required('reports.inventory.view')
 def inventory_current_status():
     """
     Reporte: Estado Actual del Inventario
@@ -498,6 +499,7 @@ def inventory_current_status():
 
 @reports_bp.route('/api/inventory/current-status')
 @login_required
+@permission_required('reports.inventory.view')
 def api_inventory_current_status():
     """
     API: Estado actual del inventario
@@ -510,7 +512,7 @@ def api_inventory_current_status():
         total_value = sum(float(l.sale_price * l.quantity) for l in laptops)
         low_stock_count = sum(1 for l in laptops if l.is_low_stock)
         
-        # Por categoría
+        # Por categorÃ­a
         category_data = db.session.query(
             Laptop.category,
             func.count(Laptop.id).label('count'),
@@ -646,16 +648,16 @@ def api_inventory_movements():
 @login_required
 @permission_required('reports.inventory.view')
 def inventory_turnover():
-    """Reporte: Análisis de Rotación"""
+    """Reporte: AnÃ¡lisis de RotaciÃ³n"""
     return render_template('reports/inventory/turnover.html')
 
 @reports_bp.route('/api/inventory/turnover')
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_turnover():
-    """API: Rotación de Inventario"""
+    """API: RotaciÃ³n de Inventario"""
     try:
-        # Simplificado: Ventas por marca en los últimos 90 días
+        # Simplificado: Ventas por marca en los Ãºltimos 90 dÃ­as
         ninety_days_ago = date.today() - timedelta(days=90)
         
         results = db.session.query(
@@ -681,14 +683,14 @@ def api_inventory_turnover():
 @login_required
 @permission_required('reports.inventory.view')
 def inventory_valuation():
-    """Reporte: Valoración de Inventario"""
+    """Reporte: ValoraciÃ³n de Inventario"""
     return render_template('reports/inventory/valuation.html')
 
 @reports_bp.route('/api/inventory/valuation')
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_valuation():
-    """API: Valoración de Inventario"""
+    """API: ValoraciÃ³n de Inventario"""
     try:
         query = db.session.query(
             Brand.name,
@@ -730,7 +732,7 @@ def inventory_serials():
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_serials():
-    """API: Búsqueda de Seriales"""
+    """API: BÃºsqueda de Seriales"""
     try:
         search = request.args.get('search', '').strip()
         query = db.session.query(
@@ -769,7 +771,7 @@ def api_inventory_serials():
 @login_required
 @permission_required('reports.customers.view')
 def customers_most_valuable():
-    """Reporte: Clientes Más Valiosos"""
+    """Reporte: Clientes MÃ¡s Valiosos"""
     start_date = request.args.get('start_date', (date.today() - timedelta(days=365)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     return render_template('reports/customers/most_valuable.html', start_date=start_date, end_date=end_date)
@@ -778,7 +780,7 @@ def customers_most_valuable():
 @login_required
 @permission_required('reports.customers.view')
 def api_customers_most_valuable():
-    """API: Clientes más valiosos"""
+    """API: Clientes mÃ¡s valiosos"""
     try:
         start_date = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.args.get('end_date'), '%Y-%m-%d').date()
@@ -815,16 +817,16 @@ def api_customers_most_valuable():
 @login_required
 @permission_required('reports.customers.view')
 def customers_retention():
-    """Reporte: Análisis de Retención"""
+    """Reporte: AnÃ¡lisis de RetenciÃ³n"""
     return render_template('reports/customers/retention.html')
 
 @reports_bp.route('/api/customers/retention')
 @login_required
 @permission_required('reports.customers.view')
 def api_customers_retention():
-    """API: Análisis de Retención"""
+    """API: AnÃ¡lisis de RetenciÃ³n"""
     try:
-        # Clientes que compraron en los últimos 90 días
+        # Clientes que compraron en los Ãºltimos 90 dÃ­as
         recent_cutoff = date.today() - timedelta(days=90)
         
         # Clientes activos (compra reciente)
@@ -836,7 +838,7 @@ def api_customers_retention():
         # Total clientes
         total_customers = Customer.query.count()
         
-        # Clientes recurrentes (más de 1 compra histórica)
+        # Clientes recurrentes (mÃ¡s de 1 compra histÃ³rica)
         repeat_customers = db.session.query(Customer.id).join(Invoice).filter(
             Invoice.status == 'paid'
         ).group_by(Customer.id).having(func.count(Invoice.id) > 1).count()
@@ -935,7 +937,7 @@ def api_ncf_606():
         end_date = datetime.strptime(request.args.get('end_date'), '%Y-%m-%d').date()
         
         # Nota: El modelo Expense actual no tiene campo NCF ni RNC del proveedor
-        # Se muestra la información disponible
+        # Se muestra la informaciÃ³n disponible
         expenses = Expense.query.filter(
             Expense.due_date.between(start_date, end_date)
         ).all()
@@ -981,7 +983,7 @@ def api_ncf_607():
             'rnc': inv.customer.id_number if inv.customer else '',
             'type_id': 1 if inv.customer and inv.customer.id_type == 'rnc' else 2,
             'ncf': inv.ncf,
-            'ncf_modified': '', # Para notas de crédito/débito
+            'ncf_modified': '', # Para notas de crÃ©dito/dÃ©bito
             'date': inv.invoice_date.isoformat(),
             'amount_invoiced': float(inv.subtotal),
             'itbis_invoiced': float(inv.tax_amount),
@@ -1143,13 +1145,13 @@ def financial_cashflow():
 @login_required
 @permission_required('reports.financial.view')
 def api_financial_cashflow():
-    """API: Flujo de Caja (Visualización de liquidez en el tiempo)"""
+    """API: Flujo de Caja (VisualizaciÃ³n de liquidez en el tiempo)"""
     try:
-        # Últimos 12 meses
+        # Ãšltimos 12 meses
         end_date = date.today()
         start_date = end_date - timedelta(days=365)
         
-        # Unificar Facturas (Entradas) y Gastos (Salidas) en una línea de tiempo
+        # Unificar Facturas (Entradas) y Gastos (Salidas) en una lÃ­nea de tiempo
         
         # Entradas
         infolist = db.session.query(
@@ -1176,7 +1178,7 @@ def api_financial_cashflow():
         balance = 0
         timeline = []
         
-        # Agrupar por mes para el gráfico (más limpio)
+        # Agrupar por mes para el grÃ¡fico (mÃ¡s limpio)
         monthly_data = {}
         
         for item in combined:
@@ -1213,7 +1215,7 @@ def api_financial_cashflow():
 @login_required
 @permission_required('reports.financial.view')
 def financial_expenses():
-    """Reporte: Análisis de Gastos"""
+    """Reporte: AnÃ¡lisis de Gastos"""
     return render_template('reports/financial/expenses.html')
 
 @reports_bp.route('/api/financial/expenses')
@@ -1284,7 +1286,7 @@ def api_operational_activity():
             Invoice.created_at.label('date'),
             User.username,
             db.literal('Ventas').label('module'),
-            func.concat('Creó factura ', Invoice.invoice_number).label('action')
+            func.concat('CreÃ³ factura ', Invoice.invoice_number).label('action')
         ).outerjoin(User, Invoice.created_by_id == User.id).order_by(desc(Invoice.created_at)).limit(limit).all()
         
         # 3. Gastos
@@ -1292,7 +1294,7 @@ def api_operational_activity():
             Expense.created_at.label('date'),
             User.username,
             db.literal('Finanzas').label('module'),
-            func.concat('Registró gasto: ', Expense.description).label('action')
+            func.concat('RegistrÃ³ gasto: ', Expense.description).label('action')
         ).outerjoin(User, Expense.created_by == User.id).order_by(desc(Expense.created_at)).limit(limit).all()
         
         # Combinar y ordenar
@@ -1320,9 +1322,9 @@ def operational_status():
 @login_required
 @permission_required('reports.audit.view')
 def api_operational_status():
-    """API: Métricas de salud del sistema"""
+    """API: MÃ©tricas de salud del sistema"""
     try:
-        # Conteos rápidos
+        # Conteos rÃ¡pidos
         stats = {
             'products': Laptop.query.count(),
             'serials': LaptopSerial.query.count(),
@@ -1332,7 +1334,7 @@ def api_operational_status():
             'db_size': 'N/A' # SQLite file size could be checked but avoiding FS ops
         }
         
-        # Verificar conexión DB simple
+        # Verificar conexiÃ³n DB simple
         try:
             db.session.execute(text('SELECT 1'))
             db_status = 'Online'

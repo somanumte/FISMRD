@@ -1,536 +1,467 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ laptop.brand.name if laptop.brand else 'N/A' }} {{ laptop.model.name if laptop.model else 'N/A' }}{% endblock %}
+{% block title %}{{ laptop.brand.name }} {{ laptop.model.name }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Estilos para galería de imágenes */
-    .gallery-main-image {
-        width: 100%;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 0.75rem;
-        cursor: pointer;
-        transition: transform 0.3s ease;
+    /* Transiciones suaves para el carrusel */
+    .carousel-item-enter {
+        opacity: 0;
+        transform: scale(0.95);
     }
 
-    .gallery-main-image:hover {
-        transform: scale(1.02);
+    .carousel-item-enter-active {
+        opacity: 1;
+        transform: scale(1);
+        transition: all 0.4s ease-out;
     }
 
-    .gallery-thumbnail {
-        width: 100%;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
+    .carousel-item-exit {
+        opacity: 1;
+        transform: scale(1);
     }
 
-    .gallery-thumbnail:hover {
-        border-color: #6366f1;
+    .carousel-item-exit-active {
+        opacity: 0;
+        transform: scale(1.05);
+        transition: all 0.4s ease-in;
     }
 
-    .gallery-thumbnail.active {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
-    }
-
-    .gallery-placeholder {
-        width: 100%;
-        height: 300px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-        border-radius: 0.75rem;
-        color: #6366f1;
-    }
-
-    .dark .gallery-placeholder {
-        background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
-        color: #a5b4fc;
-    }
-
-    /* Modal Lightbox */
-    .lightbox-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .lightbox-overlay.active {
-        display: flex;
-    }
-
-    .lightbox-image {
-        max-width: 90%;
-        max-height: 90%;
-        object-fit: contain;
-        border-radius: 0.5rem;
-    }
-
-    .lightbox-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        width: 40px;
-        height: 40px;
-        background-color: rgba(255, 255, 255, 0.2);
-        border: none;
-        border-radius: 50%;
-        color: white;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.2s ease;
-    }
-
-    .lightbox-close:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .lightbox-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 50px;
-        height: 50px;
-        background-color: rgba(255, 255, 255, 0.2);
-        border: none;
-        border-radius: 50%;
-        color: white;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.2s ease;
-    }
-
-    .lightbox-nav:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .lightbox-prev {
-        left: 20px;
-    }
-
-    .lightbox-next {
-        right: 20px;
-    }
-
-    .lightbox-counter {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 0.875rem;
+    [x-cloak] {
+        display: none !important;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6" x-data="{ 
+    openLightbox: false, 
+    currentIndex: 0,
+    images: [{% set sorted_images = images|sort(attribute='ordering') %}{% set cover = none %}{% for img in sorted_images if img.is_cover %}{% set cover = img %}{% endfor %}{% if cover %}'{{ url_for('static', filename=cover.image_path) }}', {% endif %}{% for img in sorted_images if img != cover %}'{{ url_for('static', filename=img.image_path) }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+    next() { this.currentIndex = (this.currentIndex + 1) % this.images.length },
+    prev() { this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length }
+}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Header con Navegación -->
-        <div class="mb-8">
-            <div class="flex items-center space-x-3 mb-4">
-                <a href="{{ url_for('inventory.laptops_list') }}" class="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                </a>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    {{ laptop.display_name if laptop.display_name else (laptop.brand.name if laptop.brand else 'N/A') ~ ' ' ~ (laptop.model.name if laptop.model else 'N/A') }}
-                </h1>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <span class="font-mono text-sm text-gray-600 dark:text-gray-400">SKU: {{ laptop.sku }}</span>
-                {% if laptop.is_published %}
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">📢 Publicado</span>
-                {% else %}
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">📝 Borrador</span>
-                {% endif %}
-                {% if laptop.is_featured %}
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">⭐ Destacado</span>
-                {% endif %}
+        <!-- Breadcrumbs & Header -->
+        <div class="mb-6">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ url_for('inventory.laptops_list') }}"
+                            class="text-sm text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-white inline-flex items-center font-medium">
+                            <i class="fas fa-arrow-left mr-2"></i> Volver al Inventario
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-2">
+                        {{ laptop.brand.name }} {{ laptop.model.name }}
+                    </h1>
+                    <div class="flex items-center gap-3 text-sm font-medium text-gray-600 dark:text-gray-400">
+                        <span
+                            class="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs font-bold tracking-widest">{{
+                            laptop.sku }}</span>
+                        <span class="text-gray-400">•</span>
+                        <span class="tracking-tight">{{ laptop.display_name }}</span>
+                        <span class="text-gray-400">•</span>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black uppercase {{ 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' if laptop.is_published else 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
+                            {{ 'Publicado' if laptop.is_published else 'Borrador' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-5 flex lg:mt-0 lg:ml-4 space-x-3">
+                    {% if current_user.has_permission('inventory.laptops.edit') %}
+                    <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none ring-2 ring-offset-2 ring-indigo-500">
+                        <i class="fas fa-edit mr-2 text-gray-500"></i> Editar
+                    </a>
+
+                    <button type="button"
+                        onclick='openSerialModal({{ laptop.id }}, {{ {"sku": laptop.sku, "name": laptop.display_name, "quantity": laptop.quantity} | tojson }})'
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none ring-2 ring-offset-2 ring-purple-500">
+                        <i class="fas fa-fingerprint mr-2"></i> Seriales
+                        <span class="ml-2 px-2 py-0.5 text-xs bg-purple-500 rounded-full"
+                            id="serial-count-badge">...</span>
+                    </button>
+
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" type="button"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" x-cloak
+                            class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="py-1" role="menu" aria-orientation="vertical">
+                                <form action="{{ url_for('inventory.laptop_duplicate', id=laptop.id) }}" method="POST">
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        role="menuitem">
+                                        <i class="fas fa-copy mr-2"></i> Duplicar
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('inventory.laptop_delete', id=laptop.id) }}" method="POST"
+                                    onsubmit="return confirm('¿Eliminar esta laptop definitivamente?');">
+                                    <button type="submit"
+                                        class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        role="menuitem">
+                                        <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
-        <!-- Acciones Rápidas -->
-        {% if current_user.is_admin %}
-        <div class="flex flex-wrap gap-3 mb-6">
-            <a href="{{ url_for('inventory.laptop_edit', id=laptop.id) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Editar
-            </a>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Media & Specs (70%) -->
+            <div class="lg:col-span-2 space-y-8">
 
-            <!-- Botón Seriales -->
-            <button type="button"
-                    onclick="openSerialModal({{ laptop.id }}, { sku: {{ laptop.sku | tojson }}, name: {{ laptop.display_name | tojson }}, quantity: {{ laptop.quantity }} })"
-                    class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                </svg>
-                Seriales
-                <span class="ml-2 px-2 py-0.5 text-xs bg-purple-500 rounded-full" id="serial-count-badge">...</span>
-            </button>
-
-            <form action="{{ url_for('inventory.laptop_duplicate', id=laptop.id) }}" method="POST" class="inline">
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                    </svg>
-                    Duplicar
-                </button>
-            </form>
-
-            <form action="{{ url_for('inventory.laptop_delete', id=laptop.id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar esta laptop? Esta acción no se puede deshacer.');">
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    Eliminar
-                </button>
-            </form>
-        </div>
-        {% endif %}
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <!-- Columna Izquierda: Info Principal -->
-            <div class="lg:col-span-2 space-y-6">
-
-                <!-- Card: Galería de Imágenes -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
-                        </svg>
-                        Galería de Imágenes
-                    </h2>
-
+                <!-- simplified Image Gallery -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     {% if images and images|length > 0 %}
-                        <!-- Imagen Principal -->
-                        <div class="mb-4">
-                            <img
-                                id="main-gallery-image"
-                                src="{{ url_for('static', filename=cover_image.image_path if cover_image else images[0].image_path) }}"
-                                alt="{{ cover_image.alt_text if cover_image else images[0].alt_text or laptop.display_name }}"
-                                class="gallery-main-image"
-                                onclick="openLightbox(0)"
-                            >
+                    <div class="relative group">
+                        <!-- Main Display -->
+                        <div class="bg-gray-100 dark:bg-gray-900 relative h-[450px] flex items-center justify-center cursor-zoom-in group"
+                            @click="openLightbox = true">
+                            <img :src="images[currentIndex]" x-show="images.length > 0"
+                                class="max-w-full max-h-full object-contain transition-opacity duration-300">
+
+                            <!-- Navigation Controls -->
+                            <div
+                                class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button @click.stop="prev()"
+                                    class="p-3 rounded-full bg-white/90 dark:bg-black/40 text-gray-800 dark:text-white hover:bg-white shadow-xl backdrop-blur-md">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button @click.stop="next()"
+                                    class="p-3 rounded-full bg-white/90 dark:bg-black/40 text-gray-800 dark:text-white hover:bg-white shadow-xl backdrop-blur-md">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Thumbnails -->
-                        {% if images|length > 1 %}
-                        <div class="grid grid-cols-6 gap-2">
-                            {% for image in images %}
-                            <img
-                                src="{{ url_for('static', filename=image.image_path) }}"
-                                alt="{{ image.alt_text or 'Imagen ' ~ loop.index }}"
-                                class="gallery-thumbnail {% if loop.index == 1 %}active{% endif %}"
-                                onclick="changeMainImage('{{ url_for('static', filename=image.image_path) }}', this, {{ loop.index0 }})"
-                                data-index="{{ loop.index0 }}"
-                            >
-                            {% endfor %}
+                        <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+                            <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+                                <template x-for="(img, index) in images" :key="index">
+                                    <button @click="currentIndex = index"
+                                        class="relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-200"
+                                        :class="currentIndex === index ? 'border-indigo-500 ring-4 ring-indigo-50 dark:ring-indigo-900/20 scale-105' : 'border-transparent opacity-60 hover:opacity-100'">
+                                        <img :src="img" class="w-full h-full object-cover">
+                                    </button>
+                                </template>
+                            </div>
                         </div>
-                        {% endif %}
+                    </div>
                     {% else %}
-                        <!-- Placeholder sin imágenes -->
-                        <div class="gallery-placeholder">
-                            <svg class="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="text-sm font-medium">Sin imágenes</p>
-                            <p class="text-xs mt-1 opacity-75">Edita la laptop para agregar imágenes</p>
-                        </div>
+                    <div
+                        class="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-gray-900 m-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                        <i class="fas fa-sync fa-spin text-5xl text-indigo-300 mb-4" id="placeholder-icon"></i>
+                        <p class="text-gray-500 font-medium" id="placeholder-text">Procesando imágenes en segundo
+                            plano...</p>
+                        <p class="text-[10px] text-gray-400 mt-2">La galería se actualizará automáticamente en unos
+                            segundos</p>
+                    </div>
+                    <script>
+                        // Polling simple si no hay imágenes
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const hasImages = {{ (images | length > 0) | tojson
+                        }};
+                        if (!hasImages) {
+                            let attempts = 0;
+                            const interval = setInterval(() => {
+                                attempts++;
+                                fetch(window.location.href)
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        const parser = new DOMParser();
+                                        const doc = parser.parseFromString(html, 'text/html');
+                                        const newImages = doc.querySelectorAll('.flex-shrink-0.w-20.h-20').length;
+                                        if (newImages > 0 || attempts > 10) {
+                                            location.reload();
+                                            clearInterval(interval);
+                                        }
+                                    });
+                            }, 3000);
+                        }
+                        });
+                    </script>
                     {% endif %}
                 </div>
 
-                <!-- Card: Especificaciones Técnicas -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                        </svg>
-                        Especificaciones Técnicas
+                <!-- Technical Specifications (Grouped) -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center tracking-tight">
+                            <i class="fas fa-microchip mr-3 text-indigo-500"></i> Especificaciones Técnicas
+                        </h2>
+                    </div>
+
+                    <div class="p-8 space-y-10">
+                        <!-- Group: Rendimiento Core -->
+                        <div class="space-y-8">
+                            <h3
+                                class="text-xs font-black text-gray-600 uppercase tracking-[0.2em] pb-2 border-b border-gray-100 dark:border-gray-700/50">
+                                Rendimiento Core
+                            </h3>
+                            <div class="space-y-8 pl-1">
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.processor_full_name or laptop.processor.name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">
+                                        Procesador</p>
+                                </div>
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.ram_full_name or laptop.ram.name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">
+                                        Memoria RAM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Graphics & Display -->
+                        <div class="space-y-8">
+                            <h3
+                                class="text-xs font-black text-gray-600 uppercase tracking-[0.2em] pb-2 border-b border-gray-100 dark:border-gray-700/50">
+                                Visuales y Gráficos
+                            </h3>
+                            <div class="space-y-8 pl-1">
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.screen_full_name or laptop.screen.name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">
+                                        Pantalla</p>
+                                </div>
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-indigo-600 dark:text-indigo-400 tracking-tight leading-tight">
+                                        {{ laptop.discrete_gpu_full_name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">GPU
+                                        Dedicada</p>
+                                </div>
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.onboard_gpu_full_name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">GPU
+                                        Integrada</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Storage & System -->
+                        <div class="space-y-8">
+                            <h3
+                                class="text-xs font-black text-gray-600 uppercase tracking-[0.2em] pb-2 border-b border-gray-100 dark:border-gray-700/50">
+                                Almacenamiento y Sistema
+                            </h3>
+                            <div class="space-y-8 pl-1">
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.storage_full_name or laptop.storage.name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">
+                                        Almacenamiento</p>
+                                </div>
+                                <div class="group/spec">
+                                    <p
+                                        class="text-base font-semibold text-gray-900 dark:text-white tracking-tight leading-tight">
+                                        {{ laptop.operating_system.name or laptop.operating_system.full_name or 'N/A' }}
+                                    </p>
+                                    <p class="text-xs font-black text-gray-600 uppercase mt-1 tracking-wider">
+                                        Sistema Operativo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connectivity Ports -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-6 flex items-center">
+                        <i class="fas fa-link mr-3 text-purple-500"></i> Puertos y Conexiones
                     </h2>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Marca</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.brand.name if laptop.brand else 'N/A' }}</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {% if laptop.connectivity_ports %}
+                        {% for port, qty in laptop.connectivity_ports.items() %}
+                        <div
+                            class="flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 hover:border-purple-200 transition-colors">
+                            <i class="fas fa-plug text-purple-500 mr-3 text-xs"></i>
+                            <span class="text-xs font-semibold text-gray-900 dark:text-gray-300 truncate"
+                                title="{{ port }}">
+                                {{ port }}
+                            </span>
                         </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Modelo</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.model.name if laptop.model else 'N/A' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Procesador</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.processor.name if laptop.processor else 'N/A' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Sistema Operativo</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.operating_system.name if laptop.operating_system else 'N/A' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Pantalla</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.screen.name if laptop.screen else 'N/A' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Tarjeta Gráfica</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.graphics_card.name if laptop.graphics_card else 'N/A' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Almacenamiento</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">
-                                {{ laptop.storage.name if laptop.storage else 'N/A' }}
-                                {% if laptop.storage_upgradeable %}
-                                <span class="ml-2 text-xs text-green-600 dark:text-green-400">🔧 Ampliable</span>
-                                {% endif %}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">RAM</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">
-                                {{ laptop.ram.name if laptop.ram else 'N/A' }}
-                                {% if laptop.ram_upgradeable %}
-                                <span class="ml-2 text-xs text-green-600 dark:text-green-400">🔧 Ampliable</span>
-                                {% endif %}
-                            </p>
-                        </div>
-
-                        {% if laptop.npu %}
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">NPU (IA)</p>
-                            <p class="text-base font-semibold text-purple-600 dark:text-purple-400">🧠 Sí</p>
-                        </div>
-                        {% endif %}
-
-                        {% if laptop.keyboard_layout %}
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Teclado</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.keyboard_layout }}</p>
+                        {% endfor %}
+                        {% else %}
+                        <div class="col-span-full py-4 text-center">
+                            <p class="text-sm text-gray-600 italic">No se especificaron puertos detallados</p>
                         </div>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Card: Información Financiera -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Información Financiera
-                    </h2>
-
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Costo de Compra</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ "%.2f"|format(laptop.purchase_cost) }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Precio de Venta</p>
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">${{ "%.2f"|format(laptop.sale_price) }}</p>
-                        </div>
-
-                        {% if laptop.discount_price %}
-                        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Precio Descuento</p>
-                            <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">${{ "%.2f"|format(laptop.discount_price) }}</p>
-                        </div>
-                        {% endif %}
-
-                        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Ganancia Estimada</p>
-                            {% set profit = laptop.sale_price - laptop.purchase_cost %}
-                            {% set margin = ((profit / laptop.sale_price) * 100) if laptop.sale_price else 0 %}
-                            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${{ "%.2f"|format(profit) }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Margen: {{ "%.1f"|format(margin) }}%</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Notas Internas -->
                 {% if laptop.internal_notes %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                        </svg>
-                        Notas Internas
-                    </h2>
-                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ laptop.internal_notes }}</p>
+                <div
+                    class="bg-amber-50 dark:bg-amber-900/10 rounded-2xl p-6 border border-amber-100 dark:border-amber-900/20">
+                    <h3 class="text-sm font-bold text-amber-800 dark:text-amber-400 mb-2 flex items-center">
+                        <i class="fas fa-sticky-note mr-2"></i> Notas Internas
+                    </h3>
+                    <p class="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-line">{{ laptop.internal_notes
+                        }}</p>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- Columna Derecha: Info Secundaria -->
-            <div class="space-y-6">
+            <!-- Right Column: Prices, Status & Sidebar (30%) -->
+            <div class="space-y-8">
 
-                <!-- Card: Estado de Inventario -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Estado de Inventario</h3>
+                <!-- Prices & Finance Card (Moved here!) -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 overflow-hidden relative">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 -mr-16 -mt-16 rounded-full"></div>
+
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-6 relative">Precio y
+                        Finanzas</h3>
+
+                    <div class="space-y-4 relative">
+                        <div>
+                            <p class="text-xs font-black text-gray-600 uppercase mb-1">
+                                {% if laptop.discount_price and laptop.discount_price > 0 %}Precio Especial{% else
+                                %}Precio de Venta{% endif %}
+                            </p>
+                            <div class="flex items-baseline">
+                                <span class="text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">
+                                    {{ "{:,.0f}".format(laptop.effective_price) }}
+                                </span>
+                                <span class="ml-2 text-sm font-bold text-gray-500 font-medium">DOP</span>
+                            </div>
+                            {% if laptop.discount_price and laptop.discount_price > 0 %}
+                            <p class="text-xs font-semibold text-gray-500 line-through mt-1">
+                                DOP {{ "{:,.0f}".format(laptop.sale_price) }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="pt-2 space-y-3">
+                            <button
+                                onclick='createInvoiceForLaptop({{ laptop.id|tojson }}, {{ laptop.display_name|tojson }}, {{ laptop.sale_price|tojson }}, {{ ("CPU: " + (laptop.processor_full_name if laptop.processor_full_name else "N/A") + " | RAM: " + (laptop.ram_full_name if laptop.ram_full_name else "N/A") + " | SSD: " + (laptop.storage_full_name if laptop.storage_full_name else "N/A"))|tojson }})'
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 dark:shadow-none">
+                                <i class="fas fa-shopping-cart"></i>
+                                VENDER AHORA
+                            </button>
+
+                            <button
+                                class="w-full bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-file-invoice"></i>
+                                Crear Cotización
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Status Card -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest">Disponibilidad</h3>
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black uppercase {{ 'bg-blue-100 text-blue-800' if laptop.condition == 'new' else 'bg-orange-100 text-orange-800' }}">
+                            {{ 'Nuevo' if laptop.condition == 'new' else 'Usado' }}
+                        </span>
+                    </div>
 
                     <div class="space-y-4">
-                        <!-- Cantidad -->
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Stock Actual</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-3xl font-bold {% if laptop.quantity <= 0 %}text-red-600 dark:text-red-400{% elif laptop.quantity <= laptop.min_alert %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %}">
-                                    {{ laptop.quantity }}
-                                </span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">
-                                    Min: {{ laptop.min_alert }}
-                                </span>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50">
+                            <span class="text-sm text-gray-500 font-medium">Stock Actual</span>
+                            <span
+                                class="text-xl font-black {{ 'text-red-500' if laptop.quantity <= laptop.min_alert else 'text-gray-900 dark:text-white' }}">
+                                {{ laptop.quantity }}
+                            </span>
+                        </div>
+
+                        <div id="serials-summary"
+                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3">
+                            <div class="animate-pulse h-4 bg-gray-100 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location & Logistics -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-4">Logística</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-600 mr-3">
+                                <i class="fas fa-store text-xs"></i>
                             </div>
-                            {% if laptop.quantity <= laptop.min_alert %}
-                            <p class="mt-2 text-xs text-yellow-600 dark:text-yellow-400 font-medium">⚠️ Stock bajo - Reabastecer pronto</p>
-                            {% endif %}
+                            <div>
+                                <p class="text-xs font-bold text-gray-600 uppercase">Tienda</p>
+                                <p class="text-xs font-semibold text-gray-900 dark:text-gray-300">{{ laptop.store.name
+                                    or 'No asignada' }}</p>
+                            </div>
                         </div>
-
-                        <!-- Categoría -->
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Categoría</p>
-                            {% if laptop.category == 'gaming' %}
-                                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                                    🎮 Gaming
-                                </span>
-                            {% elif laptop.category == 'workstation' %}
-                                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                    💼 Workstation
-                                </span>
-                            {% else %}
-                                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                    💻 Laptop
-                                </span>
-                            {% endif %}
-                        </div>
-
-                        <!-- Condición -->
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Condición</p>
-                            <div class="flex items-center space-x-2">
-                                {% if laptop.condition == 'new' %}
-                                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">✨ Nuevo</span>
-                                {% elif laptop.condition == 'refurbished' %}
-                                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">♻️ Refurbished</span>
-                                {% else %}
-                                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">📦 Usado</span>
-                                {% endif %}
+                        <div class="flex items-center">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-600 mr-3">
+                                <i class="fas fa-map-marker-alt text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-600 uppercase">Ubicación</p>
+                                <p class="text-xs font-semibold text-gray-900 dark:text-gray-300">{{
+                                    laptop.location.name or 'No especificada' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card: Números de Serie -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                            </svg>
-                            Números de Serie
-                        </h3>
-                        <button onclick="openSerialModal({{ laptop.id }}, { sku: {{ laptop.sku | tojson }}, name: {{ laptop.display_name | tojson }}, quantity: {{ laptop.quantity }} })"
-                                class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
-                                title="Gestionar seriales">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="serials-summary" class="space-y-3">
-                        <div class="animate-pulse">
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Ubicación -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ubicación</h3>
-
-                    <div class="space-y-3">
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Tienda</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.store.name if laptop.store else 'No asignada' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Ubicación Específica</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.location.name if laptop.location else 'No asignada' }}</p>
-                        </div>
-
-                        {% if laptop.supplier %}
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Proveedor</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.supplier.name }}</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Card: Fechas -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Fechas</h3>
-
-                    <div class="space-y-3">
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Fecha de Ingreso</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.entry_date.strftime('%d/%m/%Y') if laptop.entry_date else 'N/A' }}</p>
-                        </div>
-
-                        {% if laptop.sale_date %}
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Fecha de Venta</p>
-                            <p class="text-base font-semibold text-green-600 dark:text-green-400">{{ laptop.sale_date.strftime('%d/%m/%Y') }}</p>
-                        </div>
-                        {% endif %}
-
-                        <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Creado</p>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white">{{ laptop.created_at.strftime('%d/%m/%Y %H:%M') if laptop.created_at else 'N/A' }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card: Laptops Similares -->
+                <!-- Similar Products -->
                 {% if similar_laptops %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Productos Similares</h3>
-
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-4">Similares</h3>
                     <div class="space-y-3">
                         {% for similar in similar_laptops %}
-                        <a href="{{ url_for('inventory.laptop_detail', id=similar.id) }}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700">
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ similar.model.name if similar.model else 'N/A' }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ similar.sku }}</p>
-                            <p class="text-sm font-bold text-green-600 dark:text-green-400 mt-1">${{ "%.2f"|format(similar.sale_price) }}</p>
+                        <a href="{{ url_for('inventory.laptop_detail', id=similar.id) }}"
+                            class="group flex items-center p-2 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex-shrink-0 flex items-center justify-center overflow-hidden text-gray-600">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <div class="ml-3 min-w-0">
+                                <p
+                                    class="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-indigo-600">
+                                    {{ similar.brand.name }} {{ similar.model.name }}</p>
+                                <p class="text-xs font-black text-green-600">${{
+                                    "{:,.0f}".format(similar.sale_price) }}</p>
+                            </div>
                         </a>
                         {% endfor %}
                     </div>
@@ -539,197 +470,100 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Lightbox Modal -->
-{% if images and images|length > 0 %}
-<div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox(event)">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-    </button>
-
-    {% if images|length > 1 %}
-    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-    </button>
-    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-    </button>
-    {% endif %}
-
-    <img id="lightbox-image" class="lightbox-image" src="" alt="">
-
-    <div class="lightbox-counter">
-        <span id="lightbox-current">1</span> / {{ images|length }}
+    <!-- Lightbox (Alpine.js) -->
+    <!-- Lightbox (Alpine.js) -->
+    <div x-show="openLightbox" @click="openLightbox = false" x-cloak
+        class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white text-3xl transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+        <img :src="images[currentIndex]" class="max-w-full max-h-full object-contain shadow-2xl rounded-2xl">
+        <div
+            class="absolute bottom-10 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-xs font-bold">
+            <span x-text="currentIndex + 1"></span> / <span x-text="images.length"></span>
+        </div>
     </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-{% if images and images|length > 0 %}
-<script>
-/* ===========================
-   Script de galería / lightbox
-   ===========================
-*/
-
-// Array de imágenes para el lightbox
-var galleryImages = [
-    {% for image in images %}
-    {
-        src: "{{ url_for('static', filename=image.image_path) }}",
-        alt: "{{ image.alt_text or 'Imagen ' ~ loop.index }}"
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-];
-
-var currentImageIndex = 0;
-
-// Cambiar imagen principal
-function changeMainImage(src, thumbnail, index) {
-    var mainImage = document.getElementById('main-gallery-image');
-    mainImage.src = src;
-    currentImageIndex = index;
-
-    // Actualizar clase active en thumbnails
-    document.querySelectorAll('.gallery-thumbnail').forEach(function(thumb) {
-        thumb.classList.remove('active');
-    });
-    thumbnail.classList.add('active');
-}
-
-// Abrir lightbox
-function openLightbox(index) {
-    currentImageIndex = index;
-    var overlay = document.getElementById('lightbox-overlay');
-    var image = document.getElementById('lightbox-image');
-    var counter = document.getElementById('lightbox-current');
-
-    image.src = galleryImages[index].src;
-    image.alt = galleryImages[index].alt;
-    counter.textContent = index + 1;
-
-    overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-// Cerrar lightbox
-function closeLightbox(event) {
-    if (event.target.id === 'lightbox-overlay' || event.target.closest('.lightbox-close')) {
-        var overlay = document.getElementById('lightbox-overlay');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-}
-
-// Navegar en lightbox
-function navigateLightbox(direction, event) {
-    event.stopPropagation();
-    currentImageIndex += direction;
-
-    if (currentImageIndex < 0) {
-        currentImageIndex = galleryImages.length - 1;
-    } else if (currentImageIndex >= galleryImages.length) {
-        currentImageIndex = 0;
-    }
-
-    var image = document.getElementById('lightbox-image');
-    var counter = document.getElementById('lightbox-current');
-
-    image.src = galleryImages[currentImageIndex].src;
-    image.alt = galleryImages[currentImageIndex].alt;
-    counter.textContent = currentImageIndex + 1;
-}
-
-// Navegación con teclado
-document.addEventListener('keydown', function(e) {
-    var overlay = document.getElementById('lightbox-overlay');
-    if (!overlay.classList.contains('active')) return;
-
-    if (e.key === 'Escape') {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    } else if (e.key === 'ArrowLeft') {
-        navigateLightbox(-1, e);
-    } else if (e.key === 'ArrowRight') {
-        navigateLightbox(1, e);
-    }
-});
-</script>
-{% endif %}
 
 <!-- Modal de Seriales -->
 {% include 'inventory/serial_modal.html' %}
 
-<!--
-  Variables JS generadas por el servidor (serializadas con tojson para evitar problemas de comillas).
-  Se añadieron para construir HTML dinámico de forma segura sin hacer replace(...) en la plantilla.
--->
+{% endblock %}
+
+{% block extra_js %}
 <script>
-var serverLaptopId = {{ laptop.id }};
-var serverLaptopSku = {{ laptop.sku | tojson }};
-var serverLaptopName = {{ laptop.display_name | tojson }};
-var serverLaptopQuantity = {{ laptop.quantity }};
-</script>
+    // Variables dinámicas para el modal de seriales
+    var serverLaptopId = {{ laptop.id }};
+    var serverLaptopSku = {{ laptop.sku | tojson }};
+    var serverLaptopName = {{ laptop.display_name | tojson }};
+    var serverLaptopQuantity = {{ laptop.quantity }};
 
-<script>
-// Cargar resumen de seriales al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    loadSerialsSummary({{ laptop.id }});
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        loadSerialsSummary(serverLaptopId);
+    });
 
-function loadSerialsSummary(laptopId) {
-    fetch('/api/serials/laptop/' + laptopId)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const container = document.getElementById('serials-summary');
-                const badge = document.getElementById('serial-count-badge');
-                const serials = data.serials || [];
-                const available = serials.filter(s => s.status === 'available').length;
-                const sold = serials.filter(s => s.status === 'sold').length;
-                const total = serials.length;
+    // Función para crear factura para una sola laptop
+    window.createInvoiceForLaptop = function (id, name, price, description) {
+        const selectedLaptops = [{
+            id: id,
+            name: name,
+            price: parseFloat(price),
+            description: description
+        }];
+        localStorage.setItem('selectedLaptopsForInvoice', JSON.stringify(selectedLaptops));
+        window.location.href = "{{ url_for('invoices.invoice_new') }}";
+    }
 
-                // Actualizar badge
-                if (badge) {
-                    badge.textContent = available + '/' + total;
-                    badge.className = 'ml-2 px-2 py-0.5 text-xs rounded-full ' + (available > 0 ? 'bg-green-500' : 'bg-gray-500');
-                }
+    function loadSerialsSummary(laptopId) {
+        fetch('/api/serials/laptop/' + laptopId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('serials-summary');
+                    const badge = document.getElementById('serial-count-badge');
+                    const serials = data.serials || [];
+                    const available = serials.filter(s => s.status === 'available').length;
+                    const sold = serials.filter(s => s.status === 'sold').length;
+                    const total = serials.length;
 
-                // Actualizar resumen
-                if (container) {
-                    if (total === 0) {
-                        /* Construimos el botón dinámicamente usando las variables serverLaptop* para evitar insertar strings con comillas
-                           directamente en la plantilla (evita backslashes y errores de Jinja). */
-                        container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No hay seriales registrados</p>' +
-                            '<button onclick="openSerialModal(' + laptopId + ', {sku: ' + JSON.stringify(serverLaptopSku) + ', name: ' + JSON.stringify(serverLaptopName) + ', quantity: ' + serverLaptopQuantity + '})" class="mt-2 text-sm text-purple-600 hover:text-purple-800">+ Agregar seriales</button>';
-                    } else {
-                        var stockQty = {{ laptop.quantity }};
-                        var html = '<div class="flex justify-between text-sm"><span class="text-gray-500 dark:text-gray-400">Disponibles:</span><span class="font-semibold text-green-600">' + available + '</span></div>' +
-                            '<div class="flex justify-between text-sm"><span class="text-gray-500 dark:text-gray-400">Vendidos:</span><span class="font-semibold text-blue-600">' + sold + '</span></div>' +
-                            '<div class="flex justify-between text-sm border-t border-gray-200 dark:border-gray-700 pt-2 mt-2"><span class="text-gray-500 dark:text-gray-400">Total:</span><span class="font-semibold">' + total + '</span></div>';
+                    if (badge) {
+                        badge.textContent = available + '/' + total;
+                        badge.className = 'ml-2 px-2 py-0.5 text-xs rounded-full ' + (available > 0 ? 'bg-green-500' : 'bg-gray-500 text-white');
+                    }
 
-                        if (available < stockQty) {
-                            html += '<p class="mt-2 text-xs text-yellow-600">⚠️ Faltan ' + (stockQty - available) + ' serial(es)</p>';
+                    if (container) {
+                        if (total === 0) {
+                            container.innerHTML = '<p class="text-xs text-gray-600">Sin seriales. <button onclick=\'openSerialModal(' + laptopId + ', {sku: ' + JSON.stringify(serverLaptopSku) + ', name: ' + JSON.stringify(serverLaptopName) + ', quantity: ' + serverLaptopQuantity + '})\' class="text-indigo-500 hover:underline">Agregar ahora</button></p>';
+                        } else {
+                            let html = `
+                                <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50 dark:border-gray-700">
+                                    <span class="text-gray-600">Disp:</span>
+                                    <span class="font-bold text-green-600">${available}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50 dark:border-gray-700">
+                                    <span class="text-gray-600">Vend:</span>
+                                    <span class="font-bold text-blue-600">${sold}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs font-bold pt-1">
+                                    <span class="text-gray-600">Total:</span>
+                                    <span>${total}</span>
+                                </div>
+                            `;
+
+                            if (available < serverLaptopQuantity) {
+                                html += `<div class="mt-2 flex items-center text-[10px] text-amber-600 font-bold bg-amber-50 dark:bg-amber-900/20 p-1.5 rounded">
+                                            <i class="fas fa-exclamation-triangle mr-1.5"></i> Faltan ${serverLaptopQuantity - available} seriales
+                                         </div>`;
+                            }
+                            container.innerHTML = html;
                         }
-                        container.innerHTML = html;
                     }
                 }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error:', error);
-        });
-}
-
-window.onSerialsUpdated = function(laptopId) {
-    loadSerialsSummary(laptopId);
-};
+            });
+    }
 </script>
 {% endblock %}
