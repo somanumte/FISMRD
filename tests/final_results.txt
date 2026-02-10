@@ -1,0 +1,12 @@
+BRAND      | EXPECTED                                      | RESULT                                        | STATUS
+--------------------------------------------------------------------------------------------------------------
+Lenovo     | ThinkPad T14s 2-in-1 Gen 1                    | ThinkPad T14s 2-in-1 Gen 1                    | ✅ PASS
+DELL       | Latitude 3550                                 | Latitude 3550                                 | ✅ PASS
+ASUS       | ROG Strix G16 G614FR-TS344                    | ROG Strix G16 G614FR-TS344                    | ✅ PASS
+MSI        | Gaming GF63 12VE-009XES Thin                  | Gaming GF63 12VE-009XES Thin                  | ✅ PASS
+MSI        | Cyborg 15 B2RWFKG-421US                       | Cyborg 15 B2RWFKG-421US                       | ✅ PASS
+Samsung    | Galaxy Book5 Pro 360 (16", Core Ultra 5, 16GB) | Galaxy Book5 Pro 360 (16", Core Ultra 5, 16GB) | ✅ PASS
+Apple      | MacBook Air (M4, 2025)                        | MacBook Air (M4, 2025)                        | ✅ PASS
+HP         | ENVY x360 15-ed0021nia                        | ENVY x360 15-ed0021nia                        | ✅ PASS
+Gigabyte   | Gaming KF-E3ES313SD                           | Gaming KF-E3ES313SD                           | ✅ PASS
+Samsung    | Galaxy Book5 360 Pro                          | Galaxy Book5 360 Pro                          | ✅ PASS

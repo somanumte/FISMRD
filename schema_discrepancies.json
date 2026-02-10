@@ -1,0 +1,6 @@
+{
+    "in_model_not_db": [],
+    "in_db_not_model": [
+        "npu"
+    ]
+}

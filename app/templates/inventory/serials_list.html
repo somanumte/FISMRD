@@ -1,0 +1,1193 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion de Seriales - LuxeraRD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-hero {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #c084fc 100%);
+        border-radius: 1.5rem;
+        padding: 1.75rem 2rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .list-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Status tabs */
+    .status-tabs {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .status-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .status-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.813rem;
+        font-weight: 600;
+        white-space: nowrap;
+        border: 1.5px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .dark .status-tab {
+        background: #1f2937;
+        border-color: #374151;
+        color: #9ca3af;
+    }
+
+    .status-tab:hover {
+        border-color: #a78bfa;
+        color: #7c3aed;
+    }
+
+    .status-tab.active {
+        background: #7c3aed;
+        border-color: #7c3aed;
+        color: white;
+    }
+
+    .status-tab .count {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 0.125rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+    }
+
+    .status-tab.active .count {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Stat cards */
+    .stat-mini {
+        border-radius: 1rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid #e5e7eb;
+        background: white;
+        transition: all 0.2s;
+    }
+
+    .dark .stat-mini {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .stat-mini:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Table */
+    .serial-table {
+        border-radius: 1.25rem;
+        overflow: hidden;
+    }
+
+    .serial-table th {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        padding: 0.875rem 1rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .dark .serial-table th {
+        background: #111827;
+        color: #9ca3af;
+        border-color: #374151;
+    }
+
+    .serial-table td {
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+
+    .dark .serial-table td {
+        border-color: #1f2937;
+    }
+
+    .serial-table tbody tr {
+        transition: background 0.15s;
+    }
+
+    .serial-table tbody tr:hover {
+        background: #faf5ff;
+    }
+
+    .dark .serial-table tbody tr:hover {
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    /* Status badge */
+    .s-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .s-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .s-badge.available {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .s-badge.available .dot {
+        background: #16a34a;
+    }
+
+    .s-badge.sold {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .s-badge.sold .dot {
+        background: #2563eb;
+    }
+
+    .s-badge.reserved {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .s-badge.reserved .dot {
+        background: #ca8a04;
+    }
+
+    .s-badge.damaged {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .s-badge.damaged .dot {
+        background: #dc2626;
+    }
+
+    .s-badge.returned {
+        background: #f3e8ff;
+        color: #6b21a8;
+    }
+
+    .s-badge.returned .dot {
+        background: #9333ea;
+    }
+
+    .s-badge.in_repair {
+        background: #ffedd5;
+        color: #9a3412;
+    }
+
+    .s-badge.in_repair .dot {
+        background: #ea580c;
+    }
+
+    .s-badge.lost {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .s-badge.lost .dot {
+        background: #6b7280;
+    }
+
+    .dark .s-badge.available {
+        background: rgba(22, 163, 74, 0.15);
+        color: #4ade80;
+    }
+
+    .dark .s-badge.sold {
+        background: rgba(37, 99, 235, 0.15);
+        color: #60a5fa;
+    }
+
+    .dark .s-badge.reserved {
+        background: rgba(202, 138, 4, 0.15);
+        color: #fbbf24;
+    }
+
+    .dark .s-badge.damaged {
+        background: rgba(220, 38, 38, 0.15);
+        color: #f87171;
+    }
+
+    .dark .s-badge.returned {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .dark .s-badge.in_repair {
+        background: rgba(234, 88, 12, 0.15);
+        color: #fb923c;
+    }
+
+    .dark .s-badge.lost {
+        background: rgba(107, 114, 128, 0.15);
+        color: #9ca3af;
+    }
+
+    /* Status change dropdown */
+    .status-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 0.25rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+        z-index: 50;
+        min-width: 220px;
+        padding: 0.375rem;
+        display: none;
+    }
+
+    .dark .status-dropdown {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .status-dropdown.show {
+        display: block;
+    }
+
+    .status-dropdown .option {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.813rem;
+        cursor: pointer;
+        transition: background 0.15s;
+        color: #374151;
+    }
+
+    .dark .status-dropdown .option {
+        color: #d1d5db;
+    }
+
+    .status-dropdown .option:hover {
+        background: #f5f3ff;
+    }
+
+    .dark .status-dropdown .option:hover {
+        background: #374151;
+    }
+
+    .status-dropdown .option.current {
+        background: #f5f3ff;
+        font-weight: 600;
+    }
+
+    .dark .status-dropdown .option.current {
+        background: rgba(124, 58, 237, 0.15);
+    }
+
+    /* Reason modal */
+    .reason-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s;
+    }
+
+    .reason-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .reason-modal {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        transform: scale(0.95);
+        transition: transform 0.2s;
+    }
+
+    .dark .reason-modal {
+        background: #1f2937;
+    }
+
+    .reason-overlay.show .reason-modal {
+        transform: scale(1);
+    }
+
+    /* Pagination */
+    .pagination-bar {
+        border-radius: 1.25rem;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 768px) {
+        .list-hero {
+            padding: 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn-hero {
+            padding: 0.625rem 1rem;
+            font-size: 0.813rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stat-mini {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-mini p {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* Mobile Serial Card */
+    .serial-card {
+        background: white;
+        border-radius: 1rem;
+        border: 1px solid #e5e7eb;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .dark .serial-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .serial-card:active {
+        background: #faf5ff;
+        transform: scale(0.98);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+
+    <!-- HERO -->
+    <div class="list-hero">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white">
+                    <i class="fas fa-barcode mr-2"></i> Gestion de Seriales
+                </h1>
+                <p class="text-purple-200 mt-1 text-sm">
+                    {{ total_serials }} serial{{ 'es' if total_serials != 1 else '' }} registrado{{ 's' if total_serials
+                    != 1 else '' }}
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ url_for('inventory.laptops_list') }}"
+                    class="h-10 px-5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all flex items-center gap-2 group">
+                    <i class="fas fa-laptop text-xs group-hover:scale-110 transition-transform"></i>
+                    Inventario
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-3 mb-6">
+        {% set status_config = {
+        'available': {'icon': 'fa-check-circle', 'color': 'green', 'label': 'Disponibles'},
+        'sold': {'icon': 'fa-shopping-cart', 'color': 'blue', 'label': 'Vendidos'},
+        'reserved': {'icon': 'fa-clock', 'color': 'yellow', 'label': 'Reservados'},
+        'damaged': {'icon': 'fa-exclamation-triangle', 'color': 'red', 'label': 'Danados'},
+        'in_repair': {'icon': 'fa-wrench', 'color': 'orange', 'label': 'En Reparacion'},
+        'returned': {'icon': 'fa-undo', 'color': 'purple', 'label': 'Devueltos'},
+        'lost': {'icon': 'fa-question-circle', 'color': 'gray', 'label': 'Perdidos'}
+        } %}
+        {% for key, cfg in status_config.items() %}
+        <a href="{{ url_for('inventory.serials_list', status=key) }}"
+            class="stat-mini {% if status_filter == key %}ring-2 ring-purple-500{% endif %}">
+            <div class="flex items-center gap-2 mb-1">
+                <i class="fas {{ cfg.icon }} text-{{ cfg.color }}-500 text-sm"></i>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ cfg.label }}</span>
+            </div>
+            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.get(key, 0) }}</p>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- SCANNER CONTAINER (Initially Hidden) -->
+    <div id="scanner-container" class="hidden mb-6 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-indigo-500 p-4 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    Scanner Activo
+                </h3>
+                <button onclick="serialsScanner.stopScanner()"
+                    class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times-circle text-xl"></i>
+                </button>
+            </div>
+            <div id="reader" class="overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 mx-auto"
+                style="max-width: 400px;"></div>
+            <p class="text-center text-[11px] text-gray-400 mt-3">
+                Apunta la camara al codigo de barras del serial
+            </p>
+        </div>
+    </div>
+
+    <!-- FILTERS BAR -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 mb-6">
+        <form method="GET" action="{{ url_for('inventory.serials_list') }}"
+            class="flex flex-col md:flex-row gap-3 items-center">
+
+            <!-- Search / Scanner Bar -->
+            <div class="relative flex-1 w-full group">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h2M4 12h2m10 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
+                        </path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ search }}" id="serials-search-input"
+                    placeholder="Escanear serial o buscar por SKU, nombre..."
+                    class="w-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-xl py-2.5 pl-10 pr-12 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+
+                <!-- Camera Trigger Button -->
+                <button type="button" id="btn-toggle-scanner" title="Activar camara"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 rounded-lg transition-all">
+                    <i class="fas fa-camera text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Brand filter -->
+            <select name="brand"
+                class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 px-3 text-sm min-w-[140px]">
+                <option value="">Todas las marcas</option>
+                {% for brand in brands %}
+                <option value="{{ brand.name }}" {% if brand_filter==brand.name %}selected{% endif %}>
+                    {{ brand.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Hidden status -->
+            {% if status_filter %}
+            <input type="hidden" name="status" value="{{ status_filter }}">
+            {% endif %}
+
+            <button type="submit"
+                class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+                <i class="fas fa-filter mr-1"></i> Filtrar
+            </button>
+
+            {% if search or brand_filter or status_filter %}
+            <a href="{{ url_for('inventory.serials_list') }}"
+                class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline whitespace-nowrap">
+                <i class="fas fa-times mr-1"></i> Limpiar
+            </a>
+            {% endif %}
+        </form>
+
+        <!-- Status tabs -->
+        <div class="status-tabs mt-4">
+            <a href="{{ url_for('inventory.serials_list', search=search, brand=brand_filter) }}"
+                class="status-tab {% if not status_filter %}active{% endif %}">
+                Todos <span class="count">{{ total_serials }}</span>
+            </a>
+            {% for key, cfg in status_config.items() %}
+            {% if stats.get(key, 0) > 0 %}
+            <a href="{{ url_for('inventory.serials_list', status=key, search=search, brand=brand_filter) }}"
+                class="status-tab {% if status_filter == key %}active{% endif %}">
+                {{ cfg.label }} <span class="count">{{ stats.get(key, 0) }}</span>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- TABLE VIEW (Desktop) -->
+    <div
+        class="hidden md:block bg-white dark:bg-gray-800 serial-table border border-gray-200 dark:border-gray-700 mb-6">
+        {% if serials %}
+        <div class="overflow-x-auto">
+            <table class="w-full serial-table">
+                <thead>
+                    <tr>
+                        <th class="text-left">Serial</th>
+                        <th class="text-left">Laptop</th>
+                        <th class="text-left">Marca</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-left">Garantia</th>
+                        <th class="text-right">Costo</th>
+                        <th class="text-center">Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for serial in serials %}
+                    <tr id="row-{{ serial.id }}">
+                        <!-- Serial Number -->
+                        <td>
+                            <div class="font-mono font-semibold text-gray-900 dark:text-white">
+                                {{ serial.serial_number }}
+                            </div>
+                            {% if serial.barcode and serial.barcode != serial.serial_number %}
+                            <div class="text-xs text-gray-400 mt-0.5">
+                                <i class="fas fa-barcode mr-1"></i>{{ serial.barcode }}
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Laptop -->
+                        <td>
+                            <a href="{{ url_for('inventory.laptop_detail', id=serial.laptop.id) }}"
+                                class="text-purple-600 dark:text-purple-400 hover:underline font-medium text-sm">
+                                {{ serial.laptop.display_name | truncate(35) }}
+                            </a>
+                            <div class="text-xs text-gray-400">{{ serial.laptop.sku }}</div>
+                        </td>
+
+                        <!-- Brand -->
+                        <td class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ serial.laptop.brand.name if serial.laptop.brand else '—' }}
+                        </td>
+
+                        <!-- Status -->
+                        <td class="text-center">
+                            <span class="s-badge {{ serial.status }}">
+                                <span class="dot"></span>
+                                {{ serial.status_display }}
+                            </span>
+                        </td>
+
+                        <!-- Warranty -->
+                        <td class="text-sm">
+                            {% if serial.has_warranty %}
+                            <span class="text-green-600 dark:text-green-400">
+                                <i class="fas fa-shield-alt mr-1"></i>{{ serial.warranty_days_remaining }}d
+                            </span>
+                            {% elif serial.warranty_end %}
+                            <span class="text-red-400"><i class="fas fa-shield-alt mr-1"></i>Expirada</span>
+                            {% else %}
+                            <span class="text-gray-400">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Cost -->
+                        <td class="text-right font-medium text-sm text-gray-700 dark:text-gray-300">
+                            {% if serial.sold_price %}
+                            <span class="text-green-600 dark:text-green-400">
+                                ${{ "{:,.2f}".format(serial.sold_price | float) }}
+                            </span>
+                            <div class="text-xs text-gray-400">vendido</div>
+                            {% else %}
+                            ${{ "{:,.2f}".format(serial.effective_cost) }}
+                            {% endif %}
+                        </td>
+
+                        <!-- Date -->
+                        <td class="text-center text-xs text-gray-500">
+                            {% if serial.sold_date %}
+                            {{ serial.sold_date.strftime('%d/%m/%y') }}
+                            <div class="text-gray-400">vendido</div>
+                            {% elif serial.received_date %}
+                            {{ serial.received_date.strftime('%d/%m/%y') }}
+                            {% else %}
+                            {{ serial.created_at.strftime('%d/%m/%y') if serial.created_at else '—' }}
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <div class="relative inline-block" id="action-{{ serial.id }}">
+                                <button onclick="toggleStatusDropdown({{ serial.id }})"
+                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-purple-600 transition-colors"
+                                    title="Cambiar estado">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                                <button onclick="viewHistory({{ serial.id }}, '{{ serial.serial_number }}')"
+                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-purple-600 transition-colors"
+                                    title="Ver historial">
+                                    <i class="fas fa-history"></i>
+                                </button>
+
+                                <!-- Dropdown -->
+                                <div class="status-dropdown" id="dropdown-{{ serial.id }}">
+                                    <div class="px-3 py-2 text-xs font-bold text-gray-400 uppercase">Cambiar estado
+                                    </div>
+                                    {% for value, label in status_choices %}
+                                    <div class="option {% if serial.status == value %}current{% endif %}"
+                                        onclick="changeStatus({{ serial.id }}, '{{ value }}', '{{ label }}', '{{ serial.serial_number }}')">
+                                        <span class="dot s-badge {{ value }}"
+                                            style="width:8px;height:8px;border-radius:50%;padding:0;flex-shrink:0;">
+                                            <span class="dot" style="display:none;"></span>
+                                        </span>
+                                        {{ label }}
+                                        {% if serial.status == value %}
+                                        <i class="fas fa-check text-purple-500 ml-auto text-xs"></i>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <a href="{{ url_for('inventory.laptop_detail', id=serial.laptop.id) }}"
+                                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-600 transition-colors inline-block"
+                                title="Ver laptop">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- CARD VIEW (Mobile) -->
+    <div class="md:hidden space-y-3 mb-6">
+        {% if serials %}
+        {% for serial in serials %}
+        <div class="serial-card shadow-sm" id="card-{{ serial.id }}">
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex-1">
+                    <div class="font-mono font-bold text-gray-900 dark:text-white text-base">
+                        {{ serial.serial_number }}
+                    </div>
+                    <div class="text-[10px] text-gray-400 flex items-center gap-2 mt-0.5">
+                        <span>SKU: {{ serial.laptop.sku }}</span>
+                        {% if serial.barcode and serial.barcode != serial.serial_number %}
+                        <span><i class="fas fa-barcode"></i> {{ serial.barcode }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="s-badge {{ serial.status }} scale-90 origin-top-right">
+                    <span class="dot"></span>
+                    {{ serial.status_display }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <a href="{{ url_for('inventory.laptop_detail', id=serial.laptop.id) }}"
+                    class="text-sm font-semibold text-purple-600 dark:text-purple-400 block truncate leading-tight">
+                    {{ serial.laptop.display_name }}
+                </a>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[11px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-gray-500">
+                        {{ serial.laptop.brand.name if serial.laptop.brand else 'Generica' }}
+                    </span>
+                    {% if serial.has_warranty %}
+                    <span class="text-[11px] text-green-600 font-medium">
+                        <i class="fas fa-shield-alt mr-0.5"></i>{{ serial.warranty_days_remaining }}d
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700/50">
+                <div class="text-sm font-bold text-gray-900 dark:text-white">
+                    {% if serial.sold_price %}
+                    <span class="text-green-600">${{ "{:,.2f}".format(serial.sold_price | float) }}</span>
+                    {% else %}
+                    ${{ "{:,.2f}".format(serial.effective_cost) }}
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center gap-1">
+                    <!-- History Action -->
+                    <button onclick="viewHistory({{ serial.id }}, '{{ serial.serial_number }}')"
+                        class="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-500 hover:text-purple-600 transition-colors">
+                        <i class="fas fa-history text-sm"></i>
+                    </button>
+
+                    <!-- Laptop Detail Action -->
+                    <a href="{{ url_for('inventory.laptop_detail', id=serial.laptop.id) }}"
+                        class="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-500 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-eye text-sm"></i>
+                    </a>
+
+                    <!-- Status Toggle (Mobile Specific - Direct trigger for reason modal) -->
+                    <div class="relative inline-block">
+                        <button onclick="toggleStatusDropdown({{ serial.id }})"
+                            class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 hover:bg-purple-100 transition-colors ml-1">
+                            <i class="fas fa-exchange-alt text-sm"></i>
+                        </button>
+                        <!-- Dropdown for mobile still needed if we want to change to any status -->
+                        <div class="status-dropdown bottom-full top-auto mb-2" id="dropdown-{{ serial.id }}">
+                            <div class="px-3 py-2 text-xs font-bold text-gray-400 uppercase">Cambiar estado</div>
+                            {% for value, label in status_choices %}
+                            <div class="option {% if serial.status == value %}current{% endif %}"
+                                onclick="changeStatus({{ serial.id }}, '{{ value }}', '{{ label }}', '{{ serial.serial_number }}')">
+                                <span class="dot s-badge {{ value }}"
+                                    style="width:8px;height:8px;border-radius:50%;padding:0;"></span>
+                                {{ label }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if not serials %}
+    <div
+        class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 mb-6 py-16 text-center">
+        <div
+            class="w-20 h-20 mx-auto bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4">
+            <i class="fas fa-barcode text-3xl text-purple-500"></i>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            {% if status_filter %}
+            No hay seriales con estado "{{ dict(status_choices).get(status_filter, status_filter) }}"
+            {% elif search %}
+            No se encontraron seriales para "{{ search }}"
+            {% else %}
+            No hay seriales registrados
+            {% endif %}
+        </h3>
+        <p class="text-sm text-gray-500 mb-4">
+            {% if status_filter or search %}
+            Prueba con otros filtros de busqueda
+            {% else %}
+            Los seriales se crean al agregar laptops al inventario
+            {% endif %}
+        </p>
+        {% if status_filter or search %}
+        <a href="{{ url_for('inventory.serials_list') }}"
+            class="inline-flex items-center gap-2 text-purple-600 font-semibold hover:underline">
+            <i class="fas fa-times"></i> Limpiar filtros
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- PAGINATION -->
+{% if pagination.pages > 1 %}
+<div
+    class="pagination-bar bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="text-sm text-gray-500">
+        Mostrando {{ ((pagination.page - 1) * pagination.per_page) + 1 }}-{{ [pagination.page * pagination.per_page,
+        pagination.total] | min }}
+        de {{ pagination.total }}
+    </p>
+    <div class="flex gap-1">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('inventory.serials_list', page=pagination.prev_num, status=status_filter, search=search, brand=brand_filter) }}"
+            class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p %}
+        <a href="{{ url_for('inventory.serials_list', page=p, status=status_filter, search=search, brand=brand_filter) }}"
+            class="px-3 py-2 rounded-lg text-sm {% if p == pagination.page %}bg-purple-600 text-white{% else %}bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600{% endif %}">
+            {{ p }}
+        </a>
+        {% else %}
+        <span class="px-2 py-2 text-gray-400">...</span>
+        {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <a href="{{ url_for('inventory.serials_list', page=pagination.next_num, status=status_filter, search=search, brand=brand_filter) }}"
+            class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+</div>
+
+<!-- REASON MODAL -->
+<div class="reason-overlay" id="reasonOverlay">
+    <div class="reason-modal">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1" id="reasonTitle">Cambiar estado</h3>
+        <p class="text-sm text-gray-500 mb-4" id="reasonSubtitle"></p>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Razon del cambio <span class="text-gray-400">(opcional)</span>
+            </label>
+            <textarea id="reasonText" rows="3" placeholder="Ej: Pantalla danada durante transporte..."
+                class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeReasonModal()"
+                class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Cancelar
+            </button>
+            <button onclick="confirmStatusChange()" id="reasonConfirmBtn"
+                class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                Confirmar cambio
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="reason-overlay" id="historyOverlay">
+    <div class="reason-modal" style="max-width:520px;">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                <i class="fas fa-history text-purple-500 mr-2"></i>Historial
+            </h3>
+            <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4 font-mono" id="historySerial"></p>
+        <div id="historyContent" class="max-h-80 overflow-y-auto space-y-3">
+            <div class="text-center text-gray-400 py-6">
+                <i class="fas fa-spinner fa-spin text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- html5-qrcode Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<script>
+    // ==========================================
+    // STATUS CHANGE & HISTORY
+    // ==========================================
+    let pendingChange = null;
+
+    function toggleStatusDropdown(serialId) {
+        // Close all other dropdowns
+        document.querySelectorAll('.status-dropdown.show').forEach(d => {
+            if (d.id !== `dropdown-${serialId}`) d.classList.remove('show');
+        });
+        document.getElementById(`dropdown-${serialId}`).classList.toggle('show');
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.relative')) {
+            document.querySelectorAll('.status-dropdown.show').forEach(d => d.classList.remove('show'));
+        }
+    });
+
+    function changeStatus(serialId, newStatus, statusLabel, serialNumber) {
+        // Close dropdown
+        document.getElementById(`dropdown-${serialId}`).classList.remove('show');
+
+        // Store pending change
+        pendingChange = { serialId, newStatus, statusLabel, serialNumber };
+
+        // Show reason modal
+        document.getElementById('reasonTitle').textContent = `Cambiar a "${statusLabel}"`;
+        document.getElementById('reasonSubtitle').textContent = `Serial: ${serialNumber}`;
+        document.getElementById('reasonText').value = '';
+        document.getElementById('reasonOverlay').classList.add('show');
+        setTimeout(() => document.getElementById('reasonText').focus(), 200);
+    }
+
+    function closeReasonModal() {
+        document.getElementById('reasonOverlay').classList.remove('show');
+        pendingChange = null;
+    }
+
+    async function confirmStatusChange() {
+        if (!pendingChange) return;
+
+        const btn = document.getElementById('reasonConfirmBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/serials/${pendingChange.serialId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    status: pendingChange.newStatus,
+                    reason: document.getElementById('reasonText').value.trim() || null
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update the badge in the table row without reload
+                const row = document.getElementById(`row-${pendingChange.serialId}`);
+                if (row) {
+                    const badge = row.querySelector('.s-badge');
+                    if (badge) {
+                        badge.className = `s-badge ${pendingChange.newStatus}`;
+                        badge.innerHTML = `<span class="dot"></span> ${pendingChange.statusLabel}`;
+                    }
+                }
+
+                closeReasonModal();
+                showNotification(`✅ Serial ${pendingChange.serialNumber} → ${pendingChange.statusLabel}`, 'success');
+
+                // Reload after short delay to update stats
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                showNotification(`❌ ${data.error}`, 'error');
+            }
+        } catch (err) {
+            showNotification('❌ Error de conexion', 'error');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    async function viewHistory(serialId, serialNumber) {
+        const dropdown = document.getElementById(`dropdown-${serialId}`);
+        if (dropdown) dropdown.classList.remove('show');
+
+        document.getElementById('historySerial').textContent = serialNumber;
+        document.getElementById('historyContent').innerHTML =
+            '<div class="text-center text-gray-400 py-6"><i class="fas fa-spinner fa-spin text-2xl"></i></div>';
+        document.getElementById('historyOverlay').classList.add('show');
+
+        try {
+            const response = await fetch(`/api/serials/${serialId}/history`);
+            const data = await response.json();
+
+            if (data.success && data.history && data.history.length > 0) {
+                document.getElementById('historyContent').innerHTML = data.history.map(m => `
+                <div class="flex gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-900">
+                    <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center
+                        ${m.movement_type === 'status_change' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600' :
+                        m.movement_type === 'sale' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
+                            'bg-gray-100 dark:bg-gray-700 text-gray-500'}">
+                        <i class="fas ${m.movement_type === 'status_change' ? 'fa-exchange-alt' :
+                        m.movement_type === 'sale' ? 'fa-shopping-cart' :
+                            m.movement_type === 'creation' ? 'fa-plus' : 'fa-circle'} text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">${m.description || m.movement_type}</p>
+                        ${m.previous_status ? `<p class="text-xs text-gray-500 mt-0.5">${m.previous_status} → ${m.new_status}</p>` : ''}
+                        <div class="flex items-center gap-3 mt-1.5 pt-1.5 border-t border-gray-100 dark:border-gray-800/50">
+                            <p class="text-[10px] text-gray-400 flex items-center gap-1">
+                                <i class="fas fa-clock text-[9px]"></i> ${new Date(m.created_at).toLocaleString('es-DO')}
+                            </p>
+                            <p class="text-[10px] font-medium text-purple-600/70 dark:text-purple-400/70 flex items-center gap-1">
+                                <i class="fas fa-user text-[9px]"></i> ${m.user || 'Sistema'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            } else {
+                document.getElementById('historyContent').innerHTML =
+                    '<p class="text-center text-gray-400 py-6">Sin movimientos registrados</p>';
+            }
+        } catch (err) {
+            document.getElementById('historyContent').innerHTML =
+                '<p class="text-center text-red-400 py-6">Error al cargar historial</p>';
+        }
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyOverlay').classList.remove('show');
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 z-[200] px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all transform translate-x-full
+        ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        requestAnimationFrame(() => {
+            notification.style.transform = 'translateX(0)';
+        });
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Close modals with Escape
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeReasonModal ? closeReasonModal() : null;
+            closeHistoryModal ? closeHistoryModal() : null;
+        }
+    });
+
+    // ==========================================
+    // SERIALS SCANNER LOGIC
+    // ==========================================
+    class SerialsScanner {
+        constructor() {
+            this.html5QrCode = null;
+            this.isScannerRunning = false;
+            this.scannerContainer = document.getElementById('scanner-container');
+            this.btnToggleScanner = document.getElementById('btn-toggle-scanner');
+            this.btnText = document.getElementById('scanner-btn-text');
+            this.searchInput = document.querySelector('input[name="search"]');
+            this.searchForm = this.searchInput ? this.searchInput.closest('form') : null;
+
+            this.init();
+        }
+
+        init() {
+            if (this.btnToggleScanner) {
+                this.btnToggleScanner.addEventListener('click', () => this.toggleScanner());
+            }
+        }
+
+        async toggleScanner() {
+            if (this.isScannerRunning) {
+                await this.stopScanner();
+            } else {
+                this.startScanner();
+            }
+        }
+
+        async startScanner() {
+            if (!window.isSecureContext && location.hostname !== 'localhost') {
+                showNotification("⚠️ El scanner requiere HTTPS para acceder a la camara.", 'error');
+                return;
+            }
+
+            if (this.scannerContainer) this.scannerContainer.classList.remove('hidden');
+            if (this.btnText) this.btnText.textContent = 'Detener Scanner';
+            if (this.btnToggleScanner) {
+                this.btnToggleScanner.classList.add('text-red-500', 'bg-red-50', 'dark:bg-red-900/40');
+                this.btnToggleScanner.classList.remove('text-indigo-400');
+            }
+
+            this.html5QrCode = new Html5Qrcode("reader");
+            const config = {
+                fps: 20,
+                qrbox: { width: 280, height: 180 },
+                aspectRatio: 1.0,
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
+            };
+
+            try {
+                await this.html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    (decodedText) => {
+                        this.onScanSuccess(decodedText);
+                    }
+                );
+                this.isScannerRunning = true;
+                if (this.scannerContainer) this.scannerContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (err) {
+                console.error("Scanner Error:", err);
+                showNotification("No se pudo iniciar la camara. Verifica los permisos.", 'error');
+                this.stopScanner();
+            }
+        }
+
+        async stopScanner() {
+            if (this.html5QrCode) {
+                try {
+                    await this.html5QrCode.stop();
+                } catch (err) {
+                    console.error("Error stopping scanner:", err);
+                }
+                this.html5QrCode = null;
+            }
+            this.isScannerRunning = false;
+            if (this.scannerContainer) this.scannerContainer.classList.add('hidden');
+            if (this.btnText) this.btnText.textContent = 'Escanear Serial';
+            if (this.btnToggleScanner) {
+                this.btnToggleScanner.classList.remove('text-red-500', 'bg-red-50', 'dark:bg-red-900/40');
+                this.btnToggleScanner.classList.add('text-indigo-400');
+            }
+        }
+
+        onScanSuccess(decodedText) {
+            // Sonic feedback if possible
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+                oscillator.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } catch (e) { }
+
+            showNotification(`🔍 Escaneado: ${decodedText}`, 'success');
+
+            if (this.searchInput) {
+                this.searchInput.value = decodedText;
+                this.stopScanner();
+
+                // Auto-submit search after a small delay
+                if (this.searchForm) {
+                    setTimeout(() => {
+                        this.searchForm.submit();
+                    }, 500);
+                }
+            }
+        }
+    }
+
+    // Global instance
+    let serialsScanner;
+    document.addEventListener('DOMContentLoaded', () => {
+        serialsScanner = new SerialsScanner();
+    });
+</script>
+{% endblock %}
