@@ -412,6 +412,11 @@ def laptops_list():
         query = query.filter(Laptop.quantity > 0)
     elif stock_status == 'out_of_stock':
         query = query.filter(Laptop.quantity <= 0)
+    elif stock_status == 'low_stock':
+        # Filtrar donde (cantidad - reservados) <= alerta_minima
+        query = query.filter((Laptop.quantity - Laptop.reserved_quantity) <= Laptop.min_alert)
+    elif stock_status == 'all':
+        pass  # No filtrar por stock
 
     if has_npu_filter:
         query = query.join(Laptop.processor).filter(Processor.has_npu == (has_npu_filter == '1'))
@@ -475,12 +480,14 @@ def laptops_list():
     # Contar publicadas y destacadas
     published_count = len([l for l in all_laptops if l.is_published])
     featured_count = len([l for l in all_laptops if l.is_featured])
+    unpublished_count = len(all_laptops) - published_count
 
     stats = {
         'total': len(all_laptops),
         'total_value': total_inventory_value,
         'low_stock': low_stock_count,
         'published': published_count,
+        'unpublished': unpublished_count,
         'featured': featured_count
     }
 
@@ -514,7 +521,7 @@ def laptops_list():
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
 @login_required
-@permission_required('inventory.laptops.create')
+@permission_required('inventory.laptops.create', audit_action='create_laptop', audit_module='inventory')
 def laptop_add():
     """
     Muestra el formulario y procesa la creacion de una nueva laptop
@@ -834,9 +841,9 @@ def laptop_by_slug(slug):
 
 # ===== EDITAR LAPTOP =====
 
-@inventory_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@inventory_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-@permission_required('inventory.laptops.edit')
+@permission_required('inventory.laptops.edit', audit_action='edit_laptop', audit_module='inventory')
 def laptop_edit(id):
     """
     Edita una laptop existente
@@ -1175,9 +1182,9 @@ def laptop_edit(id):
 
 # ===== ELIMINAR LAPTOP =====
 
-@inventory_bp.route('/<int:id>/delete', methods=['POST'])
+@inventory_bp.route('/delete/<int:id>', methods=['POST'])
 @login_required
-@permission_required('inventory.laptops.delete')
+@permission_required('inventory.laptops.delete', audit_action='delete_laptop', audit_module='inventory')
 def laptop_delete(id):
     """
     Elimina una laptop del inventario

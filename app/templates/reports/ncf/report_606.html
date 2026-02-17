@@ -70,13 +70,13 @@
 {% block content %}
 <div class="report-container">
     <div class="report-header">
-        <h1>📉 Reporte 606: Compras de Bienes y Servicios</h1>
-        <p>Formato de Envío de Compras</p>
+        <h1>Reporte 606: Compras de Bienes y Servicios</h1>
+        <p>Formato de Envio de Compras</p>
     </div>
 
     <div class="alert-box">
-        <strong>⚠️ Atención:</strong> Este reporte es una aproximación basada en los gastos registrados.
-        El sistema actual no almacena el NCF ni el RNC de los proveedores en el módulo de gastos.
+        <strong>Atencion:</strong> Este reporte es una aproximacion basada en los gastos registrados.
+        El sistema actual no almacena el NCF ni el RNC de los proveedores en el modulo de gastos.
     </div>
 
     <div class="filters-card">
@@ -84,14 +84,14 @@
         <label>Fin: <input type="date" id="endDate" class="filter-input" value="{{ end_date }}"></label>
         <button class="btn-primary" onclick="loadReport()">Generar</button>
         <button class="btn-primary" style="background: #10b981;"
-            onclick="alert('Exportación CSV no disponible por falta de datos completos')">Exportar CSV</button>
+            onclick="alert('Exportacion CSV no disponible por falta de datos completos')">Exportar CSV</button>
     </div>
 
     <div class="table-container">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>RNC/Cédula</th>
+                    <th>RNC/Cedula</th>
                     <th>Tipo ID</th>
                     <th>NCF</th>
                     <th>Fecha</th>

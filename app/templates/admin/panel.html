@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set hide_search = True %}
 
-{% block title %}Panel de AdministraciÃ³n{% endblock %}
+{% block title %}Panel de Administracion{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-transparent py-4 sm:py-8">
@@ -9,9 +9,9 @@
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Panel de AdministraciÃ³n</h1>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Panel de Administracion</h1>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Gestiona usuarios, configuraciones y estadÃ­sticas del sistema
+                    Gestiona usuarios, configuraciones y estadisticas del sistema
                 </p>
             </div>
             <div class="flex items-center space-x-2">
@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <!-- EstadÃ­sticas Generales -->
+        <!-- Estadisticas Generales -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <!-- Total Usuarios -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -43,7 +43,7 @@
                 <div class="mt-4">
                     <a href="{{ url_for('main.admin_users') }}"
                         class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-                        Ver todos â†’
+                        Ver todos ->
                     </a>
                 </div>
             </div>
@@ -117,18 +117,18 @@
             </div>
         </div>
 
-        <!-- Accesos RÃ¡pidos -->
+        <!-- Accesos Rapidos -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Panel de ConfiguraciÃ³n -->
+            <!-- Panel de Configuracion -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">ConfiguraciÃ³n del Sistema</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Configuracion del Sistema</h2>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         Gestiona las configuraciones principales
                     </p>
                 </div>
                 <div class="p-6 space-y-3">
-                    <!-- ConfiguraciÃ³n de FacturaciÃ³n -->
+                    <!-- Configuracion de Facturacion -->
                     <a href="{{ url_for('invoices.settings') }}"
                         class="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/30 border-2 border-indigo-200 dark:border-indigo-800 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all duration-300 group">
                         <div class="flex items-center space-x-4">
@@ -142,8 +142,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">ConfiguraciÃ³n de FacturaciÃ³n</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">NCF, empresa, tÃ©rminos y condiciones
+                                <h3 class="font-bold text-gray-900 dark:text-white">Configuracion de Facturacion</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">NCF, empresa, terminos y condiciones
                                 </p>
                             </div>
                         </div>
@@ -154,7 +154,7 @@
                         </svg>
                     </a>
 
-                    <!-- GestiÃ³n de Gastos -->
+                    <!-- Gestion de Gastos -->
                     <a href="{{ url_for('expenses.expenses_list') }}"
                         class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-200 dark:border-blue-800 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all duration-300 group">
                         <div class="flex items-center space-x-4">
@@ -168,7 +168,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">GestiÃ³n de Gastos</h3>
+                                <h3 class="font-bold text-gray-900 dark:text-white">Gestion de Gastos</h3>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Control de gastos fijos y
                                     recurrentes</p>
                             </div>
@@ -205,7 +205,7 @@
                     {% endif %}
 
                     {% if current_user.is_admin or current_user.has_permission('inventory.catalogs.view') %}
-                    <!-- GestiÃ³n de CatÃ¡logos -->
+                    <!-- Gestion de Catalogos -->
                     <a href="{{ url_for('main.admin_catalogs') }}"
                         class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/30 border-2 border-purple-200 dark:border-purple-800 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all duration-300 group">
                         <div class="flex items-center space-x-4">
@@ -218,8 +218,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">GestiÃ³n de CatÃ¡logos</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Marcas, procesadores, tiendas y mÃ¡s
+                                <h3 class="font-bold text-gray-900 dark:text-white">Gestion de Catalogos</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Marcas, procesadores, tiendas y mas
                                 </p>
                             </div>
                         </div>
@@ -232,7 +232,7 @@
                     {% endif %}
 
                     {% if current_user.is_admin or current_user.has_permission('admin.settings.view') %}
-                    <!-- ConfiguraciÃ³n de Icecat API -->
+                    <!-- Configuracion de Icecat API -->
                     <a href="{{ url_for('admin.icecat_settings') }}"
                         class="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/30 border-2 border-orange-200 dark:border-orange-800 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all duration-300 group">
                         <div class="flex items-center space-x-4">
@@ -248,7 +248,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">ConfiguraciÃ³n de Icecat</h3>
+                                <h3 class="font-bold text-gray-900 dark:text-white">Configuracion de Icecat</h3>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">API tokens y credenciales
                                 </p>
                             </div>
@@ -262,7 +262,7 @@
                     {% endif %}
 
                     {% if current_user.is_admin or current_user.has_permission('reports.view') %}
-                    <!-- Reportes y AnÃ¡lisis -->
+                    <!-- Reportes y Analisis -->
                     <a href="{{ url_for('reports.index') }}"
                         class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/30 border-2 border-purple-200 dark:border-purple-800 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all duration-300 group">
                         <div class="flex items-center space-x-4">
@@ -276,8 +276,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 dark:text-white">Reportes y AnÃ¡lisis</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Ventas, inventario y mÃ©tricas</p>
+                                <h3 class="font-bold text-gray-900 dark:text-white">Reportes y Analisis</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Ventas, inventario y metricas</p>
                             </div>
                         </div>
                         <svg class="w-5 h-5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors"
@@ -296,7 +296,7 @@
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Usuarios Recientes</h2>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Ãšltimos 10 usuarios registrados
+                        Ultimos 10 usuarios registrados
                     </p>
                 </div>
                 <div class="p-6">

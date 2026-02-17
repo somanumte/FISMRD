@@ -42,12 +42,24 @@ def make_shell_context():
 
 # Ejecutar
 if __name__ == '__main__':
+    # Obtener IP local dinámicamente
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except:
+        local_ip = "127.0.0.1"
+
     print("\n" + "=" * 60)
-    print("🚀 INICIANDO SERVIDOR LUXERA")
+    print("INICIANDO SERVIDOR LUXERA")
     print("=" * 60)
-    print(f"🔗 URL: http://10.0.0.92:5000")
+    print(f"URL Local:   http://127.0.0.1:5000")
+    print(f"URL Network: http://{local_ip}:5000")
     print("=" * 60)
-    print("📚 Comandos CLI disponibles:")
+    print("DEBUG: ON")
+    print("Comandos CLI disponibles:")
     print("   flask setup-fresh     - ⚠️ Reinicia TODO + 50 laptops")
     print("   flask reset-db        - Reinicia BD vacía")
     print("   flask create-admin    - Crear admin")

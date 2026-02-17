@@ -11,6 +11,7 @@ from sqlalchemy import and_, or_, case
 from app import db
 from app.models.laptop import Laptop, Brand, LaptopImage, Processor, GraphicsCard, Screen, Storage, Ram, \
     OperatingSystem, LaptopModel
+from app.models.product import Product, ProductCategory
 from datetime import datetime, timedelta
 
 # ============================================
@@ -58,11 +59,33 @@ def landing():
 
     # Estadísticas para mostrar en la landing
     total_products = Laptop.query.filter_by(is_published=True).count()
+    
+    # Stats para filter cards
+    stats = {
+        'total': Laptop.query.filter(Laptop.is_published==True, Laptop.quantity > 0).count(),
+        'new': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.created_at >= datetime.now() - timedelta(days=30)
+        ).count(),
+        'featured': Laptop.query.filter(Laptop.is_published==True, Laptop.is_featured==True, Laptop.quantity > 0).count(),
+        'on_sale': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.discount_price != None,
+            Laptop.discount_price < Laptop.sale_price
+        ).count(),
+    }
+
+    # Obtener marcas activas para el marquee
+    brands = Brand.query.filter_by(is_active=True).order_by(Brand.name).all()
 
     return render_template(
         'landing/home.html',
         featured_laptops=featured_laptops,
-        total_products=total_products
+        total_products=total_products,
+        stats=stats,
+        brands=brands
     )
 
 
@@ -189,6 +212,31 @@ def catalog():
 
     # Condiciones disponibles - IMPORTANTE: debe coincidir con lo que usa el template
     conditions = ['new', 'used', 'refurbished']
+    
+    # Stats para filter cards
+    stats = {
+        'total': len(laptops),
+        'new': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.created_at >= datetime.now() - timedelta(days=30)
+        ).count(),
+        'featured': Laptop.query.filter(Laptop.is_published==True, Laptop.is_featured==True, Laptop.quantity > 0).count(),
+        'on_sale': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.discount_price != None,
+            Laptop.discount_price < Laptop.sale_price
+        ).count(),
+    }
+    
+    # Count by top brands
+    brand_counts = {}
+    for brand in brands[:4]:  # Top 4 brands
+        brand_counts[brand.id] = Laptop.query.filter_by(
+            is_published=True,
+            brand_id=brand.id
+        ).filter(Laptop.quantity > 0).count()
 
     # Pasar los datos con nombres exactos que espera el template
     return render_template(
@@ -205,7 +253,55 @@ def catalog():
         models=models,  # Para modelList - NUEVO: agregar modelos disponibles
         min_price_available=int(min_price_available),
         max_price_available=int(max_price_available),
-        total_products=len(laptops)
+        total_products=len(laptops),
+        stats=stats,
+        brand_counts=brand_counts
+    )
+
+
+# ============================================
+# RUTA: CATÁLOGO DE PRODUCTOS GENÉRICOS
+# ============================================
+
+@public_bp.route('/products')
+@public_bp.route('/catalog/products')
+def products_catalog():
+    """
+    Catálogo público de productos genéricos
+    URL: /catalog/products
+    """
+    # Obtener categorías activas
+    categories = ProductCategory.query.filter_by(is_active=True, parent_id=None).order_by(ProductCategory.sort_order).all()
+    
+    # Obtener productos publicados
+    query = Product.query.filter_by(is_published=True, is_active=True)
+    
+    # Filtros opcionales
+    cat_slug = request.args.get('category')
+    if cat_slug:
+        category = ProductCategory.query.filter_by(slug=cat_slug).first()
+        if category:
+            # Obtener IDs de la categoría y sus subcategorías
+            cat_ids = [category.id] + [sub.id for sub in category.subcategories]
+            query = query.filter(Product.category_id.in_(cat_ids))
+    
+    brand = request.args.get('brand')
+    if brand:
+        query = query.filter(Product.brand == brand)
+        
+    products = query.order_by(Product.created_at.desc()).all()
+    
+    # Marcas únicas para filtro
+    brands = db.session.query(Product.brand).filter(Product.is_published==True).distinct().all()
+    brands = [b[0] for b in brands if b[0]]
+
+    return render_template(
+        'landing/products_catalog.html',
+        products=products,
+        categories=categories,
+        brands=brands,
+        selected_category=cat_slug,
+        selected_brand=brand
     )
 
 # ============================================
@@ -276,12 +372,37 @@ def product_detail_slug(slug):
         )
     ).limit(4).all()
 
+    # Stats para filter cards
+    stats = {
+        'total': Laptop.query.filter_by(is_published=True).filter(Laptop.quantity > 0).count(),
+        'new': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.created_at >= datetime.now() - timedelta(days=30)
+        ).count(),
+        'featured': Laptop.query.filter_by(is_published=True, is_featured=True).filter(Laptop.quantity > 0).count(),
+        'on_sale': Laptop.query.filter(
+            Laptop.is_published == True,
+            Laptop.quantity > 0,
+            Laptop.discount_price != None,
+            Laptop.discount_price < Laptop.sale_price
+        ).count(),
+    }
+
+    # Count laptops of the same brand
+    brand_count = Laptop.query.filter_by(
+        is_published=True,
+        brand_id=laptop.brand_id
+    ).filter(Laptop.quantity > 0).count() if laptop.brand_id else 0
+
     return render_template(
-        'landing/product_datail.html',
+        'landing/product_detail.html',
         laptop=laptop,
         similar_laptops=similar_laptops,
         images=images,
-        cover_image=cover_image
+        cover_image=cover_image,
+        stats=stats,
+        brand_count=brand_count
     )
 
 
@@ -345,14 +466,14 @@ def api_laptops():
             'price': float(laptop.sale_price),
             'old_price': float(laptop.discount_price) if laptop.discount_price and float(laptop.discount_price) < float(
                 laptop.sale_price) else None,
-            'gpu': laptop.graphics_card.name if laptop.graphics_card else 'Integrada',
-            'cpu': laptop.processor.name if laptop.processor else 'Sin especificar',
-            'ram': laptop.ram.name if laptop.ram else 'No especificado',
-            'ssd': laptop.storage.name if laptop.storage else 'No especificado',
-            'screen': laptop.screen.name if laptop.screen else 'No especificado',
+            'gpu': laptop.discrete_gpu_full_name or laptop.onboard_gpu_full_name or (laptop.graphics_card.name if laptop.graphics_card else 'Integrada'),
+            'cpu': laptop.processor_full_name or (laptop.processor.name if laptop.processor else 'Sin especificar'),
+            'ram': laptop.ram_full_name or (laptop.ram.name if laptop.ram else 'No especificado'),
+            'ssd': laptop.storage_full_name or (laptop.storage.name if laptop.storage else 'No especificado'),
+            'screen': laptop.screen_full_name or (laptop.screen.name if laptop.screen else 'No especificado'),
             'condition': laptop.condition or 'new',
             'condition_display': condition_display,
-            'os': laptop.operating_system.name if laptop.operating_system else 'No especificado',
+            'os': laptop.operating_system.full_name or (laptop.operating_system.name if laptop.operating_system else 'No especificado'),
             'image': image_url,
             'entry_date': laptop.entry_date.isoformat() if laptop.entry_date else None,
             'is_new': is_new,
@@ -477,39 +598,62 @@ def api_search():
     if not query or len(query) < 2:
         return jsonify([])
 
-    # Buscar en nombre, marca y SKU
-    results = Laptop.query.join(Brand).filter(
+    # Buscar en nombre, marca y SKU (Laptops)
+    laptop_results = Laptop.query.join(Brand).filter(
         Laptop.is_published == True,
         Laptop.quantity > 0,
         or_(
             Laptop.display_name.ilike(f'%{query}%'),
             Brand.name.ilike(f'%{query}%'),
-            Laptop.sku.ilike(f'%{query}%'),
-            Laptop.short_description.ilike(f'%{query}%')
+            Laptop.sku.ilike(f'%{query}%')
+        )
+    ).limit(5).all()
+
+    # Buscar en nombre, marca y SKU (Productos Genéricos)
+    product_results = Product.query.filter(
+        Product.is_published == True,
+        Product.quantity > 0,
+        or_(
+            Product.name.ilike(f'%{query}%'),
+            Product.brand.ilike(f'%{query}%'),
+            Product.sku.ilike(f'%{query}%')
         )
     ).limit(5).all()
 
     suggestions = []
-    for laptop in results:
+    
+    # Agregar laptops
+    for laptop in laptop_results:
         cover_image = next((img for img in laptop.images if img.is_cover), None)
-        image_url = None
-        if cover_image:
-            image_url = url_for('static', filename=cover_image.image_path)
-        elif laptop.images and len(laptop.images) > 0:
-            image_url = url_for('static', filename=laptop.images[0].image_path)
-
+        image_url = url_for('static', filename=cover_image.image_path) if cover_image else None
+        
         suggestions.append({
             'id': laptop.id,
+            'type': 'laptop',
             'name': laptop.display_name,
             'brand': laptop.brand.name if laptop.brand else '',
-            'model': laptop.model.name if laptop.model else '',  # NUEVO: agregar modelo a sugerencias
             'price': float(laptop.discount_price or laptop.sale_price),
             'image': image_url,
-            'url': f'/product/{laptop.id}',
+            'url': url_for('public.product_detail_slug', slug=laptop.slug),
             'sku': laptop.sku
         })
 
-    return jsonify(suggestions)
+    # Agregar productos genéricos
+    for product in product_results:
+        image_url = product.main_image_url if hasattr(product, 'main_image_url') else None
+        
+        suggestions.append({
+            'id': product.id,
+            'type': 'product',
+            'name': product.name,
+            'brand': product.brand or '',
+            'price': float(product.discount_price or product.sale_price),
+            'image': image_url,
+            'url': url_for('public.product_detail_slug', slug=product.slug),
+            'sku': product.sku
+        })
+
+    return jsonify(suggestions[:8])
 
 
 # ============================================
@@ -695,6 +839,34 @@ def about():
 def contact():
     """Página de contacto"""
     return render_template('landing/contact.html')
+
+
+@public_bp.route('/warranty')
+@public_bp.route('/garantia')
+def warranty():
+    """Página de garantía"""
+    return render_template('landing/warranty.html')
+
+
+@public_bp.route('/faq')
+@public_bp.route('/preguntas-frecuentes')
+def faq():
+    """Preguntas frecuentes"""
+    return render_template('landing/faq.html')
+
+
+@public_bp.route('/privacy')
+@public_bp.route('/privacidad')
+def privacy():
+    """Política de privacidad"""
+    return render_template('landing/privacy.html')
+
+
+@public_bp.route('/terms')
+@public_bp.route('/terminos')
+def terms():
+    """Términos y condiciones"""
+    return render_template('landing/terms.html')
 
 
 # ============================================

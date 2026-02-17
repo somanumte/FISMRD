@@ -15,7 +15,12 @@ def fetch_product(gtin):
     Endpoint para buscar productos en Icecat por GTIN.
     """
     if not gtin:
-        return {'error': 'EAN/UPC no proporcionado.'}, 400
+        return {'success': False, 'error': 'EAN/UPC no proporcionado.'}, 400
         
-    data = IcecatService.fetch_by_gtin(gtin)
-    return data
+    try:
+        data = IcecatService.fetch_by_gtin(gtin)
+        return data
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error in fetch_product: {str(e)}")
+        return {'success': False, 'message': f'Error al consultar Icecat: {str(e)}'}, 200

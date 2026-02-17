@@ -6,9 +6,9 @@
 <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.css" rel="stylesheet">
 <style>
     :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --primary-light: #a5b4fc;
+        --primary: #7c3aed;
+        --primary-dark: #6d28d9;
+        --primary-light: #a855f7;
         --success: #10b981;
         --success-dark: #059669;
         --success-light: #a7f3d0;
@@ -18,9 +18,9 @@
         --warning: #f59e0b;
         --warning-dark: #d97706;
         --warning-light: #fcd34d;
-        --info: #3b82f6;
-        --info-dark: #2563eb;
-        --info-light: #93c5fd;
+        --info: #a855f7;
+        --info-dark: #9333ea;
+        --info-light: #c084fc;
         --dark: #1f2937;
         --light: #f9fafb;
 
@@ -39,7 +39,7 @@
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
         --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
         --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
         --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
         --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
@@ -61,7 +61,7 @@
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
         --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-        --gradient-primary: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+        --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
         --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
         --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
         --gradient-danger: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
@@ -446,10 +446,12 @@
             transform: scale(0, 0);
             opacity: 0.5;
         }
+
         20% {
             transform: scale(25, 25);
             opacity: 0.3;
         }
+
         100% {
             opacity: 0;
             transform: scale(40, 40);
@@ -659,6 +661,7 @@
             opacity: 0;
             transform: translateY(8px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -679,8 +682,13 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .empty-state {
@@ -1278,17 +1286,42 @@
 <div class="dashboard-layout">
     <!-- Contenido principal -->
     <main class="dashboard-main">
-        <!-- Header optimizado para móvil -->
-        <header class="dashboard-header">
-            <div>
-                <h1 class="header-title">
-                    Dashboard
-                    <span class="header-subtitle">{{ financial_data.period_label }}</span>
-                </h1>
+        <!-- Purple Gradient Hero Section -->
+        <div class="dashboard-container" style="padding-top: 1.5rem;">
+            <div class="list-hero"
+                style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #c084fc 100%); border-radius: 1.5rem; padding: 1.75rem 2rem; position: relative; overflow: hidden; margin-bottom: 2rem;">
+                <div
+                    style="position: absolute; top: -50%; right: -30%; width: 60%; height: 200%; background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08) 0%, transparent 70%); pointer-events: none;">
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10"
+                    style="position: relative; z-index: 10;">
+                    <div>
+                        <h1 style="font-size: 1.875rem; font-weight: 700; color: white; margin: 0;">
+                            <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i> Dashboard
+                        </h1>
+                        <p
+                            style="color: rgba(255, 255, 255, 0.8); margin-top: 0.25rem; font-size: 0.875rem; margin-bottom: 0;">
+                            {{ financial_data.period_label }} - Análisis en tiempo real
+                        </p>
+                    </div>
+
+                    <!-- Desktop Period Selector -->
+                    <div class="period-selector-desktop">
+                        <div class="period-selector"
+                            style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 3px; display: flex; gap: 2px;">
+                            {% for key, label in periods.items() %}
+                            <a href="{{ url_for('dashboard.index', period=key) }}"
+                                style="padding: 0.5rem 0.75rem; border: none; background: {% if current_period == key %}rgba(255, 255, 255, 0.2){% else %}transparent{% endif %}; color: white; font-weight: {% if current_period == key %}600{% else %}500{% endif %}; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.8125rem; white-space: nowrap; text-decoration: none; {% if current_period == key %}box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);{% endif %}">
+                                {{ label }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Selector de período móvil -->
-            <div class="period-selector-mobile">
+            <!-- Mobile Period Selector -->
+            <div class="period-selector-mobile" style="margin-bottom: 1.5rem;">
                 <div class="period-selector">
                     {% for key, label in periods.items() %}
                     <a href="{{ url_for('dashboard.index', period=key) }}"
@@ -1298,29 +1331,6 @@
                     {% endfor %}
                 </div>
             </div>
-
-            <div class="header-actions">
-                <!-- Botón de actualizar (oculto en móvil) -->
-                <button onclick="refreshDashboard()" class="btn btn-outline btn-icon refresh-btn">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-
-                <!-- Selector de período desktop -->
-                <div class="period-selector-desktop">
-                    <div class="period-selector">
-                        {% for key, label in periods.items() %}
-                        <a href="{{ url_for('dashboard.index', period=key) }}"
-                            class="period-btn {% if current_period == key %}active{% endif %}">
-                            {{ label }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Contenedor principal -->
-        <div class="dashboard-container">
             <!-- KPIs Financieros -->
             <div class="section">
                 <div class="section-header">
@@ -1589,7 +1599,8 @@
                             ${{ "{:,.0f}".format(inventory_data.summary.potential_profit) }}
                         </div>
                         <p class="metric-label">Potencial de Ganancia</p>
-                        <p class="metric-subtext">Valor de venta: ${{ "{:,.0f}".format(inventory_data.summary.inventory_sale_value) }}</p>
+                        <p class="metric-subtext">Valor de venta: ${{
+                            "{:,.0f}".format(inventory_data.summary.inventory_sale_value) }}</p>
                     </div>
                 </div>
 
@@ -1650,7 +1661,8 @@
                             <div class="performance-item">
                                 <div class="performance-item-info">
                                     <p class="performance-item-name">{{ item.brand }} {{ item.model }}</p>
-                                    <p class="performance-item-sub">Margen: <strong>{{ "%.1f"|format(item.margin) }} %</strong></p>
+                                    <p class="performance-item-sub">Margen: <strong>{{ "%.1f"|format(item.margin) }}
+                                            %</strong></p>
                                 </div>
                                 <div class="performance-item-value">
                                     <p class="performance-main-val text-profit">${{ "{:,.0f}".format(item.profit) }}</p>
@@ -1680,7 +1692,8 @@
                                     <p class="performance-item-sub">Surtido: {{ item.units_sold }} vendidos</p>
                                 </div>
                                 <div class="performance-item-value">
-                                    <p class="performance-main-val text-revenue">${{ "{:,.0f}".format(item.profit) }}</p>
+                                    <p class="performance-main-val text-revenue">${{ "{:,.0f}".format(item.profit) }}
+                                    </p>
                                     <p class="performance-label">TOTAL</p>
                                 </div>
                             </div>
@@ -1694,7 +1707,8 @@
             <div class="section">
                 {% if alerts %}
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-3" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                    <h3 class="text-lg font-semibold mb-3"
+                        style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
                         Alertas Prioritarias
                     </h3>
                     <div class="space-y-2" style="display: flex; flex-direction: column; gap: 0.75rem;">
@@ -1702,8 +1716,11 @@
                         <div class="alert alert-{{ alert.type }}">
                             <i class="fas fa-{{ alert.icon }} mt-1"></i>
                             <div class="flex-1">
-                                <h4 class="font-semibold" style="font-weight: 600; color: var(--text-primary);">{{ alert.title }}</h4>
-                                <p class="text-sm mt-1" style="font-size: 0.875rem; margin-top: 0.25rem; color: var(--text-secondary);">{{ alert.message }}</p>
+                                <h4 class="font-semibold" style="font-weight: 600; color: var(--text-primary);">{{
+                                    alert.title }}</h4>
+                                <p class="text-sm mt-1"
+                                    style="font-size: 0.875rem; margin-top: 0.25rem; color: var(--text-secondary);">{{
+                                    alert.message }}</p>
                                 <a href="{{ url_for(alert.link) if alert.link else '#' }}"
                                     class="text-sm font-medium mt-2 inline-block"
                                     style="font-size: 0.875rem; font-weight: 500; margin-top: 0.5rem; display: inline-block; color: var(--primary);">
@@ -1718,14 +1735,17 @@
 
                 {% if insights %}
                 <div class="mt-8">
-                    <h3 class="text-lg font-semibold mb-3" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                    <h3 class="text-lg font-semibold mb-3"
+                        style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
                         Insights de IA
                     </h3>
-                    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <div class="grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
                         {% for insight in insights %}
                         <div class="performance-card">
                             <div class="performance-card-header">
-                                <div class="performance-icon-box" style="background: {{ chart_colors[insight.type] if insight.type in chart_colors else 'var(--gradient-primary)' }};">
+                                <div class="performance-icon-box"
+                                    style="background: {{ chart_colors[insight.type] if insight.type in chart_colors else 'var(--gradient-primary)' }};">
                                     <i class="fas fa-{{ insight.icon }}"></i>
                                 </div>
                                 <div class="performance-title-group">
@@ -1733,8 +1753,12 @@
                                     <p>Análisis inteligente</p>
                                 </div>
                             </div>
-                            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; line-height: 1.5;">{{ insight.message }}</p>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-top: auto;">💡 {{ insight.suggestion }}</p>
+                            <p
+                                style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.75rem; line-height: 1.5;">
+                                {{ insight.message }}</p>
+                            <p
+                                style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-top: auto;">
+                                💡 {{ insight.suggestion }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -2188,7 +2212,7 @@
     }
 
     // Update chart themes when theme changes
-    document.addEventListener('themeChanged', function() {
+    document.addEventListener('themeChanged', function () {
         setTimeout(() => {
             if (salesChart) salesChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });
             if (brandChart) brandChart.updateOptions({ theme: { mode: document.documentElement.classList.contains('dark') ? 'dark' : 'light' } });

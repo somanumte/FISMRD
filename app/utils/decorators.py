@@ -127,7 +127,18 @@ def any_permission_required(*permission_names, audit_action=None, audit_module=N
                 )
                 abort(403, description=f"Requiere uno de: {', '.join(permission_names)}")
 
-            return f(*args, **kwargs)
+            # Ejecutar función
+            result = f(*args, **kwargs)
+
+            # Registrar acción en auditoría (si se especificó)
+            if audit_action and audit_module:
+                from app.services.audit_service import AuditService
+                AuditService.log_action(
+                    action=audit_action,
+                    module=audit_module
+                )
+
+            return result
 
         return decorated_function
 
@@ -165,7 +176,18 @@ def all_permissions_required(*permission_names, audit_action=None, audit_module=
                 )
                 abort(403, description=f"Requiere todos: {', '.join(permission_names)}")
 
-            return f(*args, **kwargs)
+            # Ejecutar función
+            result = f(*args, **kwargs)
+
+            # Registrar acción en auditoría (si se especificó)
+            if audit_action and audit_module:
+                from app.services.audit_service import AuditService
+                AuditService.log_action(
+                    action=audit_action,
+                    module=audit_module
+                )
+
+            return result
 
         return decorated_function
 

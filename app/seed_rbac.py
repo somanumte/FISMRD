@@ -75,7 +75,57 @@ PERMISSIONS = [
         'is_dangerous': False
     },
 
-    # ──────────────── INVENTARIO: SERIALES ────────────────
+    # ---------------- PRODUCTOS GENERICOS ----------------
+    {
+        'name': 'products.view',
+        'display_name': 'Ver Productos',
+        'description': 'Ver listado y detalle de productos genericos',
+        'module': 'inventory',
+        'category': 'view',
+        'is_dangerous': False
+    },
+    {
+        'name': 'products.create',
+        'display_name': 'Crear Producto',
+        'description': 'Agregar nuevos productos genericos al inventario',
+        'module': 'inventory',
+        'category': 'manage',
+        'is_dangerous': False
+    },
+    {
+        'name': 'products.edit',
+        'display_name': 'Editar Producto',
+        'description': 'Modificar datos de productos existentes',
+        'module': 'inventory',
+        'category': 'manage',
+        'is_dangerous': False
+    },
+    {
+        'name': 'products.delete',
+        'display_name': 'Eliminar Producto',
+        'description': 'Eliminar productos del inventario (Soft Delete)',
+        'module': 'inventory',
+        'category': 'manage',
+        'is_dangerous': True
+    },
+    {
+        'name': 'products.categories.manage',
+        'display_name': 'Gestionar Categorias',
+        'description': 'Crear y editar categorias de productos',
+        'module': 'inventory',
+        'category': 'manage',
+        'is_dangerous': False
+    },
+    {
+        'name': 'products.stock',
+        'display_name': 'Ajustar Stock',
+        'description': 'Realizar ajustes manuales de inventario',
+        'module': 'inventory',
+        'category': 'manage',
+        'is_dangerous': False
+    },
+
+    # ---------------- INVENTARIO: SERIALES ----------------
     {
         'name': 'inventory.serials.view',
         'display_name': 'Ver Seriales',
@@ -459,6 +509,9 @@ ROLES = {
             'reports.view',
             'reports.sales.view',
             'reports.customers.view',
+
+            # Productos (solo lectura)
+            'products.view',
         ],
     },
 
@@ -499,6 +552,14 @@ ROLES = {
 
             # Clientes (solo lectura, para referencia)
             'customers.view',
+
+            # Productos (CRUD completo)
+            'products.view',
+            'products.create',
+            'products.edit',
+            'products.delete',
+            'products.categories.manage',
+            'products.stock',
         ],
     },
 }
@@ -515,8 +576,8 @@ def seed():
     print('  SEED RBAC - LuxeraRD')
     print('=' * 60)
 
-    # ── Paso 1: Crear permisos ──
-    print('\n📋 Creando permisos...')
+    # -- Paso 1: Crear permisos --
+    print('\n[PERMISOS] Creando permisos...')
     created_perms = 0
     skipped_perms = 0
 
@@ -541,7 +602,7 @@ def seed():
                 existing.is_dangerous = perm_data.get('is_dangerous', False)
                 changed = True
             if changed:
-                print(f'  ♻️  Actualizado: {perm_data["name"]}')
+                print(f'  [UPD] Actualizado: {perm_data["name"]}')
             else:
                 skipped_perms += 1
             continue
@@ -556,19 +617,19 @@ def seed():
         )
         db.session.add(perm)
         created_perms += 1
-        print(f'  ✅ Creado: {perm_data["name"]}')
+        print(f'  [OK] Creado: {perm_data["name"]}')
 
     db.session.commit()
     print(f'\n  Resumen: {created_perms} creados, {skipped_perms} ya existían')
 
-    # ── Paso 2: Crear roles ──
-    print('\n👥 Creando roles...')
+    # -- Paso 2: Crear roles --
+    print('\n[ROLES] Creando roles...')
 
     for role_name, role_data in ROLES.items():
         existing_role = Role.query.filter_by(name=role_name).first()
 
         if existing_role:
-            print(f'  ♻️  Rol "{role_name}" ya existe — actualizando permisos...')
+            print(f'  [EXISTE] Rol "{role_name}" ya existe - actualizando permisos...')
             role = existing_role
             role.display_name = role_data['display_name']
             role.description = role_data['description']
@@ -582,19 +643,19 @@ def seed():
             )
             db.session.add(role)
             db.session.flush()  # Get role.id
-            print(f'  ✅ Creado: {role_data["display_name"]}')
+            print(f'  [OK] Creado: {role_data["display_name"]}')
 
         # Sincronizar permisos del rol
         perm_names = role_data['permissions']
         permissions = Permission.query.filter(Permission.name.in_(perm_names)).all()
         role.permissions = permissions
-        print(f'     → {len(permissions)} permisos asignados')
+        print(f'     -> {len(permissions)} permisos asignados')
 
     db.session.commit()
 
-    # ── Paso 3: Resumen final ──
+    # -- Paso 3: Resumen final --
     print('\n' + '=' * 60)
-    print('  ✅ SEED COMPLETADO')
+    print('  [FIN] SEED COMPLETADO')
     print('=' * 60)
 
     total_perms = Permission.query.count()
@@ -605,13 +666,13 @@ def seed():
     print('\n  Roles y sus permisos:')
     for role in Role.query.order_by(Role.name).all():
         perm_count = len(role.permissions)
-        print(f'    • {role.display_name} ({role.name}): {perm_count} permisos')
+        print(f'    * {role.display_name} ({role.name}): {perm_count} permisos')
 
     print('\n  Permisos por módulo:')
     for module, perms in Permission.get_all_grouped_by_module().items():
-        print(f'    • {module}: {len(perms)} permisos')
+        print(f'    * {module}: {len(perms)} permisos')
 
-    print('\n  ℹ️  Para asignar un rol a un usuario:')
+    print('\n  [INFO] Para asignar un rol a un usuario:')
     print('     from app.services.role_service import RoleService')
     print('     RoleService.assign_role_to_user(user_id=1, role_id=<role_id>)')
     print()

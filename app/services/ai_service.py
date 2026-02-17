@@ -429,7 +429,12 @@ class AIService:
         """
         try:
             if not laptops_data:
-                return {}
+                return {
+                    'matrix_data': [],
+                    'quadrant_analysis': {},
+                    'total_items': 0,
+                    'recommendations': []
+                }
 
             # Calcular métricas para matriz BCG
             total_sales = sum(item.get('z', item.get('sales', 0)) for item in laptops_data)

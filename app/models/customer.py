@@ -12,7 +12,7 @@ class Customer(TimestampMixin, db.Model):
     """
     Modelo de Cliente
 
-    Soporta tanto personas fÃ­sicas (con cÃ©dula) como empresas (con RNC)
+    Soporta tanto personas fisicas (con cedula) como empresas (con RNC)
     """
     __tablename__ = 'customers'
 
@@ -22,14 +22,14 @@ class Customer(TimestampMixin, db.Model):
     # Tipo de cliente: 'person' o 'company'
     customer_type = db.Column(db.String(20), nullable=False, default='person', index=True)
 
-    # ===== INFORMACIÃ“N PERSONAL/EMPRESA =====
+    # ===== INFORMACION PERSONAL/EMPRESA =====
     first_name = db.Column(db.String(100), nullable=True)  # Nombre (persona)
     last_name = db.Column(db.String(100), nullable=True)  # Apellido (persona)
     company_name = db.Column(db.String(200), nullable=True, index=True)  # Nombre empresa
 
-    # ===== IDENTIFICACIÃ“N FISCAL =====
-    # Para personas: cÃ©dula (11 dÃ­gitos, formato: XXX-XXXXXXX-X)
-    # Para empresas: RNC (9 u 11 dÃ­gitos)
+    # ===== IDENTIFICACION FISCAL =====
+    # Para personas: cedula (11 digitos, formato: XXX-XXXXXXX-X)
+    # Para empresas: RNC (9 u 11 digitos)
     id_number = db.Column(db.String(20), unique=True, nullable=False, index=True)
     id_type = db.Column(db.String(20), nullable=False)  # 'cedula' o 'rnc'
 
@@ -39,20 +39,20 @@ class Customer(TimestampMixin, db.Model):
     phone_secondary = db.Column(db.String(20), nullable=True)
     whatsapp = db.Column(db.String(20), nullable=True)
 
-    # ===== DIRECCIÃ“N =====
+    # ===== DIRECCION =====
     address_line1 = db.Column(db.String(200), nullable=True)
     address_line2 = db.Column(db.String(200), nullable=True)
     city = db.Column(db.String(100), nullable=True)
     province = db.Column(db.String(100), nullable=True)
     postal_code = db.Column(db.String(10), nullable=True)
-    country = db.Column(db.String(100), default='RepÃºblica Dominicana')
+    country = db.Column(db.String(100), default='Republica Dominicana')
 
-    # ===== INFORMACIÃ“N ADICIONAL =====
+    # ===== INFORMACION ADICIONAL =====
     notes = db.Column(db.Text, nullable=True)
-    credit_limit = db.Column(db.Numeric(12, 2), default=0.00)  # LÃ­mite de crÃ©dito
+    credit_limit = db.Column(db.Numeric(12, 2), default=0.00)  # Limite de credito
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
-    # ===== AUDITORÃA =====
+    # ===== AUDITORIA =====
     created_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_by = db.relationship('User', foreign_keys=[created_by_id])
 
@@ -72,7 +72,7 @@ class Customer(TimestampMixin, db.Model):
 
     @property
     def formatted_id(self):
-        """NÃºmero de identificaciÃ³n formateado"""
+        """Numero de identificacion formateado"""
         if self.id_type == 'cedula' and len(self.id_number) == 11:
             # Formato: XXX-XXXXXXX-X
             return f"{self.id_number[:3]}-{self.id_number[3:10]}-{self.id_number[10]}"
@@ -80,7 +80,7 @@ class Customer(TimestampMixin, db.Model):
 
     @property
     def full_address(self):
-        """DirecciÃ³n completa formateada"""
+        """Direccion completa formateada"""
         parts = []
         if self.address_line1:
             parts.append(self.address_line1)
@@ -93,9 +93,9 @@ class Customer(TimestampMixin, db.Model):
         if self.postal_code:
             parts.append(self.postal_code)
 
-        return ', '.join(parts) if parts else 'Sin direcciÃ³n'
+        return ', '.join(parts) if parts else 'Sin direccion'
 
-    # ===== MÃ‰TODOS =====
+    # ===== METODOS =====
 
     def to_dict(self):
         """Serializar a diccionario"""
@@ -132,7 +132,7 @@ class Customer(TimestampMixin, db.Model):
     def __repr__(self):
         return f'<Customer {self.id} - {self.display_name}>'
 
-    # ===== ÃNDICES COMPUESTOS =====
+    # ===== INDICES COMPUESTOS =====
     __table_args__ = (
         db.Index('idx_customer_type_active', 'customer_type', 'is_active'),
         db.Index('idx_customer_name', 'first_name', 'last_name'),

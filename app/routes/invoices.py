@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# RUTAS DE FACTURACIÃƒÆ’Ã¢â‚¬Å“N
+# RUTAS DE FACTURACION
 # ============================================
 # Actualizado para manejar NCF con secuencias independientes por tipo
-# SegÃƒÆ’Ã‚Âºn regulaciones DGII RepÃƒÆ’Ã‚Âºblica Dominicana
+# Segun regulaciones DGII Republica Dominicana
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file
 from flask_login import login_required, current_user
@@ -16,6 +16,7 @@ from app.models.invoice import (
 )
 from app.models.customer import Customer
 from app.models.laptop import Laptop
+from app.models.product import Product
 from app.services.invoice_inventory_service import InvoiceInventoryService
 from datetime import datetime, date
 from decimal import Decimal
@@ -47,11 +48,11 @@ invoices_bp = Blueprint(
 @permission_required('invoices.list')
 def invoices_list():
     """
-    Lista de todas las facturas con bÃƒÆ’Ã‚Âºsqueda y filtros
+    Lista de todas las facturas con busqueda y filtros
 
     URL: /invoices/
     """
-    # ParÃƒÆ’Ã‚Â¡metros de bÃƒÆ’Ã‚Âºsqueda
+    # Parametros de busqueda
     search_query = request.args.get('q', '').strip()
     status_filter = request.args.get('status', '').strip()
     ncf_type_filter = request.args.get('ncf_type', '').strip()
@@ -61,7 +62,7 @@ def invoices_list():
     # Query base
     query = Invoice.query
 
-    # Aplicar bÃƒÆ’Ã‚Âºsqueda
+    # Aplicar busqueda
     if search_query:
         query = query.join(Customer).filter(
             or_(
@@ -97,33 +98,44 @@ def invoices_list():
         except ValueError:
             pass
 
-    # Ordenar por fecha descendente
-    invoices = query.order_by(Invoice.invoice_date.desc(), Invoice.id.desc()).all()
+    # Paginacion
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
 
-    # Calcular estadÃƒÆ’Ã‚Â­sticas
-    total_invoices = len(invoices)
-    total_amount = sum(inv.total for inv in invoices)
+    # Ordenar por fecha descendente
+    query = query.order_by(Invoice.invoice_date.desc(), Invoice.id.desc())
+
+    # Paginar
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    invoices = pagination.items
+
+    # Calcular estadisticas (de toda la consulta filtrada, no solo de la pagina)
+    # Para estadisticas totales, necesitamos una query separada o usar la query base sin paginar
+    all_filtered_invoices = query.all()
+    total_invoices = len(all_filtered_invoices)
+    total_amount = sum(inv.total for inv in all_filtered_invoices)
 
     # Contar por estado
     status_counts = {
-        'draft': sum(1 for inv in invoices if inv.status == 'draft'),
-        'issued': sum(1 for inv in invoices if inv.status == 'issued'),
-        'paid': sum(1 for inv in invoices if inv.status == 'paid'),
-        'cancelled': sum(1 for inv in invoices if inv.status == 'cancelled'),
-        'overdue': sum(1 for inv in invoices if inv.is_overdue)
+        'draft': sum(1 for inv in all_filtered_invoices if inv.status == 'draft'),
+        'issued': sum(1 for inv in all_filtered_invoices if inv.status == 'issued'),
+        'paid': sum(1 for inv in all_filtered_invoices if inv.status == 'paid'),
+        'cancelled': sum(1 for inv in all_filtered_invoices if inv.status == 'cancelled'),
+        'overdue': sum(1 for inv in all_filtered_invoices if inv.is_overdue)
     }
 
     # Contar por tipo de NCF
     ncf_type_counts = {}
     for ncf_type in NCF_SALES_TYPES:
-        ncf_type_counts[ncf_type] = sum(1 for inv in invoices if inv.ncf_type == ncf_type)
+        ncf_type_counts[ncf_type] = sum(1 for inv in all_filtered_invoices if inv.ncf_type == ncf_type)
 
-    # Obtener configuraciÃ³n
+    # Obtener configuracion
     settings = InvoiceSettings.get_settings()
 
     return render_template(
         'invoices/invoices_list.html',
         invoices=invoices,
+        pagination=pagination,
         settings=settings,
         search_query=search_query,
         status_filter=status_filter,
@@ -204,10 +216,10 @@ def invoice_new():
 
 @invoices_bp.route('/create', methods=['POST'])
 @login_required
-@permission_required('invoices.create')
+@permission_required('invoices.create', audit_action='create_invoice', audit_module='invoices')
 def invoice_create():
     """
-    Procesar creaciÃƒÆ’Ã‚Â³n de nueva factura
+    Procesar creacion de nueva factura
 
     URL: /invoices/create (POST)
     """
@@ -233,16 +245,16 @@ def invoice_create():
 
         customer = Customer.query.get_or_404(int(customer_id))
 
-        # ===== LÃƒÆ’Ã¢â‚¬Å“GICA DE ASIGNACIÃƒÆ’Ã¢â‚¬Å“N DE NCF =====
+        # ===== LOGICA DE ASIGNACION DE NCF =====
 
-        # Si no se especificÃƒÆ’Ã‚Â³ tipo de NCF, asignar automÃƒÆ’Ã‚Â¡ticamente segÃƒÆ’Ã‚Âºn el cliente
+        # Si no se especifico tipo de NCF, asignar automaticamente segun el cliente
         if not ncf_type:
             ncf_type = Invoice.get_suggested_ncf_type(customer)
 
-        # Validar que el tipo de NCF sea vÃƒÆ’Ã‚Â¡lido para ventas
+        # Validar que el tipo de NCF sea valido para ventas
         if ncf_type not in NCF_SALES_TYPES:
-            flash(f'El tipo de comprobante "{ncf_type}" no es vÃƒÆ’Ã‚Â¡lido para facturas de venta. '
-                  f'Tipos vÃƒÆ’Ã‚Â¡lidos: {", ".join(NCF_SALES_TYPES)}', 'error')
+            flash(f'El tipo de comprobante "{ncf_type}" no es valido para facturas de venta. '
+                  f'Tipos validos: {", ".join(NCF_SALES_TYPES)}', 'error')
             return redirect(url_for('invoices.invoice_new'))
 
         # Validar que el NCF sea apropiado para el cliente (genera advertencias)
@@ -254,19 +266,19 @@ def invoice_create():
         if warning_msg:
             flash(warning_msg, 'warning')
 
-        # Obtener configuraciÃƒÆ’Ã‚Â³n
+        # Obtener configuracion
         settings = InvoiceSettings.get_settings()
 
         # ===== GENERAR O VALIDAR NCF =====
         if use_manual_ncf and manual_ncf:
-            # El usuario ingresÃƒÆ’Ã‚Â³ un NCF manualmente
+            # El usuario ingreso un NCF manualmente
             is_valid, error_msg = settings.validate_manual_ncf(manual_ncf, ncf_type)
             if not is_valid:
                 flash(f'Error en NCF manual:\n{error_msg}', 'error')
                 return redirect(url_for('invoices.invoice_new'))
             ncf = manual_ncf
         else:
-            # Generar NCF automÃƒÆ’Ã‚Â¡ticamente de la secuencia
+            # Generar NCF automaticamente de la secuencia
             try:
                 ncf = settings.get_next_ncf(ncf_type)
             except ValueError as e:
@@ -288,7 +300,7 @@ def invoice_create():
                 flash(f'Error de stock: {error_msg}', 'error')
                 return redirect(url_for('invoices.invoice_new'))
 
-        # Generar nÃƒÆ’Ã‚Âºmero de factura
+        # Generar numero de factura
         invoice_number = settings.get_next_invoice_number()
 
         # Crear factura
@@ -342,26 +354,10 @@ def invoice_create():
             db.session.flush()  # NUEVO: Flush para obtener item.id antes de asignar seriales
 
             # ==========================================
-            # NUEVO: Procesar serial_ids si existen
-            # ==========================================
-            serial_ids = item_data.get('serial_ids', [])
-            if serial_ids and len(serial_ids) > 0 and item_type == 'laptop':
-                # Importar el servicio de seriales
-                from app.services.serial_service import SerialService
-
-                # Asignar seriales al item usando el servicio existente
-                success, result = SerialService.assign_serials_to_invoice_item(
-                    invoice_item=item,
-                    serial_ids=serial_ids,
-                    user_id=current_user.id
-                )
-
-                if not success:
-                    db.session.rollback()
-                    flash(f'Error asignando seriales: {result}', 'error')
-                    return redirect(url_for('invoices.invoice_new'))
-            # ==========================================
-            # FIN NUEVO CÃƒâ€œDIGO
+            # NOTA: La asignación de seriales se manejará 
+            # de forma centralizada por process_sale_with_serials
+            # si el estado es 'paid'. Si no, los seriales ya
+            # quedan disponibles para uso futuro.
             # ==========================================
 
             line_order += 1
@@ -391,7 +387,7 @@ def invoice_create():
         db.session.add(settings)
         db.session.commit()
 
-        # Mensaje de ÃƒÂ©xito con informaciÃƒÂ³n del NCF
+        # Mensaje de exito con informacion del NCF
         ncf_type_name = NCF_TYPES.get(ncf_type, {}).get('name', ncf_type)
         flash(f'Factura {invoice_number} creada exitosamente con {ncf_type_name} ({ncf})', 'success')
         return redirect(url_for('invoices.invoice_detail', invoice_id=invoice.id))
@@ -424,7 +420,7 @@ def invoice_detail(invoice_id):
     # Verificar disponibilidad de items
     availability_check = InvoiceInventoryService.check_invoice_items_availability(invoice)
 
-    # InformaciÃƒÆ’Ã‚Â³n del tipo de NCF
+    # Informacion del tipo de NCF
     ncf_type_info = NCF_TYPES.get(invoice.ncf_type, {})
 
     return render_template(
@@ -504,7 +500,7 @@ def invoice_edit(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/update', methods=['POST'])
 @login_required
-@permission_required('invoices.edit')
+@permission_required('invoices.edit', audit_action='edit_invoice', audit_module='invoices')
 def invoice_update(invoice_id):
     """
     Actualizar factura existente
@@ -532,14 +528,14 @@ def invoice_update(invoice_id):
         # Obtener el nuevo estado del formulario
         new_status = request.form.get('status', 'draft')
 
-        # Si se estÃƒÆ’Ã‚Â¡ cambiando a 'paid', validar stock
+        # Si se esta cambiando a 'paid', validar stock
         if new_status == 'paid':
             is_valid, error_msg = InvoiceInventoryService.validate_stock_for_invoice_items(items_data)
             if not is_valid:
                 flash(f'Error de stock: {error_msg}', 'error')
                 return redirect(url_for('invoices.invoice_edit', invoice_id=invoice.id))
 
-        # Actualizar datos bÃƒÆ’Ã‚Â¡sicos (NO se permite cambiar NCF ni tipo de NCF)
+        # Actualizar datos basicos (NO se permite cambiar NCF ni tipo de NCF)
         invoice.invoice_date = datetime.strptime(request.form.get('invoice_date'), '%Y-%m-%d').date()
         due_date = request.form.get('due_date')
         invoice.due_date = datetime.strptime(due_date, '%Y-%m-%d').date() if due_date else None
@@ -622,7 +618,7 @@ def invoice_update(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/status', methods=['POST'])
 @login_required
-@permission_required('invoices.edit')
+@permission_required('invoices.edit', audit_action='change_invoice_status', audit_module='invoices')
 def invoice_change_status(invoice_id):
     """
     Cambiar estado de factura
@@ -634,7 +630,7 @@ def invoice_change_status(invoice_id):
     old_status = invoice.status
 
     if new_status not in ['draft', 'issued', 'paid', 'cancelled', 'overdue']:
-        flash('Estado invÃƒÆ’Ã‚Â¡lido', 'error')
+        flash('Estado invalido', 'error')
         return redirect(url_for('invoices.invoice_detail', invoice_id=invoice.id))
 
     try:
@@ -678,7 +674,7 @@ def invoice_change_status(invoice_id):
         db.session.commit()
         flash(f'Estado actualizado a {new_status}', 'success')
 
-        # Si se marcÃƒÆ’Ã‚Â³ como pagada, mostrar resumen de inventario actualizado
+        # Si se marco como pagada, mostrar resumen de inventario actualizado
         if new_status == 'paid':
             inventory_summary = InvoiceInventoryService.get_inventory_summary_for_invoice(invoice)
             if inventory_summary['has_laptops']:
@@ -697,7 +693,7 @@ def invoice_change_status(invoice_id):
 
 @invoices_bp.route('/<int:invoice_id>/delete', methods=['POST'])
 @login_required
-@permission_required('invoices.delete')
+@permission_required('invoices.delete', audit_action='delete_invoice', audit_module='invoices')
 def invoice_delete(invoice_id):
     """
     Eliminar factura
@@ -711,11 +707,11 @@ def invoice_delete(invoice_id):
         flash('Solo se pueden eliminar facturas en borrador', 'warning')
         return redirect(url_for('invoices.invoice_detail', invoice_id=invoice.id))
 
-    # Si la factura tiene items de laptop y estÃƒÆ’Ã‚Â¡ pagada, restaurar inventario primero
+    # Si la factura tiene items de laptop y esta pagada, restaurar inventario primero
     if invoice.status == 'paid':
         has_laptops = any(item.item_type == 'laptop' for item in invoice.items.all())
         if has_laptops:
-            flash('No se puede eliminar una factura pagada con laptops. Primero cÃƒÆ’Ã‚Â¡mbiale el estado a "cancelled"',
+            flash('No se puede eliminar una factura pagada con laptops. Primero cambiale el estado a "cancelled"',
                   'error')
             return redirect(url_for('invoices.invoice_detail', invoice_id=invoice.id))
 
@@ -856,7 +852,7 @@ def settings():
 
 @invoices_bp.route('/settings/update', methods=['POST'])
 @login_required
-@permission_required('invoices.settings.manage')
+@permission_required('invoices.settings.manage', audit_action='update_invoice_settings', audit_module='invoices')
 def settings_update():
     """
     Actualizar configuraciÃƒÆ’Ã‚Â³n de facturaciÃƒÆ’Ã‚Â³n
@@ -908,7 +904,7 @@ def settings_update():
 
 @invoices_bp.route('/settings/ncf-sequence/<ncf_type>/update', methods=['POST'])
 @login_required
-@permission_required('invoices.settings.manage')
+@permission_required('invoices.settings.manage', audit_action='update_ncf_sequence', audit_module='invoices')
 def update_ncf_sequence(ncf_type):
     """
     Actualizar una secuencia de NCF especÃƒÆ’Ã‚Â­fica
@@ -1211,7 +1207,7 @@ def api_get_laptop_details(laptop_id):
 
 @invoices_bp.route('/settings/upload-logo', methods=['POST'])
 @login_required
-@permission_required('invoices.settings.manage')
+@permission_required('invoices.settings.manage', audit_action='upload_invoice_logo', audit_module='invoices')
 def upload_logo():
     """
     Subir logo para facturas
@@ -1296,7 +1292,7 @@ def upload_logo():
 
 @invoices_bp.route('/settings/remove-logo', methods=['POST'])
 @login_required
-@permission_required('invoices.settings.manage')
+@permission_required('invoices.settings.manage', audit_action='remove_invoice_logo', audit_module='invoices')
 def remove_logo():
     """
     Eliminar logo actual
@@ -1331,3 +1327,64 @@ def remove_logo():
             'success': False,
             'message': f'Error al eliminar logo: {str(e)}'
         }), 500
+
+
+@invoices_bp.route('/api/search-all-products')
+@login_required
+def api_search_all_products():
+    """
+    Busca laptops Y productos genéricos para agregar a facturas.
+    URL: /invoices/api/search-all-products?q=texto
+    """
+    query = request.args.get('q', '').strip()
+    if not query or len(query) < 2:
+        return jsonify({'results': []})
+    
+    results = []
+    search = f"%{query}%"
+    
+    # Buscar en Laptops
+    laptops = Laptop.query.filter(
+        Laptop.quantity > 0,
+        or_(
+            Laptop.display_name.ilike(search),
+            Laptop.sku.ilike(search),
+        )
+    ).limit(10).all()
+    
+    for l in laptops:
+        results.append({
+            'id': l.id,
+            'type': 'laptop',
+            'sku': l.sku,
+            'name': l.display_name,
+            'brand': l.brand.name if l.brand else '',
+            'price': float(l.effective_price),
+            'quantity': l.available_quantity,
+            'category': 'Laptop',
+        })
+    
+    # Buscar en Productos Genéricos
+    products = Product.query.filter(
+        Product.is_active == True,
+        Product.quantity > 0,
+        or_(
+            Product.name.ilike(search),
+            Product.sku.ilike(search),
+            Product.barcode.ilike(search),
+        )
+    ).limit(10).all()
+    
+    for p in products:
+        results.append({
+            'id': p.id,
+            'type': 'product',
+            'sku': p.sku,
+            'name': p.name,
+            'brand': p.brand or '',
+            'price': float(p.effective_price),
+            'quantity': p.available_quantity,
+            'category': p.category.name if p.category else p.product_type,
+        })
+    
+    return jsonify({'results': results})

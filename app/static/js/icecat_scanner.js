@@ -14,6 +14,7 @@ class IcecatScanner {
         this.gtinInput = document.getElementById('gtin-input');
 
         this.init();
+        console.log('IcecatScanner initialized. SecureContext:', window.isSecureContext);
     }
 
     init() {
@@ -21,7 +22,12 @@ class IcecatScanner {
             this.btnToggleScanner.addEventListener('click', () => this.toggleScanner());
         }
         if (this.btnFetchIcecat) {
-            this.btnFetchIcecat.addEventListener('click', () => this.fetchData());
+            this.btnFetchIcecat.addEventListener('click', () => {
+                console.log('Botón Buscar Icecat presionado');
+                this.fetchData();
+            });
+        } else {
+            console.error('ERROR CRÍTICO: No se encontró el botón btn-fetch-icecat en el DOM');
         }
 
         // Listen for enter key in GTIN input
@@ -201,10 +207,57 @@ class IcecatScanner {
         // Información básica
         setVal('display_name', product.nombre_visualizacion || product.nombre_comercial);
         setVal('short_description', product.short_description);
-        // Default Values as per requirements
-        setVal('category', 'laptop');
+        // Información básica
+        setVal('display_name', product.nombre_visualizacion || product.nombre_comercial);
+        setVal('short_description', product.short_description);
         setVal('condition', 'new');
         setVal('gtin', product.gtin);
+
+        // --- Lógica de Mapeo Inteligente de Categoría y Tipo ---
+
+        // 1. Mapear Categoría (Texto -> ID)
+        const icecatCategory = (product.categoria || '').toLowerCase();
+        const categorySelect = document.getElementById('product-category');
+        if (categorySelect && icecatCategory) {
+            let found = false;
+            // Buscar coincidencia exacta o parcial en el texto de las opciones
+            for (let i = 0; i < categorySelect.options.length; i++) {
+                const optText = categorySelect.options[i].text.toLowerCase().replace('↳ ', '').trim();
+                // Coincidencia exacta o si la categoría de icecat contiene la opción (ej: "Notebooks" contiene "Notebook")
+                if (optText === icecatCategory || (optText.length > 3 && icecatCategory.includes(optText))) {
+                    categorySelect.selectedIndex = i;
+                    found = true;
+                    console.log(`IcecatScanner: Categoría mapeada '${icecatCategory}' -> ID ${categorySelect.value} (${optText})`);
+                    break;
+                }
+            }
+            if (found) {
+                const event = new Event('change', { bubbles: true });
+                categorySelect.dispatchEvent(event);
+            }
+        }
+
+        // 2. Mapear Tipo de Producto (Inferencia simple)
+        const typeSelect = document.getElementById('product_type');
+        if (typeSelect) {
+            let estimatedType = 'other';
+            const nameLower = (product.nombre_visualizacion || '').toLowerCase();
+            const catLower = (product.categoria || '').toLowerCase();
+
+            if (catLower.includes('notebook') || catLower.includes('laptop') || catLower.includes('portátil')) estimatedType = 'laptop';
+            else if (catLower.includes('monitor') || catLower.includes('pantalla') || nameLower.includes('monitor')) estimatedType = 'monitor';
+            else if (catLower.includes('pc') || catLower.includes('desktop') || catLower.includes('ordenador')) estimatedType = 'desktop';
+            else if (catLower.includes('all-in-one') || catLower.includes('todo en uno')) estimatedType = 'all_in_one';
+            else if (catLower.includes('tablet')) estimatedType = 'tablet';
+            else if (catLower.includes('accesorio') || catLower.includes('cable') || catLower.includes('funda')) estimatedType = 'accessory';
+            else if (catLower.includes('componente') || catLower.includes('tarjeta') || catLower.includes('disco') || catLower.includes('memoria')) estimatedType = 'component';
+
+            typeSelect.value = estimatedType;
+            console.log(`IcecatScanner: Tipo estimado '${estimatedType}' basado en '${catLower}'`);
+
+            const event = new Event('change', { bubbles: true });
+            typeSelect.dispatchEvent(event);
+        }
 
         // Especificaciones técnicas (Mapeo V2.0)
         setVal('brand_id', product.marca);

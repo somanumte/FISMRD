@@ -215,7 +215,7 @@ def api_list_expenses():
 
 @bp.route('/api/create', methods=['POST'])
 @login_required
-@permission_required('expenses.create')
+@permission_required('expenses.create', audit_action='create_expense', audit_module='expenses')
 def api_create_expense():
     """Crear un nuevo gasto"""
     try:
@@ -257,7 +257,7 @@ def api_create_expense():
 
 @bp.route('/api/<int:expense_id>', methods=['DELETE'])
 @login_required
-@permission_required('expenses.delete')
+@permission_required('expenses.delete', audit_action='delete_expense', audit_module='expenses')
 def api_delete_expense(expense_id):
     """Eliminar un gasto"""
     expense = Expense.query.get_or_404(expense_id)
@@ -275,7 +275,7 @@ def api_delete_expense(expense_id):
 
 @bp.route('/api/<int:expense_id>', methods=['PUT'])
 @login_required
-@permission_required('expenses.edit')
+@permission_required('expenses.edit', audit_action='edit_expense', audit_module='expenses')
 def api_update_expense(expense_id):
     """Actualizar un gasto"""
     expense = Expense.query.get_or_404(expense_id)
@@ -318,7 +318,7 @@ def api_update_expense(expense_id):
 
 @bp.route('/api/<int:expense_id>/toggle-status', methods=['POST'])
 @login_required
-@permission_required('expenses.edit')
+@permission_required('expenses.edit', audit_action='toggle_expense_status', audit_module='expenses')
 def api_toggle_status(expense_id):
     """Cambiar estado de pago rápidamente"""
     expense = Expense.query.get_or_404(expense_id)

@@ -2,435 +2,199 @@
 
 {% block title %}Reportes y Análisis - FISMRD{% endblock %}
 
-{% block extra_css %}
-<style>
-    :root {
-        --report-blue: #3b82f6;
-        --report-green: #10b981;
-        --report-purple: #8b5cf6;
-        --report-yellow: #f59e0b;
-        --report-red: #ef4444;
-        --report-gray: #6b7280;
-    }
-
-    .reports-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .reports-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px;
-        padding: 3rem 2rem;
-        color: white;
-        margin-bottom: 2rem;
-        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-    }
-
-    .reports-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .reports-header p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-    }
-
-    .search-box {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 1rem 1.5rem 1rem 3.5rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: 1rem center;
-        background-size: 1.5rem;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    .category-card {
-        background: white;
-        border-radius: 16px;
-        padding: 2rem;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .category-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--category-color);
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-
-    .category-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-        border-color: var(--category-color);
-    }
-
-    .category-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .category-card.blue {
-        --category-color: var(--report-blue);
-    }
-
-    .category-card.green {
-        --category-color: var(--report-green);
-    }
-
-    .category-card.purple {
-        --category-color: var(--report-purple);
-    }
-
-    .category-card.yellow {
-        --category-color: var(--report-yellow);
-    }
-
-    .category-card.red {
-        --category-color: var(--report-red);
-    }
-
-    .category-card.gray {
-        --category-color: var(--report-gray);
-    }
-
-    .category-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        display: inline-block;
-        animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0px);
-        }
-
-        50% {
-            transform: translateY(-10px);
-        }
-    }
-
-    .category-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 0.5rem;
-    }
-
-    .category-count {
-        display: inline-block;
-        background: var(--category-color);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        margin-left: 0.5rem;
-    }
-
-    .category-description {
-        color: #6b7280;
-        font-size: 0.95rem;
-        margin-top: 0.5rem;
-    }
-
-    .reports-list {
-        display: none;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 2px solid #f3f4f6;
-    }
-
-    .reports-list.active {
-        display: block;
-        animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .report-item {
-        padding: 0.75rem 1rem;
-        margin: 0.5rem 0;
-        background: #f9fafb;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.2s ease;
-    }
-
-    .report-item:hover {
-        background: #f3f4f6;
-        transform: translateX(5px);
-    }
-
-    .report-item a {
-        color: #374151;
-        text-decoration: none;
-        font-weight: 500;
-        flex: 1;
-    }
-
-    .report-badge {
-        background: var(--category-color);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .stats-section {
-        background: white;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .stat-card {
-        text-align: center;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-        border-radius: 12px;
-        border: 2px solid #f3f4f6;
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: #6b7280;
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
-
-    .quick-access {
-        background: white;
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .quick-access h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .quick-link {
-        display: block;
-        padding: 1rem 1.5rem;
-        background: #f9fafb;
-        border-radius: 10px;
-        margin-bottom: 0.75rem;
-        text-decoration: none;
-        color: #374151;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border-left: 4px solid transparent;
-    }
-
-    .quick-link:hover {
-        background: #667eea;
-        color: white;
-        border-left-color: #4c51bf;
-        transform: translateX(5px);
-    }
-
-    @media (max-width: 768px) {
-        .reports-header h1 {
-            font-size: 1.75rem;
-        }
-
-        .categories-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="reports-container">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="reports-header">
-        <h1>📊 Reportes y Análisis</h1>
-        <p>Centro de inteligencia de negocios - {{ total_reports }} reportes disponibles</p>
-    </div>
+    <!-- Header -->
+    <div
+        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-800 text-white shadow-xl mb-8">
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
 
-    <!-- Search Box -->
-    <div class="search-box">
-        <input type="text" class="search-input" id="reportSearch"
-            placeholder="Buscar reportes... (ej: ventas, inventario, clientes)">
-    </div>
+        <div class="relative z-10 px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="text-center md:text-left">
+                <div
+                    class="inline-flex items-center gap-3 mb-4 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-sm font-medium text-white/90">Centro de Inteligencia</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-white">
+                    Reportes y Análisis
+                </h1>
+                <p class="text-lg text-purple-100 max-w-2xl leading-relaxed">
+                    {{ total_reports }} reportes disponibles para la toma de decisiones.
+                </p>
+            </div>
 
-    <!-- Stats Section -->
-    <div class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ total_reports }}</div>
-                <div class="stat-label">Reportes Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">6</div>
-                <div class="stat-label">Categorías</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">Reportes DGII</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">∞</div>
-                <div class="stat-label">Exportaciones</div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-center">
+                    <div class="text-3xl font-black">{{ total_reports }}</div>
+                    <div class="text-xs font-bold text-white/80 uppercase tracking-widest">Reportes</div>
+                </div>
+                <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-center">
+                    <div class="text-3xl font-black">{{ categories|length }}</div>
+                    <div class="text-xs font-bold text-white/80 uppercase tracking-widest">Categorías</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Categories Grid -->
-    <div class="categories-grid">
-        {% for category in categories %}
-        <div class="category-card {{ category.color }}" data-category="{{ category.id }}">
-            <div class="category-icon">{{ category.icon }}</div>
-            <div class="category-title">
-                {{ category.name }}
-                <span class="category-count">{{ category.count }}</span>
+    <!-- Search Box -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 transition-all hover:shadow-md">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400 text-lg"></i>
             </div>
-            <div class="category-description">{{ category.description }}</div>
+            <input type="text"
+                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                id="reportSearch" placeholder="Buscar reportes... (ej: ventas, inventario, clientes)">
+        </div>
+    </div>
 
-            <!-- Reports List (will be populated dynamically) -->
-            <div class="reports-list" id="reports-{{ category.id }}">
-                <!-- Reports will be loaded here -->
+    <!-- Stats Section -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+        <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:translate-y-[-2px] transition-transform">
+            <span class="text-4xl font-bold text-indigo-600 mb-1">{{ total_reports }}</span>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Reportes Totales</span>
+        </div>
+        <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:translate-y-[-2px] transition-transform">
+            <span class="text-4xl font-bold text-emerald-500 mb-1">{{ categories|length }}</span>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Categorias</span>
+        </div>
+        <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:translate-y-[-2px] transition-transform">
+            <span class="text-4xl font-bold text-amber-500 mb-1">4</span>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Reportes DGII</span>
+        </div>
+        <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:translate-y-[-2px] transition-transform">
+            <span class="text-4xl font-bold text-rose-500 mb-1">∞</span>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Exportaciones</span>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {% for category in categories %}
+        <div class="category-card group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 cursor-pointer overflow-hidden relative"
+            data-category="{{ category.id }}">
+            <div
+                class="absolute top-0 left-0 w-1 h-full bg-{{ category.color }}-500 transition-all duration-300 group-hover:w-2">
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="text-3xl text-{{ category.color }}-500 bg-{{ category.color }}-50 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        {{ category.icon|safe }}
+                    </div>
+                    <span
+                        class="bg-{{ category.color }}-100 text-{{ category.color }}-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        {{ category.count }} Reportes
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">{{
+                    category.name }}</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">{{ category.description }}</p>
+
+                <!-- Reports List (Hidden by default) -->
+                <div class="reports-list hidden mt-6 pt-6 border-t border-gray-100 space-y-2"
+                    id="reports-{{ category.id }}">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div
+                    class="mt-4 flex items-center text-sm font-medium text-{{ category.color }}-600 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                    Ver reportes <i class="fas fa-chevron-down ml-2"></i>
+                </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
     <!-- Quick Access -->
-    <div class="quick-access">
-        <h3>⚡ Acceso Rápido</h3>
-        <a href="{{ url_for('reports.sales_summary') }}" class="quick-link">
-            📈 Resumen de Ventas del Mes
-        </a>
-        <a href="{{ url_for('reports.inventory_low_stock') }}" class="quick-link">
-            ⚠️ Productos con Stock Bajo
-        </a>
-        <a href="{{ url_for('reports.ncf_summary') }}" class="quick-link">
-            📋 Reporte NCF (DGII)
-        </a>
-        <a href="{{ url_for('reports.sales_by_product') }}" class="quick-link">
-            🏆 Top Productos Vendidos
-        </a>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-bolt text-amber-500 mr-3"></i> Acceso Rápido
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{{ url_for('reports.sales_summary') }}"
+                class="flex items-center p-4 bg-gray-50 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 rounded-xl transition-all group">
+                <div
+                    class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-indigo-500 shadow-sm mr-3 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-indigo-700">Resumen Ventas Mes</span>
+            </a>
+            <a href="{{ url_for('reports.inventory_low_stock') }}"
+                class="flex items-center p-4 bg-gray-50 hover:bg-amber-50 border border-transparent hover:border-amber-100 rounded-xl transition-all group">
+                <div
+                    class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-amber-500 shadow-sm mr-3 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-amber-700">Stock Bajo</span>
+            </a>
+            <a href="{{ url_for('reports.ncf_summary') }}"
+                class="flex items-center p-4 bg-gray-50 hover:bg-emerald-50 border border-transparent hover:border-emerald-100 rounded-xl transition-all group">
+                <div
+                    class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-emerald-500 shadow-sm mr-3 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-emerald-700">Reportes DGII</span>
+            </a>
+            <a href="{{ url_for('reports.sales_by_product') }}"
+                class="flex items-center p-4 bg-gray-50 hover:bg-purple-50 border border-transparent hover:border-purple-100 rounded-xl transition-all group">
+                <div
+                    class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-purple-500 shadow-sm mr-3 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-star"></i>
+                </div>
+                <span class="font-medium text-gray-700 group-hover:text-purple-700">Top Productos</span>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Reports data by category
+    // Reports data by category con textos corregidos
     const reportsData = {
         sales: [
-            { name: 'Resumen de Ventas por Período', url: '{{ url_for("reports.sales_summary") }}', badge: 'Popular' },
-            { name: 'Ventas por Producto', url: '{{ url_for("reports.sales_by_product") }}', badge: 'Top' },
-            { name: 'Ventas por Cliente', url: '{{ url_for("reports.sales_by_customer") }}', badge: 'Nuevo' },
+            { name: 'Resumen de Ventas por Período', url: '{{ url_for("reports.sales_summary") }}', badge: 'Popular', color: 'indigo' },
+            { name: 'Ventas por Producto', url: '{{ url_for("reports.sales_by_product") }}', badge: 'Top', color: 'emerald' },
+            { name: 'Ventas por Cliente', url: '{{ url_for("reports.sales_by_customer") }}', badge: 'Nuevo', color: 'blue' },
             { name: 'Ventas por Método de Pago', url: '{{ url_for("reports.sales_by_payment_method") }}' },
             { name: 'Ventas por Usuario/Vendedor', url: '{{ url_for("reports.sales_by_user") }}' },
-            { name: 'Ventas por Tienda/Ubicación', url: '#', badge: 'Próximamente' },
+            { name: 'Ventas por Tienda/Ubicación', url: '#', badge: 'Próximamente', color: 'gray' },
             { name: 'Análisis de Tendencias', url: '{{ url_for("reports.sales_trends") }}' },
-            { name: 'Facturas Pendientes de Pago', url: '{{ url_for("reports.pending_invoices") }}', badge: 'Urgente' },
-            { name: 'Análisis de Descuentos', url: '#', badge: 'Próximamente' }
+            { name: 'Facturas Pendientes de Pago', url: '{{ url_for("reports.pending_invoices") }}', badge: 'Urgente', color: 'red' },
+            { name: 'Análisis de Descuentos', url: '#', badge: 'Próximamente', color: 'gray' }
         ],
         inventory: [
-            { name: 'Estado Actual del Inventario', url: '{{ url_for("reports.inventory_current_status") }}', badge: 'Popular' },
-            { name: 'Productos con Stock Bajo', url: '{{ url_for("reports.inventory_low_stock") }}', badge: 'Alerta' },
+            { name: 'Estado Actual del Inventario', url: '{{ url_for("reports.inventory_current_status") }}', badge: 'Popular', color: 'indigo' },
+            { name: 'Productos con Stock Bajo', url: '{{ url_for("reports.inventory_low_stock") }}', badge: 'Alerta', color: 'amber' },
             { name: 'Movimientos de Inventario', url: '{{ url_for("reports.inventory_movements") }}' },
             { name: 'Análisis de Rotación', url: '{{ url_for("reports.inventory_turnover") }}' },
             { name: 'Valoración del Inventario', url: '{{ url_for("reports.inventory_valuation") }}' },
-            { name: 'Reporte de Seriales', url: '{{ url_for("reports.inventory_serials") }}', badge: 'Trazabilidad' }
+            { name: 'Reporte de Seriales', url: '{{ url_for("reports.inventory_serials") }}', badge: 'Trazabilidad', color: 'cyan' }
         ],
         customers: [
-            { name: 'Base de Clientes', url: '{{ url_for("reports.customers_overview") }}', badge: 'Popular' },
-            { name: 'Clientes Más Valiosos', url: '{{ url_for("reports.customers_most_valuable") }}', badge: 'Top' },
+            { name: 'Base de Clientes', url: '{{ url_for("reports.customers_overview") }}', badge: 'Popular', color: 'indigo' },
+            { name: 'Clientes Más Valiosos', url: '{{ url_for("reports.customers_most_valuable") }}', badge: 'Top', color: 'emerald' },
             { name: 'Análisis de Retención', url: '{{ url_for("reports.customers_retention") }}' },
             { name: 'Historial por Cliente', url: '#' }
         ],
         financial: [
-            { name: 'Estado de Resultados (P&L)', url: '{{ url_for("reports.financial_pnl") }}', badge: 'Importante' },
+            { name: 'Estado de Resultados (P&L)', url: '{{ url_for("reports.financial_pnl") }}', badge: 'Importante', color: 'indigo' },
             { name: 'Flujo de Caja', url: '{{ url_for("reports.financial_cashflow") }}' },
             { name: 'Análisis de Gastos', url: '{{ url_for("reports.financial_expenses") }}' }
         ],
         ncf: [
-            { name: 'Resumen de NCF Emitidos', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII' },
-            { name: 'Reporte 606 (Compras)', url: '{{ url_for("reports.ncf_606") }}', badge: 'DGII' },
-            { name: 'Reporte 607 (Ventas)', url: '{{ url_for("reports.ncf_607") }}', badge: 'DGII' },
-            { name: 'Control de Secuencias NCF', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII' }
+            { name: 'Resumen de NCF Emitidos', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII', color: 'rose' },
+            { name: 'Reporte 606 (Compras)', url: '{{ url_for("reports.ncf_606") }}', badge: 'DGII', color: 'rose' },
+            { name: 'Reporte 607 (Ventas)', url: '{{ url_for("reports.ncf_607") }}', badge: 'DGII', color: 'rose' },
+            { name: 'Control de Secuencias NCF', url: '{{ url_for("reports.ncf_summary") }}', badge: 'DGII', color: 'rose' }
         ],
         operational: [
             { name: 'Actividad de Usuarios', url: '{{ url_for("reports.operational_activity") }}' },
@@ -442,15 +206,40 @@
     // Toggle category reports
     document.querySelectorAll('.category-card').forEach(card => {
         card.addEventListener('click', function (e) {
+            // Si hacen click en un enlace dentro de la card, no colapsar
+            if (e.target.tagName === 'A') return;
+
             const categoryId = this.dataset.category;
             const reportsList = document.getElementById(`reports-${categoryId}`);
+            const chevron = this.querySelector('.fa-chevron-down');
 
-            // Toggle active state
-            reportsList.classList.toggle('active');
+            // Toggle active state with animation
+            if (reportsList.classList.contains('hidden')) {
+                reportsList.classList.remove('hidden');
+                reportsList.style.maxHeight = '0px';
+                reportsList.style.opacity = '0';
 
-            // Load reports if not loaded
-            if (reportsList.classList.contains('active') && reportsList.children.length === 0) {
-                loadReports(categoryId, reportsList);
+                // Load reports if empty
+                if (reportsList.children.length === 0) {
+                    loadReports(categoryId, reportsList);
+                }
+
+                // Animate open
+                setTimeout(() => {
+                    reportsList.style.transition = 'all 0.3s ease-out';
+                    reportsList.style.maxHeight = '500px';
+                    reportsList.style.opacity = '1';
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                }, 10);
+            } else {
+                // Animate close
+                reportsList.style.maxHeight = '0px';
+                reportsList.style.opacity = '0';
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+
+                setTimeout(() => {
+                    reportsList.classList.add('hidden');
+                }, 300);
             }
         });
     });
@@ -459,21 +248,14 @@
         const reports = reportsData[categoryId] || [];
 
         reports.forEach(report => {
-            const item = document.createElement('div');
-            item.className = 'report-item';
+            const item = document.createElement('a');
+            item.href = report.url;
+            item.className = 'group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 mb-2';
 
-            const link = document.createElement('a');
-            link.href = report.url;
-            link.textContent = report.name;
-
-            item.appendChild(link);
-
-            if (report.badge) {
-                const badge = document.createElement('span');
-                badge.className = 'report-badge';
-                badge.textContent = report.badge;
-                item.appendChild(badge);
-            }
+            item.innerHTML = `
+                <span class="text-sm font-medium text-gray-600 group-hover:text-indigo-600 transition-colors">${report.name}</span>
+                ${report.badge ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-${report.color || 'gray'}-100 text-${report.color || 'gray'}-700">${report.badge}</span>` : '<i class="fas fa-chevron-right text-gray-300 text-xs group-hover:text-indigo-400"></i>'}
+            `;
 
             container.appendChild(item);
         });
@@ -485,11 +267,24 @@
         const searchTerm = e.target.value.toLowerCase();
 
         document.querySelectorAll('.category-card').forEach(card => {
-            const categoryName = card.querySelector('.category-title').textContent.toLowerCase();
-            const categoryDesc = card.querySelector('.category-description').textContent.toLowerCase();
+            const categoryName = card.querySelector('h3').textContent.toLowerCase();
+            const categoryDesc = card.querySelector('p').textContent.toLowerCase();
 
-            if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm)) {
+            // También buscar dentro de los reportes de esa categoría
+            const categoryId = card.dataset.category;
+            const reports = reportsData[categoryId] || [];
+            const hasMatchingReport = reports.some(r => r.name.toLowerCase().includes(searchTerm));
+
+            if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm) || hasMatchingReport) {
                 card.style.display = 'block';
+                // Si hay término de búsqueda, mostrar los reportes automáticamente
+                if (searchTerm.length > 0) {
+                    const list = document.getElementById(`reports-${categoryId}`);
+                    if (list.classList.contains('hidden')) {
+                        // Simular click para abrir
+                        card.click();
+                    }
+                }
             } else {
                 card.style.display = 'none';
             }

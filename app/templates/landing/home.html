@@ -1,1690 +1,655 @@
 {% extends "landing/base_landing.html" %}
 
-{% block title %}LuxeraRD | Redefiniendo la Excelencia Tecnológica{% endblock %}
+{% block title %}F.I.S.M Technology SRL | Redefiniendo la Excelencia Tecnológica{% endblock %}
 
-{% block meta_description %}Descubre las mejores laptops y equipos de computación en República Dominicana. Garantía oficial, soporte técnico especializado y las mejores marcas del mercado.{% endblock %}
+{% block meta_description %}Descubre las mejores laptops y equipos de computación en República Dominicana. Garantía
+oficial, soporte técnico especializado y las mejores marcas del mercado.{% endblock %}
 
 {% block extra_css %}
-<!-- Fuentes Premium: Outfit (Moderna) y Space Grotesk (Tech) -->
+<!-- Phosphor Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet">
 
 <style>
-    /* =========================================
-       1. VARIABLES & CORE SETTINGS
-       ========================================= */
     :root {
-        --bg-deep: #ffffff;
-        --bg-surface: #f5f5f7;
-        --bg-card: #ffffff;
-
-        --text-primary: #1d1d1f;
-        --text-secondary: #424245;
-        --text-muted: #86868b;
-
-        --accent-primary: #7c3aed;
-        --accent-secondary: #06b6d4;
-        --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
-        --accent-glow: 0 0 40px rgba(124, 58, 237, 0.15);
-
-        --border-light: rgba(0, 0, 0, 0.08);
-        --border-hover: rgba(0, 0, 0, 0.15);
-        --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.05);
-
-        --font-body: 'Outfit', sans-serif;
-        --font-heading: 'Space Grotesk', sans-serif;
-        --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+        --lx-accent: #7c3aed;
+        --lx-accent-hover: #6d28d9;
     }
 
-    [data-theme="dark"] {
-        --bg-deep: #000000;
-        --bg-surface: #0a0a0a;
-        --bg-card: #121212;
-
-        --text-primary: #f5f5f7;
-        --text-secondary: #a1a1a6;
-        --text-muted: #6e6e73;
-
-        --accent-primary: #bf5af2;
-        --accent-secondary: #64d2ff;
-        --accent-gradient: linear-gradient(135deg, #bf5af2 0%, #5e5ce6 100%);
-        --accent-glow: 0 0 40px rgba(191, 90, 242, 0.25);
-
-        --border-light: rgba(255, 255, 255, 0.12);
-        --border-hover: rgba(255, 255, 255, 0.2);
-        --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    body {
-        font-family: var(--font-body);
-        background-color: var(--bg-deep);
-        color: var(--text-primary);
-        -webkit-font-smoothing: antialiased;
-        transition: background-color 0.5s var(--ease-out-expo);
-        overflow-x: hidden;
-    }
-
-    /* =========================================
-       2. UTILIDADES Y COMPONENTES
-       ========================================= */
-    .container-xl {
-        max-width: 1440px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    .section-padding {
-        padding: 8rem 0;
-    }
-
-    .text-gradient {
-        background: var(--accent-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Botones Premium */
-    .btn-lux {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 2.5rem;
-        background: var(--text-primary);
-        color: var(--bg-deep);
-        font-weight: 700;
-        border-radius: 100px;
-        font-family: var(--font-heading);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        transition: all 0.3s var(--ease-out-expo);
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-decoration: none;
-    }
-
-    .btn-lux:hover {
-        transform: scale(1.05);
-        background: var(--accent-primary);
-        color: white;
-        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
-    }
-
-    .btn-lux.dark {
-        background: transparent;
-        color: var(--text-primary);
-        border: 1px solid var(--border-light);
-    }
-
-    .btn-lux.dark:hover {
-        background: var(--bg-surface);
-        border-color: var(--accent-primary);
-    }
-
-    /* Badges */
-    .badge {
-        position: absolute;
-        top: 1.5rem;
-        left: 1.5rem;
-        padding: 0.5rem 1.25rem;
-        border-radius: 100px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        z-index: 20;
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--border-light);
-    }
-
-    .badge-new {
-        background: rgba(124, 58, 237, 0.1);
-        color: var(--accent-primary);
-        border-color: rgba(124, 58, 237, 0.2);
-    }
-
-    .badge-offer {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border-color: rgba(239, 68, 68, 0.2);
-    }
-
-    .badge-featured {
-        background: rgba(6, 182, 212, 0.1);
-        color: var(--accent-secondary);
-        border-color: rgba(6, 182, 212, 0.2);
-    }
-
-    .badge-last {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
-        border-color: rgba(245, 158, 11, 0.2);
-    }
-
-    .badge-soldout {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border-color: rgba(239, 68, 68, 0.2);
-    }
-
-    /* Animaciones */
-    .fade-in-up {
+    /* Animaciones suaves */
+    .reveal {
         opacity: 0;
-        transform: translateY(30px);
-        animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-
-    @keyframes fadeInUp {
-        to { opacity: 1; transform: translateY(0); }
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
     }
 
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    /* Ajustes para el Hero */
+    .hero-gradient {
+        background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
     }
 
-    @keyframes spin-reverse {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(-360deg); }
+    .fade-mask {
+        mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     }
 
-    @keyframes ping {
-        75%, 100% { transform: scale(2); opacity: 0; }
-    }
-
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(30px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* =========================================
-       3. HERO SECTION - CARRUSEL CON DATOS REALES
-       ========================================= */
-    .hero-section {
-        min-height: 400px;
+    /* ── Product Card V2 (Sincronizado con Catalog) ── */
+    .product-card-v2 {
+        background: var(--surface-primary, #fff);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 20px);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         position: relative;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        background-color: #f8fafc;
-        perspective: 1000px;
     }
 
-    [data-theme="dark"] .hero-section {
-        background-color: var(--bg-deep);
+    .product-card-v2:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 48px -12px rgba(124, 58, 237, 0.12);
+        border-color: rgba(124, 58, 237, 0.3);
     }
 
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.1s ease-out;
-        transform-style: preserve-3d;
+    /* ── Brand Highlight ── */
+    .brand-marquee-item {
+        filter: grayscale(1);
+        opacity: 0.5;
+        transition: all 0.4s ease;
     }
 
-    [data-theme="dark"] .glass-panel {
-        background: rgba(18, 18, 18, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .laptop-float {
-        animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
-        100% { transform: translateY(0px); }
-    }
-
-    .animate-gradient-text {
-        background-size: 200% auto;
-        animation: gradientMove 4s linear infinite;
-    }
-
-    @keyframes gradientMove {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Canvas Container */
-    #canvas-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        overflow: hidden;
-    }
-
-    #heroCanvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-    /* --- SKEW TEXT ANIMATIONS --- */
-    .skew-wrapper {
-        overflow: hidden;
-        display: inline-block;
-        vertical-align: bottom;
-    }
-
-    .skew-text {
-        display: inline-block;
-        transform-origin: 0% 100%;
-        transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s ease;
-    }
-
-    /* Estado Inicial (oculto abajo) */
-    .skew-enter-active {
-        transform: translateY(110%) skewY(10deg);
+    .brand-marquee-item:hover {
+        filter: grayscale(0);
         opacity: 1;
+        color: var(--primary);
+        text-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+        transform: scale(1.1);
     }
 
-    /* Estado Final (visible) */
-    .skew-visible {
-        transform: translateY(0) skewY(0);
-        opacity: 1;
+    [data-theme="dark"] .product-card-v2 {
+        background: var(--surface-primary, #0e0c18);
     }
 
-    /* Estado Salida (oculto arriba) */
-    .skew-exit-active {
-        transform: translateY(-110%) skewY(-10deg);
-        opacity: 1;
+    /* ── Bg Main Definition ── */
+    .luxera-marquee-bg {
+        background-color: #0c0a1a !important;
     }
 
-    .fade-content {
-        transition: opacity 0.4s ease-in-out;
+    [data-theme="dark"] .luxera-marquee-bg {
+        background-color: #05040a !important;
     }
-
-    /* Corregir opacidad del texto en el héroe */
-    .hero-section .fade-content {
-        opacity: 1;
-        transition: none;
-    }
-
-    /* Botones de Navegación */
-    .nav-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 20;
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255,255,255,0.5);
-        color: #1f2937;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    [data-theme="dark"] .nav-btn {
-        background: rgba(30, 30, 30, 0.8);
-        color: #f5f5f7;
-        border-color: rgba(255,255,255,0.2);
-    }
-
-    .nav-btn:hover {
-        background: white;
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-
-    [data-theme="dark"] .nav-btn:hover {
-        background: rgba(50, 50, 50, 0.9);
-    }
-
-    .nav-btn:active {
-        transform: translateY(-50%) scale(0.95);
-    }
-
-    .nav-prev { left: -24px; }
-    .nav-next { right: -24px; }
-
-    /* Indicadores */
-    .indicator-dot {
-        height: 4px;
-        border-radius: 2px;
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        background-color: #cbd5e1;
-        cursor: pointer;
-    }
-
-    [data-theme="dark"] .indicator-dot {
-        background-color: #4b5563;
-    }
-
-    .indicator-dot.active {
-        width: 32px;
-    }
-
-    /* =========================================
-       4. PRODUCT CARDS
-       ========================================= */
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 2rem;
-    }
-
-    .product-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-light);
-        border-radius: 24px;
-        padding: 1.5rem;
-        transition: all 0.4s var(--ease-out-expo);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow-card);
-    }
-
-    .product-card:hover {
-        border-color: var(--accent-primary);
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.15);
-    }
-
-    .product-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--accent-gradient);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .product-card:hover::before {
-        opacity: 1;
-    }
-
-    .img-container {
-        height: 240px;
-        position: relative;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        background: #ffffff;
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    [data-theme="dark"] .img-container {
-        background: #1a1a1a;
-    }
-
-    .product-img {
-        max-width: 90%;
-        height: auto;
-        object-fit: contain;
-        transition: transform 0.6s var(--ease-out-expo);
-    }
-
-    .product-card:hover .product-img {
-        transform: scale(1.08) translateY(-5px);
-    }
-
-    .product-info {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-category {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-
-    .product-title {
-        font-family: var(--font-heading);
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        line-height: 1.3;
-        color: var(--text-primary);
-    }
-
-    .spec-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-light);
-    }
-
-    .spec-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .product-card:hover .spec-item {
-        background: var(--bg-surface);
-    }
-
-    .spec-icon-wrapper {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg-surface);
-        border-radius: 8px;
-        font-size: 0.9rem;
-        color: var(--accent-primary);
-        border: 1px solid var(--border-light);
-    }
-
-    .spec-text {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-    }
-
-    .product-footer {
-        margin-top: auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-light);
-    }
-
-    .price-block {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .price-curr {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: baseline;
-        gap: 0.25rem;
-    }
-
-    .price-curr span {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-weight: 600;
-    }
-
-    .price-old {
-        font-size: 0.85rem;
-        text-decoration: line-through;
-        color: var(--text-muted);
-    }
-
-    .btn-premium {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--bg-surface);
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        border: 1px solid var(--border-light);
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .btn-premium:hover {
-        transform: rotate(45deg);
-        background: var(--accent-primary);
-        color: white;
-        border-color: var(--accent-primary);
-    }
-
-    /* =========================================
-       5. FEATURES SECTION
-       ========================================= */
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .feature-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-light);
-        border-radius: 20px;
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.4s var(--ease-out-expo);
-    }
-
-    .feature-card:hover {
-        border-color: var(--accent-primary);
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    }
-
-    .feature-icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 1.5rem;
-        background: var(--bg-surface);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: var(--accent-primary);
-        border: 1px solid var(--border-light);
-    }
-
-    /* =========================================
-       8. THEME TOGGLE
-       ========================================= */
-    .theme-toggle {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        z-index: 100;
-        width: 60px;
-        height: 60px;
-        border-radius: 30px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-light);
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: var(--shadow-card);
-        font-size: 1.25rem;
-    }
-
-    .theme-toggle:hover {
-        transform: rotate(15deg) scale(1.1);
-        border-color: var(--accent-primary);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-    }
-
-    /* =========================================
-       9. COLORES PARA CARRUSEL
-       ========================================= */
-    .bg-purple-200 { background-color: #ddd6fe; }
-    .bg-purple-300 { background-color: #c4b5fd; }
-    .bg-purple-400 { background-color: #a78bfa; }
-    .bg-purple-500 { background-color: #8b5cf6; }
-    .bg-purple-600 { background-color: #7c3aed; }
-    .bg-purple-700 { background-color: #6d28d9; }
-    .bg-purple-800 { background-color: #5b21b6; }
-
-    /* Hover para botones (necesario para funcionalidad JS) */
-    .hover\:bg-purple-600:hover { background-color: #8b5cf6; }
-    .hover\:bg-purple-700:hover { background-color: #7c3aed; }
-    .hover\:bg-purple-800:hover { background-color: #6d28d9; }
-
-    /* =========================================
-       10. RESPONSIVE
-       ========================================= */
-    @media (max-width: 1200px) {
-        .nav-prev { left: 10px; }
-        .nav-next { right: 10px; }
-    }
-
-    @media (max-width: 1024px) {
-        .section-padding {
-            padding: 4rem 0;
-        }
-
-        .container-xl {
-            padding: 0 1.5rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .products-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .features-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .section-padding {
-            padding: 3rem 0;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .container-xl {
-            padding: 0 1rem;
-        }
-
-        .btn-lux {
-            padding: 0.875rem 1.75rem;
-            font-size: 0.875rem;
-        }
-
-        .theme-toggle {
-            bottom: 1rem;
-            right: 1rem;
-            width: 50px;
-            height: 50px;
-            font-size: 1rem;
-        }
-    }
-
-    /* =========================================
-       11. UTILITY CLASSES
-       ========================================= */
-    .flex { display: flex; }
-    .flex-wrap { flex-wrap: wrap; }
-    .items-center { align-items: center; }
-    .justify-center { justify-content: center; }
-    .justify-between { justify-content: space-between; }
-    .justify-start { justify-content: flex-start; }
-    .gap-4 { gap: 1rem; }
-    .gap-6 { gap: 1.5rem; }
-    .gap-8 { gap: 2rem; }
-    .mt-12 { margin-top: 3rem; }
-    .mt-8 { margin-top: 2rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .mb-12 { margin-bottom: 3rem; }
-    .mb-16 { margin-bottom: 4rem; }
-    .pt-8 { padding-top: 2rem; }
-    .pt-12 { padding-top: 3rem; }
-    .pb-8 { padding-bottom: 2rem; }
-    .px-8 { padding-left: 2rem; padding-right: 2rem; }
-    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-    .text-center { text-align: center; }
-    .text-sm { font-size: 0.875rem; }
-    .text-lg { font-size: 1.125rem; }
-    .text-xl { font-size: 1.25rem; }
-    .text-2xl { font-size: 1.5rem; }
-    .text-3xl { font-size: 1.875rem; }
-    .text-4xl { font-size: 2.25rem; }
-    .text-5xl { font-size: 3rem; }
-    .font-bold { font-weight: 700; }
-    .font-semibold { font-weight: 600; }
-    .uppercase { text-transform: uppercase; }
-    .tracking-widest { letter-spacing: 0.1em; }
-    .tracking-wider { letter-spacing: 0.05em; }
-    .max-w-2xl { max-width: 42rem; }
-    .max-w-lg { max-width: 32rem; }
-    .mx-auto { margin-left: auto; margin-right: auto; }
-    .block { display: block; }
-    .inline-block { display: inline-block; }
-    /* .hidden - Usando la clase de Tailwind, no sobrescribir */
-    .border-t { border-top: 1px solid var(--border-light); }
-    .text-muted { color: var(--text-muted); }
-    .text-accent-primary { color: var(--accent-primary); }
-    .bg-surface { background: var(--bg-surface); }
-    .grid { display: grid; }
-    .relative { position: relative; }
-    .z-10 { z-index: 10; }
-    .z-0 { z-index: 0; }
-    .z-1 { z-index: 1; }
 </style>
 {% endblock %}
 
 {% block content %}
-
-<!-- Botón de cambio de tema -->
-<button class="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">
-    <i id="theme-icon" class="fa-solid fa-sun"></i>
-</button>
-
-<!-- ============================================
-     HERO SECTION - CARRUSEL CON DATOS REALES
-     ============================================ -->
-<section class="hero-section">
-    <!-- Canvas para el fondo interactivo -->
-    <div id="canvas-container">
-        <canvas id="heroCanvas"></canvas>
-    </div>
-
-    <!-- Contenido Principal (Hero) -->
-    <main class="relative z-10 container-xl flex justify-center items-center min-h-[80vh]">
-        <div class="glass-panel relative rounded-[2.5rem] p-8 md:p-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            <!-- Botones de Navegación Laterales -->
-            <button onclick="manualPrev()" class="nav-btn nav-prev group" aria-label="Anterior">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <button onclick="manualNext()" class="nav-btn nav-next group" aria-label="Siguiente">
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-
-            <!-- Columna Izquierda: Información -->
-            <div class="space-y-6 flex flex-col justify-center h-full">
-
-                <!-- Título con efecto Skew Wrapper -->
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.15]">
-                    <span class="skew-wrapper">
-                        <span id="product-name" class="skew-text skew-visible">
-                            {% if featured_laptops and featured_laptops|length > 0 %}
-                                {{ featured_laptops[0].brand.name if featured_laptops[0].brand else 'Premium' }}
-                            {% else %}
-                                Premium
-                            {% endif %}
-                        </span>
-                    </span>
-                    <br class="hidden md:inline">
-                    <span class="skew-wrapper">
-                        <span id="product-suffix" class="skew-text skew-visible" style="background: linear-gradient(to right, #7c3aed, #5b21b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                            {% if featured_laptops and featured_laptops|length > 0 %}
-                                {{ featured_laptops[0].model.name[:20] }}
-                            {% else %}
-                                Laptop Pro
-                            {% endif %}
-                        </span>
-                    </span>
-                </h1>
-
-                <!-- Descripción con Fade -->
-                <p id="product-desc" class="text-lg text-gray-600 leading-relaxed min-h-[3.5rem]">
-                    {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].description %}
-                        {{ featured_laptops[0].description[:150] }}...
-                    {% else %}
-                        Potencia sin límites para creadores y gamers. Diseñada con precisión milimétrica y un rendimiento que desafía la gravedad.
-                    {% endif %}
-                </p>
-
-                <!-- Grid de Especificaciones -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4" id="specs-container">
-                    <!-- CPU -->
-                    <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
-                        <i class="fa-solid fa-microchip text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CPU</p>
-                            <p id="spec-cpu" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].processor %}
-                                    {{ featured_laptops[0].processor.name }}
-                                {% else %}
-                                    Intel Core Ultra
-                                {% endif %}
-                            </p>
-                        </div>
+<div class="overflow-x-hidden">
+    <!-- Hero Section -->
+    <section class="relative min-h-[90vh] flex items-center pt-16 pb-16 lg:pt-20 lg:pb-24 hero-gradient">
+        <div class="container-custom relative z-10">
+            <div class="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-8 items-center text-center lg:text-left">
+                <!-- Badge & Title (order-1 on mobile) -->
+                <div class="w-full lg:order-1 space-y-4 reveal active">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs uppercase tracking-wider">
+                        <i class="fas fa-bolt text-[10px]"></i> Tecnología de Vanguardia
                     </div>
 
-                    <!-- GPU -->
-                    <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
-                        <i class="fa-solid fa-gamepad text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GPU</p>
-                            <p id="spec-gpu" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].graphics_card %}
-                                    {{ featured_laptops[0].graphics_card.name }}
-                                {% else %}
-                                    RTX 5090
-                                {% endif %}
-                        </div>
-                    </div>
+                    <h1 class="hero-title text-main">
+                        <span id="hero-brand" class="block">Cargando...</span>
+                        <span id="hero-model" class="text-gradient block">Excelencia</span>
+                    </h1>
 
-                    <!-- RAM -->
-                    <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
-                        <i class="fa-solid fa-memory text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">RAM</p>
-                            <p id="spec-ram" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].ram %}
-                                    {{ featured_laptops[0].ram.name }}
-                                {% else %}
-                                    64GB
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Almacenamiento -->
-                    <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all cursor-default">
-                        <i class="fa-solid fa-hard-drive text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Almacenamiento</p>
-                            <p id="spec-ssd" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].storage %}
-                                    {{ featured_laptops[0].storage.name }}
-                                {% else %}
-                                    4TB NVMe
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Pantalla -->
-                    <div class="group flex items-center space-x-3 p-3 bg-white/60 hover:bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 col-span-2 md:col-span-2 transition-all cursor-default">
-                        <i class="fa-solid fa-display text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Pantalla</p>
-                            <p id="spec-screen" class="text-sm font-bold text-gray-800">
-                                {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].screen %}
-                                    {{ featured_laptops[0].screen.name }}
-                                {% else %}
-                                    No especificada
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
+                    <p id="hero-desc" class="subtitle text-secondary lg:mx-0">
+                        Potencia y rendimiento excepcional para profesionales exigentes. Descubre nuestra selección
+                        exclusiva.
+                    </p>
                 </div>
 
-                <!-- Precio, Botón e Indicadores -->
-                <div class="pt-6 border-t border-gray-200/50 mt-6 space-y-6">
-                    <!-- Precio y Botón -->
-                    <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <div>
-                            <p id="price-old" class="text-sm text-gray-500 line-through font-medium transition-all" style="display: {% if featured_laptops and featured_laptops|length > 0 and featured_laptops[0].discount_price and featured_laptops[0].discount_price < featured_laptops[0].sale_price %}block{% else %}none{% endif %}">
-                                {% if featured_laptops and featured_laptops|length > 0 %}
-                                    RD$ {{ "{:,.2f}".format(featured_laptops[0].sale_price) }}
-                                {% endif %}
-                            </p>
-                            <p class="text-3xl font-extrabold text-gray-900">
-                                <span>RD$</span>
-                                <span id="price-new">
-                                    {% if featured_laptops and featured_laptops|length > 0 %}
-                                        {% if featured_laptops[0].discount_price and featured_laptops[0].discount_price < featured_laptops[0].sale_price %}
-                                            {{ "{:,.2f}".format(featured_laptops[0].discount_price) }}
-                                        {% else %}
-                                            {{ "{:,.2f}".format(featured_laptops[0].sale_price) }}
-                                        {% endif %}
-                                    {% else %}
-                                        2,899
-                                    {% endif %}
-                                </span>
-                            </p>
-                        </div>
-                        <a id="buy-btn" href="{% if featured_laptops and featured_laptops|length > 0 %}{{ url_for('public.product_detail', id=featured_laptops[0].id) }}{% else %}#{% endif %}" class="w-full sm:w-auto px-8 py-4 bg-gray-900 hover:bg-purple-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-purple-500/30 flex items-center justify-center gap-2 group transform hover:-translate-y-0.5">
-                            Comprar Ahora
-                            <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-                    </div>
+                <!-- Image (order-2 on mobile, positioned in grid column 2 on desktop) -->
+                <div class="relative flex justify-center items-center w-full lg:order-2 lg:row-span-3 reveal active"
+                    style="transition-delay: 0.2s;">
+                    <div id="hero-image-wrap"
+                        class="relative z-10 w-full max-w-lg lg:max-w-xl transition-all duration-700 aspect-[16/10] flex items-center justify-center p-0">
+                        <!-- Image Container: pure white, no shadow, max size -->
+                        <div
+                            class="relative w-full h-full rounded-3xl overflow-hidden bg-white border border-border-subtle shadow-none flex items-center justify-center group">
+                            <img id="hero-image" src="" alt="Featured Product"
+                                class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105">
 
-                    <!-- Indicadores de Posición -->
-                    <div class="flex items-center gap-2" id="indicators-container">
-                        <!-- Generados dinámicamente por JS -->
+                            <!-- Fallback UI inside the container -->
+                            <div id="hero-fallback"
+                                class="hidden absolute inset-0 flex-col items-center justify-center text-tertiary/20 animate-pulse">
+                                <i class="fas fa-laptop text-[6rem] lg:text-[8rem] mb-4"></i>
+                                <span class="text-[10px] uppercase tracking-widest font-bold opacity-50">Visual no
+                                    disponible</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Columna Derecha: Imagen del Producto -->
-            <div class="relative laptop-float flex justify-center items-center">
-                <!-- Imagen real del producto -->
-                <div class="w-full flex items-center justify-center" id="laptop-image-container">
-                    {% if featured_laptops and featured_laptops|length > 0 %}
-                        {% if featured_laptops[0].images %}
-                            {% if featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                                {% set cover = featured_laptops[0].images|selectattr('is_cover', 'equalto', True)|first %}
-                                <img id="laptop-image" src="{{ url_for('static', filename=cover.image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px]">
-                            {% elif featured_laptops[0].images|length > 0 %}
-                                <img id="laptop-image" src="{{ url_for('static', filename=featured_laptops[0].images[0].image_path) }}" alt="{{ featured_laptops[0].display_name }}" class="w-full h-auto object-contain max-h-[400px]">
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
+            <!-- Modern Carousel Controls (for entire hero) -->
+            <div id="hero-controls" class="{% if featured_laptops|length <= 1 %}hidden{% endif %}">
+                <!-- Desktop: Side Arrows (subtle, appear on hover) -->
+                <button onclick="manualPrev()" aria-label="Anterior"
+                    class="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-white/60 backdrop-blur-md border border-purple-100/50 text-purple-600 shadow-lg opacity-0 hover:opacity-100 hover:bg-white/95 hover:scale-110 hover:shadow-xl transition-all duration-300 z-30 group">
+                    <i class="ph-bold ph-caret-left text-xl group-hover:-translate-x-0.5 transition-transform"></i>
+                </button>
+                <button onclick="manualNext()" aria-label="Siguiente"
+                    class="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-white/60 backdrop-blur-md border border-purple-100/50 text-purple-600 shadow-lg opacity-0 hover:opacity-100 hover:bg-white/95 hover:scale-110 hover:shadow-xl transition-all duration-300 z-30 group">
+                    <i class="ph-bold ph-caret-right text-xl group-hover:translate-x-0.5 transition-transform"></i>
+                </button>
+
+                <!-- Mobile & Desktop: Dot Indicators at bottom (compact, non-obstructive) -->
+                <div
+                    class="relative w-full justify-center mt-6 mb-2 lg:absolute lg:w-auto lg:my-0 lg:bottom-8 lg:left-1/2 lg:-translate-x-1/2 flex items-center gap-3 z-30">
+                    <!-- Mobile Arrows (compact) -->
+                    <button onclick="manualPrev()" aria-label="Anterior"
+                        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-purple-100/80 text-purple-600 shadow-md hover:bg-white active:scale-95 transition-all">
+                        <i class="ph-bold ph-caret-left text-sm"></i>
+                    </button>
+
+                    <!-- Dot Indicators (refined, compact) -->
+                    <div id="dot-indicators"
+                        class="flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 backdrop-blur-md border border-purple-100/80 shadow-md">
+                        {% for laptop in featured_laptops %}
+                        <button onclick="goToSlide({{ loop.index0 }})" aria-label="Ir a producto {{ loop.index }}"
+                            class="carousel-dot w-1.5 h-1.5 rounded-full transition-all duration-300 {% if loop.first %}bg-purple-600 w-6{% else %}bg-gray-400 hover:bg-purple-400{% endif %}"
+                            data-index="{{ loop.index0 }}">
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Mobile Arrows (compact) -->
+                    <button onclick="manualNext()" aria-label="Siguiente"
+                        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-purple-100/80 text-purple-600 shadow-md hover:bg-white active:scale-95 transition-all">
+                        <i class="ph-bold ph-caret-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Specs Grid (order-3 on mobile) -->
+            <div class="w-full lg:order-3 reveal active">
+                <!-- Specs Quick View (CPU, GPU, Pantalla, RAM, SSD) -->
+                <div
+                    class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 rounded-2xl overflow-hidden max-w-2xl mx-auto lg:mx-0">
+                    <div
+                        class="bg-surface-primary p-4 flex flex-col items-center gap-2 rounded-xl border border-border-subtle">
+                        <span class="text-[9px] font-bold text-tertiary uppercase tracking-widest">CPU</span>
+                        <span id="spec-cpu"
+                            class="text-[10px] font-bold text-main px-1 text-center leading-tight">--</span>
+                    </div>
+                    <div
+                        class="bg-surface-primary p-4 flex flex-col items-center gap-2 rounded-xl border border-border-subtle">
+                        <span class="text-[9px] font-bold text-tertiary uppercase tracking-widest">GPU</span>
+                        <span id="spec-gpu"
+                            class="text-[10px] font-bold text-main px-1 text-center leading-tight">--</span>
+                    </div>
+                    <div
+                        class="bg-surface-primary p-4 flex flex-col items-center gap-2 rounded-xl border border-border-subtle">
+                        <span class="text-[9px] font-bold text-tertiary uppercase tracking-widest">Pantalla</span>
+                        <span id="spec-screen"
+                            class="text-[10px] font-bold text-main px-1 text-center leading-tight">--</span>
+                    </div>
+                    <div
+                        class="bg-surface-primary p-4 flex flex-col items-center gap-2 rounded-xl border border-border-subtle">
+                        <span class="text-[9px] font-bold text-tertiary uppercase tracking-widest">RAM</span>
+                        <span id="spec-ram"
+                            class="text-[10px] font-bold text-main px-1 text-center leading-tight">--</span>
+                    </div>
+                    <div
+                        class="bg-surface-primary p-4 flex flex-col items-center gap-2 rounded-xl border border-border-subtle">
+                        <span class="text-[9px] font-bold text-tertiary uppercase tracking-widest">SSD</span>
+                        <span id="spec-ssd"
+                            class="text-[10px] font-bold text-main px-1 text-center leading-tight">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price & CTA (order-4 on mobile) -->
+            <div class="w-full lg:order-4 reveal active mt-8 lg:mt-0">
+                <div class="flex flex-col sm:flex-row items-center gap-6 lg:justify-start">
+                    <div class="text-left w-full sm:w-auto">
+                        <div id="price-old" class="text-sm text-tertiary line-through opacity-60 hidden">RD$ --
+                        </div>
+                        <div class="text-4xl font-extrabold text-main">
+                            <span class="text-lg font-bold mr-1">RD$</span><span id="price-new">--</span>
+                        </div>
+                    </div>
+                    <a id="buy-btn" href="#" class="btn-primary w-full sm:w-auto group">
+                        Me interesa <i
+                            class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </main>
+</div>
+
+<!-- Background Decor -->
+<div class="absolute top-1/4 right-0 w-64 h-64 bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 left-0 w-96 h-96 bg-accent/5 blur-[150px] rounded-full"></div>
 </section>
 
-<!-- ============================================
-     PRODUCTOS DESTACADOS
-     ============================================ -->
-<section id="featured" class="section-padding bg-surface relative overflow-hidden">
-    <!-- Canvas para ondas interactivas -->
-    <div id="wave-container" class="absolute inset-0 z-0">
-        <canvas id="waveCanvas"></canvas>
-    </div>
-
-    <div class="container-xl relative z-1">
-        <div class="text-center mb-16 fade-in-up">
-            <span class="text-accent-primary font-bold uppercase tracking-widest text-sm mb-2 block">Selección Premium</span>
-            <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6">
-                Lo más <span class="text-gradient">Vendido</span>
-            </h2>
-            <p class="text-xl text-secondary max-w-2xl mx-auto">
-                Selección premium de las laptops más vendidas con el mejor rendimiento y precio del mercado.
-            </p>
-        </div>
-
-        <div class="products-grid">
-            {% if featured_laptops %}
-                {% for laptop in featured_laptops[:4] %}
-                <div class="product-card fade-in-up delay-{{ loop.index * 100 }}">
-                    <!-- Badge -->
-                    {% if loop.index == 1 %}
-                    <div class="badge badge-new">Nuevo Lanzamiento</div>
-                    {% elif loop.index == 2 %}
-                    <div class="badge badge-offer">Oferta Exclusiva</div>
-                    {% elif loop.index == 3 %}
-                    <div class="badge badge-featured">Destacado</div>
-                    {% else %}
-                    <div class="badge badge-featured">Popular</div>
-                    {% endif %}
-
-                    {% if laptop.quantity <= 5 and laptop.quantity > 0 %}
-                    <div class="badge badge-last" style="top: 4.5rem;">¡Últimas unidades!</div>
-                    {% elif laptop.quantity == 0 %}
-                    <div class="badge badge-soldout" style="top: 4.5rem;">Agotado</div>
-                    {% endif %}
-
-                    <!-- Product Image -->
-                    <div class="img-container">
-                        {% if laptop.images and laptop.images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                            {% set cover = laptop.images|selectattr('is_cover', 'equalto', True)|first %}
-                            <img
-                                src="{{ url_for('static', filename=cover.image_path) }}"
-                                alt="{{ laptop.display_name }}"
-                                class="product-img"
-                                loading="lazy"
-                            >
-                        {% elif laptop.images and laptop.images|length > 0 %}
-                            <img
-                                src="{{ url_for('static', filename=laptop.images[0].image_path) }}"
-                                alt="{{ laptop.display_name }}"
-                                class="product-img"
-                                loading="lazy"
-                            >
-                        {% else %}
-                            <div class="flex items-center justify-center h-full">
-                                <i class="fas fa-laptop text-gray-300 text-6xl"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="product-info">
-                        <span class="product-category">
-                            {{ laptop.brand.name if laptop.brand else 'Marca' }}
-                        </span>
-                        <h3 class="product-title" title="{{ laptop.display_name }}">
-                            {{ laptop.model.name[:30] }}{% if laptop.model.name|length > 30 %}...{% endif %}
-                        </h3>
-
-                        <!-- Tech Specs -->
-                        <div class="spec-list">
-                            {% if laptop.processor %}
-                            <div class="spec-item">
-                                <div class="spec-icon-wrapper"><i class="fa-solid fa-microchip"></i></div>
-                                <span class="spec-text">{{ laptop.processor.name[:25] }}{% if laptop.processor.name|length > 25 %}...{% endif %}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if laptop.graphics_card %}
-                            <div class="spec-item">
-                                <div class="spec-icon-wrapper"><i class="fa-solid fa-gamepad"></i></div>
-                                <span class="spec-text">{{ laptop.graphics_card.name[:25] }}{% if laptop.graphics_card.name|length > 25 %}...{% endif %}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if laptop.screen %}
-                            <div class="spec-item">
-                                <div class="spec-icon-wrapper"><i class="fa-solid fa-display"></i></div>
-                                <span class="spec-text">{{ laptop.screen.name[:25] }}{% if laptop.screen.name|length > 25 %}...{% endif %}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if laptop.ram %}
-                            <div class="spec-item">
-                                <div class="spec-icon-wrapper"><i class="fa-solid fa-memory"></i></div>
-                                <span class="spec-text">{{ laptop.ram.name }}</span>
-                            </div>
-                            {% endif %}
-
-                            {% if laptop.storage %}
-                            <div class="spec-item">
-                                <div class="spec-icon-wrapper"><i class="fa-solid fa-hard-drive"></i></div>
-                                <span class="spec-text">{{ laptop.storage.name }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Price & Action -->
-                        <div class="product-footer">
-                            <div class="price-block">
-                                {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
-                                <span class="price-old">RD$ {{ "{:,.2f}".format(laptop.sale_price) }}</span>
-                                <span class="price-curr">
-                                    <span>RD$</span>
-                                    {{ "{:,.2f}".format(laptop.discount_price) }}
-                                </span>
-                                {% else %}
-                                <span class="price-curr">
-                                    <span>RD$</span>
-                                    {{ "{:,.2f}".format(laptop.sale_price) }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            <a href="{{ url_for('public.product_detail', id=laptop.id) }}" class="btn-premium">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+<!-- Brands Marquee -->
+<div class="luxera-marquee-bg bg-[#0c0a1a] py-8 overflow-hidden border-y border-white/5 relative fade-mask">
+    <div class="flex whitespace-nowrap animate-lxMarquee hover:[animation-play-state:paused] will-change-transform">
+        {% for i in range(2) %}
+        <div class="flex items-center gap-20 px-10">
+            {% if brands %}
+            {% for brand in brands %}
+            <a href="{{ url_for('public.catalog', brand=brand.name) }}"
+                class="brand-marquee-item flex items-center gap-4 group">
+                <span
+                    class="text-white font-heading text-xl font-extrabold tracking-tighter uppercase group-hover:text-primary transition-colors">
+                    {{ brand.name }}
+                </span>
+            </a>
+            {% endfor %}
+            {% else %}
+            <span class="text-white/20 font-heading text-xl font-extrabold uppercase tracking-widest">F.I.S.M Technology
+                SRL
+                Premium</span>
             {% endif %}
         </div>
+        {% endfor %}
+    </div>
+</div>
 
-        <!-- View All Button -->
-        <div class="text-center mt-12 fade-in-up delay-300">
-            <a href="{{ url_for('public.catalog') }}" class="btn-lux dark text-lg px-8 py-4">
-                Ver Todos los Productos
-                <i class="fa-solid fa-arrow-right ml-2"></i>
+<!-- Featured Products -->
+<section id="catalog" class="section-spacing bg-surface-tertiary">
+    <div class="container-custom">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 reveal">
+            <div class="space-y-4 max-w-xl text-center md:text-left">
+                <span class="text-primary font-bold text-xs uppercase tracking-widest">Favoritos de la
+                    Temporada</span>
+                <h2 class="section-title text-main">Hardware de Selección</h2>
+            </div>
+            <a href="{{ url_for('public.catalog') }}" class="btn-secondary group">
+                Ver todo el catálogo <i
+                    class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
             </a>
         </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 reveal">
+            {% if featured_laptops %}
+            {% for laptop in featured_laptops[:4] %}
+            <article class="product-card-v2 group flex flex-col h-full animate-fade-in-up"
+                style="transition-delay: {{ loop.index0 * 0.1 }}s">
+                <a href="{{ url_for('public.product_detail', id=laptop.id) }}" class="block flex-1 flex flex-col">
+                    <!-- Image Container -->
+                    <div class="relative h-52 w-full bg-white flex items-center justify-center p-6 overflow-hidden">
+                        {% if laptop.images and laptop.images|length > 0 %}
+                        {% set cover = laptop.images|selectattr('is_cover', 'equalto', True)|first or
+                        laptop.images[0] %}
+                        <img src="{{ url_for('static', filename=cover.image_path) }}" alt="{{ laptop.display_name }}"
+                            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110">
+                        {% else %}
+                        <i class="fas fa-laptop text-tertiary/20 text-6xl"></i>
+                        {% endif %}
+
+                        <!-- Badges -->
+                        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                            {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %} <span
+                                class="px-2.5 py-1 bg-purple-500/15 text-purple-600 border border-purple-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">
+                                Oferta</span>
+                                {% endif %}
+                                {% if laptop.condition == 'new' %}
+                                <span
+                                    class="px-2.5 py-1 bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Nuevo</span>
+                                {% elif laptop.condition == 'used' %}
+                                <span
+                                    class="px-2.5 py-1 bg-amber-500/15 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Usado</span>
+                                {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="text-[12px] font-bold text-primary uppercase tracking-widest">
+                                {{ laptop.brand.name if laptop.brand else 'Premium' }}
+                            </span>
+                            <span
+                                class="text-[12px] font-semibold text-[var(--text-sub)] opacity-60 group-hover:opacity-100 group-hover:text-purple-600 transition-all duration-300">
+                                {{ laptop.model.name if laptop.model else '' }}
+                            </span>
+                        </div>
+
+                        <!-- Specs List -->
+                        <ul class="space-y-2.5 mb-6 text-[11px] text-[var(--text-sub)]">
+                            <li class="flex items-center gap-2.5">
+                                <i class="ph-bold ph-cpu text-purple-600 text-sm w-4"></i>
+                                <span class="line-clamp-1">{{ laptop.processor_full_name or laptop.processor.name
+                                    }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i class="ph-bold ph-graphics-card text-purple-600 text-sm w-4"></i>
+                                <span class="line-clamp-1">{{ laptop.discrete_gpu_full_name or
+                                    laptop.onboard_gpu_full_name or laptop.graphics_card.name or 'Integrada'
+                                    }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i class="ph-bold ph-monitor text-purple-600 text-sm w-4"></i>
+                                <span class="line-clamp-1">{{ laptop.screen_full_name or laptop.screen.name
+                                    }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i class="ph-bold ph-hard-drives text-purple-600 text-sm w-4"></i>
+                                <span class="line-clamp-1">{{ laptop.storage_full_name or laptop.storage.name
+                                    }}</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i class="ph-bold ph-memory text-purple-600 text-sm w-4"></i>
+                                <span class="line-clamp-1">{{ laptop.ram_full_name or laptop.ram.name }}</span>
+                            </li>
+                        </ul>
+
+                        <!-- Price + Actions -->
+                        <div
+                            class="mt-auto pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                            <div>
+                                {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %} <span
+                                    class="block text-[10px] text-[var(--text-sub)] line-through">
+                                    RD$ {{ "{:,.0f}".format(laptop.sale_price) }}
+                                    </span>
+                                    {% endif %}
+                                    <span class="text-base font-bold text-[var(--text-main)]">
+                                        RD$ {{ "{:,.0f}".format(laptop.discount_price or laptop.sale_price) }}
+                                    </span>
+                            </div>
+                            <div class="flex gap-2">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors shadow-md">
+                                    <i class="ph-bold ph-arrow-right text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </article>
+            {% endfor %}
+            {% endif %}
+        </div>
     </div>
 </section>
 
-<!-- ============================================
-     POR QUÉ ELEGIRNOS
-     ============================================ -->
-<section class="section-padding">
-    <div class="container-xl">
-        <div class="text-center mb-16 fade-in-up">
-            <span class="text-accent-primary font-bold uppercase tracking-widest text-sm mb-2 block">Beneficios</span>
-            <h2 class="text-4xl md:text-5xl font-bold font-heading mb-6">
-                ¿Por Qué <span class="text-gradient">Elegirnos?</span>
-            </h2>
-            <p class="text-xl text-secondary max-w-2xl mx-auto">
-                Ofrecemos más que solo productos. Te brindamos una experiencia completa de compra con garantías y soporte de primer nivel.
-            </p>
-        </div>
-
-        <div class="features-grid">
-            <!-- Feature 1: Garantía Oficial -->
-            <div class="feature-card fade-in-up delay-100">
-                <div class="feature-icon">
+<!-- Features -->
+<section class="section-spacing bg-white">
+    <div class="container-custom">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Feature 1 -->
+            <div
+                class="p-8 rounded-3xl bg-surface-secondary border border-border-subtle reveal hover:shadow-xl transition-all duration-300">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl mb-6">
                     <i class="fas fa-shield-alt"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Garantía Oficial</h3>
-                <p class="text-secondary">
-                    Todos nuestros productos incluyen garantía de fábrica de 1 año con cobertura completa.
-                </p>
+                <h3 class="font-bold text-main mb-3">Garantía Real</h3>
+                <p class="text-sm text-secondary leading-relaxed">Todos nuestros equipos incluyen garantía oficial
+                    de 1 año con respaldo directo.</p>
             </div>
-
-            <!-- Feature 2: Envío Rápido -->
-            <div class="feature-card fade-in-up delay-200">
-                <div class="feature-icon">
+            <!-- Feature 2 -->
+            <div class="p-8 rounded-3xl bg-surface-secondary border border-border-subtle reveal hover:shadow-xl transition-all duration-300"
+                style="transition-delay: 0.1s">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent text-xl mb-6">
                     <i class="fas fa-shipping-fast"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Envío Gratis</h3>
-                <p class="text-secondary">
-                    Entrega rápida y segura en toda República Dominicana sin costo adicional.
-                </p>
+                <h3 class="font-bold text-main mb-3">Envío Local</h3>
+                <p class="text-sm text-secondary leading-relaxed">Entregas seguras en toda la isla con seguimiento
+                    en tiempo real de tu pedido.</p>
             </div>
-
-            <!-- Feature 3: Soporte Técnico -->
-            <div class="feature-card fade-in-up delay-300">
-                <div class="feature-icon">
+            <!-- Feature 3 -->
+            <div class="p-8 rounded-3xl bg-surface-secondary border border-border-subtle reveal hover:shadow-xl transition-all duration-300"
+                style="transition-delay: 0.2s">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-xl mb-6">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="font-bold text-main mb-3">Facilidades</h3>
+                <p class="text-sm text-secondary leading-relaxed">Aceptamos todos los métodos de pago y ofrecemos
+                    opciones de financiamiento.</p>
+            </div>
+            <!-- Feature 4 -->
+            <div class="p-8 rounded-3xl bg-surface-secondary border border-border-subtle reveal hover:shadow-xl transition-all duration-300"
+                style="transition-delay: 0.3s">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent text-xl mb-6">
                     <i class="fas fa-headset"></i>
                 </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Soporte 24/7</h3>
-                <p class="text-secondary">
-                    Equipo técnico especializado disponible para ayudarte en cualquier momento.
-                </p>
-            </div>
-
-            <!-- Feature 4: Precios Competitivos -->
-            <div class="feature-card fade-in-up delay-400">
-                <div class="feature-icon">
-                    <i class="fas fa-tags"></i>
-                </div>
-                <h3 class="text-xl font-semibold font-heading mb-3">Mejores Precios</h3>
-                <p class="text-secondary">
-                    Precios competitivos con opciones de financiamiento flexibles para todos.
-                </p>
+                <h3 class="font-bold text-main mb-3">Soporte Expert</h3>
+                <p class="text-sm text-secondary leading-relaxed">Contamos con técnicos certificados para brindarte
+                    el mejor servicio post-venta.</p>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Newsletter Simple -->
+<section class="section-spacing">
+    <div class="container-custom">
+        <div
+            class="luxera-marquee-bg bg-[#0c0a1a] rounded-[2.5rem] p-12 lg:p-24 relative overflow-hidden flex flex-col items-center text-center reveal">
+            <div class="relative z-10 max-w-2xl space-y-6">
+                <h2 class="section-title text-white">¿Buscas algo específico?</h2>
+                <p class="text-white/60 subtitle">Suscríbete para recibir alertas de nuevos ingresos, ofertas flash
+                    y guías tecnológicas exclusivas de Luxera.</p>
+                <form class="flex flex-col sm:flex-row gap-4 w-full pt-4">
+                    <input type="email" placeholder="Tu correo electrónico"
+                        class="input-v2 flex-1 !bg-white/5 !border-white/10 !text-white !placeholder-white/30 focus:!border-primary">
+                    <button type="submit" class="btn-primary">Suscribirme</button>
+                </form>
+            </div>
+            <!-- Decor -->
+            <div class="absolute -top-1/2 -right-1/4 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full">
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+
+<style>
+    @keyframes lxMarquee {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .animate-lxMarquee {
+        display: flex;
+        width: max-content;
+        animation: lxMarquee 30s linear infinite;
+    }
+
+    .will-change-transform {
+        will-change: transform;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // ============================================
-    // DATOS DE LAPTOPS DESDE EL BACKEND
-    // ============================================
-    const laptopsData = [
-        {% if featured_laptops %}
-            {% for laptop in featured_laptops[:5] %}
-            {
-                id: {{ laptop.id }},
-                brand: "{{ laptop.brand.name if laptop.brand else 'Premium' }}",
-                name: "{{ laptop.model.name[:30] if laptop.model else laptop.display_name[:30] }}",
-                desc: "{{ laptop.description[:150] if laptop.description else 'Potencia y rendimiento excepcional para profesionales exigentes.' }}",
-                cpu: "{{ laptop.processor.name if laptop.processor else 'Intel Core' }}",
-                gpu: "{{ laptop.graphics_card.name if laptop.graphics_card else 'GPU Integrada' }}",
-                ram: "{{ laptop.ram.name if laptop.ram else '16GB' }}",
-                ssd: "{{ laptop.storage.name if laptop.storage else '512GB SSD' }}",
-                screen: {{ (laptop.screen.name if laptop.screen else 'No especificada')|tojson }},
-                {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}
-                priceOld: "RD$ {{ '{:,.2f}'.format(laptop.sale_price) }}",
-                priceNew: "{{ '{:,.2f}'.format(laptop.discount_price) }}",
-                hasDiscount: true,
-                {% else %}
-                priceOld: "",
-                priceNew: "{{ '{:,.2f}'.format(laptop.sale_price) }}",
-                hasDiscount: false,
-                {% endif %}
-                {% if laptop.images %}
-                    {% if laptop.images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                        {% set cover = laptop.images|selectattr('is_cover', 'equalto', True)|first %}
-                image: "{{ url_for('static', filename=cover.image_path) }}",
-                    {% elif laptop.images|length > 0 %}
-                image: "{{ url_for('static', filename=laptop.images[0].image_path) }}",
-                    {% else %}
-                image: null,
-                    {% endif %}
-                {% else %}
-                image: null,
-                {% endif %}
-                url: "{{ url_for('public.product_detail', id=laptop.id) }}",
-                colors: {
-                    {% if loop.index == 1 %}
-                    textGrad: "linear-gradient(to right, #7c3aed, #5b21b6)",
-                    dot: "bg-purple-700",
-                    btnHover: "hover:bg-purple-800"
-                    {% elif loop.index == 2 %}
-                    textGrad: "linear-gradient(to right, #8b5cf6, #6d28d9)",
-                    dot: "bg-purple-600",
-                    btnHover: "hover:bg-purple-700"
-                    {% elif loop.index == 3 %}
-                    textGrad: "linear-gradient(to right, #7c3aed, #6d28d9)",
-                    dot: "bg-purple-600",
-                    btnHover: "hover:bg-purple-700"
-                    {% elif loop.index == 4 %}
-                    textGrad: "linear-gradient(to right, #8b5cf6, #5b21b6)",
-                    dot: "bg-purple-700",
-                    btnHover: "hover:bg-purple-800"
-                    {% else %}
-                    textGrad: "linear-gradient(to right, #a78bfa, #7c3aed)",
-                    dot: "bg-purple-500",
-                    btnHover: "hover:bg-purple-600"
-                    {% endif %}
-                }
-            }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        {% endif %}
-    ];
+    // Configuración escalable para el Hero
+    const heroConfig = {
+        data: [
+            {% if featured_laptops %}
+    {% for laptop in featured_laptops %}
+    {
+        brand: "{{ laptop.brand.name if laptop.brand else 'Premium' }}",
+            model: "{{ laptop.model.name|replace('\"', '\\\"') if laptop.model else 'Laptop' }}",
+                desc: "{{ laptop.short_description[:180]|replace('\"', '\\\"') if laptop.short_description else (laptop.description[:180]|replace('\"', '\\\"') if laptop.description else 'Rendimiento y diseño unidos.') }}",
+                    specs: {
+            cpu: "{{ (laptop.processor_full_name or laptop.processor.name)|replace('\"', '\\\"') }}",
+                gpu: "{{ (laptop.discrete_gpu_full_name or laptop.onboard_gpu_full_name or (laptop.graphics_card.name if laptop.graphics_card else 'Integrada'))|replace('\"', '\\\"') }}",
+                    screen: "{{ (laptop.screen_full_name or laptop.screen.name)|replace('&#34;', '\"')|replace('\"', '\\\"') }}",
+                        ram: "{{ (laptop.ram_full_name or laptop.ram.name)|replace('\"', '\\\"') }}",
+                            storage: "{{ (laptop.storage_full_name or laptop.storage.name)|replace('\"', '\\\"') }}"
+        },
+        priceNew: "{{ '{:,.0f}'.format(laptop.discount_price or laptop.sale_price) }}",
+            priceOld: "{{ '{:,.0f}'.format(laptop.sale_price) if laptop.discount_price else '' }}",
+                image: "{% if laptop.images|length > 0 %}{% set cover = (laptop.images|selectattr('is_cover', 'equalto', True)|first or laptop.images[0]) %}{{ url_for('static', filename=cover.image_path) }}{% else %}null{% endif %}",
+                    link: "{{ url_for('public.product_detail', id=laptop.id) }}"
+    } {% if not loop.last %}, {% endif %}
+    {% endfor %}
+    {% endif %}
+        ],
+    currentIndex: 0,
+        isAnimating: false,
+            timer: null
+    };
 
-    // ============================================
-    // CARRUSEL LOGIC
-    // ============================================
-    let currentSlide = 0;
-    let isAnimating = false;
-    let autoPlayInterval;
+    function updateHero() {
+        if (!heroConfig.data || heroConfig.data.length === 0) return;
 
-    // Inicializar Indicadores
-    function initIndicators() {
-        const container = document.getElementById('indicators-container');
-        container.innerHTML = '';
+        const item = heroConfig.data[heroConfig.currentIndex];
+        const imageWrap = document.getElementById('hero-image-wrap');
+        const heroImage = document.getElementById('hero-image');
 
-        if (laptopsData.length === 0) return;
+        if (!item || !imageWrap) return;
 
-        laptopsData.forEach((_, index) => {
-            const dot = document.createElement('div');
-            dot.className = `indicator-dot w-2 ${index === 0 ? 'active w-8 ' + laptopsData[0].colors.dot : 'w-2'}`;
-            dot.onclick = () => {
-                if(!isAnimating && currentSlide !== index) {
-                    currentSlide = index;
-                    updateSlide();
-                    resetAutoPlay();
-                }
-            };
-            container.appendChild(dot);
-        });
-    }
-
-    function updateIndicators() {
-        if (laptopsData.length === 0) return;
-
-        const dots = document.querySelectorAll('.indicator-dot');
-        const laptop = laptopsData[currentSlide];
-
-        dots.forEach((dot, index) => {
-            dot.className = 'indicator-dot w-2';
-            if (index === currentSlide) {
-                dot.className = `indicator-dot w-8 active ${laptop.colors.dot}`;
-            }
-        });
-    }
-
-    function updateSlide() {
-        if (isAnimating || laptopsData.length === 0) return;
-        isAnimating = true;
-
-        const laptop = laptopsData[currentSlide];
-
-        // 1. Text Exit Animation (Skew Up Out)
-        const nameEl = document.getElementById('product-name');
-        const suffixEl = document.getElementById('product-suffix');
-
-        nameEl.classList.remove('skew-visible', 'skew-enter-active');
-        nameEl.classList.add('skew-exit-active');
-
-        suffixEl.classList.remove('skew-visible', 'skew-enter-active');
-        suffixEl.classList.add('skew-exit-active');
-
-        // 2. Fade Out Content (solo la imagen)
-        const descEl = document.getElementById('product-desc');
-        const specsContainer = document.getElementById('specs-container');
-        const imageContainer = document.getElementById('laptop-image-container');
-
-        // Solo desvanecer la imagen
-        imageContainer.style.opacity = '0';
+        // Salida
+        imageWrap.classList.add('opacity-0', 'scale-95');
 
         setTimeout(() => {
-            // Update Content
-            nameEl.textContent = laptop.brand;
-            suffixEl.textContent = laptop.name;
-            suffixEl.style.background = laptop.colors.textGrad;
-            suffixEl.style.webkitBackgroundClip = 'text';
-            suffixEl.style.webkitTextFillColor = 'transparent';
+            // Textos básicos
+            document.getElementById('hero-brand').textContent = item.brand || 'Premium';
+            document.getElementById('hero-model').textContent = item.model || 'Laptop';
+            document.getElementById('hero-desc').textContent = item.desc || '';
 
-            descEl.textContent = laptop.desc;
+            // Specs
+            if (item.specs) {
+                const decode = (h) => {
+                    const t = document.createElement('textarea');
+                    t.innerHTML = h;
+                    return t.value;
+                };
+                document.getElementById('spec-cpu').textContent = decode(item.specs.cpu || '--');
+                document.getElementById('spec-gpu').textContent = decode(item.specs.gpu || '--');
+                document.getElementById('spec-screen').textContent = decode(item.specs.screen || '--');
+                document.getElementById('spec-ram').textContent = decode(item.specs.ram || '--');
+                document.getElementById('spec-ssd').textContent = decode(item.specs.storage || '--');
+            }
 
-            // Specs Updates
-            document.getElementById('spec-cpu').textContent = laptop.cpu;
-            document.getElementById('spec-gpu').textContent = laptop.gpu;
-            document.getElementById('spec-ram').textContent = laptop.ram;
-            document.getElementById('spec-ssd').textContent = laptop.ssd;
-            document.getElementById('spec-screen').textContent = laptop.screen;
-
-            // Price
+            // Precios
+            const priceNewEl = document.getElementById('price-new');
             const priceOldEl = document.getElementById('price-old');
-            if (laptop.hasDiscount) {
-                priceOldEl.textContent = laptop.priceOld;
-                priceOldEl.style.display = 'block';
+
+            if (priceNewEl) priceNewEl.textContent = item.priceNew || '--';
+            if (priceOldEl) {
+                if (item.priceOld) {
+                    priceOldEl.textContent = 'RD$ ' + item.priceOld;
+                    priceOldEl.classList.remove('hidden');
+                } else {
+                    priceOldEl.classList.add('hidden');
+                }
+            }
+
+            // Imagen y Link con Fallback consolidado
+            const heroFallback = document.getElementById('hero-fallback');
+            if (heroImage && item.image && item.image !== 'null' && item.image !== '') {
+                heroImage.src = item.image;
+                heroImage.classList.remove('opacity-0', 'hidden');
+                if (heroFallback) heroFallback.classList.add('hidden');
+            } else if (heroImage) {
+                heroImage.classList.add('hidden');
+                if (heroFallback) {
+                    heroFallback.classList.remove('hidden');
+                    heroFallback.classList.add('flex');
+                }
+            }
+            const buyBtn = document.getElementById('buy-btn');
+            if (buyBtn && item.link) buyBtn.href = item.link;
+
+            // Update dot indicators
+            updateDotIndicators();
+
+            // Entrada
+            imageWrap.classList.remove('opacity-0', 'scale-95');
+            heroConfig.isAnimating = false;
+        }, 300);
+    }
+
+    function updateDotIndicators() {
+        const dots = document.querySelectorAll('.carousel-dot');
+        dots.forEach((dot, index) => {
+            if (index === heroConfig.currentIndex) {
+                dot.classList.remove('bg-gray-400', 'w-1.5');
+                dot.classList.add('bg-purple-600', 'w-6');
             } else {
-                priceOldEl.style.display = 'none';
+                dot.classList.remove('bg-purple-600', 'w-6');
+                dot.classList.add('bg-gray-400', 'w-1.5');
             }
-            document.getElementById('price-new').textContent = laptop.priceNew;
-
-            // Button URL
-            document.getElementById('buy-btn').href = laptop.url;
-
-            // Update Button Color
-            const btn = document.getElementById('buy-btn');
-            btn.className = btn.className.split(' ').filter(c => !c.startsWith('hover:bg-')).join(' ');
-            btn.className += ' ' + laptop.colors.btnHover;
-
-            // Update Image
-            const imageEl = document.getElementById('laptop-image');
-            if (laptop.image && imageEl) {
-                imageEl.src = laptop.image;
-                imageEl.alt = laptop.name;
-            }
-
-            // Update Indicators
-            updateIndicators();
-
-            // 3. Enter Animation (Skew Up In)
-            requestAnimationFrame(() => {
-                nameEl.classList.remove('skew-exit-active');
-                nameEl.classList.add('skew-enter-active');
-
-                suffixEl.classList.remove('skew-exit-active');
-                suffixEl.classList.add('skew-enter-active');
-
-                void nameEl.offsetWidth;
-
-                nameEl.classList.remove('skew-enter-active');
-                nameEl.classList.add('skew-visible');
-
-                setTimeout(() => {
-                    suffixEl.classList.remove('skew-enter-active');
-                    suffixEl.classList.add('skew-visible');
-                }, 100);
-
-                // Fade In Content (solo la imagen)
-                imageContainer.style.opacity = '1';
-
-                setTimeout(() => { isAnimating = false; }, 800);
-            });
-
-        }, 400);
+        });
     }
 
-    function nextSlide() {
-        if(isAnimating || laptopsData.length === 0) return;
-        currentSlide = (currentSlide + 1) % laptopsData.length;
-        updateSlide();
-    }
-
-    function prevSlide() {
-        if(isAnimating || laptopsData.length === 0) return;
-        currentSlide = (currentSlide - 1 + laptopsData.length) % laptopsData.length;
-        updateSlide();
+    function goToSlide(index) {
+        if (heroConfig.isAnimating) return;
+        heroConfig.isAnimating = true;
+        heroConfig.currentIndex = index;
+        resetTimer();
+        updateHero();
     }
 
     function manualNext() {
-        nextSlide();
-        resetAutoPlay();
+        if (heroConfig.isAnimating) return;
+        heroConfig.isAnimating = true;
+        heroConfig.currentIndex = (heroConfig.currentIndex + 1) % heroConfig.data.length;
+        resetTimer();
+        updateHero();
     }
 
     function manualPrev() {
-        prevSlide();
-        resetAutoPlay();
+        if (heroConfig.isAnimating) return;
+        heroConfig.isAnimating = true;
+        heroConfig.currentIndex = (heroConfig.currentIndex - 1 + heroConfig.data.length) % heroConfig.data.length;
+        resetTimer();
+        updateHero();
     }
 
-    function resetAutoPlay() {
-        clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(nextSlide, 5000);
+    function resetTimer() {
+        clearInterval(heroConfig.timer);
+        heroConfig.timer = setInterval(manualNext, 6000);
     }
 
-    // ============================================
-    // TEMA CLARO/OSCURO
-    // ============================================
-    function toggleTheme() {
-        const html = document.documentElement;
-        const icon = document.getElementById('theme-icon');
-        const currentTheme = html.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-
-        if (newTheme === 'dark') {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-        } else {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-        }
-    }
-
-    // ============================================
-    // CANVAS INTERACTIVO PARA HERO
-    // ============================================
-    function initCanvas() {
-        const canvas = document.getElementById('heroCanvas');
-        const ctx = canvas.getContext('2d');
-
-        let width, height;
-
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-
-        window.addEventListener('resize', () => {
-            resize();
-            initParticles();
+    // Scroll Observer for reveals
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
         });
-        resize();
+    }, { threshold: 0.1 });
 
-        let particlesArray = [];
-        const mouse = { x: null, y: null, radius: 200 };
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-
-        window.addEventListener('mouseout', () => {
-            mouse.x = undefined;
-            mouse.y = undefined;
-        });
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.size = Math.random() * 2 + 1;
-                this.density = (Math.random() * 30) + 1;
-                this.color = '#cbd5e1';
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-
-            update() {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-
-                let forceDirectionX = dx / distance;
-                let forceDirectionY = dy / distance;
-                let maxDistance = mouse.radius;
-
-                let force = (maxDistance - distance) / maxDistance;
-                let directionX = forceDirectionX * force * this.density;
-                let directionY = forceDirectionY * force * this.density;
-
-                if (distance < mouse.radius && mouse.x !== undefined) {
-                    this.x += directionX;
-                    this.y += directionY;
-                    this.color = '#9333ea';
-                    if (this.size < 5) this.size += 0.2;
-                } else {
-                    if (this.x !== this.baseX) {
-                        let dxMove = this.x - this.baseX;
-                        this.x -= dxMove / 15;
-                    }
-                    if (this.y !== this.baseY) {
-                        let dyMove = this.y - this.baseY;
-                        this.y -= dyMove / 15;
-                    }
-                    this.color = '#cbd5e1';
-                    if (this.size > 2) this.size -= 0.1;
-                }
-                this.draw();
-            }
-        }
-
-        function initParticles() {
-            particlesArray = [];
-            let numberOfParticles = (width * height) / 6000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function connectParticles() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let dx = particlesArray[a].x - particlesArray[b].x;
-                    let dy = particlesArray[a].y - particlesArray[b].y;
-                    let distance = dx * dx + dy * dy;
-
-                    if (distance < 3600) {
-                        opacityValue = 1 - (distance / 3600);
-
-                        let mouseDx = mouse.x - particlesArray[a].x;
-                        let mouseDy = mouse.y - particlesArray[a].y;
-                        let mouseDist = Math.sqrt(mouseDx*mouseDx + mouseDy*mouseDy);
-
-                        if (mouseDist < mouse.radius) {
-                            ctx.strokeStyle = 'rgba(147, 51, 234,' + opacityValue + ')';
-                            ctx.lineWidth = 1;
-                        } else {
-                            ctx.strokeStyle = 'rgba(203, 213, 225,' + (opacityValue * 0.2) + ')';
-                            ctx.lineWidth = 0.5;
-                        }
-
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-            connectParticles();
-            requestAnimationFrame(animate);
-        }
-
-        initParticles();
-        animate();
-    }
-
-// ============================================
-// ONDAS SENOIDALES INTERACTIVAS PARA SECCIÓN DESTACADA
-// ============================================
-function initWaves() {
-    const canvas = document.getElementById('waveCanvas');
-    const ctx = canvas.getContext('2d');
-    const container = document.getElementById('wave-container');
-
-    let width = container.clientWidth;
-    let height = container.clientHeight;
-    canvas.width = width;
-    canvas.height = height;
-
-    let increment = 0;
-    const waves = [
-        { amplitude: 40, frequency: 0.005, speed: 0.008, color: 'rgba(59, 130, 246, 0.05)' },
-        { amplitude: 50, frequency: 0.005, speed: 0.008, color: 'rgba(139, 92, 246, 0.05)' },
-        { amplitude: 60, frequency: 0.005, speed: 0.008, color: 'rgba(14, 165, 233, 0.05)' }
-    ];
-
-    const mouse = { x: -500, y: -500, radius: 300 };
-
-    function resize() {
-        width = container.clientWidth;
-        height = container.clientHeight;
-        canvas.width = width;
-        canvas.height = height;
-    }
-
-    window.addEventListener('resize', resize);
-
-    // Seguimiento del mouse solo dentro de la sección destacada
-    const featuredSection = document.getElementById('featured');
-    featuredSection.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouse.x = e.clientX - rect.left;
-        mouse.y = e.clientY - rect.top;
-    });
-
-    featuredSection.addEventListener('mouseleave', () => {
-        mouse.x = -500;
-        mouse.y = -500;
-    });
-
-    function drawWave(wave, index) {
-        ctx.beginPath();
-        ctx.moveTo(0, height); // Empezar abajo izquierda
-
-        for(let x = 0; x <= width; x += 2) {
-            // Efecto mouse: Levanta la onda suavemente cerca del cursor
-            let distMouse = Math.abs(x - mouse.x);
-            let mouseEffect = Math.max(0, (mouse.radius - distMouse) / mouse.radius) * 30;
-
-            let y = height / 2
-                    + Math.sin(x * wave.frequency + increment + index) * (wave.amplitude + (index * 10))
-                    + Math.cos(x * 0.002 + increment) * 20
-                    + (index * 30) // Separación entre capas
-                    - mouseEffect; // Interacción
-
-            ctx.lineTo(x, y);
-        }
-
-        ctx.lineTo(width, height); // Abajo derecha
-        ctx.lineTo(0, height); // Cerrar path abajo izquierda
-        ctx.closePath();
-
-        // Relleno
-        ctx.fillStyle = wave.color;
-        ctx.fill();
-
-        // Borde superior sutil
-        ctx.strokeStyle = wave.color.replace('0.05', '0.15');
-        ctx.lineWidth = 1;
-        ctx.stroke();
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-
-        // Dibujar ondas desde la más lejana a la más cercana
-        waves.forEach((wave, index) => {
-            drawWave(wave, index);
-        });
-
-        increment += 0.008; // Velocidad relajada
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-}
-    // ============================================
-    // INITIALIZATION
-    // ============================================
     document.addEventListener('DOMContentLoaded', () => {
-        // Cargar tema guardado
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        const html = document.documentElement;
-        const icon = document.getElementById('theme-icon');
+        updateHero();
+        resetTimer();
 
-        html.setAttribute('data-theme', savedTheme);
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-        if (savedTheme === 'dark') {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-        }
+        // Show desktop arrow buttons on hero hover
+        const heroSection = document.querySelector('.hero-gradient');
+        const arrowButtons = document.querySelectorAll('#hero-controls > button');
 
-        // Inicializar canvas del hero
-        initCanvas();
+        if (heroSection && arrowButtons.length > 0) {
+            heroSection.addEventListener('mouseenter', () => {
+                arrowButtons.forEach(btn => btn.classList.remove('opacity-0'));
+                arrowButtons.forEach(btn => btn.classList.add('opacity-100'));
+            });
 
-        // Inicializar ondas interactivas
-        initWaves();
-
-        // Inicializar carrusel
-        if (laptopsData.length > 0) {
-            initIndicators();
-            resetAutoPlay();
+            heroSection.addEventListener('mouseleave', () => {
+                arrowButtons.forEach(btn => btn.classList.remove('opacity-100'));
+                arrowButtons.forEach(btn => btn.classList.add('opacity-0'));
+            });
         }
     });
 </script>

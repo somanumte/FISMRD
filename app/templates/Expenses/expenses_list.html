@@ -136,76 +136,145 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors duration-500">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
+        <!-- Hero Section -->
         <div
-            class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 professional-animation">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestión de Gastos</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1">Control inteligente de gastos fijos y recurrentes</p>
+            class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 via-pink-600 to-purple-800 text-white shadow-xl mb-8 professional-animation">
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10 px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="text-center md:text-left">
+                    <div
+                        class="inline-flex items-center gap-3 mb-4 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10">
+                        <span class="flex h-2 w-2 rounded-full bg-rose-400 animate-pulse"></span>
+                        <span class="text-sm font-medium text-white/90">Control Financiero</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-white">
+                        Gestión de Gastos
+                    </h1>
+                    <p class="text-lg text-rose-100 max-w-2xl leading-relaxed">
+                        Control inteligente de gastos fijos, recurrentes y flujo de caja en tiempo real.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="openModal()"
+                        class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-rose-900 transition-all duration-200 bg-white rounded-2xl hover:bg-rose-50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-rose-600 focus:ring-white shadow-lg">
+                        <div
+                            class="absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-br from-white to-gray-100 opacity-100 transition-opacity group-hover:opacity-90">
+                        </div>
+                        <span class="relative flex items-center gap-3">
+                            <div class="p-1.5 bg-rose-100 rounded-lg group-hover:bg-rose-200 transition-colors">
+                                <svg class="w-5 h-5 text-rose-700" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span>Nuevo Gasto</span>
+                        </span>
+                    </button>
+                    <!-- Quick Search Trigger for Mobile -->
+                    <button onclick="document.querySelector('#searchInput').focus()"
+                        class="lg:hidden inline-flex items-center justify-center px-6 py-4 font-bold text-white transition-all duration-200 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 hover:scale-105 backdrop-blur-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <button onclick="openModal()"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-blue-500/30 flex items-center gap-2 transform hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Nuevo Gasto
-            </button>
         </div>
 
-        <!-- KPI Cards -->
+        <!-- KPI Cards - Redesigned with Purple/Rose Theme but keeping IDs for JS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 professional-animation"
             style="animation-delay: 0.1s;">
             <!-- Total Mes -->
-            <div class="metric-card group overflow-hidden relative">
+            <div
+                class="stat-card bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700/50 p-5 rounded-2xl hover:scale-105 transition-transform border border-gray-100 dark:border-gray-700 shadow-sm block group relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
-                    <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-16 h-16 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
                         <path fill-rule="evenodd"
                             d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
                             clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Mes</p>
-                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white mb-2"
-                    id="kpi-total-month">RD$ 0.00</h2>
-                <div class="h-1.5 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-500 w-full animate-pulse"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div>
+                        <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">
+                            Total Mes</p>
+                        <h3 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-gray-100"
+                            id="kpi-total-month">RD$ 0.00</h3>
+                    </div>
                 </div>
             </div>
 
             <!-- Pendientes -->
-            <div class="metric-card group">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pendientes</p>
-                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-amber-600 dark:text-amber-400"
-                    id="kpi-pending-month">RD$ 0.00</h2>
-                <div class="mt-2 flex items-center gap-2">
-                    <span class="flex h-2 w-2 rounded-full bg-amber-500 animate-ping"></span>
-                    <span class="text-xs font-bold text-amber-600 dark:text-amber-400/80">Por pagar este mes</span>
+            <div
+                class="stat-card bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 p-5 rounded-2xl hover:scale-105 transition-transform border border-amber-100 dark:border-amber-800/30 shadow-sm block group">
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-amber-500/10 p-3 rounded-xl group-hover:bg-amber-500/20 transition-colors">
+                            <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <span class="flex h-3 w-3 rounded-full bg-amber-500 animate-ping"></span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-amber-600 dark:text-amber-300 mb-1 uppercase tracking-wider">
+                            Pendientes</p>
+                        <h3 class="text-2xl sm:text-3xl font-black text-amber-900 dark:text-amber-100"
+                            id="kpi-pending-month">RD$ 0.00</h3>
+                    </div>
                 </div>
             </div>
 
             <!-- Vencidos -->
-            <div class="metric-card group">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Vencidos</p>
-                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-rose-600 dark:text-rose-400"
-                    id="kpi-overdue-total">RD$ 0.00</h2>
-                <div class="mt-2 text-xs font-bold text-rose-600/70 dark:text-rose-400/60 flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                    Atención inmediata
+            <div
+                class="stat-card bg-gradient-to-br from-rose-50 to-pink-100 dark:from-rose-900/20 dark:to-pink-800/20 p-5 rounded-2xl hover:scale-105 transition-transform border border-rose-100 dark:border-rose-800/30 shadow-sm block group">
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-rose-500/10 p-3 rounded-xl group-hover:bg-rose-500/20 transition-colors">
+                            <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-rose-600 dark:text-rose-300 mb-1 uppercase tracking-wider">
+                            Vencidos</p>
+                        <h3 class="text-2xl sm:text-3xl font-black text-rose-900 dark:text-rose-100"
+                            id="kpi-overdue-total">RD$ 0.00</h3>
+                    </div>
                 </div>
             </div>
 
             <!-- Próximos -->
-            <div class="metric-card group">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Próximos (7d)
-                </p>
-                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 dark:text-emerald-400"
-                    id="kpi-upcoming-count">0</h2>
-                <div class="mt-2 text-xs font-bold text-emerald-600/70 dark:text-emerald-400/60 uppercase">Vencimientos
+            <div
+                class="stat-card bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-800/20 p-5 rounded-2xl hover:scale-105 transition-transform border border-emerald-100 dark:border-emerald-800/30 shadow-sm block group">
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-emerald-500/10 p-3 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+                            <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <p
+                            class="text-xs font-bold text-emerald-600 dark:text-emerald-300 mb-1 uppercase tracking-wider">
+                            Próximos (7d)</p>
+                        <h3 class="text-2xl sm:text-3xl font-black text-emerald-900 dark:text-emerald-100"
+                            id="kpi-upcoming-count">0</h3>
+                    </div>
                 </div>
             </div>
         </div>

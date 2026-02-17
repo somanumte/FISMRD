@@ -225,11 +225,11 @@
     <!-- Header -->
     <div class="report-header">
         <div class="breadcrumb">
-            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
+            <a href="{{ url_for('reports.index') }}">Reportes</a>
             <span>/</span>
             <span>Ventas por Producto</span>
         </div>
-        <h1>🏆 Ventas por Producto</h1>
+        <h1>Ventas por Producto</h1>
     </div>
 
     <!-- Filters -->
@@ -245,13 +245,13 @@
             </div>
         </div>
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button class="btn btn-primary" onclick="loadReport()">🔍 Aplicar Filtros</button>
+            <button class="btn btn-primary" onclick="loadReport()">Aplicar Filtros</button>
         </div>
     </div>
 
     <!-- Chart -->
     <div class="chart-card">
-        <h3 class="chart-title">Top 20 Productos Más Vendidos</h3>
+        <h3 class="chart-title">Top 20 Productos Mas Vendidos</h3>
         <div class="chart-container">
             <canvas id="productsChart"></canvas>
         </div>
@@ -394,11 +394,11 @@
 
             let rankBadge = '';
             if (index === 0) {
-                rankBadge = '<span class="rank-badge gold">🥇</span>';
+                rankBadge = '<span class="rank-badge gold">1</span>';
             } else if (index === 1) {
-                rankBadge = '<span class="rank-badge silver">🥈</span>';
+                rankBadge = '<span class="rank-badge silver">2</span>';
             } else if (index === 2) {
-                rankBadge = '<span class="rank-badge bronze">🥉</span>';
+                rankBadge = '<span class="rank-badge bronze">3</span>';
             } else {
                 rankBadge = `<span class="rank-badge default">${index + 1}</span>`;
             }

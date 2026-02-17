@@ -1,63 +1,109 @@
 {% extends "landing/base_landing.html" %}
 
-{% block title %}Ubicación y Contacto | LuxeraRD{% endblock %}
+{% block title %}Ubicación y Contacto | F.I.S.M Technology SRL{% endblock %}
 
-{% block meta_description %}Visita nuestro showroom en Santo Domingo. Prueba los dispositivos, recibe asesoría experta y disfruta de la mejor experiencia tecnológica en República Dominicana.{% endblock %}
+{% block meta_description %}Visita nuestro showroom en Santo Domingo. Prueba los dispositivos, recibe asesoría experta y
+disfruta de la mejor experiencia tecnológica en República Dominicana.{% endblock %}
 
-{% block og_title %}Ubicación y Contacto | LuxeraRD{% endblock %}
-{% block og_description %}Ven a conocer el futuro de la tecnología en nuestro showroom principal. Asesoría experta en un ambiente diseñado para inspirar.{% endblock %}
+{% block og_title %}Ubicación y Contacto | F.I.S.M Technology SRL{% endblock %}
+{% block og_description %}Ven a conocer el futuro de la tecnología en nuestro showroom principal. Asesoría experta en un
+ambiente diseñado para inspirar.{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Estilos para la página de ubicación */
     .orb {
-        animation: float 10s ease-in-out infinite;
+        animation: orb-drift 10s ease-in-out infinite;
+        will-change: transform;
     }
 
-    @keyframes float {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
+    @keyframes orb-drift {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        33% {
+            transform: translate(25px, -40px) scale(1.08);
+        }
+
+        66% {
+            transform: translate(-15px, 15px) scale(0.94);
+        }
+
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
     }
 
-    .map-filter {
-        filter: grayscale(100%);
-        transition: filter 0.6s ease;
+    /* MAP — ALWAYS FULL COLOR */
+    .map-container iframe {
+        filter: none;
+        transition: none;
     }
 
-    .map-container:hover .map-filter {
-        filter: grayscale(0%);
+    .contact-glass {
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
     }
 
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.65);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+    [data-theme="dark"] .contact-glass {
+        background: rgba(14, 12, 22, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     }
 
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
+    .experience-card {
+        background: var(--surface-primary);
+        border: 1px solid var(--border-subtle);
+        border-radius: 1.25rem;
+        padding: 1.5rem;
+        transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    @media (min-width: 768px) {
+        .experience-card {
+            border-radius: 1.5rem;
+            padding: 1.75rem;
+        }
     }
 
-    /* Estilos específicos para ubicación */
-    .location-hero {
-        padding-top: 7rem;
-        padding-bottom: 4rem;
-        position: relative;
-        overflow: hidden;
+    .experience-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 40px rgba(124, 58, 237, 0.08);
+        border-color: var(--primary);
     }
 
     @media (max-width: 768px) {
-        .location-hero {
-            padding-top: 6rem;
-            padding-bottom: 3rem;
+        .experience-card:hover {
+            transform: translateY(-3px);
+        }
+    }
+
+    .detail-row {
+        transition: all 0.3s ease;
+        border-radius: 0.75rem;
+        padding: 0.5rem;
+        margin: -0.5rem;
+    }
+
+    .detail-row:hover {
+        background: var(--surface-secondary);
+    }
+
+    /* Mobile map layout */
+    .map-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 480px;
+    }
+
+    @media (min-width: 768px) {
+        .map-wrapper {
+            display: block;
+            height: 560px;
         }
     }
 </style>
@@ -65,209 +111,223 @@
 
 {% block content %}
 
-<!-- Hero Section -->
-<header class="location-hero bg-gradient-to-b from-white to-apple-gray-light relative overflow-hidden">
-    <!-- Orbes de luz de fondo -->
-    <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-300/20 rounded-full blur-[100px] orb mix-blend-multiply pointer-events-none"></div>
-    <div class="absolute top-10 right-1/4 w-72 h-72 bg-purple-300/20 rounded-full blur-[80px] orb mix-blend-multiply pointer-events-none" style="animation-delay: 2s;"></div>
+<!-- Hero -->
+<header class="pt-8 pb-8 md:pt-16 md:pb-16 relative overflow-hidden">
+    <div
+        class="absolute top-0 left-1/4 w-60 md:w-80 h-60 md:h-80 bg-blue-300/15 rounded-full blur-[100px] orb mix-blend-multiply dark:mix-blend-screen pointer-events-none">
+    </div>
+    <div class="absolute top-8 right-1/4 w-48 md:w-64 h-48 md:h-64 bg-purple-400/15 rounded-full blur-[80px] orb mix-blend-multiply dark:mix-blend-screen pointer-events-none"
+        style="animation-delay:-3s"></div>
 
     <div class="container-custom text-center relative z-10">
-        <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-apple-gray">
+        <h1 class="hero-title text-[var(--text-main)] mb-3 md:mb-4">
             Visítanos en Santo Domingo.
         </h1>
-        <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+        <p class="subtitle max-w-2xl">
             Ven a conocer el futuro de la tecnología en nuestro showroom principal.
             Asesoría experta en un ambiente diseñado para inspirar.
         </p>
     </div>
 </header>
 
-<!-- Sección Principal (Mapa y Tarjeta Flotante) -->
-<main class="container-custom mb-16 md:mb-24">
+<!-- Map + Floating Card -->
+<section class="container-custom mb-10 md:mb-20">
+    <div
+        class="relative w-full map-wrapper rounded-2xl md:rounded-3xl shadow-lg overflow-hidden map-container group bg-[var(--surface-secondary)]">
 
-    <!-- Contenedor del Mapa -->
-    <div class="relative w-full h-[500px] md:h-[600px] rounded-3xl shadow-lg overflow-hidden map-container group bg-gray-200">
-
-        <!-- Iframe de Google Maps (Placeholder para Santo Domingo) -->
+        <!-- MAP — FULL COLOR ALWAYS (no grayscale filter) -->
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.468014935182!2d-69.9102805!3d18.466529!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eaf8971eae901d3%3A0xfa8226592c08607e!2sFISM%20Technology%20SRL!5e0!3m2!1ses!2sdo!4v1709228912345!5m2!1ses!2sdo"
-            class="absolute inset-0 w-full h-full border-0 map-filter"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade">
+            class="w-full h-64 md:absolute md:inset-0 md:h-full border-0 flex-shrink-0" allowfullscreen=""
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Ubicación de FISM Technology SRL en Google Maps">
         </iframe>
 
-        <!-- Botón flotante móvil (Solo visible en pantallas pequeñas) -->
-        <a href="https://maps.google.com/?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="md:hidden absolute bottom-6 right-6 bg-apple-blue text-white p-4 rounded-full shadow-lg z-20 hover:scale-105 transition-transform">
-            <i class="fa-solid fa-location-arrow text-xl"></i>
-        </a>
+        <!-- Floating Glass Card -->
+        <div class="relative w-full p-4 md:absolute md:top-6 md:right-6 md:w-[22rem] md:p-0 z-10">
+            <div
+                class="contact-glass rounded-2xl md:rounded-3xl p-5 md:p-7 transform transition-all hover:scale-[1.01] duration-300">
 
-        <!-- Tarjeta Flotante "Glass" -->
-        <div class="absolute bottom-0 left-0 w-full md:top-8 md:bottom-auto md:left-auto md:right-8 md:w-96 p-4 md:p-0 z-10">
-            <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-xl transform transition-all hover:scale-[1.01] duration-300">
-
-                <!-- Estado de la tienda -->
-                <div class="flex items-center gap-2 mb-4">
-                    <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
-                    <span id="store-status" class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Cargando...</span>
+                <!-- Store Status -->
+                <div class="flex items-center gap-2 mb-3 md:mb-4">
+                    <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-400 flex-shrink-0"></span>
+                    <span id="store-status"
+                        class="text-xs font-bold text-gray-500 uppercase tracking-wider">Cargando...</span>
                 </div>
 
-                <h2 class="text-2xl font-bold mb-1 font-sans">
-                    <span class="text-[#9333ea]">F.I.S.M</span>
-                    <span class="text-[#9333ea]">Technology</span>
-                    <span class="text-[#9333ea]">S.R.L</span>
+                <h2 class="text-lg md:text-xl font-bold font-heading mb-1 text-[var(--text-main)]">
+                    <span class="text-gradient">F.I.S.M Technology S.R.L</span>
                 </h2>
-                <p class="text-gray-500 text-sm mb-6">
+                <p class="text-[var(--text-secondary)] text-sm mb-4 md:mb-5 leading-relaxed">
                     Plaza Royal, Local 109<br>
                     Avenida Máximo Gómez, esq. José Contreras<br>
-                    Santo Domingo, Distrito Nacional 10210<br>
+                    Santo Domingo, DN 10210<br>
                     República Dominicana
                 </p>
 
-                <!-- Horario -->
-                <div class="space-y-2 mb-6 text-sm text-gray-600 border-t border-gray-200/50 pt-4">
+                <!-- Hours -->
+                <div
+                    class="space-y-2 mb-4 md:mb-5 text-sm text-[var(--text-secondary)] border-t border-[var(--border-subtle)] pt-3 md:pt-4">
                     <div class="flex justify-between">
-                        <span>Lun - Vie</span>
-                        <span class="font-medium">09:00 AM – 06:00 PM</span>
+                        <span>Lun – Vie</span>
+                        <span class="font-semibold text-[var(--text-main)]">09:00 AM – 06:00 PM</span>
                     </div>
                     <div class="flex justify-between">
                         <span>Sábados</span>
-                        <span class="font-medium">09:00 AM – 05:00 PM</span>
+                        <span class="font-semibold text-[var(--text-main)]">09:00 AM – 05:00 PM</span>
                     </div>
-                    <div class="flex justify-between text-gray-400">
+                    <div class="flex justify-between text-[var(--text-tertiary)]">
                         <span>Domingos</span>
                         <span>Bajo Cita</span>
                     </div>
                 </div>
 
-                <!-- Botones de Acción -->
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <a href="https://waze.com/ul?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="flex items-center justify-center gap-2 bg-[#9333ea] text-white py-3 rounded-xl hover:bg-[#7c2bd1] transition-colors text-sm font-medium shadow-md">
-                        <i class="fa-brands fa-waze"></i> Waze
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 md:gap-2.5 mb-2">
+                    <a href="https://waze.com/ul?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo"
+                        target="_blank" rel="noopener noreferrer"
+                        class="flex items-center justify-center gap-2 bg-purple-600 text-white py-2.5 rounded-xl hover:bg-purple-700 transition-colors text-sm font-semibold shadow-md active:scale-95">
+                        <i class="fa-solid fa-diamond-turn-right"></i> Waze
                     </a>
-                    <a href="https://maps.google.com/?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo" target="_blank" class="flex items-center justify-center gap-2 bg-white text-apple-gray border border-gray-200 py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium">
-                        <i class="fa-solid fa-map-pin"></i> Maps
-                    </a>
-                </div>
-
-                <div>
-                    <a href="https://wa.me/18298233450" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 rounded-xl hover:bg-[#20bd5a] transition-colors text-sm font-medium shadow-sm">
-                        <i class="fa-brands fa-whatsapp text-lg"></i> Contactanos!
+                    <a href="https://maps.google.com/?q=Plaza+Royal+Local+109+Avenida+Máximo+Gómez+esq+José+Contreras+Santo+Domingo"
+                        target="_blank" rel="noopener noreferrer"
+                        class="flex items-center justify-center gap-2 bg-[var(--surface-secondary)] text-[var(--text-main)] py-2.5 rounded-xl hover:bg-[var(--surface-tertiary)] transition-colors text-sm font-semibold border border-[var(--border-subtle)] active:scale-95">
+                        <i class="fa-solid fa-map-location-dot"></i> Maps
                     </a>
                 </div>
+                <a href="https://wa.me/18298233450" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-2 bg-[#25D366] text-white py-2.5 rounded-xl hover:bg-[#1fb855] transition-colors text-sm font-semibold shadow-md w-full active:scale-95">
+                    <i class="fa-brands fa-whatsapp text-base"></i> Escribir por WhatsApp
+                </a>
             </div>
         </div>
     </div>
-</main>
+</section>
 
-<!-- Sección 'La Experiencia' -->
-<section class="container-custom mb-16 md:mb-24">
-    <h2 class="text-3xl font-bold mb-8 text-center md:text-left text-apple-gray">La Experiencia Luxera</h2>
+<!-- Experience Cards -->
+<section class="container-custom mb-10 md:mb-20">
+    <div class="text-center mb-8 md:mb-12">
+        <h3 class="section-title text-[var(--text-main)]">La Experiencia <span class="text-gradient">F.I.S.M Technology
+                SRL</span></h3>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Card 1 -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
-            <div class="w-12 h-12 bg-blue-50 text-apple-blue rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
-                <i class="fa-solid fa-hand-holding-hand"></i>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+        <div class="experience-card flex flex-col items-start group">
+            <div
+                class="w-11 h-11 md:w-12 md:h-12 bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-4 md:mb-5 text-lg group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-laptop-code"></i>
             </div>
-            <h4 class="text-xl font-bold mb-2 text-apple-gray">Prueba antes de comprar</h4>
-            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
-                Toca, siente y prueba todos los dispositivos. Desde el último iPhone hasta las MacBooks más potentes. Sin cajas cerradas.
+            <h4 class="text-base md:text-lg font-bold font-heading mb-2 text-[var(--text-main)]">Zona de Demostración
+            </h4>
+            <p class="text-[var(--text-secondary)] leading-relaxed text-sm">
+                Prueba cada equipo antes de comprarlo. Todos nuestros dispositivos en exhibición están encendidos y
+                listos para que los experimentes.
             </p>
         </div>
-
-        <!-- Card 2 -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
-            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
+        <div class="experience-card flex flex-col items-start group">
+            <div
+                class="w-11 h-11 md:w-12 md:h-12 bg-purple-50 dark:bg-purple-900/25 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mb-4 md:mb-5 text-lg group-hover:scale-110 transition-transform duration-300">
                 <i class="fa-solid fa-mug-hot"></i>
             </div>
-            <h4 class="text-xl font-bold mb-2 text-apple-gray">Tech Bar & Genius</h4>
-            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
-                Disfruta de un café artesanal mientras nuestros técnicos certificados configuran tu nuevo equipo o resuelven tus dudas.
+            <h4 class="text-base md:text-lg font-bold font-heading mb-2 text-[var(--text-main)]">Tech Bar & Genius</h4>
+            <p class="text-[var(--text-secondary)] leading-relaxed text-sm">
+                Disfruta de un café artesanal mientras nuestros técnicos certificados configuran tu nuevo equipo o
+                resuelven tus dudas.
             </p>
         </div>
-
-        <!-- Card 3 -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col items-start group">
-            <div class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 text-xl group-hover:scale-110 transition-transform duration-300">
+        <div class="experience-card flex flex-col items-start group">
+            <div
+                class="w-11 h-11 md:w-12 md:h-12 bg-emerald-50 dark:bg-emerald-900/25 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center mb-4 md:mb-5 text-lg group-hover:scale-110 transition-transform duration-300">
                 <i class="fa-solid fa-user-tie"></i>
             </div>
-            <h4 class="text-xl font-bold mb-2 text-apple-gray">Asesores Expertos</h4>
-            <p class="text-gray-600 leading-relaxed text-sm md:text-base">
-                No somos vendedores, somos entusiastas. Te ayudamos a encontrar exactamente lo que necesitas para tu flujo de trabajo.
+            <h4 class="text-base md:text-lg font-bold font-heading mb-2 text-[var(--text-main)]">Asesores Expertos</h4>
+            <p class="text-[var(--text-secondary)] leading-relaxed text-sm">
+                No somos vendedores, somos entusiastas. Te ayudamos a encontrar exactamente lo que necesitas para tu
+                flujo de trabajo.
             </p>
         </div>
     </div>
 </section>
 
-<!-- Información Práctica + Imagen Inspiracional -->
-<section class="container-custom mb-16 md:mb-24">
-    <div class="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col md:flex-row">
+<!-- Visit Details + Visual -->
+<section class="container-custom mb-10 md:mb-20">
+    <div
+        class="bg-[var(--surface-primary)] rounded-2xl md:rounded-3xl overflow-hidden shadow-md border border-[var(--border-subtle)] flex flex-col md:flex-row">
+        <!-- Info List -->
+        <div class="p-5 md:p-10 md:w-1/2 flex flex-col justify-center">
+            <h3 class="subsection-title text-[var(--text-main)] mb-5 md:mb-7">Detalles para tu visita</h3>
 
-        <!-- Lista Visual -->
-        <div class="p-6 md:p-12 md:w-1/2 flex flex-col justify-center">
-            <h3 class="text-2xl font-bold mb-8 text-apple-gray">Detalles para tu visita</h3>
-
-            <div class="space-y-6">
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+            <div class="space-y-4 md:space-y-5">
+                <div class="detail-row flex items-start gap-3 md:gap-4">
+                    <div
+                        class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[var(--surface-secondary)] flex items-center justify-center text-[var(--text-secondary)] flex-shrink-0">
                         <i class="fa-solid fa-square-parking"></i>
                     </div>
                     <div>
-                        <h5 class="font-semibold text-gray-900">Parqueo Gratuito</h5>
-                        <p class="text-sm text-gray-600 mt-1">Valet parking disponible en la entrada principal o autoservicio en el nivel S1.</p>
+                        <h5 class="font-semibold text-[var(--text-main)] text-sm md:text-[0.9375rem]">Parqueo Gratuito
+                        </h5>
+                        <p class="text-sm text-[var(--text-secondary)] mt-0.5">Valet parking disponible en la entrada
+                            principal o autoservicio en el nivel S1.</p>
                     </div>
                 </div>
-
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+                <div class="detail-row flex items-start gap-3 md:gap-4">
+                    <div
+                        class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[var(--surface-secondary)] flex items-center justify-center text-[var(--text-secondary)] flex-shrink-0">
                         <i class="fa-solid fa-wheelchair"></i>
                     </div>
                     <div>
-                        <h5 class="font-semibold text-gray-900">Accesibilidad Total</h5>
-                        <p class="text-sm text-gray-600 mt-1">Rampas y elevadores disponibles. Espacio amplio entre mesas para movilidad.</p>
+                        <h5 class="font-semibold text-[var(--text-main)] text-sm md:text-[0.9375rem]">Accesibilidad
+                            Total</h5>
+                        <p class="text-sm text-[var(--text-secondary)] mt-0.5">Rampas y elevadores disponibles. Espacio
+                            amplio entre mesas para movilidad.</p>
                     </div>
                 </div>
-
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 flex-shrink-0">
+                <div class="detail-row flex items-start gap-3 md:gap-4">
+                    <div
+                        class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[var(--surface-secondary)] flex items-center justify-center text-[var(--text-secondary)] flex-shrink-0">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
-                        <h5 class="font-semibold text-gray-900">Seguridad Garantizada</h5>
-                        <p class="text-sm text-gray-600 mt-1">Monitoreo 24/7 y personal de seguridad privada para tu tranquilidad.</p>
+                        <h5 class="font-semibold text-[var(--text-main)] text-sm md:text-[0.9375rem]">Seguridad
+                            Garantizada</h5>
+                        <p class="text-sm text-[var(--text-secondary)] mt-0.5">Monitoreo 24/7 y personal de seguridad
+                            privada para tu tranquilidad.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Imagen decorativa -->
-        <div class="md:w-1/2 bg-gray-100 min-h-[300px] relative overflow-hidden group">
-            <!-- Simulando una imagen interior de tienda tech -->
-            <div class="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
-            <!-- Elementos abstractos que parecen mesas y laptops -->
-            <div class="absolute top-1/2 left-1/4 w-32 h-20 bg-white rounded-lg shadow-xl transform -skew-x-12 opacity-80 group-hover:scale-105 transition-transform duration-700"></div>
-            <div class="absolute top-1/2 left-2/4 w-32 h-20 bg-white rounded-lg shadow-xl transform -skew-x-12 opacity-60 ml-8 group-hover:scale-105 transition-transform duration-700 delay-75"></div>
-
-            <!-- Overlay texto -->
-            <div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black/50 to-transparent">
-                <span class="text-white font-medium text-sm tracking-widest uppercase opacity-90">Interior</span>
+        <!-- Decorative Image Area — FULL COLOR -->
+        <div
+            class="md:w-1/2 bg-[var(--surface-secondary)] min-h-[220px] md:min-h-[360px] relative overflow-hidden group">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-purple-200/40 to-cyan-200/40 dark:from-purple-900/20 dark:to-cyan-900/20">
+            </div>
+            <div
+                class="absolute top-1/2 left-1/4 w-28 h-16 bg-[var(--surface-primary)] rounded-xl shadow-lg transform -skew-x-12 opacity-75 group-hover:scale-105 transition-transform duration-700">
+            </div>
+            <div
+                class="absolute top-1/2 left-2/4 w-28 h-16 bg-[var(--surface-primary)] rounded-xl shadow-lg transform -skew-x-12 opacity-50 ml-6 group-hover:scale-105 transition-transform duration-700 delay-75">
+            </div>
+            <div class="absolute bottom-0 left-0 p-5 md:p-7 w-full bg-gradient-to-t from-black/40 to-transparent">
+                <span class="text-white font-heading font-bold text-xs tracking-[0.15em] uppercase opacity-80">Interior
+                    del Showroom</span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA Final -->
-<section class="bg-white py-12 md:py-16 border-t border-gray-100">
+<!-- CTA -->
+<section class="bg-[var(--surface-primary)] py-10 md:py-16 border-t border-[var(--border-subtle)]">
     <div class="container-custom text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-apple-gray">¿No puedes venir hoy?</h2>
-        <p class="text-gray-600 mb-8 max-w-lg mx-auto text-base md:text-lg">
+        <h2 class="subsection-title text-[var(--text-main)] mb-3">¿No puedes venir hoy?</h2>
+        <p class="text-[var(--text-secondary)] mb-6 md:mb-7 max-w-lg mx-auto text-[0.9375rem] md:text-[1.0625rem]">
             Recibe la misma experiencia premium comprando desde casa. Envíos a todo el país en 24 horas.
         </p>
         <a href="{{ url_for('public.catalog') }}"
-           class="inline-flex items-center gap-2 text-apple-blue hover:text-apple-blue-dark font-medium text-lg transition-colors group">
+            class="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-bold text-base md:text-lg transition-colors group">
             Ir a la Tienda Online
-            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+            <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1.5 transition-transform"></i>
         </a>
     </div>
 </section>
@@ -276,65 +336,39 @@
 
 {% block extra_js %}
 <script>
-    // Lógica de horario para mostrar estado de la tienda
     document.addEventListener('DOMContentLoaded', () => {
         const statusText = document.getElementById('store-status');
         const statusDot = document.getElementById('status-dot');
 
-        // Configuración de horario (formato 24h)
-        const openHour = 10;
-        const closeHourWeek = 21; // 9 PM
-        const closeHourSat = 19;  // 7 PM
+        const openHour = 9;
+        const closeHourWeek = 18;
+        const closeHourSat = 17;
 
         const now = new Date();
-        const day = now.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+        const day = now.getDay();
         const hour = now.getHours();
 
         let isOpen = false;
         let closingSoon = false;
 
-        // Lógica simple de horario
         if (day === 0) {
-            // Domingo cerrado
             isOpen = false;
         } else if (day === 6) {
-            // Sábado
             if (hour >= openHour && hour < closeHourSat) isOpen = true;
             if (hour === closeHourSat - 1) closingSoon = true;
         } else {
-            // Lunes a Viernes
             if (hour >= openHour && hour < closeHourWeek) isOpen = true;
             if (hour === closeHourWeek - 1) closingSoon = true;
         }
 
-        // Actualizar UI
         if (isOpen) {
-            statusText.textContent = closingSoon ? "Cierra pronto" : "Abierto ahora";
-            statusText.classList.add(closingSoon ? 'text-yellow-600' : 'text-green-600');
-            statusText.classList.remove('text-gray-500');
-
-            statusDot.classList.remove('bg-gray-400');
-            statusDot.classList.add(closingSoon ? 'bg-yellow-500' : 'bg-green-500');
-            statusDot.classList.add('animate-pulse');
+            statusText.textContent = closingSoon ? 'Cierra pronto' : 'Abierto ahora';
+            statusText.className = `text-xs font-bold uppercase tracking-wider ${closingSoon ? 'text-yellow-600' : 'text-green-600'}`;
+            statusDot.className = `w-2.5 h-2.5 rounded-full flex-shrink-0 animate-pulse ${closingSoon ? 'bg-yellow-500' : 'bg-green-500'}`;
         } else {
-            statusText.textContent = "Cerrado ahora";
-            statusText.classList.add('text-red-500');
-            statusText.classList.remove('text-gray-500');
-
-            statusDot.classList.remove('bg-gray-400');
-            statusDot.classList.add('bg-red-500');
-        }
-
-        // Inicializar tooltips si existen
-        if (typeof showToast === 'function') {
-            // Ejemplo: Mostrar notificación de bienvenida si el usuario viene por primera vez
-            const hasVisited = localStorage.getItem('location_page_visited');
-            if (!hasVisited) {
-                setTimeout(() => {
-                    showToast('¡Bienvenido a LuxeraRD!', 'Visítanos en nuestro showroom o explora nuestra tienda online.', 'info');
-                    localStorage.setItem('location_page_visited', 'true');
-                }, 1500);
-            }
+            statusText.textContent = 'Cerrado ahora';
+            statusText.className = 'text-xs font-bold uppercase tracking-wider text-red-500';
+            statusDot.className = 'w-2.5 h-2.5 rounded-full flex-shrink-0 bg-red-500';
         }
     });
 </script>

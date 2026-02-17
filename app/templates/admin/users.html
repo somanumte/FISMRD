@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% set hide_search = True %}
 
-{% block title %}Gestión de Usuarios{% endblock %}
+{% block title %}Gestion de Usuarios{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Estilos específicos para la página de usuarios */
+    /* Estilos especificos para la pagina de usuarios */
     .user-avatar {
         width: 2.5rem;
         height: 2.5rem;
@@ -94,7 +94,7 @@
         cursor: pointer;
     }
 
-    /* Animación de carga */
+    /* Animacion de carga */
     @keyframes shimmer {
         0% {
             background-position: -1000px 0;
@@ -123,7 +123,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Gestion de Usuarios</h1>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Administra usuarios, permisos y accesos del sistema
             </p>
@@ -149,7 +149,7 @@
         </div>
     </div>
 
-    <!-- Estadísticas -->
+    <!-- Estadisticas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Total -->
         <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
@@ -229,10 +229,10 @@
         </div>
     </div>
 
-    <!-- Filtros y Búsqueda -->
+    <!-- Filtros y Busqueda -->
     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Búsqueda -->
+            <!-- Busqueda -->
             <div class="md:col-span-2">
                 <div class="relative">
                     <input type="text" id="search-input" placeholder="Buscar por nombre, email o username..."
@@ -323,7 +323,7 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400"
                             onclick="sortTable('last_login')">
-                            Último Login
+                            Ultimo Login
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400"
                             onclick="sortTable('created_at')">
@@ -355,7 +355,7 @@
                                     <div class="font-semibold text-gray-900 dark:text-white">
                                         {{ user.username }}
                                         {% if user.id == current_user.id %}
-                                        <span class="text-xs text-indigo-600 dark:text-indigo-400">(Tú)</span>
+                                        <span class="text-xs text-indigo-600 dark:text-indigo-400">(Tu)</span>
                                         {% endif %}
                                     </div>
                                     {% if user.full_name %}
@@ -466,7 +466,7 @@
                                 </button>
                                 {% endif %}
 
-                                <!-- Resetear contraseña -->
+                                <!-- Resetear contrasenia -->
                                 {% if user.is_locked() %}
                                 <button onclick="unlockUser({{ user.id }}, '{{ user.username }}')"
                                     class="p-2 text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -494,11 +494,11 @@
                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">No se encontraron usuarios</h3>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Intenta ajustar los filtros de busqueda</p>
         </div>
     </div>
 
-    <!-- Paginación (para implementación futura) -->
+    <!-- Paginacion (para implementacion futura) -->
     <div class="flex items-center justify-between">
         <div class="text-sm text-gray-600 dark:text-gray-400">
             Mostrando <span id="showing-count">{{ users|length }}</span> de <span id="total-count">{{ users|length
@@ -507,7 +507,7 @@
     </div>
 </div>
 
-<!-- Modal de Confirmación -->
+<!-- Modal de Confirmacion -->
 <div id="confirmation-modal" class="modal-overlay">
     <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="p-6">
@@ -521,10 +521,10 @@
                 </svg>
             </div>
             <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white text-center" id="modal-title">
-                ¿Confirmar acción?
+                ¿Confirmar accion?
             </h3>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center" id="modal-message">
-                Esta acción no se puede deshacer.
+                Esta accion no se puede deshacer.
             </p>
         </div>
         <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex gap-3 justify-end rounded-b-lg">
@@ -549,7 +549,7 @@
     let currentSortColumn = null;
     let currentSortDirection = 'asc';
 
-    // Búsqueda en tiempo real
+    // Busqueda en tiempo real
     document.getElementById('search-input').addEventListener('input', filterUsers);
     document.getElementById('filter-status').addEventListener('change', filterUsers);
     document.getElementById('filter-role').addEventListener('change', filterUsers);
@@ -595,7 +595,7 @@
             const status = row.dataset.status;
             const role = row.dataset.role;
 
-            // Búsqueda
+            // Busqueda
             const matchesSearch = !searchTerm ||
                 username.includes(searchTerm) ||
                 email.includes(searchTerm) ||
@@ -631,7 +631,7 @@
         const tbody = document.getElementById('users-table-body');
         const rows = Array.from(tbody.querySelectorAll('tr'));
 
-        // Determinar dirección
+        // Determinar direccion
         if (currentSortColumn === column) {
             currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -694,14 +694,14 @@
     }
 
     function editUser(userId) {
-        // Implementar edición
+        // Implementar edicion
         alert('Editar usuario #' + userId);
     }
 
     function activateUser(userId, username) {
         showConfirmation(
             '¿Activar usuario?',
-            `¿Estás seguro de que deseas activar al usuario "${username}"?`,
+            `¿Estas seguro de que deseas activar al usuario "${username}"?`,
             () => {
                 // Aquí iría la petición AJAX
                 console.log('Activando usuario:', userId);
@@ -714,7 +714,7 @@
     function deactivateUser(userId, username) {
         showConfirmation(
             '¿Desactivar usuario?',
-            `¿Estás seguro de que deseas desactivar al usuario "${username}"? No podrá acceder al sistema.`,
+            `¿Estas seguro de que deseas desactivar al usuario "${username}"? No podra acceder al sistema.`,
             () => {
                 // Aquí iría la petición AJAX
                 console.log('Desactivando usuario:', userId);
@@ -740,7 +740,7 @@
     function bulkActivate() {
         showConfirmation(
             '¿Activar usuarios seleccionados?',
-            `Se activarán ${selectedUsers.size} usuarios.`,
+            `Se activaran ${selectedUsers.size} usuarios.`,
             () => {
                 console.log('Activando usuarios:', Array.from(selectedUsers));
                 closeModal();
@@ -753,7 +753,7 @@
     function bulkDeactivate() {
         showConfirmation(
             '¿Desactivar usuarios seleccionados?',
-            `Se desactivarán ${selectedUsers.size} usuarios.`,
+            `Se desactivaran ${selectedUsers.size} usuarios.`,
             () => {
                 console.log('Desactivando usuarios:', Array.from(selectedUsers));
                 closeModal();
@@ -766,7 +766,7 @@
     function exportUsers() {
         // Generar CSV
         const rows = document.querySelectorAll('#users-table-body tr:not([style*="display: none"])');
-        let csv = 'Username,Email,Nombre Completo,Rol,Estado,Último Login,Fecha Registro\n';
+        let csv = 'Username,Email,Nombre Completo,Rol,Estado,Ultimo Login,Fecha Registro\n';
 
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
@@ -819,7 +819,7 @@
     }
 
     function showNotification(message, type = 'info') {
-        // Crear notificación
+        // Crear notificacion
         const notification = document.createElement('div');
         notification.className = `flash-message alert alert-${type} fixed top-4 right-4 z-50 max-w-md`;
         notification.innerHTML = `
@@ -835,7 +835,7 @@
 
         document.body.appendChild(notification);
 
-        // Auto-eliminar después de 5 segundos
+        // Auto-eliminar despues de 5 segundos
         setTimeout(() => {
             notification.style.animation = 'fadeOut 0.5s ease-out forwards';
             setTimeout(() => notification.remove(), 500);

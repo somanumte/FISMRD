@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set hide_search = True %}
 
-{% block title %}Gestión de Usuarios | LuxeraRD{% endblock %}
+{% block title %}Gestion de Usuarios | LuxeraRD{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-transparent py-4 sm:py-8">
@@ -19,7 +19,7 @@
                         </svg>
                     </div>
                     <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                        Gestión de Usuarios
+                        Gestion de Usuarios
                     </h1>
                 </div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400 pl-1">
@@ -150,14 +150,14 @@
                                         Estado</th>
                                     <th
                                         class="px-4 py-3 text-left text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
-                                        Último Login</th>
+                                        Ultimo Login</th>
                                     <th
                                         class="px-4 py-3 text-right text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
-                                <!-- Filas se insertarán aquí -->
+                                <!-- Filas se insertaran aqui -->
                                 <tr>
                                     <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                                         <i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i>
@@ -167,8 +167,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Paginación si fuera necesaria -->
-                    <div
+                    <!-- Paginacion si fuera necesaria -->
+                    <div id="usersPagination"
                         class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex justify-between items-center text-sm text-gray-500">
                         <span id="usersCount">0 usuarios encontrados</span>
                     </div>
@@ -242,7 +242,7 @@
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                Contraseña
+                                                Contrasenia
                                                 <span id="passwordHint"
                                                     class="text-xs text-gray-500 font-normal hidden">(Dejar en
                                                     blanco para no cambiar)</span>
@@ -257,7 +257,7 @@
                                                 Asignados</label>
                                             <div id="rolesCheckboxes"
                                                 class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
-                                                <!-- Checkboxes dinámicos -->
+                                                <!-- Checkboxes dinamicos -->
                                             </div>
                                         </div>
 
@@ -313,15 +313,21 @@
                     }
                 }
 
-                async function loadUsers() {
+                async function loadUsers(page = 1) {
                     const tbody = document.getElementById('usersTableBody');
+                    const searchInput = document.getElementById('searchInput');
+                    const roleFilter = document.getElementById('roleFilter');
+                    const search = (searchInput ? searchInput.value : '').toLowerCase();
+                    const role = roleFilter ? roleFilter.value : '';
+
                     tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-primary"></i><p>Cargando usuarios...</p></td></tr>';
 
                     try {
-                        const response = await fetch('/admin/api/users');
-                        const users = await response.json();
+                        const response = await fetch(`/admin/api/users?page=${page}&search=${search}&role=${role}`);
+                        const data = await response.json();
 
-                        renderUsers(users);
+                        renderUsers(data.users);
+                        renderPagination(data);
 
                     } catch (error) {
                         console.error('Error:', error);
@@ -331,115 +337,104 @@
 
                 function renderUsers(users) {
                     const tbody = document.getElementById('usersTableBody');
-                    const searchInput = document.getElementById('searchInput');
-                    const roleFilter = document.getElementById('roleFilter');
-                    const filterText = (searchInput ? searchInput.value : '').toLowerCase();
-                    const roleFilterValue = roleFilter ? roleFilter.value : '';
-
                     tbody.innerHTML = '';
 
-                    let count = 0;
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">No se encontraron usuarios</td></tr>';
+                        return;
+                    }
 
                     users.forEach(user => {
-                        // Filtrado cliente-side
-                        if (filterText) {
-                            const match = user.username.toLowerCase().includes(filterText) ||
-                                user.email.toLowerCase().includes(filterText) ||
-                                (user.full_name && user.full_name.toLowerCase().includes(filterText));
-                            if (!match) return;
-                        }
-
-                        if (roleFilterValue) {
-                            if (!user.roles.includes(roleFilterValue)) return;
-                        }
-
-                        count++;
-
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700 sm:hover:shadow-lg sm:hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:table-row cursor-pointer relative group';
                         tr.onclick = (e) => handleRowClick(e, user);
 
-                        // Avatar con iniciales
                         const initials = (user.full_name || user.username).substring(0, 2).toUpperCase();
-
-                        // Roles badges with bold, uppercase design
                         const rolesHtml = user.roles.map(r =>
                             `<span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-lg bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-1 ring-purple-600/20 mr-1">
-                    ${r}
-                </span>`
+                                ${r}
+                            </span>`
                         ).join('');
 
                         tr.innerHTML = `
-                <!-- Mobile Info Bar (Top) -->
-                <td class="sm:hidden px-4 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
-                            @${user.username}
-                        </span>
-                    </div>
-                </td>
-
-                <td class="px-4 py-3">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10">
-                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-white font-black text-sm shadow-sm transition-transform group-hover:scale-110">
-                                ${initials}
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">${user.full_name || 'Sin nombre'}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">@${user.username} • ${user.email}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-4 py-3">
-                    <div class="flex flex-wrap gap-1">
-                        ${rolesHtml || '<span class="text-xs text-gray-400 font-bold uppercase tracking-widest">Sin roles</span>'}
-                    </div>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-center">
-                    <span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg ${user.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 ring-1 ring-green-600/20' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-1 ring-red-600/20'}">
-                        ${user.is_active ? 'Activo' : 'Inactivo'}
-                    </span>
-                    ${user.is_admin ? '<span class="ml-1 px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg bg-blue-100 text-blue-700 ring-1 ring-blue-600/20">Admin</span>' : ''}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-xs font-bold text-gray-500 dark:text-gray-400 hidden sm:table-cell">
-                    ${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Nunca'}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium hidden sm:table-cell">
-                    <div class="flex items-center justify-end gap-2">
-                        <button onclick="editUser(${user.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all hover:scale-110" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                </td>
-
-                <!-- Mobile-Only Footer (Hidden on Desktop) -->
-                <td class="px-4 py-3 sm:hidden border-t border-gray-50 dark:border-gray-700/50 bg-gray-50/20 dark:bg-gray-800/20">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-3">
-                            <span class="text-[10px] font-bold text-gray-500 lowercase underline tracking-tighter">${user.email}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="editUser(${user.id})" class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            ${!user.is_active ?
-                                `<button onclick="toggleUserStatus(${user.id}, true)" class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Reactivar"><i class="fas fa-check"></i></button>` :
-                                `<button onclick="deleteUser(${user.id})" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Desactivar"><i class="fas fa-trash-alt"></i></button>`
-                            }
-                        </div>
-                    </div>
-                </td>
-            `;
+                            <td class="sm:hidden px-4 pt-5 pb-3 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
+                                        @${user.username}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-white font-black text-sm shadow-sm transition-transform group-hover:scale-110">
+                                            ${initials}
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">${user.full_name || 'Sin nombre'}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">@${user.username} • ${user.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-1">
+                                    ${rolesHtml || '<span class="text-xs text-gray-400 font-bold uppercase tracking-widest">Sin roles</span>'}
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                <span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg ${user.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 ring-1 ring-green-600/20' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-1 ring-red-600/20'}">
+                                    ${user.is_active ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-xs font-bold text-gray-500 dark:text-gray-400 hidden sm:table-cell">
+                                ${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Nunca'}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium hidden sm:table-cell">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button onclick="editUser(${user.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all hover:scale-110" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
                         tbody.appendChild(tr);
                     });
+                }
 
-                    const displayTotal = document.getElementById('usersTotalDisplay');
-                    if (displayTotal) displayTotal.textContent = count;
+                function renderPagination(data) {
+                    const container = document.getElementById('usersPagination');
+                    if (!container) return;
+
+                    const totalDisplay = document.getElementById('usersTotalDisplay');
+                    if (totalDisplay) totalDisplay.textContent = data.total;
 
                     const countSpan = document.getElementById('usersCount');
-                    if (countSpan) countSpan.textContent = `${count} usuarios mostrados`;
+                    if (countSpan) countSpan.textContent = `${data.total} usuarios encontrados`;
+
+                    if (data.pages <= 1) {
+                        container.innerHTML = '';
+                        return;
+                    }
+
+                    let html = `
+                        <div class="flex items-center justify-between w-full">
+                            <div class="text-xs text-gray-500">
+                                Pagina ${data.current_page} de ${data.pages}
+                            </div>
+                            <div class="flex gap-2">
+                    `;
+
+                    if (data.has_prev) {
+                        html += `<button onclick="loadUsers(${data.current_page - 1})" class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors">Anterior</button>`;
+                    }
+
+                    if (data.has_next) {
+                        html += `<button onclick="loadUsers(${data.current_page + 1})" class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors">Siguiente</button>`;
+                    }
+
+                    html += `</div></div>`;
+                    container.innerHTML = html;
                 }
 
                 // Funciones del Modal y CRUD
@@ -501,7 +496,7 @@
                         const response = await fetch(`/admin/api/users/${id}`);
                         const user = await response.json();
 
-                        // Transformar roles objects a string array para reutilizar lógica
+                        // Transformar roles objects a string array para reutilizar logica
                         const userData = {
                             ...user,
                             roles: user.roles.map(r => r.name)
@@ -529,7 +524,7 @@
                     if (password) data.password = password;
 
                     if (!isEdit && !password) {
-                        alert('La contraseña es obligatoria para nuevos usuarios');
+                        alert('La contrasenia es obligatoria para nuevos usuarios');
                         return;
                     }
 
@@ -558,7 +553,7 @@
                 }
 
                 async function deleteUser(id) {
-                    if (!confirm('¿Estás seguro de desactivar este usuario?')) return;
+                    if (!confirm('¿Estas seguro de desactivar este usuario?')) return;
 
                     try {
                         const response = await fetch(`/admin/api/users/${id}`, { method: 'DELETE' });

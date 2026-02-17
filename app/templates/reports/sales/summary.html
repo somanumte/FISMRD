@@ -294,13 +294,33 @@
 {% block content %}
 <div class="report-container">
     <!-- Header -->
-    <div class="report-header">
-        <div class="breadcrumb">
-            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
-            <span>/</span>
-            <span>Resumen de Ventas</span>
+    <!-- Hero Section -->
+    <div
+        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-800 text-white shadow-xl mb-8">
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 px-8 py-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="text-center md:text-left">
+                <div class="flex items-center gap-2 mb-4 text-white/80 text-sm font-medium">
+                    <a href="{{ url_for('reports.index') }}" class="hover:text-white transition-colors">Reportes</a>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                    <span class="text-white">Resumen de Ventas</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-white">
+                    Resumen de Ventas
+                </h1>
+                <p class="text-lg text-purple-100 max-w-2xl leading-relaxed">
+                    Análisis detallado del rendimiento de ventas por periodo.
+                </p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="exportPDF()"
+                    class="inline-flex items-center justify-center px-6 py-4 font-bold text-white transition-all duration-200 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 hover:scale-105 backdrop-blur-sm">
+                    <i class="fas fa-file-pdf mr-2 text-red-400"></i> Exportar PDF
+                </button>
+            </div>
         </div>
-        <h1>📈 Resumen de Ventas por Período</h1>
     </div>
 
     <!-- Filters -->
@@ -324,7 +344,7 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>Método de Pago</label>
+                <label>Metodo de Pago</label>
                 <select class="filter-input" id="paymentMethod">
                     <option value="">Todos</option>
                     <option value="cash">Efectivo</option>
@@ -334,8 +354,8 @@
             </div>
         </div>
         <div class="filter-actions">
-            <button class="btn btn-secondary" onclick="clearFilters()">🔄 Limpiar</button>
-            <button class="btn btn-primary" onclick="loadReport()">🔍 Aplicar Filtros</button>
+            <button class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
+            <button class="btn btn-primary" onclick="loadReport()">Aplicar Filtros</button>
         </div>
     </div>
 
@@ -345,28 +365,28 @@
             <div class="metric-label">Total de Ventas</div>
             <div class="metric-value" id="totalSales">$0.00</div>
             <div class="metric-change positive" id="salesChange">
-                <span>↑</span> 0%
+                <span>+</span> 0%
             </div>
         </div>
         <div class="metric-card green">
             <div class="metric-label">Facturas Emitidas</div>
             <div class="metric-value" id="totalInvoices">0</div>
             <div class="metric-change positive" id="invoicesChange">
-                <span>↑</span> 0%
+                <span>+</span> 0%
             </div>
         </div>
         <div class="metric-card purple">
             <div class="metric-label">Ticket Promedio</div>
             <div class="metric-value" id="avgTicket">$0.00</div>
             <div class="metric-change positive" id="ticketChange">
-                <span>↑</span> 0%
+                <span>+</span> 0%
             </div>
         </div>
         <div class="metric-card yellow">
-            <div class="metric-label">Período Anterior</div>
+            <div class="metric-label">Periodo Anterior</div>
             <div class="metric-value" id="prevTotal">$0.00</div>
             <div class="metric-change" id="periodChange">
-                <span>-</span> Comparación
+                <span>-</span> Comparacion
             </div>
         </div>
     </div>
@@ -376,9 +396,9 @@
         <div class="chart-header">
             <h3 class="chart-title">Tendencia de Ventas</h3>
             <div class="export-buttons">
-                <button class="btn-export" onclick="exportPDF()">📥 PDF</button>
-                <button class="btn-export" onclick="exportExcel()">📊 Excel</button>
-                <button class="btn-export" onclick="exportCSV()">📄 CSV</button>
+                <button class="btn-export" onclick="exportPDF()">PDF</button>
+                <button class="btn-export" onclick="exportExcel()">Excel</button>
+                <button class="btn-export" onclick="exportCSV()">CSV</button>
             </div>
         </div>
         <div class="chart-container">
@@ -451,11 +471,11 @@
             if (growth > 0) {
                 el.classList.remove('negative');
                 el.classList.add('positive');
-                el.innerHTML = `<span>↑</span> ${Math.abs(growth).toFixed(1)}%`;
+                el.innerHTML = `<span>+</span> ${Math.abs(growth).toFixed(1)}%`;
             } else if (growth < 0) {
                 el.classList.remove('positive');
                 el.classList.add('negative');
-                el.innerHTML = `<span>↓</span> ${Math.abs(growth).toFixed(1)}%`;
+                el.innerHTML = `<span>-</span> ${Math.abs(growth).toFixed(1)}%`;
             } else {
                 el.classList.remove('positive', 'negative');
                 el.innerHTML = `<span>-</span> 0%`;
@@ -624,15 +644,15 @@
     }
 
     function exportPDF() {
-        alert('Exportación a PDF en desarrollo');
+        alert('Exportacion a PDF en desarrollo');
     }
 
     function exportExcel() {
-        alert('Exportación a Excel en desarrollo');
+        alert('Exportacion a Excel en desarrollo');
     }
 
     function exportCSV() {
-        alert('Exportación a CSV en desarrollo');
+        alert('Exportacion a CSV en desarrollo');
     }
 </script>
 {% endblock %}

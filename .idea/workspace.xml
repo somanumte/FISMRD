@@ -99,11 +99,11 @@
       <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\inventory" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\F3LIX\PycharmProjects\FISMRD\app\models" />
       <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\models" />
       <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\admin" />
       <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\services" />
       <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\routes" />
-      <recent name="C:\Users\F3LIX\PycharmProjects\FISM\app\templates\inventory" />
     </key>
   </component>
   <component name="RunManager" selected="Python.run">
@@ -233,6 +233,10 @@
       <workItem from="1770749612025" duration="7000" />
       <workItem from="1770749753700" duration="1361000" />
       <workItem from="1770762398366" duration="1104000" />
+      <workItem from="1770803801572" duration="1221000" />
+      <workItem from="1770900952955" duration="127000" />
+      <workItem from="1770910027197" duration="1134000" />
+      <workItem from="1771338857874" duration="118000" />
     </task>
     <task id="LOCAL-00030" summary="1">
       <option name="closed" value="true" />
@@ -662,7 +666,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1770762991193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FISMRD$run.coverage" NAME="run Coverage Results" MODIFIED="1770910041498" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISM$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1770144657120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$Flask.coverage" NAME="Flask Coverage Results" MODIFIED="1770762405668" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/FISMRD$app.coverage" NAME="app Coverage Results" MODIFIED="1769222239684" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

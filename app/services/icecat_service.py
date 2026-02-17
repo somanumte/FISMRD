@@ -444,6 +444,11 @@ class IcecatService:
         """
         try:
             response = requests.get(url, params=params, headers=headers, timeout=timeout)
+            
+            # Forzar UTF-8 si es necesario (Icecat a veces no lo especifica bien en el header)
+            if response.encoding != 'utf-8':
+                response.encoding = 'utf-8'
+            
             return response, None
         except requests.exceptions.SSLError:
             logger.warning(f"IcecatService: Error SSL conectando a {url}. Reintentando sin verificación.")
@@ -452,6 +457,10 @@ class IcecatService:
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
                 response = requests.get(url, params=params, headers=headers, 
                                        timeout=timeout, verify=False)
+                
+                if response.encoding != 'utf-8':
+                    response.encoding = 'utf-8'
+                
                 return response, None
             except Exception as e:
                 return None, str(e)
@@ -492,7 +501,7 @@ class IcecatService:
         
         if error:
             logger.error(f"IcecatService: Error de conexión: {error}")
-            return {'success': False, 'message': f'Error de conexión: {error}'}
+            return {'success': False, 'error': f'Error de conexión: {error}'}
         
         try:
             if response.status_code == 200:
@@ -502,19 +511,19 @@ class IcecatService:
                     return {'success': True, 'product': normalized}
                 else:
                     logger.warning(f"IcecatService: Producto no encontrado para GTIN {gtin}")
-                    return {'success': False, 'message': 'Producto no encontrado en Icecat.'}
+                    return {'success': False, 'error': 'Producto no encontrado en Icecat.'}
             elif response.status_code == 401:
-                return {'success': False, 'message': 'Error de autenticación con Icecat.'}
+                return {'success': False, 'error': 'Error de autenticación con Icecat.'}
             elif response.status_code == 404:
                 error_data = response.json() if response.text else {}
                 message = error_data.get('Message', 'Producto no encontrado')
-                return {'success': False, 'message': f'Error de API Icecat: 404 - {message}'}
+                return {'success': False, 'error': f'Error de API Icecat: 404 - {message}'}
             else:
                 logger.error(f"IcecatService: Error de API {response.status_code}")
-                return {'success': False, 'message': f'Error de API Icecat: {response.status_code}'}
+                return {'success': False, 'error': f'Error de API Icecat: {response.status_code}'}
         except Exception as e:
             logger.error(f"IcecatService: Excepción al consultar API: {str(e)}")
-            return {'success': False, 'message': f'Error de conexión: {str(e)}'}
+            return {'success': False, 'error': f'Error de conexión: {str(e)}'}
     
     @staticmethod
     def normalize_data(raw_data: Dict) -> Dict:
@@ -534,7 +543,8 @@ class IcecatService:
         specs = UnifiedSpecs()
         
         # Información básica
-        specs.icecat_id = str(general_info.get('ProductId', ''))
+        icecat_id_raw = general_info.get('IcecatId', general_info.get('ProductId', ''))
+        specs.icecat_id = str(icecat_id_raw) if icecat_id_raw is not None else ""
         specs.brand = general_info.get('Brand', '')
         specs.commercial_name = general_info.get('Title', '')
         specs.category = IcecatService._get_category_name(raw_data)
@@ -558,10 +568,14 @@ class IcecatService:
             specs.product_code
         )
         
-        # Extraer GTINs
-        gtins = raw_data.get('GTINs', [])
-        if gtins:
-            specs.gtin = gtins[0].get('GTIN', '')
+        # Extraer GTINs (Pueden estar en root o en GeneralInfo)
+        gtins_raw = raw_data.get('GTINs', general_info.get('GTINs', []))
+        if gtins_raw and isinstance(gtins_raw, list):
+            specs.gtin = gtins_raw[0].get('GTIN', '')
+        elif isinstance(gtins_raw, dict):
+            specs.gtin = gtins_raw.get('GTIN', '')
+        elif not specs.gtin:
+            specs.gtin = general_info.get('GTIN', '')
         
         # Construir nombre de visualización
         # Mapeo directo solicitado: display_name = GeneralInfo.Title
@@ -1628,7 +1642,10 @@ class IcecatService:
     @staticmethod
     def _get_category_name(raw_data: Dict) -> str:
         """Obtiene el nombre de la categoría."""
-        category = raw_data.get('Category', {})
+        # Intentar en GeneralInfo primero (API v2)
+        general_info = raw_data.get('GeneralInfo', {})
+        category = general_info.get('Category', raw_data.get('Category', {}))
+        
         name_obj = category.get('Name', {})
         return name_obj.get('Value', '') if isinstance(name_obj, dict) else str(name_obj)
     

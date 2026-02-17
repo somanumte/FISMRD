@@ -59,7 +59,7 @@
 {% block content %}
 <div class="report-container">
     <div class="report-header">
-        <h1>⏳ Facturas Pendientes de Pago</h1>
+        <h1>Facturas Pendientes de Pago</h1>
     </div>
 
     <div class="table-card">
@@ -68,7 +68,7 @@
                 <tr>
                     <th>Factura</th>
                     <th>Cliente</th>
-                    <th>Fecha Emisión</th>
+                    <th>Fecha Emision</th>
                     <th>Vencimiento</th>
                     <th>Monto</th>
                     <th>Estado</th>
@@ -88,7 +88,7 @@
                 if (data.success) {
                     data.data.forEach(item => {
                         const statusBadge = item.days_overdue > 0
-                            ? `<span class="badge-danger">Vencida (${item.days_overdue} días)</span>`
+                            ? `<span class="badge-danger">Vencida (${item.days_overdue} dias)</span>`
                             : `<span class="badge-warning">Pendiente</span>`;
 
                         tbody.innerHTML += `<tr>

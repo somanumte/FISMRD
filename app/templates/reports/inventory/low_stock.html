@@ -212,17 +212,16 @@
     <!-- Header -->
     <div class="report-header">
         <div class="breadcrumb">
-            <a href="{{ url_for('reports.index') }}">📊 Reportes</a>
+            <a href="{{ url_for('reports.index') }}">Reportes</a>
             <span>/</span>
             <span>Stock Bajo</span>
         </div>
-        <h1>⚠️ Productos con Stock Bajo</h1>
+        <h1>Productos con Stock Bajo</h1>
     </div>
 
     <!-- Alert Card -->
     <div class="alert-card">
         <div class="alert-header">
-            <div class="alert-icon">🚨</div>
             <div class="alert-info">
                 <h2 id="alertTitle">Cargando...</h2>
                 <p>Productos que requieren reabastecimiento urgente</p>
@@ -275,11 +274,11 @@
     function updateAlert(count) {
         const alertTitle = document.getElementById('alertTitle');
         if (count === 0) {
-            alertTitle.textContent = '✅ No hay productos con stock bajo';
+            alertTitle.textContent = 'No hay productos con stock bajo';
         } else if (count === 1) {
-            alertTitle.textContent = `⚠️ ${count} producto requiere atención`;
+            alertTitle.textContent = `${count} producto requiere atencion`;
         } else {
-            alertTitle.textContent = `⚠️ ${count} productos requieren atención`;
+            alertTitle.textContent = `${count} productos requieren atencion`;
         }
     }
 
@@ -290,9 +289,8 @@
         if (products.length === 0) {
             grid.innerHTML = `
             <div style="text-align: center; padding: 3rem; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
                 <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">
-                    ¡Excelente!
+                    Excelente
                 </h3>
                 <p style="color: #6b7280;">
                     Todos los productos tienen stock suficiente
@@ -313,7 +311,7 @@
                     <div class="product-sku">SKU: ${product.sku}</div>
                 </div>
                 <div class="status-badge ${product.status}">
-                    ${product.status === 'critical' ? '🔴 CRÍTICO' : '🟡 BAJO'}
+                    ${product.status === 'critical' ? 'CRITICO' : 'BAJO'}
                 </div>
             </div>
             <div class="product-stats">
@@ -324,7 +322,7 @@
                     </div>
                 </div>
                 <div class="stat">
-                    <div class="stat-label">Mínimo</div>
+                    <div class="stat-label">Minimo</div>
                     <div class="stat-value">${product.min_alert}</div>
                 </div>
                 <div class="stat">

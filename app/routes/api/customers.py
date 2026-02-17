@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# ============================================
 # RUTAS DE CLIENTES
 # ============================================
 
@@ -24,7 +23,7 @@ customers_bp = Blueprint('customers', __name__, url_prefix='/customers')
 # ===== UTILIDADES =====
 
 def clean_id_number(id_number):
-    """Limpia un número de identificación (quita guiones y espacios)"""
+    """Limpia un numero de identificacion (quita guiones y espacios)"""
     return re.sub(r'[-\s]', '', str(id_number)) if id_number else ''
 
 
@@ -35,7 +34,7 @@ def clean_id_number(id_number):
 @permission_required('customers.list')
 def customers_list():
     """
-    Muestra el listado principal de clientes con filtros y búsqueda
+    Muestra el listado principal de clientes con filtros y busqueda
     """
     # Obtener parámetros de filtros
     customer_type_filter = request.args.get('customer_type', '')
@@ -43,16 +42,16 @@ def customers_list():
     is_active_filter = request.args.get('is_active', '')
     search_query = request.args.get('q', '').strip()
 
-    # Paginación
+    # Paginacion
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
 
     # Query base
     query = Customer.query
 
-    # Búsqueda por texto
+    # Busqueda por texto
     if search_query:
-        # Limpiar búsqueda para cédula/RNC
+        # Limpiar busqueda para cedula/RNC
         clean_search = clean_id_number(search_query)
 
         search_pattern = f'%{search_query}%'
@@ -116,10 +115,10 @@ def customers_list():
 
 @customers_bp.route('/add', methods=['GET', 'POST'])
 @login_required
-@permission_required('customers.create')
+@permission_required('customers.create', audit_action='create_customer', audit_module='customers')
 def customer_add():
     """
-    Muestra el formulario y procesa la creación de un nuevo cliente
+    Muestra el formulario y procesa la creacion de un nuevo cliente
     """
     form = CustomerForm()
 
@@ -247,11 +246,11 @@ def check_dgii():
                 'error': 'Tipo de identificación requerido'
             }), 400
 
-        # Validar tipo de identificación
+        # Validar tipo de identificacion
         if id_type not in ['cedula', 'rnc']:
             return jsonify({
                 'success': False,
-                'error': 'Tipo de identificación inválido. Debe ser "cedula" o "rnc"'
+                'error': 'Tipo de identificacion invalido. Debe ser "cedula" o "rnc"'
             }), 400
 
         logger.info(f"Consultando DGII para {id_type}: {id_number}")
@@ -323,7 +322,7 @@ def customer_detail(id):
 
 @customers_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
-@permission_required('customers.edit')
+@permission_required('customers.edit', audit_action='edit_customer', audit_module='customers')
 def customer_edit(id):
     """
     Edita un cliente existente
@@ -331,7 +330,7 @@ def customer_edit(id):
     customer = Customer.query.get_or_404(id)
     form = CustomerForm(obj=customer)
 
-    # Pasar ID para validación de unicidad
+    # Pasar ID para validacion de unicidad
     form.customer_id = customer.id
 
     if form.validate_on_submit():
@@ -382,7 +381,7 @@ def customer_edit(id):
 
 @customers_bp.route('/<int:id>/toggle-status', methods=['POST'])
 @login_required
-@permission_required('customers.edit')
+@permission_required('customers.edit', audit_action='toggle_customer_status', audit_module='customers')
 def customer_toggle_status(id):
     """
     Activa/Desactiva un cliente (soft delete)
@@ -411,7 +410,7 @@ def customer_toggle_status(id):
 @any_permission_required('customers.list', 'customers.view')
 def api_search():
     """
-    Búsqueda rápida de clientes para autocompletado
+    Busqueda rapida de clientes para autocompletado
     """
     query = request.args.get('q', '').strip()
     limit = request.args.get('limit', 10, type=int)
@@ -419,7 +418,7 @@ def api_search():
     if not query or len(query) < 2:
         return jsonify({'results': []})
 
-    # Limpiar búsqueda
+    # Limpiar busqueda
     clean_search = clean_id_number(query)
     search_pattern = f'%{query}%'
 

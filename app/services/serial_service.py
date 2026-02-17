@@ -520,21 +520,14 @@ class SerialService:
                 assigned.append(serial)
 
             if errors:
-                # Si hay errores pero también asignaciones, hacemos commit parcial
-                if assigned:
-                    db.session.commit()
-                    return True, {
-                        'assigned': assigned,
-                        'errors': errors,
-                        'partial': True
-                    }
-                else:
-                    db.session.rollback()
-                    return False, errors
+                # Si hay errores pero también asignaciones, dejamos que el llamador decida si hacer commit parcial o rollback
+                return True, {
+                    'assigned': assigned,
+                    'errors': errors,
+                    'partial': len(assigned) > 0
+                }
 
-            db.session.commit()
-
-            logger.info(f"✅ {len(assigned)} seriales asignados a item de factura {invoice_item.id}")
+            logger.info(f"✅ {len(assigned)} seriales preparados para asignación a item de factura {invoice_item.id}")
             return True, {
                 'assigned': assigned,
                 'errors': [],
@@ -586,9 +579,7 @@ class SerialService:
                 # Eliminar la relación
                 db.session.delete(item_serial)
 
-            db.session.commit()
-
-            logger.info(f"✅ {released_count} seriales liberados de item de factura {invoice_item.id}")
+            logger.info(f"✅ {released_count} seriales preparados para liberación de item de factura {invoice_item.id}")
             return True, released_count
 
         except Exception as e:

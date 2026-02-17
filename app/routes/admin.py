@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ============================================
-# RUTAS DE ADMINISTRACIÃ“N
+# RUTAS DE ADMINISTRACION
 # ============================================
-# GestiÃ³n de usuarios, roles y configuraciÃ³n
+# Gestion de usuarios, roles y configuracion
 
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
@@ -25,10 +25,10 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 @login_required
 def admin_panel():
     """
-    Panel de administraciÃ³n principal
-    Accessible para administradores y usuarios con permisos especÃ­ficos
+    Panel de administracion principal
+    Accesible para administradores y usuarios con permisos especificos
     """
-    # Verificar si el usuario tiene AL MENOS UN permiso de administraciÃ³n o reporte
+    # Verificar si el usuario tiene AL MENOS UN permiso de administracion o reporte
     has_access = (
         current_user.is_admin or 
         current_user.has_permission('admin.users.view') or 
@@ -40,11 +40,11 @@ def admin_panel():
     )
     
     if not has_access:
-        flash('No tienes acceso al panel de administraciÃ³n.', 'error')
+        flash('No tienes acceso al panel de administracion.', 'error')
         return redirect(url_for('main.dashboard'))
 
-    # Obtener estadÃ­sticas (solo si es admin o tiene permisos de ver usuarios, sino mostrar 0 o N/A)
-    # Para simplificar, mostramos estadÃ­sticas generales pero protegemos enlaces en el template
+    # Obtener estadisticas (solo si es admin o tiene permisos de ver usuarios, sino mostrar 0 o N/A)
+    # Para simplificar, mostramos estadisticas generales pero protegemos enlaces en el template
     
     total_users = User.query.count()
     active_users = User.query.filter_by(is_active=True).count()
@@ -94,24 +94,30 @@ def roles_list():
 @login_required
 @permission_required('reports.audit.view')
 def audit_log():
-    """Vista de logs de auditorÃ­a"""
+    """Vista de logs de auditoria"""
     return render_template('admin/audit_log.html')
 
 @admin_bp.route('/icecat-settings')
 @login_required
 @any_permission_required('admin.settings.view', 'admin.settings.manage')
 def icecat_settings():
-    """Vista de configuraciÃ³n de API de Icecat"""
+    """Vista de configuracion de API de Icecat"""
     from app.models.system_setting import SystemSetting
     
     # Obtener configuraciones actuales
+    api_token = SystemSetting.get_value('icecat_api_token', '')
+    content_token = SystemSetting.get_value('icecat_content_token', '')
     api_username = SystemSetting.get_value('icecat_api_username', '')
+    app_key = SystemSetting.get_value('icecat_app_key', '')
     content_username = SystemSetting.get_value('icecat_content_username', '')
     language = SystemSetting.get_value('icecat_language', 'es')
     
     return render_template(
         'admin/icecat_settings.html',
+        api_token=api_token,
+        content_token=content_token,
         api_username=api_username,
+        app_key=app_key,
         content_username=content_username,
         language=language
     )
@@ -124,16 +130,43 @@ def icecat_settings():
 @login_required
 @permission_required('admin.users.view')
 def get_users():
-    """Obtener lista de usuarios (JSON)"""
-    users = User.query.filter_by(is_active=True).all()
-    user_list = []
+    """Obtener lista de usuarios (JSON) con paginacion"""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    search = request.args.get('search', '').lower()
+    role_filter = request.args.get('role', '')
+
+    query = User.query
+
+    if search:
+        query = query.filter(
+            (User.username.ilike(f'%{search}%')) |
+            (User.email.ilike(f'%{search}%')) |
+            (User.full_name.ilike(f'%{search}%'))
+        )
+
+    if role_filter:
+        query = query.join(User.roles).filter(Role.name == role_filter)
+
+    pagination = query.order_by(User.id.asc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
     
-    for user in users:
+    user_list = []
+    for user in pagination.items:
         user_data = user.to_dict()
         user_data['roles'] = [role.name for role in user.roles]
         user_list.append(user_data)
         
-    return jsonify(user_list)
+    return jsonify({
+        'users': user_list,
+        'total': pagination.total,
+        'pages': pagination.pages,
+        'current_page': pagination.page,
+        'per_page': pagination.per_page,
+        'has_next': pagination.has_next,
+        'has_prev': pagination.has_prev
+    })
 
 @admin_bp.route('/api/users/<int:user_id>', methods=['GET'])
 @login_required
@@ -153,11 +186,11 @@ def create_user():
     """Crear nuevo usuario"""
     data = request.get_json()
     
-    # Validaciones bÃ¡sicas
+    # Validaciones babycas
     if not data.get('username') or not data.get('email') or not data.get('password'):
         return jsonify({'error': 'Faltan campos obligatorios'}), 400
         
-    # Validar fortaleza de contraseÃ±a
+    # Validar fortaleza de contrasenia
     is_valid, msg = validate_password_strength(data['password'])
     if not is_valid:
         return jsonify({'error': msg}), 400
@@ -171,7 +204,7 @@ def create_user():
             is_admin=data.get('is_admin', False)
         )
         
-        # Asignar roles si se envÃ­an
+        # Asignar roles si se envian
         if 'roles' in data and isinstance(data['roles'], list):
             for role_name in data['roles']:
                 role = RoleService.get_role_by_name(role_name)
@@ -198,9 +231,9 @@ def update_user(user_id):
         if 'full_name' in data:
             user.full_name = data['full_name']
         if 'email' in data and data['email'] != user.email:
-            # Validar email Ãºnico
+            # Validar email unico
             if User.query.filter_by(email=data['email']).first():
-                return jsonify({'error': 'El email ya estÃ¡ en uso'}), 400
+                return jsonify({'error': 'El email ya esta en uso'}), 400
             user.email = data['email']
         if 'password' in data and data['password']:
             # Validar fortaleza
@@ -209,13 +242,13 @@ def update_user(user_id):
                 return jsonify({'error': msg}), 400
                 
             user.set_password(data['password'])
-            user.must_change_password = True # Forzar cambio en prÃ³ximo login
+            user.must_change_password = True # Forzar cambio en proximo login
             
         # Actualizar campos RBAC
         if 'is_active' in data:
             user.is_active = data['is_active']
             
-        # Sincronizar roles si se envÃ­an
+        # Sincronizar roles si se envian
         if 'roles' in data:
             RoleService.sync_roles_to_user(user.id, data['roles'])
         
@@ -243,7 +276,7 @@ def delete_user(user_id):
     return jsonify({'message': 'Usuario desactivado exitosamente'})
 
 # ============================================
-# API ENDPOINTS - GESTIÃ“N DE ROLES DE USUARIO
+# API ENDPOINTS - GESTION DE ROLES DE USUARIO
 # ============================================
 
 @admin_bp.route('/api/users/<int:user_id>/roles', methods=['POST'])
@@ -259,7 +292,7 @@ def assign_role(user_id):
         
     try:
         RoleService.assign_role_to_user(user_id, role_id, current_user.id)
-        # Log explÃ­cito de cambio de rol
+        # Log explicito de cambio de rol
         AuditService.log_role_change(
             user_id=user_id,
             action='assign_role',
@@ -281,7 +314,7 @@ def remove_role(user_id, role_id):
              return jsonify({'error': 'Rol no encontrado'}), 404
 
         RoleService.remove_role_from_user(user_id, role_id)
-        # Log explÃ­cito
+        # Log explicito
         AuditService.log_role_change(
             user_id=user_id,
             action='remove_role',
@@ -321,7 +354,7 @@ def create_role():
         if 'permissions' in data:
             RoleService.sync_permissions(role.id, data['permissions'])
             
-        # Log detallado de auditorÃ­a
+        # Log detallado de auditoria
         AuditService.log_action(
             action='create_role',
             module='admin',
@@ -348,11 +381,11 @@ def update_role(role_id):
             is_active=data.get('is_active')
         )
         
-        # Actualizar permisos si se envÃ­an
+        # Actualizar permisos si se envian
         if 'permissions' in data:
             RoleService.sync_permissions(role.id, data['permissions'])
             
-        # Log detallado de auditorÃ­a
+        # Log detallado de auditoria
         AuditService.log_action(
             action='update_role',
             module='admin',
@@ -401,7 +434,7 @@ def delete_role(role_id):
 @login_required
 @any_permission_required('admin.roles.manage', 'admin.roles.view')
 def get_permissions():
-    """Listar todos los permisos agrupados por mÃ³dulo"""
+    """Listar todos los permisos agrupados por modulo"""
     grouped_perms = PermissionService.get_permissions_grouped_by_module()
     # Serializar objetos Permission a dicts
     serialized_perms = {}
@@ -411,14 +444,14 @@ def get_permissions():
     return jsonify(serialized_perms)
 
 # ============================================
-# API ENDPOINTS - AUDITORÃA
+# API ENDPOINTS - AUDITORIA
 # ============================================
 
 @admin_bp.route('/api/audit', methods=['GET'])
 @login_required
 @permission_required('reports.audit.view')
 def get_audit_logs():
-    """Obtener logs de auditorÃ­a con paginaciÃ³n"""
+    """Obtener logs de auditoria con paginacion"""
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
     
@@ -439,7 +472,7 @@ def get_audit_logs():
 @login_required
 @any_permission_required('admin.settings.view', 'admin.settings.manage')
 def get_icecat_settings():
-    """Obtener configuraciÃ³n actual de Icecat"""
+    """Obtener configuracion actual de Icecat"""
     from app.models.system_setting import SystemSetting
     
     return jsonify({
@@ -455,7 +488,7 @@ def get_icecat_settings():
 @login_required
 @permission_required('admin.settings.manage')
 def save_icecat_settings():
-    """Guardar configuraciÃ³n de Icecat"""
+    """Guardar configuracion de Icecat"""
     from app.models.system_setting import SystemSetting
     
     data = request.get_json()
@@ -506,20 +539,20 @@ def save_icecat_settings():
         
         return jsonify({
             'success': True,
-            'message': 'ConfiguraciÃ³n guardada exitosamente'
+            'message': 'Configuracion guardada exitosamente'
         })
     
     except Exception as e:
         return jsonify({
             'success': False,
-            'message': f'Error al guardar configuraciÃ³n: {str(e)}'
+            'message': f'Error al guardar configuracion: {str(e)}'
         }), 500
 
 @admin_bp.route('/api/icecat-settings/test', methods=['POST'])
 @login_required
 @permission_required('admin.settings.manage')
 def test_icecat_connection():
-    """Probar conexiÃ³n con Icecat usando las credenciales proporcionadas"""
+    """Probar conexion con Icecat usando las credenciales proporcionadas"""
     from app.services.icecat_service import IcecatService
     import requests
     
@@ -546,7 +579,7 @@ def test_icecat_connection():
         
         for test_gtin in test_gtins:
             try:
-                # Determinar modo de autenticaciÃ³n
+                # Determinar modo de autenticacion
                 params = {
                     'GTIN': test_gtin,
                     'Language': 'es',
@@ -565,8 +598,8 @@ def test_icecat_connection():
                     if app_key:
                         params['AppKey'] = app_key
 
-                # Realizar peticiÃ³n (con reintentos SSL)
-                # Intento 1: ConexiÃ³n segura
+                # Realizar peticion (con reintentos SSL)
+                # Intento 1: Conexion segura
                 try:
                     response = requests.get(
                         IcecatService.BASE_URL,
@@ -593,7 +626,7 @@ def test_icecat_connection():
                     # Verificar que hay data real (no error disfrazado)
                     if 'data' in json_data and json_data['data']:
                         success = True
-                        break # Ã‰xito, salir del loop
+                        break # Exito, salir del loop
                     elif 'StatusCode' in json_data and json_data['StatusCode'] != 1:
                          # Es un error de Icecat (ej. 401 User/AppKey mismatch)
                          continue 
@@ -603,18 +636,18 @@ def test_icecat_connection():
         if success:
             return jsonify({
                 'success': True,
-                'message': 'ConexiÃ³n exitosa con Icecat'
+                'message': 'Conexion exitosa con Icecat'
             })
         
-        # Si fallaron todos, analizar el Ãºltimo error
+        # Si fallaron todos, analizar el ultimo error
         if last_response:
             if last_response.status_code == 401:
                 return jsonify({
                     'success': False,
-                    'message': 'Credenciales invÃ¡lidas. Verifica tu username/token.'
+                    'message': 'Credenciales invalidas. Verifica tu username/token.'
                 }), 401
             else:
-                 # Intentar dar un mensaje mÃ¡s descriptivo
+                 # Intentar dar un mensaje mas descriptivo
                 error_msg = f'Error de API: {last_response.status_code}'
                 try:
                     error_json = last_response.json()
@@ -630,7 +663,7 @@ def test_icecat_connection():
         else:
              return jsonify({
                 'success': False,
-                'message': 'Error de conexiÃ³n (Timeout o Red)'
+                'message': 'Error de conexion (Timeout o Red)'
             }), 500
     
     except requests.exceptions.Timeout:

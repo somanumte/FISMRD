@@ -155,6 +155,14 @@ class InvoiceInventoryServiceWithSerials:
                     )
                     serial_ids = item_data.get('serial_ids', [])
 
+                    # === GUARDIA: Evitar duplicidad si ya tiene seriales asignados ===
+                    existing_count = item.sold_serials.count()
+                    if existing_count == item.quantity:
+                        logger.info(f"   ℹ️ {laptop.sku}: Ya tiene {existing_count} serial(es) asignados. Saltando asignación.")
+                        results['items_processed'] += 1
+                        results['serials_assigned'] += existing_count
+                        continue
+                    
                     # Si no se especificaron seriales, auto-asignar
                     if not serial_ids:
                         available = SerialService.get_available_serials_for_laptop(laptop.id)

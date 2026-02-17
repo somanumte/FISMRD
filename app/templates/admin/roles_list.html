@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set hide_search = True %}
 
-{% block title %}Gestión de Roles | LuxeraRD{% endblock %}
+{% block title %}Gestion de Roles | LuxeraRD{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-transparent py-4 sm:py-8">
@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white mb-2">
-                    Gestión de Roles y Permisos
+                    Gestion de Roles y Permisos
                 </h1>
                 <p class="text-gray-600 dark:text-gray-400">
                     Define los perfiles de acceso y permisos del sistema.
@@ -24,7 +24,7 @@
 
         <!-- Grid de Roles -->
         <div id="rolesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Cards se insertarán aquí -->
+            <!-- Cards se insertaran aqui -->
             <div class="col-span-full text-center py-12">
                 <i class="fas fa-circle-notch fa-spin fa-2x text-primary mb-3"></i>
                 <p class="text-gray-500">Cargando roles...</p>
@@ -59,7 +59,7 @@
                                 <input type="text" id="roleName"
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                                     placeholder="ej: gerente_ventas">
-                                <p class="text-xs text-gray-500 mt-1">Único, minúsculas, sin espacios.</p>
+                                <p class="text-xs text-gray-500 mt-1">Unico, minusculas, sin espacios.</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre
@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-span-full">
                                 <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripcion</label>
                                 <textarea id="description" rows="2"
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"></textarea>
                             </div>
@@ -90,7 +90,7 @@
 
                             <div id="permissionsContainer"
                                 class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[50vh] overflow-y-auto pr-2">
-                                <!-- Permisos agrupados por módulo -->
+                                <!-- Permisos agrupados por modulo -->
                             </div>
                         </div>
 
@@ -164,7 +164,7 @@
                 </div>
                 
                 <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-3 group-hover:text-indigo-600 transition-colors">${role.display_name}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 h-12 overflow-hidden text-ellipsis leading-relaxed">${role.description || 'Sin descripción detallada para este rol de acceso.'}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 h-12 overflow-hidden text-ellipsis leading-relaxed">${role.description || 'Sin descripcion detallada para este rol de acceso.'}</p>
                 
                 <div class="flex items-center gap-4 text-[11px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-700/50 pt-6">
                     <div class="flex items-center gap-2">
@@ -179,7 +179,7 @@
 
                 <div class="mt-8 flex justify-end">
                     <button onclick="editRole(${role.id})" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-700/50 text-indigo-600 dark:text-indigo-400 font-black text-[12px] uppercase tracking-widest rounded-xl hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-all shadow-sm">
-                        Editar Configuración <i class="fas fa-arrow-right"></i>
+                        Editar Configuracion <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             `;

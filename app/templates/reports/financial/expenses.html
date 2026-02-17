@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Análisis de Gastos - Reportes{% endblock %}
+{% block title %}Analisis de Gastos - Reportes{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -62,13 +62,13 @@
 {% block content %}
 <div class="report-container">
     <div class="report-header">
-        <h1>📉 Análisis de Gastos</h1>
-        <p>Distribución de gastos por categoría</p>
+        <h1>Analisis de Gastos</h1>
+        <p>Distribucion de gastos por categoria</p>
     </div>
 
     <div class="content-grid">
         <div class="card">
-            <h3 style="width: 100%; text-align: left; margin-bottom: 1rem;">Distribución</h3>
+            <h3 style="width: 100%; text-align: left; margin-bottom: 1rem;">Distribucion</h3>
             <div style="position: relative; height: 90%; width: 100%;">
                 <canvas id="expensesChart"></canvas>
             </div>
@@ -79,7 +79,7 @@
             <table class="expense-table" id="expensesTable">
                 <thead>
                     <tr>
-                        <th>Categoría</th>
+                        <th>Categoria</th>
                         <th>Total</th>
                         <th>%</th>
                     </tr>

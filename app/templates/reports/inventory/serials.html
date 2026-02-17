@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Búsqueda de Seriales - Reportes{% endblock %}
+{% block title %}Busqueda de Seriales - Reportes{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -55,7 +55,7 @@
 {% block content %}
 <div class="report-container">
     <div class="report-header">
-        <h1>🔍 Búsqueda de Seriales</h1>
+        <h1>Busqueda de Seriales</h1>
     </div>
 
     <div class="search-box">
@@ -70,7 +70,7 @@
                     <th>Serial</th>
                     <th>Producto</th>
                     <th>Estado</th>
-                    <th>Días en Inv.</th>
+                    <th>Dias en Inv.</th>
                     <th>Costo</th>
                 </tr>
             </thead>
@@ -95,7 +95,7 @@
                             <td class="font-mono font-bold">${item.serial}</td>
                             <td>${item.product}</td>
                             <td>${item.status}</td>
-                            <td>${item.days_in_inventory} días</td>
+                            <td>${item.days_in_inventory} dias</td>
                             <td>$${item.cost.toLocaleString()}</td>
                         </tr>`;
                     });

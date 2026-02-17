@@ -265,10 +265,12 @@
     async function loadUsers() {
         try {
             const res = await fetch('/admin/api/users');
-            usersData = await res.json();
+            const data = await res.json();
+            // El API retorna { users: [], total: X, ... }
+            usersData = data.users || [];
             renderUsers(usersData);
             updateStats();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error('Error cargando usuarios:', e); }
     }
 
     async function loadRoles() {
@@ -284,6 +286,7 @@
 
     // --- Update Statistics ---
     function updateStats() {
+        if (!Array.isArray(usersData)) return;
         const activeUsers = usersData.filter(u => u.is_active).length;
         document.getElementById('active-users-count').textContent = activeUsers;
         document.getElementById('total-users-count').textContent = usersData.length;

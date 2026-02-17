@@ -1,105 +1,51 @@
 {% extends "landing/base_landing.html" %}
 
-{% block title %}Catálogo | LuxeraRD - Tecnología Premium{% endblock %}
+{% block title %}Catálogo | F.I.S.M Technology SRL — Tecnología Premium{% endblock %}
+{% block meta_description %}Explora nuestro catálogo de laptops gaming, profesionales y workstations. Filtra por marca,
+procesador, gráfica y más.{% endblock %}
 
 {% block extra_css %}
+<!-- Phosphor Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
-    /* Variables CSS (Sincronizadas con base_landing.html) */
-    :root {
-        --font-body: 'Outfit', sans-serif;
-        --font-heading: 'Space Grotesk', sans-serif;
-
-        --primary: #7c3aed;
-        --primary-dark: #6d28d9;
-        --primary-light: #2563eb;
-
-        /* Light Theme Defaults */
-        --bg-body: #f8fafc;
-        --bg-nav: rgba(255, 255, 255, 0.9);
-        --bg-footer: #ffffff;
-        --text-main: #0f172a;
-        --text-sub: #64748b;
-        --border-subtle: #e2e8f0;
-        --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-        --card-bg: #ffffff;
-        --surface: #f1f5f9; /* Slate 100 for secondary backgrounds */
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
     }
 
-    [data-theme="dark"] {
-        --bg-body: #050505;
-        --bg-nav: rgba(20, 20, 20, 0.85);
-        --bg-footer: #0a0a0a;
-        --text-main: #f8fafc;
-        --text-sub: #94a3b8;
-        --border-subtle: #262626;
-        --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-        --card-bg: #121212;
-        --surface: #1e1e1e;
+    ::-webkit-scrollbar-track {
+        background: transparent;
     }
 
-    body {
-        font-family: var(--font-body);
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        transition: background-color 0.4s ease, color 0.4s ease;
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-subtle);
+        border-radius: 999px;
     }
 
-    h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
-
-    /* Product Cards */
-    .product-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-subtle);
-        border-radius: 24px;
-        overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-        position: relative;
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-tertiary, #94a3b8);
     }
-
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.15);
-        border-color: var(--primary);
-    }
-
-    /* Botones Premium */
-    .btn-primary {
-        background: var(--primary);
-        color: white;
-        border-radius: 9999px;
-        transition: all 0.3s;
-        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
-    }
-    .btn-primary:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-    }
-
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
+
     .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
 
-    /* Dual Range Slider Styles */
+    /* ── Range Slider ── */
     .range-slider-container {
         position: relative;
         width: 100%;
         height: 24px;
-        margin-top: 1.5rem;
-        margin-bottom: 1.5rem;
+        margin: 1.5rem 0;
         display: flex;
         align-items: center;
-        overflow: hidden;
         border-radius: 9999px;
+        padding: 0 10px;
     }
 
     .range-slider-track {
@@ -110,7 +56,7 @@
         right: 0;
         height: 4px;
         border-radius: 9999px;
-        background-color: var(--border-subtle);
+        background: var(--border-subtle);
         pointer-events: none;
     }
 
@@ -119,10 +65,12 @@
         top: 50%;
         transform: translateY(-50%);
         height: 4px;
-        background: linear-gradient(to right, var(--primary), var(--primary-light));
+        background: linear-gradient(to right, var(--primary), var(--accent, #06b6d4));
         border-radius: 9999px;
         pointer-events: none;
         z-index: 1;
+        left: 0;
+        right: 0;
     }
 
     .range-input {
@@ -132,10 +80,13 @@
         width: 100%;
         height: 24px;
         -webkit-appearance: none;
+        appearance: none;
         pointer-events: none;
         background: none;
         z-index: 2;
         margin: 0;
+        left: 0;
+        right: 0;
     }
 
     .range-input::-webkit-slider-thumb {
@@ -144,16 +95,16 @@
         width: 20px;
         height: 20px;
         border-radius: 50%;
-        background: #ffffff;
+        background: #fff;
         border: 2px solid var(--primary);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
     }
 
     .range-input::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+        transform: scale(1.15);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
     }
 
     .range-input::-moz-range-thumb {
@@ -161,202 +112,206 @@
         width: 20px;
         height: 20px;
         border-radius: 50%;
-        background: #ffffff;
+        background: #fff;
         border: 2px solid var(--primary);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        border: none;
-        transition: all 0.2s ease;
     }
 
-    .range-input::-moz-range-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
-    }
-
-    /* Checkbox Custom Style */
+    /* ── Checkbox ── */
     input[type="checkbox"].accent-primary {
         accent-color: var(--primary);
     }
 
-    /* Select Reset for Better Styling */
-    select:focus {
-        outline: none;
-        border-color: var(--primary);
+    /* ── Product Card ── */
+    .product-card-v2 {
+        background: var(--surface-primary, #fff);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 20px);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        position: relative;
     }
 
-    /* Animations */
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+    .product-card-v2:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 48px -12px rgba(124, 58, 237, 0.12);
+        border-color: rgba(124, 58, 237, 0.3);
     }
 
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+    [data-theme="dark"] .product-card-v2 {
+        background: var(--surface-primary, #0e0c18);
     }
 
-    @keyframes slide-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* ── Line clamp ── */
+    .line-clamp-1 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
     }
 
-    .animate-fade-in { animation: fade-in 0.6s ease-out; }
-    .animate-float { animation: float 3s ease-in-out infinite; }
-    .animate-slide-up { animation: slide-up 0.3s ease-out; }
-
-    /* Mask for gradient scroll fade */
-    .mask-gradient {
-        mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    .line-clamp-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
 
-    /* Line clamp utilities */
-    .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
-    .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    /* ── Animations ── */
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fade-in-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+
+
+    /* ── Filter sidebar ── */
+    .filter-sidebar {
+        background: var(--surface-primary, #fff);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 20px);
+    }
+
+    [data-theme="dark"] .filter-sidebar {
+        background: var(--surface-primary, #0e0c18);
+    }
+
+    /* ── Toolbar ── */
+    .catalog-toolbar {
+        background: var(--surface-primary, #fff);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md, 14px);
+    }
+
+    [data-theme="dark"] .catalog-toolbar {
+        background: var(--surface-primary, #0e0c18);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- MAIN CONTENT -->
-<main class="pt-28 pb-20 container mx-auto px-4 md:px-8 max-w-[1440px]" x-data="shopStore">
-    {% if laptops and laptops|length > 0 %}
-        {% set first_laptop = laptops[0] %}
-    {% else %}
-        {% set first_laptop = None %}
-    {% endif %}
+<div class="pb-20 container mx-auto px-4 md:px-8 max-w-[1440px]" x-data="shopStore">
 
-    <!-- HERO SECTION -->
-    <header class="mb-16 relative rounded-[2.5rem] overflow-hidden bg-white border border-[var(--border-subtle)] shadow-xl animate-fade-in group min-h-[400px] flex items-center">
-        <!-- Decorative Gradient Background -->
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary-light/5 opacity-80"></div>
 
-        <div class="relative z-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10 p-8 md:p-16 items-center">
-            <!-- Text Content -->
-            <div class="space-y-6">
-                <span class="inline-block px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs font-bold tracking-wider text-primary uppercase">Explora Nuestro Catálogo</span>
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading leading-[1.1] text-[var(--text-main)]">
-                    Encuentra <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-light">
-                        {% if first_laptop %}
-                            {{ first_laptop.display_name[:30] }}{% if first_laptop.display_name|length > 30 %}...{% endif %}
-                        {% else %}
-                            Tu Laptop Ideal
-                        {% endif %}
-                    </span>
-                </h1>
-                <p class="text-lg text-[var(--text-sub)] max-w-md">
-                    {% if first_laptop and first_laptop.description %}
-                        {{ first_laptop.description[:150] }}...
-                    {% else %}
-                        Descubre nuestra selección premium de laptops gaming, workstations y dispositivos profesionales. Tecnología de vanguardia al mejor precio.
-                    {% endif %}
-                </p>
-                <div class="flex gap-4 pt-2">
-                    <button @click="scrollToCatalog()" class="btn-primary px-8 py-3 text-sm font-bold flex items-center gap-2">
-                        Explorar Catálogo <i class="ph-bold ph-arrow-down"></i>
+
+
+    <!-- ══════════════════════════════════════════
+         CATALOG LAYOUT
+         ══════════════════════════════════════════ -->
+    <div id="catalog" class="flex flex-col lg:flex-row gap-6 items-start relative">
+
+        <!-- Overlay for Mobile Filters -->
+        <div x-show="mobileFiltersOpen" @click="mobileFiltersOpen = false"
+            class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden transition-all duration-300"
+            x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity duration-300"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
+        </div>
+
+        <!-- FILTERS SIDEBAR -->
+        <aside
+            class="fixed inset-y-0 left-0 z-[70] w-80 bg-[var(--surface-primary,#fff)] transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:sticky lg:inset-y-auto lg:top-28 lg:block lg:w-72 flex-shrink-0 space-y-3 filter-sidebar p-5 h-full lg:h-fit no-scrollbar overflow-y-auto lg:overflow-visible"
+            :class="mobileFiltersOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'"
+            role="complementary" aria-label="Filtros de productos">
+
+            <div class="flex justify-between items-center pb-3 border-b border-[var(--border-subtle)]">
+                <h3 class="font-heading font-bold text-base text-[var(--text-main)]">Filtros</h3>
+                <div class="flex items-center gap-2">
+                    <button @click="resetFilters()"
+                        class="text-xs font-bold text-purple-600 hover:text-purple-700 hover:underline transition-colors pr-2 border-r border-[var(--border-subtle)]">Limpiar</button>
+                    <button @click="mobileFiltersOpen = false"
+                        class="lg:hidden p-1 text-[var(--text-sub)] hover:text-red-500 transition-colors">
+                        <i class="ph-bold ph-x text-lg"></i>
                     </button>
-                    <a href="#catalog" class="px-8 py-3 rounded-full border border-[var(--border-subtle)] text-[var(--text-main)] font-bold hover:bg-[var(--border-subtle)] transition text-sm">
-                        Ver Todos
-                    </a>
                 </div>
             </div>
 
-            <!-- Hero Image -->
-            <div class="relative flex justify-center animate-float">
-                <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-primary-light/20 blur-[80px] rounded-full"></div>
-                {% if first_laptop and first_laptop.images %}
-                    {% if first_laptop.images|selectattr('is_cover', 'equalto', True)|list|length > 0 %}
-                        {% set cover = first_laptop.images|selectattr('is_cover', 'equalto', True)|first %}
-                        <img src="{{ url_for('static', filename=cover.image_path) }}"
-                             alt="{{ first_laptop.display_name }}" class="relative z-10 w-full max-w-md object-contain drop-shadow-2xl">
-                    {% elif first_laptop.images|length > 0 %}
-                        <img src="{{ url_for('static', filename=first_laptop.images[0].image_path) }}"
-                             alt="{{ first_laptop.display_name }}" class="relative z-10 w-full max-w-md object-contain drop-shadow-2xl">
-                    {% else %}
-                        <img src="https://assets2.razerzone.com/images/pnx.assets/617c0b05786259079361e695d522f778/razer-blade-16-2023-black-hero-mobile.png"
-                             alt="Laptop Gaming Premium" class="relative z-10 w-full max-w-md object-contain drop-shadow-2xl">
-                    {% endif %}
-                {% else %}
-                    <img src="https://assets2.razerzone.com/images/pnx.assets/617c0b05786259079361e695d522f778/razer-blade-16-2023-black-hero-mobile.png"
-                         alt="Laptop Gaming Premium" class="relative z-10 w-full max-w-md object-contain drop-shadow-2xl">
-                {% endif %}
-            </div>
-        </div>
-    </header>
-
-    <!-- CATALOG LAYOUT -->
-    <div id="catalog" class="flex flex-col lg:flex-row gap-8 items-start">
-
-        <!-- FILTERS SIDEBAR -->
-        <aside class="w-full lg:w-72 flex-shrink-0 space-y-4 bg-[var(--card-bg)] p-6 rounded-3xl border border-[var(--border-subtle)] shadow-sm h-fit no-scrollbar">
-
-            <div class="flex justify-between items-center pb-4 border-b border-[var(--border-subtle)]">
-                <h3 class="font-heading font-bold text-lg text-[var(--text-main)]">Filtros</h3>
-                <button @click="resetFilters()" class="text-xs font-bold text-primary hover:underline">Limpiar</button>
-            </div>
-
-            <!-- Loading State -->
+            <!-- Loading -->
             <div x-show="isLoading" class="text-center py-4">
-                <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <p class="text-sm text-[var(--text-sub)] mt-2">Cargando productos...</p>
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                <p class="text-sm text-[var(--text-sub)] mt-2">Cargando…</p>
             </div>
 
             <!-- Search -->
-            <div class="relative mb-2">
-                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)]"></i>
-                <input type="text" x-model="searchQuery" @input="debouncedSearch()" placeholder="Buscar laptops, marcas, especificaciones..."
-                       class="w-full bg-[var(--surface)] border-none rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 transition-all">
+            <div class="relative">
+                <i
+                    class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-sm"></i>
+                <input type="text" x-model="searchQuery" @input="debouncedSearch()"
+                    placeholder="Buscar laptops, marcas…"
+                    class="w-full bg-[var(--surface-secondary,#f5f3fa)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-9 pr-4 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 outline-none transition-all"
+                    aria-label="Buscar en catálogo">
             </div>
 
             <!-- Price Range -->
-            <div x-data="{ expanded: true }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
+            <div x-data="{ expanded: true }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 min-h-[44px]"
+                    aria-expanded="true">
                     <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-currency-dollar text-primary"></i> Rango de Precio
+                        <i class="ph-fill ph-currency-dollar text-purple-600"></i> Precio
                     </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="pt-2">
-                        <!-- Inputs Numéricos -->
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="relative w-[48%]">
-                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-xs font-medium">min</span>
-                                <input type="number" x-model="minPrice" @change="updateMinPrice" class="w-full bg-[var(--surface)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                    <div class="pt-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="relative w-[46%]">
+                                <span
+                                    class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-[10px] font-medium uppercase">min</span>
+                                <input type="text" :value="formatNumber(minPrice)"
+                                    @change="minPrice = parseNumber($el.value); updateMinPrice()"
+                                    class="w-full bg-[var(--surface-secondary,#f5f3fa)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-purple-500/20 outline-none transition-all">
                             </div>
-                            <span class="text-[var(--text-sub)] text-xs font-medium">a</span>
-                            <div class="relative w-[48%]">
-                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-xs font-medium">max</span>
-                                <input type="number" x-model="maxPrice" @change="updateMaxPrice" class="w-full bg-[var(--surface)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                            <span class="text-[var(--text-sub)] text-xs">—</span>
+                            <div class="relative w-[46%]">
+                                <span
+                                    class="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-sub)] text-[10px] font-medium uppercase">max</span>
+                                <input type="text" :value="formatNumber(maxPrice)"
+                                    @change="maxPrice = parseNumber($el.value); updateMaxPrice()"
+                                    class="w-full bg-[var(--surface-secondary,#f5f3fa)] text-right pr-2 py-1.5 rounded-lg border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-main)] focus:ring-2 focus:ring-purple-500/20 outline-none transition-all">
                             </div>
                         </div>
-
-                        <!-- Slider Visual -->
                         <div class="range-slider-container px-1">
                             <div class="range-slider-track"></div>
                             <div class="range-slider-progress" :style="progressStyle"></div>
-                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max" step="100" x-model="minPrice" @input="updateMinPrice">
-                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max" step="100" x-model="maxPrice" @input="updateMaxPrice">
+                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max"
+                                step="100" x-model="minPrice" @input="updateMinPrice">
+                            <input type="range" class="range-input" :min="priceRange.min" :max="priceRange.max"
+                                step="100" x-model="maxPrice" @input="updateMaxPrice">
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Brands -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-tag text-primary"></i> Marca
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-tag text-purple-600"></i> Marca</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="flex flex-wrap gap-2 pt-2">
+                    <div class="flex flex-wrap gap-1.5 pt-2">
                         <template x-for="brand in availableBrands" :key="brand">
                             <button @click="toggleFilter('selectedBrands', brand)"
-                                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border"
-                                    :class="selectedBrands.includes(brand) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border min-h-[32px]"
+                                :class="selectedBrands.includes(brand) ? 'bg-purple-600 text-white border-purple-600' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-purple-400'">
                                 <span x-text="brand"></span>
                             </button>
                         </template>
@@ -365,19 +320,21 @@
             </div>
 
             <!-- CPU -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-cpu text-primary"></i> Procesador
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-cpu text-purple-600"></i> Procesador</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                    <div class="space-y-0.5 pt-2 max-h-52 overflow-y-auto">
                         <template x-for="cpu in availableCPUs" :key="cpu">
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
-                                <input type="checkbox" :value="cpu" x-model="selectedCPUs" class="accent-primary rounded">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer hover:text-purple-600 transition-colors py-1.5 min-h-[36px]">
+                                <input type="checkbox" :value="cpu" x-model="selectedCPUs"
+                                    class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)] truncate" x-text="cpu" :title="cpu"></span>
                             </label>
                         </template>
@@ -386,19 +343,21 @@
             </div>
 
             <!-- GPU -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-graphics-card text-primary"></i> Gráfica
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-graphics-card text-purple-600"></i> Gráfica</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                    <div class="space-y-0.5 pt-2 max-h-52 overflow-y-auto">
                         <template x-for="gpu in availableGPUs" :key="gpu">
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
-                                <input type="checkbox" :value="gpu" x-model="selectedGPUs" class="accent-primary rounded">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer hover:text-purple-600 transition-colors py-1.5 min-h-[36px]">
+                                <input type="checkbox" :value="gpu" x-model="selectedGPUs"
+                                    class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)] truncate" x-text="gpu" :title="gpu"></span>
                             </label>
                         </template>
@@ -406,21 +365,24 @@
                 </div>
             </div>
 
-            <!-- Pantalla -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-monitor text-primary"></i> Pantalla
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <!-- Screen -->
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-monitor text-purple-600"></i> Pantalla</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="space-y-1 pt-2 max-h-60 overflow-y-auto">
+                    <div class="space-y-0.5 pt-2 max-h-52 overflow-y-auto">
                         <template x-for="screen in availableScreens" :key="screen">
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-1">
-                                <input type="checkbox" :value="screen" x-model="selectedScreens" class="accent-primary rounded">
-                                <span class="text-xs text-[var(--text-sub)] truncate" x-text="screen" :title="screen"></span>
+                            <label
+                                class="flex items-center gap-2 cursor-pointer hover:text-purple-600 transition-colors py-1.5 min-h-[36px]">
+                                <input type="checkbox" :value="screen" x-model="selectedScreens"
+                                    class="accent-primary rounded">
+                                <span class="text-xs text-[var(--text-sub)] truncate" x-text="screen"
+                                    :title="screen"></span>
                             </label>
                         </template>
                     </div>
@@ -428,20 +390,20 @@
             </div>
 
             <!-- RAM -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-memory text-primary"></i> RAM
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-memory text-purple-600"></i> RAM</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="flex flex-wrap gap-2 pt-2">
+                    <div class="flex flex-wrap gap-1.5 pt-2">
                         <template x-for="ram in availableRAMs" :key="ram">
                             <button @click="toggleFilter('selectedRAMs', ram)"
-                                    class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
-                                    :class="selectedRAMs.includes(ram) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border min-h-[30px]"
+                                :class="selectedRAMs.includes(ram) ? 'bg-purple-600 text-white border-purple-600' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-purple-400'">
                                 <span x-text="ram"></span>
                             </button>
                         </template>
@@ -450,20 +412,20 @@
             </div>
 
             <!-- SSD -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-hard-drives text-primary"></i> SSD
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-hard-drives text-purple-600"></i> SSD</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="flex flex-wrap gap-2 pt-2">
+                    <div class="flex flex-wrap gap-1.5 pt-2">
                         <template x-for="ssd in availableSSDs" :key="ssd">
                             <button @click="toggleFilter('selectedSSDs', ssd)"
-                                    class="px-2 py-1 rounded text-[10px] font-bold transition-all border"
-                                    :class="selectedSSDs.includes(ssd) ? 'bg-primary text-white border-primary' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-primary'">
+                                class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border min-h-[30px]"
+                                :class="selectedSSDs.includes(ssd) ? 'bg-purple-600 text-white border-purple-600' : 'bg-transparent text-[var(--text-sub)] border-[var(--border-subtle)] hover:border-purple-400'">
                                 <span x-text="ssd"></span>
                             </button>
                         </template>
@@ -471,160 +433,171 @@
                 </div>
             </div>
 
-            <!-- CONDICIÓN -->
-            <div x-data="{ expanded: false }" class="border-b border-[var(--border-subtle)] pb-4 last:border-0">
-                <button @click="expanded = !expanded" class="w-full flex justify-between items-center py-2 group">
-                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-                        <i class="ph-fill ph-sparkle text-primary"></i> Condición
-                    </span>
-                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300" :class="expanded ? 'rotate-180' : ''"></i>
+            <!-- Condition -->
+            <div x-data="{ expanded: false }" class="pb-3">
+                <button @click="expanded = !expanded"
+                    class="w-full flex justify-between items-center py-2 min-h-[44px]">
+                    <span class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2"><i
+                            class="ph-fill ph-sparkle text-purple-600"></i> Condición</span>
+                    <i class="ph-bold ph-caret-down text-[var(--text-sub)] transition-transform duration-300"
+                        :class="expanded ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="expanded" x-collapse>
-                    <div class="space-y-1 pt-2">
+                    <div class="space-y-0.5 pt-2">
                         <template x-for="cond in availableConditions" :key="cond">
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
-                                <input type="checkbox" :value="cond" x-model="selectedConditions" class="accent-primary rounded">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer hover:text-purple-600 transition-colors py-1.5 min-h-[36px]">
+                                <input type="checkbox" :value="cond" x-model="selectedConditions"
+                                    class="accent-primary rounded">
                                 <span class="text-xs text-[var(--text-sub)]"
-                                      x-text="cond === 'new' ? 'Nuevo' : cond === 'used' ? 'Usado' : 'Reacondicionado'"></span>
+                                    x-text="cond === 'new' ? 'Nuevo' : cond === 'used' ? 'Usado' : 'Reacondicionado'"></span>
                             </label>
                         </template>
                     </div>
                 </div>
             </div>
-
         </aside>
 
-        <!-- PRODUCT GRID -->
+        <!-- ══════════════════════════════════════════
+             PRODUCT GRID
+             ══════════════════════════════════════════ -->
         <div class="flex-1 w-full">
             <!-- Toolbar -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-[var(--card-bg)] p-2 rounded-2xl border border-[var(--border-subtle)] shadow-sm">
-
-                <!-- Left: Categorías -->
-                <div class="flex items-center gap-4 flex-1 overflow-hidden w-full sm:w-auto">
-                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2 mr-4">
-                        <span class="text-[var(--text-main)] font-bold" x-text="filteredProducts.length"></span> Productos
+            <div class="catalog-toolbar flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 p-2">
+                <!-- Left: Categories -->
+                <div class="flex items-center gap-3 flex-1 overflow-hidden w-full sm:w-auto">
+                    <p class="hidden md:block text-sm font-medium text-[var(--text-sub)] whitespace-nowrap pl-2 mr-3">
+                        <span class="text-[var(--text-main)] font-bold" x-text="filteredProducts.length"></span>
+                        Productos
                     </p>
-
-                    <div class="hidden md:block h-6 w-px bg-[var(--border-subtle)]"></div>
-
-                    <!-- Chips de Categoría -->
+                    <div class="hidden md:block h-5 w-px bg-[var(--border-subtle)]"></div>
                     <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pr-2 w-full">
                         <button @click="selectedCat = ''"
-                                :class="selectedCat === '' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
-                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent">
-                            Todo
-                        </button>
+                            :class="selectedCat === '' ? 'bg-purple-600 text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface-secondary,#f5f3fa)]'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap min-h-[36px]">Todo</button>
                         <button @click="selectedCat = 'sale'"
-                                :class="selectedCat === 'sale' ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
-                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent flex items-center gap-2">
-                            <i class="ph ph-flame-simple text-lg"></i>
-                            <span>Ofertas</span>
+                            :class="selectedCat === 'sale' ? 'bg-purple-600 text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface-secondary,#f5f3fa)]'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 min-h-[36px]">
+                            <i class="ph ph-flame-simple text-base"></i> Ofertas
                         </button>
                         <template x-for="cat in categories" :key="cat.id">
                             <button @click="selectedCat = cat.id"
-                                    :class="selectedCat === cat.id ? 'bg-primary text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface)]'"
-                                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border border-transparent flex items-center gap-2">
-                                <i :class="['ph', cat.icon]" class="text-lg"></i>
+                                :class="selectedCat === cat.id ? 'bg-purple-600 text-white shadow-md' : 'text-[var(--text-sub)] hover:bg-[var(--surface-secondary,#f5f3fa)]'"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 min-h-[36px]">
+                                <i :class="['ph', cat.icon]" class="text-base"></i>
                                 <span x-text="cat.name"></span>
                             </button>
                         </template>
                     </div>
                 </div>
-
-                <!-- Right: Ordenamiento -->
-                <div class="flex items-center gap-3 pl-4 border-l border-[var(--border-subtle)] sm:border-l-0">
-                    <div class="relative group">
-                        <select x-model="sortBy" @change="applySorting()" class="appearance-none bg-[var(--surface)] hover:bg-[var(--border-subtle)] transition-colors border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] cursor-pointer focus:ring-2 focus:ring-primary/20 outline-none pl-4 pr-10 py-2">
+                <!-- Right: Sort -->
+                <div class="flex items-center gap-3 pl-3">
+                    <div class="relative">
+                        <select x-model="sortBy" @change="applySorting()"
+                            class="appearance-none bg-[var(--surface-secondary,#f5f3fa)] border border-[var(--border-subtle)] rounded-xl text-xs font-bold text-[var(--text-main)] cursor-pointer focus:ring-2 focus:ring-purple-500/20 outline-none pl-3 pr-9 py-2 min-h-[36px] transition-colors">
                             <option value="relevance">Relevancia</option>
-                            <option value="price_asc">Precio: Bajo a Alto</option>
-                            <option value="price_desc">Precio: Alto a Bajo</option>
-                            <option value="name_asc">Nombre: A-Z</option>
-                            <option value="name_desc">Nombre: Z-A</option>
-                            <option value="newest">Más Recientes</option>
-                            <option value="oldest">Más Antiguos</option>
+                            <option value="price_asc">Precio ↑</option>
+                            <option value="price_desc">Precio ↓</option>
+                            <option value="name_asc">A → Z</option>
+                            <option value="name_desc">Z → A</option>
+                            <option value="newest">Recientes</option>
+                            <option value="oldest">Antiguos</option>
                         </select>
-                        <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)] pointer-events-none text-xs group-hover:text-primary transition-colors"></i>
+                        <i
+                            class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-sub)] pointer-events-none text-[10px]"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Loading State -->
+            <!-- Loading -->
             <div x-show="isLoading" class="text-center py-20">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <p class="text-lg text-[var(--text-sub)] mt-4">Cargando productos...</p>
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+                <p class="text-base text-[var(--text-sub)] mt-4">Cargando productos…</p>
             </div>
 
-            <!-- Grid Layout -->
-            <div x-show="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Grid -->
+            <div x-show="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 <template x-for="product in filteredProducts" :key="product.id">
-                    <article class="product-card group flex flex-col h-full animate-fade-in">
-                        <!-- Image Container -->
-                        <div class="relative h-56 w-full bg-transparent flex items-center justify-center p-6 overflow-hidden">
-                            <img :src="product.image" :alt="product.name" class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" loading="lazy">
-
+                    <article class="product-card-v2 group flex flex-col h-full animate-fade-in-up">
+                        <!-- Image -->
+                        <div class="relative h-52 w-full bg-white flex items-center justify-center p-5 overflow-hidden">
+                            <img :src="product.image" :alt="product.name"
+                                class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                                loading="lazy">
                             <!-- Badges -->
-                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                            <div class="absolute top-3 left-3 flex flex-col gap-1.5">
                                 <template x-if="product.sale">
-                                    <span class="px-2 py-1 bg-violet-500/10 text-violet-500 border border-violet-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Oferta</span>
+                                    <span
+                                        class="px-2.5 py-1 bg-purple-500/15 text-purple-600 border border-purple-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Oferta</span>
                                 </template>
                                 <template x-if="product.condition === 'Nuevo'">
-                                    <span class="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Nuevo</span>
+                                    <span
+                                        class="px-2.5 py-1 bg-emerald-500/15 text-emerald-600 border border-emerald-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Nuevo</span>
                                 </template>
                                 <template x-if="product.condition === 'Usado'">
-                                    <span class="px-2 py-1 bg-purple-700/10 text-purple-700 border border-purple-700/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Usado</span>
+                                    <span
+                                        class="px-2.5 py-1 bg-amber-500/15 text-amber-600 border border-amber-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Usado</span>
                                 </template>
                                 <template x-if="product.condition === 'Reacondicionado'">
-                                    <span class="px-2 py-1 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-md text-[10px] font-bold uppercase tracking-wider">Reacond.</span>
+                                    <span
+                                        class="px-2.5 py-1 bg-indigo-500/15 text-indigo-600 border border-indigo-500/20 rounded-full text-[10px] font-extrabold uppercase tracking-wide backdrop-blur-md">Reacond.</span>
                                 </template>
                             </div>
-
-                            <!-- Quick Actions Overlay -->
-                            <div class="absolute inset-0 bg-black/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-                                <button @click="openQuickView(product)" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform" title="Vista Rápida">
-                                    <i class="ph-bold ph-eye text-lg"></i>
-                                </button>
-                                <a :href="'/product/' + product.id" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform" title="Ver Detalles">
-                                    <i class="ph-bold ph-arrow-right text-lg"></i>
-                                </a>
-                            </div>
                         </div>
-
                         <!-- Info -->
                         <div class="p-5 flex-1 flex flex-col">
-                            <div class="mb-2 flex justify-between items-start">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider" x-text="product.brand"></span>
-                                    <span class="text-xs text-[var(--text-sub)]" x-text="product.model"></span>
-                                </div>
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="text-[13px] font-bold text-purple-600 uppercase tracking-widest"
+                                    x-text="product.brand"></span>
+                                <span
+                                    class="text-[13px] font-semibold text-[var(--text-sub)] opacity-60 group-hover:opacity-100 group-hover:text-purple-600 transition-all duration-300"
+                                    x-text="product.model"></span>
                             </div>
 
-                            <h3 class="font-heading font-bold text-lg text-[var(--text-main)] leading-tight mb-3 group-hover:text-primary transition-colors">
-                                <a :href="'/product/' + product.id" class="line-clamp-2 bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]" x-text="product.name"></a>
-                            </h3>
-
-                            <!-- Mini Specs -->
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.cpu"></span>
-                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.gpu"></span>
-                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ram"></span>
-                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.ssd"></span>
-                                <span class="px-2 py-1 rounded bg-[var(--surface)] text-[var(--text-sub)] text-xs border border-[var(--border-subtle)]" x-text="product.screen"></span>
-                            </div>
-
-                            <div class="mt-auto pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                            <!-- Specs List -->
+                            <ul class="space-y-2.5 mb-6 text-[12px] text-[var(--text-sub)]">
+                                <li class="flex items-center gap-2.5">
+                                    <i class="ph-bold ph-cpu text-purple-600 text-base w-5"></i>
+                                    <span class="line-clamp-1" x-text="product.cpu"></span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i class="ph-bold ph-graphics-card text-purple-600 text-base w-5"></i>
+                                    <span class="line-clamp-1" x-text="product.gpu"></span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i class="ph-bold ph-monitor text-purple-600 text-base w-5"></i>
+                                    <span class="line-clamp-1" x-text="product.screen"></span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i class="ph-bold ph-hard-drives text-purple-600 text-base w-5"></i>
+                                    <span class="line-clamp-1" x-text="product.ssd"></span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <i class="ph-bold ph-memory text-purple-600 text-base w-5"></i>
+                                    <span class="line-clamp-1" x-text="product.ram"></span>
+                                </li>
+                            </ul>
+                            <!-- Price + Actions -->
+                            <div
+                                class="mt-auto pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
                                 <div>
                                     <template x-if="product.oldPrice && product.oldPrice < product.price">
-                                        <span class="block text-xs text-[var(--text-sub)] line-through" x-text="'RD$ ' + formatPrice(product.oldPrice)"></span>
+                                        <span class="block text-xs text-[var(--text-sub)] line-through"
+                                            x-text="'RD$ ' + formatPrice(product.oldPrice)"></span>
                                     </template>
-                                    <span class="text-xl font-bold text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(product.price)"></span>
+                                    <span class="text-lg font-bold text-[var(--text-main)]"
+                                        x-text="'RD$ ' + formatPrice(product.price)"></span>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button @click="addToCart(product)" class="w-10 h-10 rounded-full bg-[var(--text-main)] text-[var(--bg-body)] flex items-center justify-center hover:bg-primary transition-colors shadow-lg" title="Añadir al carrito">
-                                        <i class="ph-bold ph-plus"></i>
+                                    <button @click="addToCart(product)"
+                                        class="w-9 h-9 rounded-full bg-[var(--text-main)] text-[var(--bg-body)] flex items-center justify-center hover:bg-purple-600 transition-colors shadow-md"
+                                        title="Añadir al carrito" aria-label="Añadir al carrito">
+                                        <i class="ph-bold ph-plus text-sm"></i>
                                     </button>
-                                    <a :href="'/product/' + product.id" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors shadow-lg" title="Ver detalles">
-                                        <i class="ph-bold ph-arrow-right"></i>
+                                    <a :href="'/product/' + product.id"
+                                        class="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors shadow-md"
+                                        title="Ver detalles" aria-label="Ver detalles">
+                                        <i class="ph-bold ph-arrow-right text-sm"></i>
                                     </a>
                                 </div>
                             </div>
@@ -634,130 +607,108 @@
             </div>
 
             <!-- Empty State -->
-            <div x-show="!isLoading && filteredProducts.length === 0" class="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
-                <div class="w-20 h-20 bg-[var(--surface)] rounded-full flex items-center justify-center mb-4 text-[var(--text-sub)]">
-                    <i class="ph-duotone ph-magnifying-glass text-4xl"></i>
+            <div x-show="filteredProducts.length === 0" class="py-20 text-center animate-fade-in">
+                <div class="w-20 h-20 bg-purple-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <i class="ph ph-magnifying-glass text-3xl text-purple-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-[var(--text-main)]">No se encontraron productos</h3>
-                <p class="text-[var(--text-sub)] mt-2 max-w-md">No hay productos que coincidan con tus filtros de búsqueda. Intenta ajustar los filtros o busca otro término.</p>
-                <button @click="resetFilters()" class="mt-4 btn-primary px-6 py-2 text-sm">Limpiar Filtros</button>
-            </div>
-
-            <!-- Pagination for large datasets (optional) -->
-            <div x-show="!isLoading && filteredProducts.length > 0" class="mt-12 flex justify-center">
-                <div class="flex items-center gap-2">
-                    <button @click="prevPage()" :disabled="currentPage === 1" :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--surface)]'" class="w-10 h-10 rounded-lg border border-[var(--border-subtle)] flex items-center justify-center">
-                        <i class="ph-bold ph-caret-left"></i>
-                    </button>
-                    <span class="text-sm text-[var(--text-sub)] px-4">
-                        Página <span x-text="currentPage"></span> de <span x-text="totalPages"></span>
-                    </span>
-                    <button @click="nextPage()" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--surface)]'" class="w-10 h-10 rounded-lg border border-[var(--border-subtle)] flex items-center justify-center">
-                        <i class="ph-bold ph-caret-right"></i>
-                    </button>
-                </div>
+                <h3 class="text-xl font-bold text-[var(--text-main)] mb-2">No encontramos resultados</h3>
+                <p class="text-[var(--text-sub)] mb-8">Intenta ajustar tus filtros o búsqueda.</p>
+                <button @click="resetFilters()" class="btn-primary">Ver todos los productos</button>
             </div>
         </div>
     </div>
 
-    <!-- QUICK VIEW MODAL -->
-    <div x-show="quickViewItem" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="quickViewItem = null"></div>
-        <div class="bg-[var(--card-bg)] rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row max-h-[90vh] md:max-h-none animate-slide-up border border-[var(--border-subtle)]">
-            <button @click="quickViewItem = null" class="absolute top-4 right-4 z-10 w-8 h-8 bg-[var(--surface)] rounded-full flex items-center justify-center hover:bg-[var(--border-subtle)] transition text-[var(--text-main)]"><i class="ph-bold ph-x"></i></button>
 
-            <div class="w-full md:w-1/2 bg-[var(--surface)] p-8 flex flex-col items-center justify-center relative">
-                <template x-if="quickViewItem">
-                    <img :src="quickViewItem.image" :alt="quickViewItem.name" class="w-full max-w-sm object-contain mb-6">
-                </template>
-            </div>
 
-            <div class="w-full md:w-1/2 p-8 md:p-10 overflow-y-auto">
-                <template x-if="quickViewItem">
-                    <div>
-                        <div class="mb-6">
-                            <span class="text-xs font-bold text-primary uppercase tracking-wider mb-2 block" x-text="quickViewItem.brand"></span>
-                            <h2 class="text-3xl font-bold font-heading mb-2 text-[var(--text-main)]" x-text="quickViewItem.name"></h2>
-                            <div class="flex items-center gap-2 mb-4">
-                                <template x-if="quickViewItem.oldPrice && quickViewItem.oldPrice < quickViewItem.price">
-                                    <span class="text-lg text-[var(--text-sub)] line-through" x-text="'RD$ ' + formatPrice(quickViewItem.oldPrice)"></span>
-                                </template>
-                                <span class="text-3xl font-bold text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(quickViewItem.price)"></span>
-                            </div>
-                        </div>
-                        <div class="space-y-4 mb-8">
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Procesador</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.cpu"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Tarjeta Gráfica</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.gpu"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Memoria RAM</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.ram"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Almacenamiento</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.ssd"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Pantalla</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.screen"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Condición</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.condition"></span></div>
-                            <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]"><span class="text-sm text-[var(--text-sub)]">Sistema Operativo</span><span class="text-sm font-bold text-[var(--text-main)]" x-text="quickViewItem.os"></span></div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button @click="addToCart(quickViewItem); quickViewItem = null" class="flex-1 btn-primary py-3 font-bold">Añadir al Carrito</button>
-                            <a :href="'/product/' + quickViewItem.id" class="flex-1 py-3 rounded-full border border-[var(--border-subtle)] text-[var(--text-main)] font-bold hover:bg-[var(--surface)] transition text-center">Ver Detalles</a>
-                        </div>
-                    </div>
-                </template>
-            </div>
+    <!-- Pagination -->
+    <div x-show="!isLoading && filteredProducts.length > 0" class="mt-10 flex justify-center">
+        <div class="flex items-center gap-2">
+            <button @click="prevPage()" :disabled="currentPage === 1"
+                :class="currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[var(--surface-secondary,#f5f3fa)] hover:border-purple-400'"
+                class="w-10 h-10 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center transition-colors">
+                <i class="ph-bold ph-caret-left text-sm"></i>
+            </button>
+            <span class="text-sm text-[var(--text-sub)] px-4 font-medium">
+                Pág. <span class="font-bold text-[var(--text-main)]" x-text="currentPage"></span> / <span
+                    x-text="totalPages"></span>
+            </span>
+            <button @click="nextPage()" :disabled="currentPage === totalPages"
+                :class="currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[var(--surface-secondary,#f5f3fa)] hover:border-purple-400'"
+                class="w-10 h-10 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center transition-colors">
+                <i class="ph-bold ph-caret-right text-sm"></i>
+            </button>
         </div>
     </div>
 
-    <!-- CART DRAWER -->
+
+    <!-- ══════════════════════════════════════════
+         CART DRAWER
+         ══════════════════════════════════════════ -->
     <div x-show="cartOpen" class="fixed inset-0 z-50 overflow-hidden" x-cloak>
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cartOpen = false" x-transition.opacity></div>
-        <div class="absolute inset-y-0 right-0 max-w-sm w-full bg-[var(--card-bg)] shadow-2xl flex flex-col transform transition-transform duration-300 border-l border-[var(--border-subtle)]"
-             x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
-             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+        <div class="absolute inset-y-0 right-0 max-w-sm w-full bg-[var(--surface-primary,#fff)] shadow-2xl flex flex-col border-l border-[var(--border-subtle)]"
+            x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-full"
+            x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200 transform"
+            x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
 
-            <div class="p-6 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--surface)]">
-                <h2 class="text-xl font-bold font-heading text-[var(--text-main)]">Tu Carrito (<span x-text="cart.length"></span>)</h2>
-                <button @click="cartOpen = false" class="text-[var(--text-main)]"><i class="ph-bold ph-x text-lg"></i></button>
+            <div
+                class="p-6 border-b border-[var(--border-subtle)] flex justify-between items-center bg-[var(--surface-secondary,#f5f3fa)]">
+                <h2 class="text-lg font-bold font-heading text-[var(--text-main)]">Tu Carrito (<span
+                        x-text="cart.length"></span>)</h2>
+                <button @click="cartOpen = false"
+                    class="text-[var(--text-main)] w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--border-subtle)] transition-colors"
+                    aria-label="Cerrar carrito"><i class="ph-bold ph-x text-base"></i></button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="flex-1 overflow-y-auto p-6 space-y-4">
                 <template x-if="cart.length === 0">
                     <div class="flex flex-col items-center justify-center h-full text-center text-[var(--text-sub)]">
-                        <i class="ph-duotone ph-shopping-bag text-4xl mb-3 text-primary/50"></i>
-                        <p>Tu carrito está vacío</p>
+                        <i class="ph-duotone ph-shopping-bag text-4xl mb-3 text-purple-300"></i>
+                        <p class="text-sm">Tu carrito está vacío</p>
                     </div>
                 </template>
                 <template x-for="(item, index) in cart" :key="index">
-                    <div class="flex gap-4 animate-slide-up">
-                        <div class="w-20 h-20 bg-[var(--surface)] rounded-lg flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
-                            <img :src="item.image" class="w-16 h-16 object-contain">
+                    <div
+                        class="flex gap-3 p-3 rounded-xl bg-[var(--surface-secondary,#f5f3fa)] border border-[var(--border-subtle)]">
+                        <div
+                            class="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <img :src="item.image" class="w-14 h-14 object-contain" :alt="item.name">
                         </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-sm line-clamp-1 text-[var(--text-main)]" x-text="item.name"></span>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="font-bold text-sm text-primary" x-text="'RD$ ' + formatPrice(item.price)"></span>
-                                <button @click="removeFromCart(index)" class="text-red-500 text-xs hover:underline">Eliminar</button>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-sm line-clamp-2 text-[var(--text-main)]" x-text="item.name"></h4>
+                            <div class="flex justify-between items-center mt-1.5">
+                                <span class="font-bold text-sm text-purple-600"
+                                    x-text="'RD$ ' + formatPrice(item.price)"></span>
+                                <button @click="removeFromCart(index)"
+                                    class="text-red-500 text-xs hover:underline font-medium">Eliminar</button>
                             </div>
                         </div>
                     </div>
                 </template>
             </div>
 
-            <div class="p-6 border-t border-[var(--border-subtle)] bg-[var(--surface)]">
+            <div class="p-6 border-t border-[var(--border-subtle)] bg-[var(--surface-secondary,#f5f3fa)]">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-[var(--text-sub)]">Subtotal</span>
-                    <span class="text-xl font-bold font-heading text-[var(--text-main)]" x-text="'RD$ ' + formatPrice(cartTotal)"></span>
+                    <span class="text-[var(--text-sub)] text-sm">Subtotal</span>
+                    <span class="text-xl font-bold font-heading text-[var(--text-main)]"
+                        x-text="'RD$ ' + formatPrice(cartTotal)"></span>
                 </div>
-                <button class="w-full btn-primary py-4 font-bold shadow-lg" :disabled="cart.length === 0" :class="cart.length === 0 ? 'opacity-50 cursor-not-allowed' : ''">Checkout Seguro</button>
+                <button
+                    class="w-full bg-purple-600 text-white py-3.5 rounded-full font-bold shadow-lg hover:bg-purple-700 transition-colors"
+                    :disabled="cart.length === 0"
+                    :class="cart.length === 0 ? 'opacity-50 cursor-not-allowed' : ''">Checkout
+                    Seguro</button>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
+    <!-- Toast -->
     <div class="fixed top-24 right-6 z-[60] flex flex-col gap-2 pointer-events-none">
         <template x-for="notif in notifications" :key="notif.id">
-            <div x-show="true"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-x-8"
-                 x-transition:enter-end="opacity-100 translate-x-0"
-                 class="bg-[var(--card-bg)] text-[var(--text-main)] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 min-w-[300px] pointer-events-auto border border-[var(--border-subtle)]">
-                <i class="ph-fill ph-check-circle text-primary text-xl"></i>
+            <div x-show="true" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0"
+                class="bg-[var(--surface-primary,#fff)] text-[var(--text-main)] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 min-w-[280px] pointer-events-auto border border-[var(--border-subtle)]">
+                <i class="ph-fill ph-check-circle text-emerald-500 text-xl"></i>
                 <div>
                     <h4 class="text-sm font-bold" x-text="notif.title"></h4>
                     <p class="text-xs text-[var(--text-sub)]" x-text="notif.message"></p>
@@ -765,38 +716,40 @@
             </div>
         </template>
     </div>
-</main>
+
+    <!-- Floating Mobile Filter Button -->
+    <div class="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-transform duration-300"
+        :class="mobileFiltersOpen ? 'translate-y-24' : 'translate-y-0'">
+        <button @click="mobileFiltersOpen = true"
+            class="bg-purple-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 border-2 border-white/20 backdrop-blur-md active:scale-95 transition-transform">
+            <i class="ph-bold ph-funnel"></i>
+            <span class="font-bold text-sm tracking-wide">Filtros</span>
+        </button>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Icons (Phosphor) -->
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-<!-- Datos de laptops desde Flask (DEBE definirse ANTES de cargar Alpine.js) -->
-<script>
-    // DEBUG: Verificar datos desde Flask
-    console.log('=== DIAGNÓSTICO DEL CATÁLOGO ===');
-    console.log('Total de laptops recibidas desde Flask: {{ laptops|length }}');
-
-    // Productos desde Flask (convertidos al formato Alpine.js)
-    const flaskLaptops = [
+<!-- Datos de laptops desde Flask -->
+<script id="laptops-data" type="application/json">
+    [
         {% for laptop in laptops %}
         {
-            id: {{ laptop.id }},
-            name: {{ laptop.display_name|tojson }},
-            brand: {{ (laptop.brand.name if laptop.brand else 'Sin marca')|tojson }},
-            model: {{ (laptop.model.name if laptop.model else 'Sin modelo')|tojson }},
-            cat: {{ (laptop.category if laptop.category else 'laptop')|tojson }},
-            price: {{ (laptop.discount_price if laptop.discount_price else laptop.sale_price)|default(0)|float }},
-            oldPrice: {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}{{ laptop.discount_price|float }}{% else %}null{% endif %},
-            gpu: {{ (laptop.graphics_card.name if laptop.graphics_card else 'Integrada')|tojson }},
-            cpu: {{ (laptop.processor.name if laptop.processor else 'Sin procesador')|tojson }},
-            ram: {{ (laptop.ram.name if laptop.ram else 'No especificado')|tojson }},
-            ssd: {{ (laptop.storage.name if laptop.storage else 'No especificado')|tojson }},
-            screen: {{ (laptop.screen.name if laptop.screen else 'No especificado')|tojson }},
-            condition: {{ ('Nuevo' if laptop.condition == 'new' else 'Usado' if laptop.condition == 'used' else 'Reacondicionado')|tojson }},
-            os: {{ (laptop.operating_system.name if laptop.operating_system else 'No especificado')|tojson }},
-            image: {% if laptop.images and laptop.images|list|length > 0 %}
+            "id": {{ laptop.id }},
+            "name": {{ laptop.display_name|tojson }},
+            "brand": {{ (laptop.brand.name if laptop.brand else 'Sin marca')|tojson }},
+            "model": {{ (laptop.model.name if laptop.model else 'Sin modelo')|tojson }},
+            "cat": {{ (laptop.category if laptop.category else 'laptop')|tojson }},
+            "price": {{ (laptop.discount_price if laptop.discount_price else laptop.sale_price)|default(0)|float }},
+            "oldPrice": {% if laptop.discount_price and laptop.discount_price < laptop.sale_price %}{{ laptop.discount_price|float }}{% else %}null{% endif %},
+            "gpu": {{ (laptop.discrete_gpu_full_name or laptop.onboard_gpu_full_name or (laptop.graphics_card.name if laptop.graphics_card else 'Integrada'))|tojson }},
+            "cpu": {{ (laptop.processor_full_name or (laptop.processor.name if laptop.processor else 'Sin procesador'))|tojson }},
+            "ram": {{ (laptop.ram_full_name or (laptop.ram.name if laptop.ram else 'No especificado'))|tojson }},
+            "ssd": {{ (laptop.storage_full_name or (laptop.storage.name if laptop.storage else 'No especificado'))|tojson }},
+            "screen": {{ (laptop.screen_full_name or (laptop.screen.name if laptop.screen else 'No especificado'))|tojson }},
+            "condition": {{ ('Nuevo' if laptop.condition == 'new' else 'Usado' if laptop.condition == 'used' else 'Reacondicionado')|tojson }},
+            "os": {{ (laptop.operating_system.full_name or (laptop.operating_system.name if laptop.operating_system else 'No especificado'))|tojson }},
+            "image": {% if laptop.images and laptop.images|list|length > 0 %}
                 {% set images_list = laptop.images|list %}
                 {% set cover = images_list|selectattr('is_cover', 'equalto', true)|first %}
                 {% if cover %}
@@ -807,393 +760,206 @@
             {% else %}
                 "/static/images/default-laptop.jpg"
             {% endif %},
-            entry_date: {{ (laptop.entry_date.isoformat() if laptop.entry_date else '')|tojson }},
-            new: {% if laptop.entry_date %}{% set days_diff = (now().date() - laptop.entry_date).days %}{{ (days_diff <= 30)|tojson }}{% else %}false{% endif %},
-            sale: {{ (laptop.discount_price is not none and laptop.discount_price < laptop.sale_price)|tojson }}
+            "entry_date": {{ (laptop.entry_date.isoformat() if laptop.entry_date else '')|tojson }},
+            "new": {% if laptop.entry_date %}{% set days_diff = (now().date() - laptop.entry_date).days %}{{ (days_diff <= 30)|tojson }}{% else %}false{% endif %},
+            "sale": {{ (laptop.discount_price is not none and laptop.discount_price < laptop.sale_price)|tojson }}
         }{% if not loop.last %},{% endif %}
         {% endfor %}
-    ];
+    ]
+</script>
 
-    console.log('flaskLaptops generado:', flaskLaptops.length, 'productos');
-    console.log('Primer producto:', flaskLaptops[0] || 'No hay productos');
-
-    // Datos iniciales para filtros
-    const initialData = {
-        brandsList: [{% for brand in brands %}"{{ brand.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        cpuList: [{% for proc in processors %}"{{ proc.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        gpuList: [{% for gpu in gpus %}"{{ gpu.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        screenList: [{% for screen in screens %}"{{ screen.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        ramList: [{% for ram in rams %}"{{ ram.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        ssdList: [{% for storage in storages %}"{{ storage.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        conditionList: [{% for cond in conditions %}"{{ cond }}"{% if not loop.last %}, {% endif %}{% endfor %}],
-        priceRange: {
-            min: {{ min_price_available|default(0) }},
-            max: {{ max_price_available|default(10000) }}
+<script id="initial-data" type="application/json">
+    {
+        "brandsList": [{% for brand in brands %}"{{ brand.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        "cpuList": [{% for proc in processors %}{{ (proc.full_name or proc.name)|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        "gpuList": [{% for gpu in gpus %}{{ (gpu.discrete_full_name or gpu.onboard_full_name or gpu.name)|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        "screenList": [{% for screen in screens %}{{ (screen.full_name or screen.name)|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        "ramList": [{% for ram in rams %}{{ (ram.full_name or ram.name)|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        "ssdList": [{% for storage in storages %}{{ (storage.full_name or storage.name)|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        "conditionList": [{% for cond in conditions %}"{{ cond }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+        "priceRange": {
+            "min": {{ min_price_available|default(0) }},
+            "max": {{ max_price_available|default(10000) }}
         },
-        categories: {{ categories|tojson }},
-        totalProducts: {{ total_products|default(0) }}
-    };
+        "categories": {{ categories|tojson }},
+        "totalProducts": {{ total_products|default(0) }}
+    }
+</script>
 
-    console.log('initialData:', initialData);
-    console.log('Marcas disponibles:', initialData.brandsList.length);
-    console.log('Rango de precios:', initialData.priceRange);
+<script>
+    const flaskLaptops = JSON.parse(document.getElementById('laptops-data').textContent);
+    const initialData = JSON.parse(document.getElementById('initial-data').textContent);
 </script>
 
 <script>
     document.addEventListener('alpine:init', () => {
-        console.log('Alpine:init disparado');
-
         Alpine.data('shopStore', () => ({
-            // UI State
+            mobileFiltersOpen: false,
             mobileMenuOpen: false,
             cartOpen: false,
             searchQuery: '',
             isLoading: false,
             quickViewItem: null,
-
-            // Filters
             minPrice: {{ min_price_available|default(0) }},
-            maxPrice: {{ max_price_available|default(10000) }},
-            priceGap: 500,
-            selectedCat: '',
-            selectedBrands: [],
-            selectedGPUs: [],
-            selectedCPUs: [],
-            selectedRAMs: [],
-            selectedSSDs: [],
-            selectedScreens: [],
-            selectedConditions: [],
+        maxPrice: {{ max_price_available|default(10000) }},
+        priceGap: 500,
+        selectedCat: '',
+        selectedBrands: [],
+        selectedGPUs: [],
+        selectedCPUs: [],
+        selectedRAMs: [],
+        selectedSSDs: [],
+        selectedScreens: [],
+        selectedConditions: [],
+        products: [],
+        priceRange: initialData.priceRange,
+        cart: [],
+        notifications: [],
+        sortBy: 'relevance',
+        currentPage: 1,
+        itemsPerPage: 12,
+        categories: initialData.categories,
+        brandsList: initialData.brandsList,
+        gpuList: initialData.gpuList,
+        cpuList: initialData.cpuList,
+        ramList: initialData.ramList,
+        ssdList: initialData.ssdList,
+        screenList: initialData.screenList,
+        conditionList: initialData.conditionList,
+        searchTimer: null,
 
-            // Data
-            products: [],
-            priceRange: initialData.priceRange,
+        init() {
+            this.$watch('mobileFiltersOpen', value => {
+                document.body.style.overflow = value ? 'hidden' : '';
+            });
+            this.isLoading = true;
+            this.products = flaskLaptops || [];
+            this.brandsList = initialData.brandsList || [];
+            this.cpuList = initialData.cpuList || [];
+            this.gpuList = initialData.gpuList || [];
+            this.screenList = initialData.screenList || [];
+            this.ramList = initialData.ramList || [];
+            this.ssdList = initialData.ssdList || [];
+            this.conditionList = initialData.conditionList || [];
+            this.categories = initialData.categories || [];
+            this.priceRange = initialData.priceRange || { min: 500, max: 8000 };
 
-            // Cart
-            cart: [],
-            notifications: [],
-            sortBy: 'relevance',
+            // Handle URL parameters for initial filters (e.g., ?brand=ASUS)
+            const params = new URLSearchParams(window.location.search);
+            const brandParam = params.get('brand');
+            if(brandParam && this.brandsList.includes(brandParam)) {
+        this.selectedBrands = [brandParam];
+    }
 
-            // Pagination
-            currentPage: 1,
-            itemsPerPage: 12,
+    this.isLoading = false;
+    },
 
-            // Filter Lists
-            categories: initialData.categories,
-            brandsList: initialData.brandsList,
-            gpuList: initialData.gpuList,
-            cpuList: initialData.cpuList,
-            ramList: initialData.ramList,
-            ssdList: initialData.ssdList,
-            screenList: initialData.screenList,
-            conditionList: initialData.conditionList,
+        get filteredProducts() {
+        let filtered = this.products.filter(p => this.matchesAllFilters(p));
+        filtered = this.applySortingToArray(filtered);
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        return filtered.slice(startIndex, startIndex + this.itemsPerPage);
+    },
 
-            // Timer para búsqueda debounced
-            searchTimer: null,
+    applySortingToArray(array) {
+        const sorted = [...array];
+        switch (this.sortBy) {
+            case 'price_asc': return sorted.sort((a, b) => a.price - b.price);
+            case 'price_desc': return sorted.sort((a, b) => b.price - a.price);
+            case 'name_asc': return sorted.sort((a, b) => a.name.localeCompare(b.name));
+            case 'name_desc': return sorted.sort((a, b) => b.name.localeCompare(a.name));
+            case 'newest': return sorted.sort((a, b) => { if (!a.entry_date && !b.entry_date) return 0; if (!a.entry_date) return 1; if (!b.entry_date) return -1; return new Date(b.entry_date) - new Date(a.entry_date); });
+            case 'oldest': return sorted.sort((a, b) => { if (!a.entry_date && !b.entry_date) return 0; if (!a.entry_date) return 1; if (!b.entry_date) return -1; return new Date(a.entry_date) - new Date(b.entry_date); });
+            default: return sorted;
+        }
+    },
 
-            init() {
-                console.log('shopStore.init() ejecutado');
-                console.log('flaskLaptops disponible:', typeof flaskLaptops !== 'undefined');
-                console.log('flaskLaptops length:', flaskLaptops ? flaskLaptops.length : 'N/A');
-
-                this.isLoading = true;
-
-                // Usar datos de Flask
-                this.products = flaskLaptops || [];
-                this.brandsList = initialData.brandsList || [];
-                this.cpuList = initialData.cpuList || [];
-                this.gpuList = initialData.gpuList || [];
-                this.screenList = initialData.screenList || [];
-                this.ramList = initialData.ramList || [];
-                this.ssdList = initialData.ssdList || [];
-                this.conditionList = initialData.conditionList || [];
-                this.categories = initialData.categories || [];
-                this.priceRange = initialData.priceRange || { min: 500, max: 8000 };
-
-                console.log('Productos cargados en Alpine:', this.products.length);
-                console.log('Marcas cargadas:', this.brandsList);
-
-                this.isLoading = false;
-            },
-
-            get filteredProducts() {
-                let filtered = this.products.filter(p => this.matchesAllFilters(p));
-
-                // Aplicar ordenamiento
-                filtered = this.applySortingToArray(filtered);
-
-                // Paginación
-                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-                const endIndex = startIndex + this.itemsPerPage;
-                return filtered.slice(startIndex, endIndex);
-            },
-
-            applySortingToArray(array) {
-                const sorted = [...array];
-
-                switch(this.sortBy) {
-                    case 'price_asc':
-                        return sorted.sort((a, b) => a.price - b.price);
-                    case 'price_desc':
-                        return sorted.sort((a, b) => b.price - a.price);
-                    case 'name_asc':
-                        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-                    case 'name_desc':
-                        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-                    case 'newest':
-                        return sorted.sort((a, b) => {
-                            if (!a.entry_date && !b.entry_date) return 0;
-                            if (!a.entry_date) return 1;
-                            if (!b.entry_date) return -1;
-                            return new Date(b.entry_date) - new Date(a.entry_date);
-                        });
-                    case 'oldest':
-                        return sorted.sort((a, b) => {
-                            if (!a.entry_date && !b.entry_date) return 0;
-                            if (!a.entry_date) return 1;
-                            if (!b.entry_date) return -1;
-                            return new Date(a.entry_date) - new Date(b.entry_date);
-                        });
-                    default: // 'relevance'
-                        return sorted;
-                }
-            },
-
-            applySorting() {
-                this.currentPage = 1; // Reset to first page when sorting
-            },
+    applySorting() { this.currentPage = 1; },
 
             get totalPages() {
-                const totalItems = this.products.filter(p => this.matchesAllFilters(p)).length;
-                return Math.ceil(totalItems / this.itemsPerPage);
-            },
+        const totalItems = this.products.filter(p => this.matchesAllFilters(p)).length;
+        return Math.max(1, Math.ceil(totalItems / this.itemsPerPage));
+    },
 
-            matchesAllFilters(product, ignore = []) {
-                if (!Array.isArray(ignore)) ignore = [ignore];
+    matchesAllFilters(product, ignore = []) {
+        if (!Array.isArray(ignore)) ignore = [ignore];
+        if (!ignore.includes('search') && this.searchQuery) {
+            const q = this.searchQuery.toLowerCase();
+            if (!(product.name.toLowerCase().includes(q) || product.brand.toLowerCase().includes(q) || product.cpu.toLowerCase().includes(q) || product.gpu.toLowerCase().includes(q) || product.ram.toLowerCase().includes(q))) return false;
+        }
+        if (!ignore.includes('price') && (product.price < this.minPrice || product.price > this.maxPrice)) return false;
+        if (!ignore.includes('category') && this.selectedCat) { if (this.selectedCat === 'sale') { if (!product.sale) return false; } else if (product.cat !== this.selectedCat) return false; }
+        if (!ignore.includes('brand') && this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
+        if (!ignore.includes('cpu') && this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(product.cpu)) return false;
+        if (!ignore.includes('gpu') && this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(product.gpu)) return false;
+        if (!ignore.includes('ram') && this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(product.ram)) return false;
+        if (!ignore.includes('ssd') && this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(product.ssd)) return false;
+        if (!ignore.includes('screen') && this.selectedScreens.length > 0 && !this.selectedScreens.includes(product.screen)) return false;
+        if (!ignore.includes('condition') && this.selectedConditions.length > 0) {
+            const conditionMap = { 'new': 'Nuevo', 'used': 'Usado', 'refurbished': 'Reacondicionado' };
+            const selectedValues = this.selectedConditions.map(c => conditionMap[c] || c);
+            if (!selectedValues.includes(product.condition)) return false;
+        }
+        return true;
+    },
 
-                // Filtro de búsqueda
-                if (!ignore.includes('search') && this.searchQuery) {
-                    const searchLower = this.searchQuery.toLowerCase();
-                    const matchesSearch =
-                        product.name.toLowerCase().includes(searchLower) ||
-                        product.brand.toLowerCase().includes(searchLower) ||
-                        product.cpu.toLowerCase().includes(searchLower) ||
-                        product.gpu.toLowerCase().includes(searchLower) ||
-                        product.ram.toLowerCase().includes(searchLower);
-                    if (!matchesSearch) return false;
-                }
-
-                // Filtro de precio
-                if (!ignore.includes('price') && (product.price < this.minPrice || product.price > this.maxPrice)) return false;
-
-                // Filtro de categoría
-                if (!ignore.includes('category') && this.selectedCat) {
-                    if (this.selectedCat === 'sale') {
-                        if (!product.sale) return false;
-                    } else if (product.cat !== this.selectedCat) {
-                        return false;
-                    }
-                }
-
-                // Filtro de marcas
-                if (!ignore.includes('brand') && this.selectedBrands.length > 0 && !this.selectedBrands.includes(product.brand)) return false;
-
-                // Filtro de CPUs
-                if (!ignore.includes('cpu') && this.selectedCPUs.length > 0 && !this.selectedCPUs.includes(product.cpu)) return false;
-
-                // Filtro de GPUs
-                if (!ignore.includes('gpu') && this.selectedGPUs.length > 0 && !this.selectedGPUs.includes(product.gpu)) return false;
-
-                // Filtro de RAM
-                if (!ignore.includes('ram') && this.selectedRAMs.length > 0 && !this.selectedRAMs.includes(product.ram)) return false;
-
-                // Filtro de SSD
-                if (!ignore.includes('ssd') && this.selectedSSDs.length > 0 && !this.selectedSSDs.includes(product.ssd)) return false;
-
-                // Filtro de pantallas
-                if (!ignore.includes('screen') && this.selectedScreens.length > 0 && !this.selectedScreens.includes(product.screen)) return false;
-
-                // Filtro de condiciones
-                if (!ignore.includes('condition') && this.selectedConditions.length > 0) {
-                    const conditionMap = {
-                        'new': 'Nuevo',
-                        'used': 'Usado',
-                        'refurbished': 'Reacondicionado'
-                    };
-                    const productCondition = product.condition;
-                    const selectedConditionValues = this.selectedConditions.map(c => conditionMap[c] || c);
-                    if (!selectedConditionValues.includes(productCondition)) return false;
-                }
-
-                return true;
-            },
-
-            get availableBrands() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['brand']));
-                return [...new Set(filtered.map(p => p.brand))].sort();
-            },
-
-            get availableCPUs() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['cpu']));
-                return [...new Set(filtered.map(p => p.cpu))].sort();
-            },
-
-            get availableGPUs() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['gpu']));
-                return [...new Set(filtered.map(p => p.gpu))].sort();
-            },
-
-            get availableRAMs() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['ram']));
-                return [...new Set(filtered.map(p => p.ram))].sort();
-            },
-
-            get availableSSDs() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['ssd']));
-                return [...new Set(filtered.map(p => p.ssd))].sort();
-            },
-
-            get availableScreens() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['screen']));
-                return [...new Set(filtered.map(p => p.screen))].sort();
-            },
-
+            get availableBrands() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['brand'])).map(p => p.brand))].sort(); },
+            get availableCPUs() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['cpu'])).map(p => p.cpu))].sort(); },
+            get availableGPUs() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['gpu'])).map(p => p.gpu))].sort(); },
+            get availableRAMs() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['ram'])).map(p => p.ram))].sort(); },
+            get availableSSDs() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['ssd'])).map(p => p.ssd))].sort(); },
+            get availableScreens() { return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['screen'])).map(p => p.screen))].sort(); },
             get availableConditions() {
-                const filtered = this.products.filter(p => this.matchesAllFilters(p, ['condition']));
-                const conditionMap = {
-                    'Nuevo': 'new',
-                    'Usado': 'used',
-                    'Reacondicionado': 'refurbished'
-                };
-                const conditions = filtered.map(p => {
-                    for (const [key, value] of Object.entries(conditionMap)) {
-                        if (p.condition === key) return value;
-                    }
-                    return null;
-                }).filter(c => c !== null);
-                return [...new Set(conditions)].sort();
-            },
+        const condMap = { 'Nuevo': 'new', 'Usado': 'used', 'Reacondicionado': 'refurbished' };
+        return [...new Set(this.products.filter(p => this.matchesAllFilters(p, ['condition'])).map(p => { for (const [k, v] of Object.entries(condMap)) { if (p.condition === k) return v; } return null; }).filter(c => c !== null))].sort();
+    },
 
-            prevPage() {
-                if (this.currentPage > 1) {
-                    this.currentPage--;
-                    this.scrollToTop();
-                }
-            },
+    prevPage() { if (this.currentPage > 1) { this.currentPage--; this.scrollToTop(); } },
+    nextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.scrollToTop(); } },
+    scrollToTop() { window.scrollTo({ top: document.getElementById('catalog').offsetTop - 100, behavior: 'smooth' }); },
 
-            nextPage() {
-                if (this.currentPage < this.totalPages) {
-                    this.currentPage++;
-                    this.scrollToTop();
-                }
-            },
-
-            scrollToTop() {
-                window.scrollTo({ top: document.getElementById('catalog').offsetTop - 100, behavior: 'smooth' });
-            },
-
-            scrollToCatalog() {
-                document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
-            },
-
-            updateMinPrice() {
-                if (this.maxPrice - this.minPrice < this.priceGap) {
-                    this.minPrice = this.maxPrice - this.priceGap;
-                }
-                this.currentPage = 1;
-            },
-
-            updateMaxPrice() {
-                if (this.maxPrice - this.minPrice < this.priceGap) {
-                    this.maxPrice = parseInt(this.minPrice) + parseInt(this.priceGap);
-                }
-                this.currentPage = 1;
-            },
+    updateMinPrice() { if (this.maxPrice - this.minPrice < this.priceGap) this.minPrice = this.maxPrice - this.priceGap; this.currentPage = 1; },
+    updateMaxPrice() { if (this.maxPrice - this.minPrice < this.priceGap) this.maxPrice = parseInt(this.minPrice) + parseInt(this.priceGap); this.currentPage = 1; },
 
             get progressStyle() {
-                const minVal = parseInt(this.minPrice);
-                const maxVal = parseInt(this.maxPrice);
-                const rangeMin = this.priceRange.min;
-                const rangeMax = this.priceRange.max;
-                const range = rangeMax - rangeMin;
+        const range = this.priceRange.max - this.priceRange.min;
+        const left = ((parseInt(this.minPrice) - this.priceRange.min) / range) * 100;
+        const right = 100 - ((parseInt(this.maxPrice) - this.priceRange.min) / range) * 100;
+        return `left: ${Math.max(0, left)}%; right: ${Math.max(0, right)}%`;
+    },
 
-                const left = ((minVal - rangeMin) / range) * 100;
-                const right = 100 - ((maxVal - rangeMin) / range) * 100;
+            get cartTotal() { return this.cart.reduce((acc, item) => acc + item.price, 0); },
 
-                return `left: ${Math.max(0, left)}%; right: ${Math.max(0, right)}%`;
-            },
+    toggleFilter(arrayName, value) {
+        if (this[arrayName].includes(value)) { this[arrayName] = this[arrayName].filter(v => v !== value); } else { this[arrayName].push(value); }
+        this.currentPage = 1;
+    },
 
-            get cartTotal() {
-                return this.cart.reduce((acc, item) => acc + item.price, 0);
-            },
+    debouncedSearch() { clearTimeout(this.searchTimer); this.searchTimer = setTimeout(() => { this.currentPage = 1; }, 300); },
 
-            toggleFilter(arrayName, value) {
-                if (this[arrayName].includes(value)) {
-                    this[arrayName] = this[arrayName].filter(v => v !== value);
-                } else {
-                    this[arrayName].push(value);
-                }
-                this.currentPage = 1;
-            },
+    addToCart(product) { this.cart.push({ ...product, cartId: Date.now() + Math.random() }); this.notify('Producto Agregado', `${product.name} se añadió al carrito.`); },
+    removeFromCart(index) { this.cart.splice(index, 1); this.notify('Eliminado', 'Producto removido del carrito.'); },
+    openQuickView(product) { this.quickViewItem = product; },
 
-            debouncedSearch() {
-                clearTimeout(this.searchTimer);
-                this.searchTimer = setTimeout(() => {
-                    this.currentPage = 1;
-                }, 300);
-            },
+    notify(title, message) {
+        const id = Date.now();
+        this.notifications.push({ id, title, message });
+        setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, 3000);
+    },
 
-            addToCart(product) {
-                this.cart.push({
-                    ...product,
-                    cartId: Date.now() + Math.random()
-                });
-                this.notify('Producto Agregado', `${product.name} se añadió al carrito.`);
-            },
+    resetFilters() {
+        this.searchQuery = ''; this.selectedCat = ''; this.selectedBrands = []; this.selectedGPUs = []; this.selectedCPUs = []; this.selectedRAMs = []; this.selectedSSDs = []; this.selectedScreens = []; this.selectedConditions = [];
+        this.minPrice = this.priceRange.min; this.maxPrice = this.priceRange.max; this.currentPage = 1; this.sortBy = 'relevance';
+    },
 
-            removeFromCart(index) {
-                this.cart.splice(index, 1);
-                this.notify('Producto Eliminado', 'Producto removido del carrito.');
-            },
-
-            openQuickView(product) {
-                this.quickViewItem = product;
-            },
-
-            notify(title, message) {
-                const id = Date.now();
-                this.notifications.push({ id, title, message });
-                setTimeout(() => {
-                    this.notifications = this.notifications.filter(n => n.id !== id);
-                }, 3000);
-            },
-
-            resetFilters() {
-                this.searchQuery = '';
-                this.selectedCat = '';
-                this.selectedBrands = [];
-                this.selectedGPUs = [];
-                this.selectedCPUs = [];
-                this.selectedRAMs = [];
-                this.selectedSSDs = [];
-                this.selectedScreens = [];
-                this.selectedConditions = [];
-                this.minPrice = this.priceRange.min;
-                this.maxPrice = this.priceRange.max;
-                this.currentPage = 1;
-                this.sortBy = 'relevance';
-            },
-
-            formatPrice(price) {
-                return new Intl.NumberFormat('es-DO', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(price);
-            }
+    formatPrice(price) { return new Intl.NumberFormat('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price); },
+    formatNumber(num) { return Number(num).toLocaleString('en-US'); },
+    parseNumber(str) { return parseInt(str.replace(/,/g, '')) || 0; }
         }));
     });
 </script>
 
-<!-- Alpine.js - CARGAR AL FINAL para que los datos y componentes ya estén definidos -->
+<!-- Alpine.js -->
 <script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 {% endblock %}

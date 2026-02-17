@@ -61,8 +61,8 @@
 {% block content %}
 <div class="report-container">
     <div class="report-header">
-        <h1>📈 Reporte 607: Ventas de Bienes y Servicios</h1>
-        <p>Formato de Envío de Ventas</p>
+        <h1>Reporte 607: Ventas de Bienes y Servicios</h1>
+        <p>Formato de Envio de Ventas</p>
     </div>
 
     <div class="filters-card">
@@ -76,7 +76,7 @@
         <table class="data-table" id="reportTable">
             <thead>
                 <tr>
-                    <th>RNC/Cédula</th>
+                    <th>RNC/Cedula</th>
                     <th>Tipo ID</th>
                     <th>NCF</th>
                     <th>NCF Modif.</th>
@@ -107,7 +107,7 @@
                 if (data.success) {
                     currentData = data.data; // Store for CSV
                     if (data.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="8" class="text-center p-4">No hay ventas en este período</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center p-4">No hay ventas en este periodo</td></tr>';
                         return;
                     }
                     data.data.forEach(item => {

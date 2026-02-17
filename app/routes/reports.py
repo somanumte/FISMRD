@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# ============================================
-# RUTAS DE REPORTES Y ANÃLISIS
+# RUTAS DE REPORTES Y ANALISIS
 # ============================================
 
 from flask import Blueprint, render_template, request, jsonify, send_file
@@ -33,24 +32,24 @@ reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 @permission_required('reports.view')
 def index():
     """
-    Panel principal de reportes con todas las categorÃ­as
+    Panel principal de reportes con todas las categorias
     """
-    # EstadÃ­sticas rÃ¡pidas para el dashboard
+    # Estadisticas rapidas para el dashboard
     total_reports = 29
     
     categories = [
         {
             'id': 'sales',
             'name': 'Ventas',
-            'icon': 'ðŸ’°',
+            'icon': '$',
             'count': 9,
             'color': 'blue',
-            'description': 'AnÃ¡lisis de ventas y facturaciÃ³n'
+            'description': 'Analisis de ventas y facturacion'
         },
         {
             'id': 'inventory',
             'name': 'Inventario',
-            'icon': 'ðŸ“¦',
+            'icon': '#',
             'count': 6,
             'color': 'green',
             'description': 'Control de stock y productos'
@@ -58,15 +57,15 @@ def index():
         {
             'id': 'customers',
             'name': 'Clientes',
-            'icon': 'ðŸ‘¥',
+            'icon': 'C',
             'count': 4,
             'color': 'purple',
-            'description': 'AnÃ¡lisis de base de clientes'
+            'description': 'Analisis de base de clientes'
         },
         {
             'id': 'financial',
             'name': 'Financiero',
-            'icon': 'ðŸ’µ',
+            'icon': 'F',
             'count': 3,
             'color': 'yellow',
             'description': 'Estados financieros y P&L'
@@ -74,7 +73,7 @@ def index():
         {
             'id': 'ncf',
             'name': 'NCF/DGII',
-            'icon': 'ðŸ“‹',
+            'icon': 'N',
             'count': 4,
             'color': 'red',
             'description': 'Comprobantes fiscales'
@@ -85,7 +84,7 @@ def index():
             'icon': 'âš™ï¸',
             'count': 3,
             'color': 'gray',
-            'description': 'Sistema y auditorÃ­a'
+            'description': 'Sistema y auditoria'
         }
     ]
     
@@ -105,9 +104,9 @@ def index():
 @permission_required('reports.sales.view')
 def sales_summary():
     """
-    Reporte: Resumen de Ventas por PerÃ­odo
+    Reporte: Resumen de Ventas por Periodo
     """
-    # Obtener parÃ¡metros de filtro
+    # Obtener parametros de filtro
     start_date = request.args.get('start_date', (date.today() - timedelta(days=30)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     status = request.args.get('status', 'paid')
@@ -149,12 +148,12 @@ def api_sales_summary():
         
         invoices = query.all()
         
-        # Calcular mÃ©tricas
+        # Calcular metricas
         total_sales = sum(float(inv.subtotal) for inv in invoices)
         total_invoices = len(invoices)
         avg_ticket = total_sales / total_invoices if total_invoices > 0 else 0
         
-        # Ventas por dÃ­a para grÃ¡fico
+        # Ventas por dia para grafico
         daily_sales_query = db.session.query(
             Invoice.invoice_date,
             func.sum(Invoice.subtotal).label('total'),
@@ -177,7 +176,7 @@ def api_sales_summary():
             'count': [d[2] for d in daily_sales]
         }
         
-        # ComparaciÃ³n con perÃ­odo anterior
+        # Comparacion con periodo anterior
         period_days = (end_date - start_date).days
         prev_start = start_date - timedelta(days=period_days + 1)
         prev_end = start_date - timedelta(days=1)
@@ -347,7 +346,7 @@ def api_sales_by_customer():
 @login_required
 @permission_required('reports.sales.view')
 def sales_by_payment_method():
-    """Reporte: Ventas por MÃ©todo de Pago"""
+    """Reporte: Ventas por Metodo de Pago"""
     start_date = request.args.get('start_date', (date.today() - timedelta(days=30)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     return render_template('reports/sales/by_payment_method.html', start_date=start_date, end_date=end_date)
@@ -356,7 +355,7 @@ def sales_by_payment_method():
 @login_required
 @permission_required('reports.sales.view')
 def api_sales_by_payment_method():
-    """API: Ventas por MÃ©todo de Pago"""
+    """API: Ventas por Metodo de Pago"""
     try:
         start_date = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.args.get('end_date'), '%Y-%m-%d').date()
@@ -422,7 +421,7 @@ def api_sales_by_user():
 @login_required
 @permission_required('reports.sales.view')
 def sales_trends():
-    """Reporte: AnÃ¡lisis de Tendencias"""
+    """Reporte: Analisis de Tendencias"""
     return render_template('reports/sales/trends.html')
 
 @reports_bp.route('/api/sales/trends')
@@ -430,7 +429,7 @@ def sales_trends():
 @permission_required('reports.sales.view')
 def api_sales_trends():
     try:
-        # Ãšltimos 12 meses
+        # Ultimos 12 meses
         today = date.today()
         start_date = today - timedelta(days=365)
         
@@ -512,7 +511,7 @@ def api_inventory_current_status():
         total_value = sum(float(l.sale_price * l.quantity) for l in laptops)
         low_stock_count = sum(1 for l in laptops if l.is_low_stock)
         
-        # Por categorÃ­a
+        # Por categoria
         category_data = db.session.query(
             Laptop.category,
             func.count(Laptop.id).label('count'),
@@ -648,16 +647,16 @@ def api_inventory_movements():
 @login_required
 @permission_required('reports.inventory.view')
 def inventory_turnover():
-    """Reporte: AnÃ¡lisis de RotaciÃ³n"""
+    """Reporte: Analisis de Rotacion"""
     return render_template('reports/inventory/turnover.html')
 
 @reports_bp.route('/api/inventory/turnover')
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_turnover():
-    """API: RotaciÃ³n de Inventario"""
+    """API: Rotacion de Inventario"""
     try:
-        # Simplificado: Ventas por marca en los Ãºltimos 90 dÃ­as
+        # Simplificado: Ventas por marca en los ultimos 90 dias
         ninety_days_ago = date.today() - timedelta(days=90)
         
         results = db.session.query(
@@ -683,14 +682,14 @@ def api_inventory_turnover():
 @login_required
 @permission_required('reports.inventory.view')
 def inventory_valuation():
-    """Reporte: ValoraciÃ³n de Inventario"""
+    """Reporte: Valoracion de Inventario"""
     return render_template('reports/inventory/valuation.html')
 
 @reports_bp.route('/api/inventory/valuation')
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_valuation():
-    """API: ValoraciÃ³n de Inventario"""
+    """API: Valoracion de Inventario"""
     try:
         query = db.session.query(
             Brand.name,
@@ -732,7 +731,7 @@ def inventory_serials():
 @login_required
 @permission_required('reports.inventory.view')
 def api_inventory_serials():
-    """API: BÃºsqueda de Seriales"""
+    """API: Busqueda de Seriales"""
     try:
         search = request.args.get('search', '').strip()
         query = db.session.query(
@@ -771,7 +770,7 @@ def api_inventory_serials():
 @login_required
 @permission_required('reports.customers.view')
 def customers_most_valuable():
-    """Reporte: Clientes MÃ¡s Valiosos"""
+    """Reporte: Clientes Mas Valiosos"""
     start_date = request.args.get('start_date', (date.today() - timedelta(days=365)).isoformat())
     end_date = request.args.get('end_date', date.today().isoformat())
     return render_template('reports/customers/most_valuable.html', start_date=start_date, end_date=end_date)
@@ -780,7 +779,7 @@ def customers_most_valuable():
 @login_required
 @permission_required('reports.customers.view')
 def api_customers_most_valuable():
-    """API: Clientes mÃ¡s valiosos"""
+    """API: Clientes mas valiosos"""
     try:
         start_date = datetime.strptime(request.args.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.args.get('end_date'), '%Y-%m-%d').date()

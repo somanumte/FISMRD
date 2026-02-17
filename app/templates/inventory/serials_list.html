@@ -4,25 +4,7 @@
 
 {% block extra_css %}
 <style>
-    .list-hero {
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #c084fc 100%);
-        border-radius: 1.5rem;
-        padding: 1.75rem 2rem;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-
-    .list-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -30%;
-        width: 60%;
-        height: 200%;
-        background: radial-gradient(ellipse, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-        pointer-events: none;
-    }
+    /* Hero removed - use Tailwind classes */
 
     /* Status tabs */
     .status-tabs {
@@ -83,22 +65,7 @@
     }
 
     /* Stat cards */
-    .stat-mini {
-        border-radius: 1rem;
-        padding: 1rem 1.25rem;
-        border: 1px solid #e5e7eb;
-        background: white;
-        transition: all 0.2s;
-    }
-
-    .dark .stat-mini {
-        background: #1f2937;
-        border-color: #374151;
-    }
-
-    .stat-mini:hover {
-        transform: translateY(-1px);
-    }
+    /* Stat mini removed - use Tailwind classes in HTML */
 
     /* Table */
     .serial-table {
@@ -412,47 +379,66 @@
 {% block content %}
 <div class="max-w-7xl mx-auto">
 
-    <!-- HERO -->
-    <div class="list-hero">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-white">
-                    <i class="fas fa-barcode mr-2"></i> Gestion de Seriales
+    <!-- Hero Section -->
+    <div
+        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-800 text-white shadow-xl mb-8">
+        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="text-center md:text-left">
+                <div
+                    class="inline-flex items-center gap-3 mb-3 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10">
+                    <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                    <span class="text-sm font-medium text-white/90">Gestión de Seriales</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black tracking-tight mb-2 text-white">
+                    Inventario Detallado
                 </h1>
-                <p class="text-purple-200 mt-1 text-sm">
+                <p class="text-base text-indigo-100 max-w-2xl leading-relaxed">
                     {{ total_serials }} serial{{ 'es' if total_serials != 1 else '' }} registrado{{ 's' if total_serials
-                    != 1 else '' }}
+                    != 1 else '' }} en el sistema.
                 </p>
             </div>
-            <div class="flex items-center gap-2">
+
+            <div class="flex flex-wrap gap-3 justify-center">
                 <a href="{{ url_for('inventory.laptops_list') }}"
-                    class="h-10 px-5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm transition-all flex items-center gap-2 group">
-                    <i class="fas fa-laptop text-xs group-hover:scale-110 transition-transform"></i>
-                    Inventario
+                    class="group relative inline-flex items-center justify-center px-6 py-3 font-bold text-indigo-900 transition-all duration-200 bg-white rounded-xl hover:bg-indigo-50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white shadow-lg">
+                    <i class="fas fa-laptop mr-2 text-indigo-600"></i>
+                    <span>Ver Inventario General</span>
                 </a>
             </div>
         </div>
     </div>
 
     <!-- STAT CARDS -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-3 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
         {% set status_config = {
-        'available': {'icon': 'fa-check-circle', 'color': 'green', 'label': 'Disponibles'},
+        'available': {'icon': 'fa-check-circle', 'color': 'emerald', 'label': 'Disponibles'},
         'sold': {'icon': 'fa-shopping-cart', 'color': 'blue', 'label': 'Vendidos'},
-        'reserved': {'icon': 'fa-clock', 'color': 'yellow', 'label': 'Reservados'},
-        'damaged': {'icon': 'fa-exclamation-triangle', 'color': 'red', 'label': 'Danados'},
-        'in_repair': {'icon': 'fa-wrench', 'color': 'orange', 'label': 'En Reparacion'},
+        'reserved': {'icon': 'fa-clock', 'color': 'amber', 'label': 'Reservados'},
+        'damaged': {'icon': 'fa-exclamation-triangle', 'color': 'red', 'label': 'Dañados'},
+        'in_repair': {'icon': 'fa-wrench', 'color': 'orange', 'label': 'En Taller'},
         'returned': {'icon': 'fa-undo', 'color': 'purple', 'label': 'Devueltos'},
         'lost': {'icon': 'fa-question-circle', 'color': 'gray', 'label': 'Perdidos'}
         } %}
+
         {% for key, cfg in status_config.items() %}
         <a href="{{ url_for('inventory.serials_list', status=key) }}"
-            class="stat-mini {% if status_filter == key %}ring-2 ring-purple-500{% endif %}">
-            <div class="flex items-center gap-2 mb-1">
-                <i class="fas {{ cfg.icon }} text-{{ cfg.color }}-500 text-sm"></i>
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ cfg.label }}</span>
+            class="relative group bg-white dark:bg-gray-800 p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-lg {% if status_filter == key %}border-{{ cfg.color }}-500 ring-1 ring-{{ cfg.color }}-500 bg-{{ cfg.color }}-50/50 dark:bg-{{ cfg.color }}-900/10{% else %}border-gray-200 dark:border-gray-700 hover:border-{{ cfg.color }}-300 dark:hover:border-{{ cfg.color }}-700{% endif %}">
+
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="mb-2 p-2 rounded-full bg-{{ cfg.color }}-100 dark:bg-{{ cfg.color }}-900/30 text-{{ cfg.color }}-600 dark:text-{{ cfg.color }}-400 group-hover:scale-110 transition-transform">
+                    <i class="fas {{ cfg.icon }} text-lg"></i>
+                </div>
+                <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">{{
+                    cfg.label }}</span>
+                <span
+                    class="text-xl font-black text-gray-900 dark:text-white group-hover:text-{{ cfg.color }}-600 transition-colors">
+                    {{ stats.get(key, 0) }}
+                </span>
             </div>
-            <p class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.get(key, 0) }}</p>
         </a>
         {% endfor %}
     </div>

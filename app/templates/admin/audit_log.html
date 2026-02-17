@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set hide_search = True %}
 
-{% block title %}Auditoría del Sistema{% endblock %}
+{% block title %}Auditoria del Sistema{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -11,7 +11,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    Auditoría del Sistema
+                    Auditoria del Sistema
                 </h1>
                 <p class="mt-1 text-gray-600 dark:text-gray-400">
                     Registro detallado de acciones y seguridad del sistema
@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <!-- Estadísticas -->
+        <!-- Estadisticas -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
@@ -52,7 +52,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Éxitos</p>
+                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Exitos</p>
                         <p id="successLogs" class="text-xl font-bold text-green-600 dark:text-green-400 mt-1">-</p>
                     </div>
                     <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <!-- Filtros de Búsqueda -->
+        <!-- Filtros de Busqueda -->
         <div
             class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -109,21 +109,21 @@
                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
                     </path>
                 </svg>
-                Filtros de Búsqueda
+                Filtros de Busqueda
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Módulo
+                        Modulo
                     </label>
                     <select id="moduleFilter"
                         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500">
                         <option value="">Todos</option>
-                        <option value="auth">Autenticación</option>
+                        <option value="auth">Autenticacion</option>
                         <option value="inventory">Inventario</option>
-                        <option value="invoices">Facturación</option>
-                        <option value="admin">Administración</option>
+                        <option value="invoices">Facturacion</option>
+                        <option value="admin">Administracion</option>
                         <option value="expenses">Gastos</option>
                     </select>
                 </div>
@@ -174,11 +174,11 @@
                             </th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Módulo
+                                Modulo
                             </th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Acción
+                                Accion
                             </th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -208,7 +208,7 @@
                                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Cargando registros...
                                     </h3>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Obteniendo datos de
-                                        auditoría del sistema</p>
+                                        auditoria del sistema</p>
                                 </div>
                             </td>
                         </tr>
@@ -216,7 +216,7 @@
                 </table>
             </div>
 
-            <!-- Paginación (si se implementa en el futuro) -->
+            <!-- Paginacion (si se implementa en el futuro) -->
             <div id="paginationSection" class="hidden px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-700 dark:text-gray-300">
@@ -308,7 +308,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         ${log.status === 'success'
-                    ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Éxito</span>'
+                    ? '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Exito</span>'
                     : '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" title="' + (log.error_message || 'Error') + '">Error</span>'}
                     </td>
                 </tr>
@@ -324,7 +324,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
                             <h3 class="text-lg font-medium text-red-900 dark:text-red-300">Error cargando logs</h3>
-                            <p class="mt-1 text-sm text-red-500 dark:text-red-400">No se pudo obtener los registros de auditoría</p>
+                            <p class="mt-1 text-sm text-red-500 dark:text-red-400">No se pudo obtener los registros de auditoria</p>
                         </div>
                     </td>
                 </tr>

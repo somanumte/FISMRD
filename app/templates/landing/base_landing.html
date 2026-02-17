@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}LuxeraRD - Tienda premium de tecnología. Las mejores laptops y equipos de computación en República Dominicana.{% endblock %}">
-    <meta name="keywords" content="laptops, computadoras, tecnología, República Dominicana, LuxeraRD, gaming, profesional">
-    <meta name="author" content="LuxeraRD">
+    <meta name="description"
+        content="{% block meta_description %}F.I.S.M Technology SRL — Tienda premium de tecnología. Las mejores laptops y equipos de computación en República Dominicana.{% endblock %}">
+    <meta name="keywords"
+        content="laptops, computadoras, tecnología, República Dominicana, F.I.S.M Technology SRL, gaming, profesional">
+    <meta name="author" content="F.I.S.M Technology SRL">
+    <meta name="theme-color" content="#7c3aed" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="{% block og_title %}LuxeraRD - Tecnología Premium{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Las mejores laptops y equipos de computación{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}F.I.S.M Technology SRL — Tecnología Premium{% endblock %}">
+    <meta property="og:description"
+        content="{% block og_description %}Las mejores laptops y equipos de computación{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg') }}">
+    <meta property="og:locale" content="es_DO">
 
-    <title>{% block title %}LuxeraRD | Tecnología Premium{% endblock %}</title>
+    <title>{% block title %}F.I.S.M Technology SRL | Tecnología Premium{% endblock %}</title>
 
-    <!-- Preconnect for performance -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
-    <!-- Fonts - Outfit y Space Grotesk -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Fonts: Plus Jakarta Sans (body) + Syne (display/heading) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,47 +39,27 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        'sans': ['Outfit', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-                        'heading': ['Space Grotesk', 'system-ui', 'sans-serif'],
+                        'sans': ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+                        'heading': ['Syne', 'system-ui', 'sans-serif'],
                     },
                     colors: {
                         'primary': '#7c3aed',
                         'primary-dark': '#6d28d9',
                         'primary-light': '#a78bfa',
-                    },
-                    spacing: {
-                        '18': '4.5rem',
-                        '88': '22rem',
-                        '100': '25rem',
-                        '128': '32rem',
-                    },
-                    maxWidth: {
-                        '8xl': '88rem',
-                        '9xl': '96rem',
+                        'accent': '#06b6d4',
+                        'accent-dark': '#0891b2',
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.4s ease-out',
-                        'scale-in': 'scaleIn 0.3s ease-out',
-                        'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.6s cubic-bezier(0.2,0.8,0.2,1)',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.2,0.8,0.2,1)',
+                        'scale-in': 'scaleIn 0.4s cubic-bezier(0.2,0.8,0.2,1)',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.95)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        },
-                        pulseSubtle: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.8' },
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(24px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.96)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+                        float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } },
                     }
                 }
             }
@@ -78,113 +67,88 @@
     </script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* =========================================
-           PALETA DE COLORES CALIBRADA V2
-           ========================================= */
+        /* =============================================
+           DESIGN SYSTEM — F.I.S.M Technology SRL V3
+           ============================================= */
         :root {
-            --font-body: 'Outfit', sans-serif;
-            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --font-heading: 'Syne', system-ui, sans-serif;
+
             --primary: #7c3aed;
             --primary-dark: #6d28d9;
             --primary-light: #a78bfa;
+            --accent: #06b6d4;
 
-            /* --- TEMA CLARO (Light) --- */
-            --bg-body: #f8fafc;
-            --bg-nav: rgba(255, 255, 255, 0.9);
+            /* Light Theme */
+            --bg-body: #fafafa;
+            --bg-nav: rgba(255, 255, 255, 0.88);
             --bg-footer: #ffffff;
-            --text-main: #0f172a;
+            --text-main: #0c0a1a;
+            --text-secondary: #4a4458;
+            --text-tertiary: #8a849a;
             --text-sub: #64748b;
-            --border-subtle: #e2e8f0;
-            --shadow-nav: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-            --card-footer: #f1f5f9;
+            --border-subtle: #e8e5f0;
+            --shadow-nav: 0 4px 24px -4px rgba(124, 58, 237, 0.06);
+            --card-footer: #f3f0f8;
 
             --surface-primary: #ffffff;
-            --surface-secondary: #f5f5f7;
-            --surface-tertiary: #fbfbfd;
-            --text-primary: #1d1d1f;
-            --text-secondary: #6e6e73;
-            --text-tertiary: #86868b;
-            --border-light: rgba(0, 0, 0, 0.1);
-            --border-medium: rgba(0, 0, 0, 0.16);
+            --surface-secondary: #f5f3fa;
+            --surface-tertiary: #fcfbfe;
+            --border-light: rgba(124, 58, 237, 0.08);
+            --border-medium: rgba(0, 0, 0, 0.12);
+
             --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --radius-xl: 24px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
             --radius-full: 980px;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.12);
+
+            --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --transition-fast: 150ms var(--ease);
+            --transition-base: 280ms var(--ease);
+            --transition-slow: 450ms var(--ease);
         }
 
-        /* --- TEMA OSCURO (Dark) --- */
+        /* Dark Theme */
         [data-theme="dark"] {
-            --bg-body: #050505;
-            --bg-nav: rgba(20, 20, 20, 0.85);
-            --bg-footer: #0a0a0a;
-            --text-main: #ffffff;
-            --text-sub: #94a3b8;
-            --border-subtle: #262626;
-            --shadow-nav: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-            --card-footer: #171717;
+            --bg-body: #08060e;
+            --bg-nav: rgba(14, 12, 20, 0.88);
+            --bg-footer: #0c0a14;
+            --text-main: #f0edf6;
+            --text-secondary: #b0aabb;
+            --text-tertiary: #6e6880;
+            --text-sub: #8a849a;
+            --border-subtle: #1e1a2e;
+            --shadow-nav: 0 4px 30px -4px rgba(0, 0, 0, 0.4);
+            --card-footer: #14111e;
 
-            --surface-primary: #0a0a0a;
-            --surface-secondary: #171717;
-            --surface-tertiary: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1a6;
-            --text-tertiary: #6e6e73;
-            --border-light: rgba(255, 255, 255, 0.1);
-            --border-medium: rgba(255, 255, 255, 0.16);
+            --surface-primary: #0e0c18;
+            --surface-secondary: #14111e;
+            --surface-tertiary: #1a1628;
+            --border-light: rgba(124, 58, 237, 0.12);
+            --border-medium: rgba(255, 255, 255, 0.1);
         }
 
-        * {
+        /* =============================================
+           BASE RESETS
+           ============================================= */
+        *,
+        *::before,
+        *::after {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
-            font-family: var(--font-body);
-            color: var(--text-main);
-            background: var(--bg-body);
-            overflow-x: hidden;
-            line-height: 1.5;
-            transition: background-color 0.4s ease, color 0.4s ease;
-        }
-
-        h1, h2, h3, h4, h5, .font-heading {
-            font-family: var(--font-heading);
-        }
-
-        /* Accessibility - Skip to main content */
-        .skip-to-content {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--primary);
-            color: white;
-            padding: 12px 20px;
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            z-index: 9999;
-            transition: top var(--transition-fast);
-            font-weight: 600;
-        }
-
-        .skip-to-content:focus {
-            top: 10px;
-            outline: 3px solid var(--primary-light);
-            outline-offset: 2px;
-        }
-
-        /* Smooth scrolling with offset for fixed header */
         html {
             scroll-padding-top: 100px;
             scroll-behavior: smooth;
@@ -196,82 +160,116 @@
             }
         }
 
-        /* =========================================
-           NAVBAR FLOTANTE (ISLA) V2 - MEJORAS MOBILE
-           ========================================= */
+        body {
+            font-family: var(--font-body);
+            color: var(--text-main);
+            background: var(--bg-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+            transition: background-color 0.5s var(--ease), color 0.4s var(--ease);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        .font-heading {
+            font-family: var(--font-heading);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        /* Skip to Content */
+        .skip-to-content {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            z-index: 9999;
+            transition: top var(--transition-fast);
+            font-weight: 600;
+        }
+
+        .skip-to-content:focus {
+            top: 12px;
+            outline: 3px solid var(--primary-light);
+            outline-offset: 2px;
+        }
+
+        /* =============================================
+           FLOATING NAV — ISLAND STYLE
+           ============================================= */
         .nav-island {
             position: fixed;
-            top: 1.5rem;
+            top: 1.25rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            max-width: 1200px;
+            width: 92%;
+            max-width: 1180px;
             z-index: 1000;
-
             background: var(--bg-nav);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-
+            backdrop-filter: saturate(180%) blur(22px);
+            -webkit-backdrop-filter: saturate(180%) blur(22px);
             border: 1px solid var(--border-subtle);
             border-radius: 9999px;
-            padding: 0.75rem 1.25rem;
-
+            padding: 0.625rem 1.25rem;
             box-shadow: var(--shadow-nav);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s var(--ease);
         }
 
         @media (max-width: 640px) {
             .nav-island {
-                width: 95%;
-                padding: 0.625rem 1rem;
-                top: 1rem;
+                width: 96%;
+                padding: 0.5rem 0.875rem;
+                top: 0.75rem;
             }
         }
 
         .nav-island.scrolled {
-            top: 1rem;
-            padding: 0.5rem 1.25rem;
+            top: 0.75rem;
+            padding: 0.4rem 1.25rem;
+            box-shadow: var(--shadow-md);
         }
 
-        @media (max-width: 640px) {
-            .nav-island.scrolled {
-                top: 0.75rem;
-                padding: 0.5rem 1rem;
-            }
-        }
-
-        /* Enlaces Nav V2 */
+        /* Nav Links */
         .nav-link-v2 {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-sub);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
             padding: 0.5rem 1rem;
             border-radius: 20px;
             transition: all 0.2s ease;
             text-decoration: none;
+            letter-spacing: -0.01em;
         }
 
         .nav-link-v2:hover {
             color: var(--primary);
-            background-color: rgba(124, 58, 237, 0.08);
+            background-color: rgba(124, 58, 237, 0.07);
         }
 
         .nav-link-v2.active {
             color: var(--primary);
             background-color: rgba(124, 58, 237, 0.1);
+            font-weight: 700;
         }
 
         [data-theme="dark"] .nav-link-v2:hover {
-            background-color: rgba(124, 58, 237, 0.15);
-            color: #fff;
+            background-color: rgba(124, 58, 237, 0.14);
+            color: var(--primary-light);
         }
 
-        /* Botón Circular Acción - MEJORADO PARA MÓVIL */
+        /* Action Buttons */
         .btn-icon-v2 {
-            width: 44px;
-            height: 44px;
-            min-width: 44px;
-            min-height: 44px;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -279,17 +277,18 @@
             color: var(--text-main);
             border: 1px solid transparent;
             background: transparent;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             cursor: pointer;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        @media (max-width: 640px) {
+        @media (min-width: 768px) {
             .btn-icon-v2 {
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                min-height: 40px;
+                width: 42px;
+                height: 42px;
+                min-width: 42px;
+                min-height: 42px;
             }
         }
 
@@ -299,59 +298,55 @@
         }
 
         .btn-icon-v2:active {
-            transform: scale(0.95);
+            transform: scale(0.94);
         }
 
-        /* Typography - Enhanced style */
+        /* =============================================
+           TYPOGRAPHY UTILITIES
+           ============================================= */
         .hero-title {
-            font-size: clamp(2.75rem, 5.5vw, 5rem);
+            font-size: clamp(2.5rem, 5.5vw, 4.5rem);
             font-weight: 800;
             line-height: 1.05;
-            letter-spacing: -0.022em;
-            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
         }
 
         .section-title {
-            font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+            font-size: clamp(2rem, 4.5vw, 3.5rem);
             font-weight: 700;
             line-height: 1.1;
-            letter-spacing: -0.018em;
-            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
         }
 
         .subsection-title {
-            font-size: clamp(1.5rem, 3vw, 2.25rem);
+            font-size: clamp(1.375rem, 3vw, 2rem);
             font-weight: 600;
             line-height: 1.2;
-            letter-spacing: -0.012em;
+            letter-spacing: -0.015em;
         }
 
         .subtitle {
-            font-size: clamp(1.125rem, 2.25vw, 1.75rem);
+            font-size: clamp(1.0625rem, 2vw, 1.5rem);
             font-weight: 400;
-            line-height: 1.4;
+            line-height: 1.5;
             color: var(--text-secondary);
-            max-width: 700px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
-        .body-large {
-            font-size: 1.125rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        /* Buttons - Enhanced V2 style */
+        /* =============================================
+           BUTTONS
+           ============================================= */
         .btn-primary {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 1rem 2rem;
+            gap: 10px;
+            padding: 0.875rem 2rem;
             background: var(--primary);
             color: white;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.9375rem;
+            font-weight: 700;
             border-radius: var(--radius-full);
             border: none;
             cursor: pointer;
@@ -361,51 +356,56 @@
             overflow: hidden;
             min-height: 48px;
             touch-action: manipulation;
+            letter-spacing: -0.01em;
         }
 
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 12px 28px rgba(124, 58, 237, 0.28);
         }
 
         .btn-primary:active {
             transform: translateY(0);
+            transition-duration: 100ms;
         }
 
         .btn-secondary {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 1rem 2rem;
+            gap: 10px;
+            padding: 0.875rem 2rem;
             background: transparent;
-            color: var(--primary);
-            font-size: 1rem;
-            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9375rem;
+            font-weight: 700;
             border-radius: var(--radius-full);
-            border: 2px solid var(--primary);
+            border: 1.5px solid var(--border-subtle);
             cursor: pointer;
             transition: all var(--transition-base);
             text-decoration: none;
             min-height: 48px;
             touch-action: manipulation;
+            letter-spacing: -0.01em;
         }
 
         .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
+            border-color: var(--primary);
+            color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-secondary:active {
             transform: translateY(0);
         }
 
-        /* Product Cards - Enhanced interactions */
+        /* =============================================
+           PRODUCT CARDS
+           ============================================= */
         .product-card {
-            background: var(--surface-tertiary);
+            background: var(--surface-primary);
             border-radius: var(--radius-xl);
             overflow: hidden;
             transition: all var(--transition-base);
@@ -415,88 +415,28 @@
         }
 
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-            border-color: transparent;
+            transform: translateY(-6px);
+            box-shadow: 0 24px 48px -12px rgba(124, 58, 237, 0.12);
+            border-color: rgba(124, 58, 237, 0.2);
         }
 
         .product-card:hover .product-image {
-            transform: scale(1.08);
-        }
-
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-
-        .product-card:hover::before {
-            opacity: 1;
+            transform: scale(1.06);
         }
 
         .product-image {
-            transition: transform var(--transition-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform var(--transition-slow);
         }
 
-        /* Feature Icons - Enhanced design */
-        .feature-icon {
-            width: 72px;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--surface-secondary) 0%, var(--surface-primary) 100%);
-            border-radius: var(--radius-lg);
-            margin: 0 auto 1.5rem;
-            transition: all var(--transition-base);
-            border: 1px solid var(--border-light);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-icon::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            opacity: 0;
-            transition: opacity var(--transition-base);
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .feature-card:hover .feature-icon::before {
-            opacity: 0.1;
-        }
-
-        .feature-icon i {
-            position: relative;
-            z-index: 1;
-            transition: color var(--transition-base);
-        }
-
-        .feature-card:hover .feature-icon i {
-            color: var(--primary);
-        }
-
-        /* Animations */
+        /* =============================================
+           ANIMATIONS
+           ============================================= */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(40px);
+                transform: translateY(32px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -504,43 +444,58 @@
         }
 
         .fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: fadeInUp 0.7s var(--ease) forwards;
             opacity: 0;
         }
 
-        .staggered > * {
+        .staggered>* {
             opacity: 0;
-            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: fadeInUp 0.6s var(--ease) forwards;
         }
 
-        .staggered > *:nth-child(1) { animation-delay: 0.1s; }
-        .staggered > *:nth-child(2) { animation-delay: 0.2s; }
-        .staggered > *:nth-child(3) { animation-delay: 0.3s; }
-        .staggered > *:nth-child(4) { animation-delay: 0.4s; }
-        .staggered > *:nth-child(5) { animation-delay: 0.5s; }
+        .staggered>*:nth-child(1) {
+            animation-delay: 0.08s;
+        }
 
-        /* Spacing - Systematic approach */
+        .staggered>*:nth-child(2) {
+            animation-delay: 0.16s;
+        }
+
+        .staggered>*:nth-child(3) {
+            animation-delay: 0.24s;
+        }
+
+        .staggered>*:nth-child(4) {
+            animation-delay: 0.32s;
+        }
+
+        .staggered>*:nth-child(5) {
+            animation-delay: 0.40s;
+        }
+
+        /* =============================================
+           LAYOUT UTILITIES
+           ============================================= */
         .section-spacing {
             padding: 4rem 1rem;
         }
 
         @media (min-width: 768px) {
             .section-spacing {
-                padding: 8rem 2rem;
+                padding: 7rem 2rem;
             }
         }
 
         @media (min-width: 1024px) {
             .section-spacing {
-                padding: 10rem 3rem;
+                padding: 9rem 3rem;
             }
         }
 
-        /* Container */
         .container-custom {
-            max-width: 1440px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.25rem;
             width: 100%;
         }
 
@@ -552,11 +507,10 @@
 
         @media (min-width: 1280px) {
             .container-custom {
-                padding: 0 4rem;
+                padding: 0 3.5rem;
             }
         }
 
-        /* Grid - Responsive and flexible */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -565,44 +519,62 @@
 
         @media (min-width: 1024px) {
             .products-grid {
-                gap: 2.5rem;
+                gap: 2rem;
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             }
         }
 
-        /* Utility classes */
+        /* Gradients */
         .text-gradient {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            /* Fix for clipped descenders (g, y, p, q) */
+            padding-bottom: 0.15em;
+            display: inline-block;
         }
 
-        .bg-gradient {
-            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+        /* Glass Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: var(--shadow-md);
         }
 
-        /* Loading states */
+        [data-theme="dark"] .glass-card {
+            background: rgba(20, 16, 32, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Loading Skeleton */
         .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background: linear-gradient(90deg, var(--surface-secondary) 25%, var(--surface-tertiary) 50%, var(--surface-secondary) 75%);
             background-size: 200% 100%;
             animation: loading 1.5s ease-in-out infinite;
             border-radius: var(--radius-md);
         }
 
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
-        /* Toast notification */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 2rem;
             right: 1rem;
             left: 1rem;
-            background: var(--text-primary);
-            color: white;
+            background: var(--text-main);
+            color: var(--bg-body);
             padding: 1rem 1.25rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
@@ -610,7 +582,7 @@
             opacity: 0;
             transition: all var(--transition-base);
             z-index: 9999;
-            max-width: 350px;
+            max-width: 380px;
             margin: 0 auto;
         }
 
@@ -627,7 +599,7 @@
             opacity: 1;
         }
 
-        /* Focus states for accessibility */
+        /* Focus States */
         a:focus-visible,
         button:focus-visible,
         input:focus-visible,
@@ -637,70 +609,27 @@
             border-radius: var(--radius-sm);
         }
 
-        /* Progress indicator */
+        /* Scroll Progress */
         .scroll-progress {
             position: fixed;
             top: 0;
             left: 0;
             width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
             z-index: 1001;
-            transition: width 0.1s ease;
+            transition: width 0.08s linear;
         }
 
-        /* Back to top button */
-        .back-to-top {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all var(--transition-base);
-            z-index: 999;
-            box-shadow: var(--shadow-md);
-            border: none;
-            touch-action: manipulation;
-        }
 
-        @media (max-width: 640px) {
-            .back-to-top {
-                bottom: 1rem;
-                right: 1rem;
-                width: 44px;
-                height: 44px;
-            }
-        }
 
-        .back-to-top.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .back-to-top:hover {
-            background: var(--primary-dark);
-            transform: translateY(-5px);
-        }
-
-        /* Mobile menu - MEJORADO */
+        /* Mobile Menu */
         .mobile-menu-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             opacity: 0;
             visibility: hidden;
             transition: all var(--transition-base);
@@ -716,32 +645,26 @@
             position: fixed;
             top: 0;
             right: -100%;
-            width: 85%;
-            max-width: 400px;
+            width: 84%;
+            max-width: 380px;
             height: 100vh;
             height: 100dvh;
             background: var(--bg-nav);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             z-index: 999;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: right 0.35s var(--ease);
             padding: 1.5rem 1.25rem;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-        }
-
-        @media (max-width: 480px) {
-            .mobile-menu {
-                width: 90%;
-                padding: 1.25rem 1rem;
-            }
+            border-left: 1px solid var(--border-subtle);
         }
 
         .mobile-menu.active {
             right: 0;
         }
 
-        /* MEJORA: Search en móvil */
+        /* Mobile Search */
         .mobile-search-container {
             position: fixed;
             top: 0;
@@ -754,7 +677,7 @@
             padding: 1rem;
             z-index: 1000;
             transform: translateY(-100%);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s var(--ease);
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -764,9 +687,9 @@
             transform: translateY(0);
         }
 
-        /* =========================================
-           FOOTER V2: GRID ESTRUCTURADO - MEJORAS MOBILE
-           ========================================= */
+        /* =============================================
+           FOOTER
+           ============================================= */
         .footer-v2 {
             background-color: var(--bg-footer);
             border-top: 1px solid var(--border-subtle);
@@ -777,91 +700,78 @@
 
         @media (min-width: 768px) {
             .footer-v2 {
-                padding-top: 5rem;
+                padding-top: 4.5rem;
             }
         }
 
         .footer-col-title {
-            font-size: 0.85rem;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-sub);
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
             font-weight: 700;
             margin-bottom: 1.25rem;
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .footer-col-title {
-                margin-bottom: 1rem;
-            }
-        }
-
         .footer-link-v2 {
             display: block;
-            color: var(--text-main);
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-            transition: transform 0.2s, color 0.2s;
+            color: var(--text-secondary);
+            margin-bottom: 0.625rem;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease, color 0.2s ease;
             text-decoration: none;
-            padding: 0.25rem 0;
-        }
-
-        @media (max-width: 768px) {
-            .footer-link-v2 {
-                margin-bottom: 0.5rem;
-                font-size: 0.9rem;
-            }
+            padding: 0.2rem 0;
         }
 
         .footer-link-v2:hover {
             color: var(--primary);
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
 
-        /* Tarjeta Newsletter dentro del Footer */
+        /* Newsletter Card */
         .newsletter-card {
             background-color: var(--card-footer);
             border: 1px solid var(--border-subtle);
-            border-radius: 1.25rem;
-            padding: 1.5rem;
+            border-radius: 1.5rem;
+            padding: 1.75rem;
             position: relative;
             overflow: hidden;
         }
 
-        @media (min-width: 768px) {
-            .newsletter-card {
-                padding: 2rem;
-                border-radius: 1.5rem;
-            }
-        }
-
-        /* Input Minimalista */
+        /* Input */
         .input-v2 {
             background: var(--bg-body);
             border: 1px solid var(--border-subtle);
             color: var(--text-main);
-            border-radius: 0.75rem;
-            transition: all 0.3s;
-            font-size: 1rem;
+            border-radius: 0.875rem;
+            transition: all 0.3s ease;
+            font-size: 0.9375rem;
             padding: 0.875rem 1rem;
             width: 100%;
             min-height: 48px;
+            font-family: var(--font-body);
         }
 
         .input-v2:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
         }
 
-        /* Print styles */
+        .input-v2::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Print */
         @media print {
+
             .nav-island,
             footer,
             .btn-primary,
             .btn-secondary,
-            .back-to-top {
+            .scroll-progress {
                 display: none !important;
             }
 
@@ -876,161 +786,131 @@
 </head>
 
 <body>
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="skip-to-content">Saltar al contenido principal</a>
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress" role="progressbar" aria-label="Progreso de lectura"></div>
 
-    <!-- Scroll progress indicator -->
-    <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- Mobile Search Container (Hidden by default) -->
-    <div class="mobile-search-container" id="mobileSearchContainer">
-        <button id="close-mobile-search" class="btn-icon-v2">
-            <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <div class="flex-1 flex items-center bg-[var(--card-footer)] rounded-full px-4 py-2 border border-[var(--border-subtle)]">
-            <i class="fa-solid fa-search text-[var(--text-sub)] text-sm"></i>
-            <input type="text" placeholder="Buscar productos..." class="bg-transparent border-none outline-none text-sm ml-2 w-full text-[var(--text-main)] placeholder-[var(--text-sub)]">
-        </div>
-    </div>
 
     <!-- ============================================
-         NAVBAR V2: "ISLA FLOTANTE"
+         NAVBAR — FLOATING ISLAND
          ============================================ -->
-    <nav class="nav-island flex items-center justify-between" id="navbar">
+    <nav class="nav-island flex items-center justify-between" id="navbar" role="navigation"
+        aria-label="Navegación principal">
 
-        <!-- Izquierda: Logo y Menú Desktop -->
-        <div class="flex items-center gap-6 md:gap-8">
-            <!-- Logo Compacto -->
-            <a href="{{ url_for('public.landing') }}" class="flex items-center gap-2 group" aria-label="LuxeraRD - Página de inicio">
-                <div class="w-8 h-8 md:w-9 md:h-9 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-md shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-bolt text-sm md:text-base"></i>
+        <div class="flex items-center gap-5 md:gap-7">
+            <!-- Logo -->
+            <a href="{{ url_for('public.landing') }}" class="flex items-center gap-3 group"
+                aria-label="F.I.S.M Technology — Página de inicio">
+                <div class="relative w-10 h-10 md:w-12 md:h-12 transition-transform duration-300 group-hover:scale-105">
+                    <img src="{{ url_for('static', filename='logos/logo_20260125_202221.jpg') }}" alt="F.I.S.M Logo"
+                        class="w-full h-full object-contain rounded-lg">
                 </div>
-                <span class="font-heading font-bold text-lg md:text-xl tracking-tight text-[var(--text-main)]">
-                    Luxera<span class="text-gradient">RD</span>
-                </span>
+                <div class="flex items-baseline gap-1.5 ml-0.5">
+                    <span class="font-sans font-bold text-xl md:text-2xl tracking-tight text-[var(--text-main)]">
+                        F.I.S.M
+                    </span>
+                    <span class="font-sans text-lg md:text-xl font-bold tracking-tight text-gradient">
+                        Technology
+                    </span>
+                </div>
             </a>
-
-            <!-- Links Desktop -->
-            <div class="hidden md:flex items-center gap-1">
-                <a href="{{ url_for('public.landing') }}" class="nav-link-v2" data-nav="home">Inicio</a>
-                <a href="{{ url_for('public.catalog') }}" class="nav-link-v2" data-nav="catalog">Tienda</a>
-                <a href="#features" class="nav-link-v2" data-nav="features">Servicios</a>
-                <a href="contact" class="nav-link-v2" data-nav="contact">Contacto</a>
-            </div>
         </div>
 
-        <!-- Derecha: Acciones -->
-        <div class="flex items-center gap-2 md:gap-3">
+        <!-- Center: Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <a href="{{ url_for('public.landing') }}"
+                class="nav-link-v2 {{ 'active' if request.endpoint == 'public.landing' else '' }}">Inicio</a>
+            <a href="{{ url_for('public.catalog') }}"
+                class="nav-link-v2 {{ 'active' if request.endpoint and (request.endpoint == 'public.catalog' or request.endpoint == 'public.product_detail' or 'catalog' in request.endpoint) else '' }}">Tienda</a>
+            <a href="{{ url_for('public.about') }}"
+                class="nav-link-v2 {{ 'active' if request.endpoint == 'public.about' else '' }}">Nosotros</a>
+            <a href="{{ url_for('public.contact') }}"
+                class="nav-link-v2 {{ 'active' if request.endpoint == 'public.contact' else '' }}">Contacto</a>
+        </div>
 
-            <!-- Buscador Desktop -->
-            <div class="hidden lg:flex items-center bg-[var(--card-footer)] rounded-full px-3 py-1.5 border border-[var(--border-subtle)] focus-within:border-purple-500 transition-colors">
-                <i class="fa-solid fa-search text-[var(--text-sub)] text-sm ml-1"></i>
-                <input type="text" placeholder="Buscar..." class="bg-transparent border-none outline-none text-sm ml-2 w-32 text-[var(--text-main)] placeholder-[var(--text-sub)] focus:w-48 transition-all duration-300">
-            </div>
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-1.5 md:gap-2">
 
-            <!-- Botón Buscador Móvil -->
-            <button id="mobile-search-btn" class="lg:hidden btn-icon-v2" aria-label="Buscar productos">
-                <i class="fa-solid fa-search text-sm"></i>
-            </button>
 
-            <div class="h-6 w-px bg-[var(--border-subtle)] mx-1 hidden sm:block"></div>
+            <div class="h-5 w-px bg-[var(--border-subtle)] mx-0.5 hidden sm:block"></div>
 
             <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="btn-icon-v2" title="Cambiar Tema" aria-label="Cambiar tema">
+            <button onclick="toggleTheme()" class="btn-icon-v2" title="Cambiar Tema"
+                aria-label="Alternar tema claro/oscuro">
                 <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
             </button>
 
-            <!-- User Menu -->
-            <div class="relative group">
-                <button class="btn-icon-v2" aria-label="Mi cuenta" id="user-menu-btn">
-                    <i class="fa-solid fa-user text-sm"></i>
-                </button>
-                <div class="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-nav)] backdrop-blur-xl rounded-xl shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50 border border-[var(--border-subtle)]">
-                    <a href="{{ url_for('auth.login') }}" class="block px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">Iniciar Sesión</a>
-                    <a href="{{ url_for('auth.register') }}" class="block px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">Crear Cuenta</a>
-                    <div class="border-t border-[var(--border-subtle)] my-2"></div>
-                    <a href="#" class="block px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">Mis Pedidos</a>
-                    <a href="#" class="block px-4 py-3 text-sm text-[var(--text-main)] hover:bg-[var(--card-footer)]">Lista de Deseos</a>
-                </div>
-            </div>
 
-            <!-- Carrito -->
+
+            <!-- Cart -->
             <button class="btn-icon-v2 relative" aria-label="Carrito de compras">
                 <i class="fa-solid fa-bag-shopping text-sm"></i>
-                <span class="absolute -top-1 -right-1 w-5 h-5 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-semibold" id="cart-count">0</span>
+                <span
+                    class="absolute -top-0.5 -right-0.5 w-[18px] h-[18px] bg-purple-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold"
+                    id="cart-count">0</span>
             </button>
 
-            <!-- Botón CTA -->
-            <a href="{{ url_for('auth.login') }}" class="hidden sm:inline-flex items-center justify-center bg-[var(--text-main)] text-[var(--bg-body)] px-4 md:px-5 py-2 md:py-2 rounded-full text-sm font-bold hover:bg-purple-600 hover:text-white transition-all shadow-lg shadow-purple-900/10 ml-1 min-h-[44px]">
-                Entrar
-            </a>
 
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-btn" class="md:hidden btn-icon-v2 ml-1" aria-label="Menú de navegación" aria-expanded="false">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden btn-icon-v2 ml-0.5" aria-label="Abrir menú de navegación"
+                aria-expanded="false" aria-controls="mobile-menu">
                 <i class="fa-solid fa-bars" id="menu-icon"></i>
             </button>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
+    <!-- Mobile Overlay -->
     <div class="mobile-menu-overlay" id="mobile-overlay"></div>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Menú de navegación">
         <div class="flex items-center justify-between mb-8">
             <span class="font-heading font-bold text-xl text-[var(--text-main)]">Menú</span>
-            <button id="close-mobile-menu" class="btn-icon-v2">
-                <i class="fa-solid fa-times"></i>
+            <button id="close-mobile-menu" class="btn-icon-v2" aria-label="Cerrar menú">
+                <i class="fa-solid fa-xmark text-lg"></i>
             </button>
         </div>
 
-        <!-- Search in Mobile Menu -->
-        <div class="mb-6">
-            <div class="flex items-center bg-[var(--card-footer)] rounded-full px-4 py-3 border border-[var(--border-subtle)]">
-                <i class="fa-solid fa-search text-[var(--text-sub)] text-sm"></i>
-                <input type="text" placeholder="Buscar productos..." class="bg-transparent border-none outline-none text-sm ml-3 w-full text-[var(--text-main)] placeholder-[var(--text-sub)]">
-            </div>
-        </div>
 
-        <nav class="space-y-1 mb-6">
-            <a href="{{ url_for('public.landing') }}" class="flex items-center gap-3 py-4 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-base active:bg-[var(--card-footer)]">
-                <i class="fa-solid fa-home w-5 text-[var(--text-sub)]"></i>
-                <span class="font-medium">Inicio</span>
+
+        <nav class="space-y-0.5 mb-6" aria-label="Navegación móvil">
+            <a href="{{ url_for('public.landing') }}"
+                class="flex items-center gap-3.5 py-3.5 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-[0.9375rem] active:bg-[var(--card-footer)]">
+                <i class="fa-solid fa-home w-5 text-[var(--text-tertiary)]"></i>
+                <span class="font-semibold">Inicio</span>
             </a>
-            <a href="{{ url_for('public.catalog') }}" class="flex items-center gap-3 py-4 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-base active:bg-[var(--card-footer)]">
-                <i class="fa-solid fa-laptop w-5 text-[var(--text-sub)]"></i>
-                <span class="font-medium">Tienda</span>
+            <a href="{{ url_for('public.catalog') }}"
+                class="flex items-center gap-3.5 py-3.5 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-[0.9375rem] active:bg-[var(--card-footer)]">
+                <i class="fa-solid fa-laptop w-5 text-[var(--text-tertiary)]"></i>
+                <span class="font-semibold">Tienda</span>
             </a>
-            <a href="#features" class="flex items-center gap-3 py-4 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-base active:bg-[var(--card-footer)]">
-                <i class="fa-solid fa-star w-5 text-[var(--text-sub)]"></i>
-                <span class="font-medium">Servicios</span>
+            <a href="{{ url_for('public.about') }}"
+                class="flex items-center gap-3.5 py-3.5 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-[0.9375rem] active:bg-[var(--card-footer)]">
+                <i class="fa-solid fa-building w-5 text-[var(--text-tertiary)]"></i>
+                <span class="font-semibold">Nosotros</span>
             </a>
-            <a href="contact" class="flex items-center gap-3 py-4 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-base active:bg-[var(--card-footer)]">
-                <i class="fa-solid fa-phone w-5 text-[var(--text-sub)]"></i>
-                <span class="font-medium">Contacto</span>
+            <a href="{{ url_for('public.contact') }}"
+                class="flex items-center gap-3.5 py-3.5 px-4 rounded-xl hover:bg-[var(--card-footer)] transition-colors text-[var(--text-main)] text-[0.9375rem] active:bg-[var(--card-footer)]">
+                <i class="fa-solid fa-phone w-5 text-[var(--text-tertiary)]"></i>
+                <span class="font-semibold">Contacto</span>
             </a>
         </nav>
 
-        <div class="border-t border-[var(--border-subtle)] my-4"></div>
 
-        <div class="space-y-3 mb-6">
-            <a href="{{ url_for('auth.login') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors active:bg-purple-700 text-base">
-                <i class="fa-solid fa-user"></i>
-                <span>Iniciar Sesión</span>
-            </a>
-            <a href="{{ url_for('auth.register') }}" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-purple-600 text-purple-600 font-medium hover:bg-purple-50 transition-colors active:bg-purple-50 text-base">
-                <i class="fa-solid fa-user-plus"></i>
-                <span>Crear Cuenta</span>
-            </a>
-        </div>
 
         <div class="border-t border-[var(--border-subtle)] my-4"></div>
 
-        <div class="space-y-2">
-            <a href="#" class="block py-2.5 text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors text-sm">Garantía</a>
-            <a href="#" class="block py-2.5 text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors text-sm">Envíos</a>
-            <a href="#" class="block py-2.5 text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors text-sm">Privacidad</a>
-            <a href="#" class="block py-2.5 text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors text-sm">Términos</a>
+        <div class="space-y-1">
+            <a href="{{ url_for('public.warranty') }}"
+                class="block py-2.5 text-[var(--text-tertiary)] hover:text-[var(--text-main)] transition-colors text-sm">Garantía</a>
+            <a href="{{ url_for('public.faq') }}"
+                class="block py-2.5 text-[var(--text-tertiary)] hover:text-[var(--text-main)] transition-colors text-sm">Preguntas
+                Frecuentes</a>
+            <a href="{{ url_for('public.privacy') }}"
+                class="block py-2.5 text-[var(--text-tertiary)] hover:text-[var(--text-main)] transition-colors text-sm">Privacidad</a>
+            <a href="{{ url_for('public.terms') }}"
+                class="block py-2.5 text-[var(--text-tertiary)] hover:text-[var(--text-main)] transition-colors text-sm">Términos</a>
         </div>
     </div>
 
@@ -1040,63 +920,69 @@
     </main>
 
     <!-- ============================================
-         FOOTER V2: GRID ESTRUCTURADO
+         FOOTER
          ============================================ -->
-    <footer class="footer-v2">
-        <div class="container mx-auto px-4 md:px-6 lg:px-12">
-            <!-- Parte Superior: Grid Principal -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 mb-12">
-                <!-- Columna 1: Navegación Rápida (Span 2) -->
+    <footer class="footer-v2" role="contentinfo">
+        <div class="container mx-auto px-5 md:px-6 lg:px-12">
+            <!-- Top Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-12 gap-8 lg:gap-12 mb-12">
+                <!-- Col 1: Products -->
                 <div class="lg:col-span-2">
                     <span class="footer-col-title">Productos</span>
-                    <nav class="flex flex-col">
+                    <nav class="flex flex-col" aria-label="Productos">
                         <a href="{{ url_for('public.catalog') }}" class="footer-link-v2">Laptops</a>
-                        <a href="#" class="footer-link-v2">Componentes</a>
-                        <a href="#" class="footer-link-v2">Monitores</a>
-                        <a href="#" class="footer-link-v2">Accesorios</a>
-                        <a href="{{ url_for('public.catalog') }}" class="footer-link-v2 text-purple-500 font-medium">Ver Ofertas</a>
+                        <a href="{{ url_for('public.products_catalog') }}" class="footer-link-v2">Componentes</a>
+                        <a href="{{ url_for('public.products_catalog') }}" class="footer-link-v2">Monitores</a>
+                        <a href="{{ url_for('public.products_catalog') }}" class="footer-link-v2">Accesorios</a>
+                        <a href="{{ url_for('public.catalog') }}"
+                            class="footer-link-v2 text-purple-500 font-semibold">Ver Ofertas</a>
                     </nav>
                 </div>
 
-                <!-- Columna 2: Empresa (Span 2) -->
+                <!-- Col 2: Company -->
                 <div class="lg:col-span-2">
-                    <span class="footer-col-title">Luxera</span>
-                    <nav class="flex flex-col">
+                    <span class="footer-col-title">F.I.S.M</span>
+                    <nav class="flex flex-col" aria-label="Empresa">
                         <a href="{{ url_for('public.about') }}" class="footer-link-v2">Historia</a>
-                        <a href="#" class="footer-link-v2">Blog</a>
-                        <a href="#" class="footer-link-v2">Carreras</a>
+                        <a href="{{ url_for('public.faq') }}" class="footer-link-v2">Preguntas Frecuentes</a>
+                        <a href="{{ url_for('public.warranty') }}" class="footer-link-v2">Garantía</a>
                         <a href="{{ url_for('public.contact') }}" class="footer-link-v2">Contacto</a>
                     </nav>
                 </div>
 
-                <!-- Columna 3: Soporte (Span 2) -->
-                <div class="lg:col-span-2">
+                <!-- Col 3: Legal -->
+                <div class="lg:col-span-2 col-span-2 sm:col-span-1">
                     <span class="footer-col-title">Legal & Ayuda</span>
-                    <nav class="flex flex-col">
-                        <a href="#" class="footer-link-v2">Garantía</a>
-                        <a href="#" class="footer-link-v2">Envíos</a>
-                        <a href="#" class="footer-link-v2">Privacidad</a>
-                        <a href="#" class="footer-link-v2">Términos</a>
+                    <nav class="flex flex-col" aria-label="Legal y ayuda">
+                        <a href="{{ url_for('public.warranty') }}" class="footer-link-v2">Garantía</a>
+                        <a href="{{ url_for('public.faq') }}" class="footer-link-v2">FAQ</a>
+                        <a href="{{ url_for('public.privacy') }}" class="footer-link-v2">Privacidad</a>
+                        <a href="{{ url_for('public.terms') }}" class="footer-link-v2">Términos</a>
                     </nav>
                 </div>
 
-                <!-- Columna 4: Newsletter Destacado (Span 6) -->
-                <div class="lg:col-span-6">
+                <!-- Col 4: Newsletter -->
+                <div class="lg:col-span-6 col-span-2 sm:col-span-3">
                     <div class="newsletter-card flex flex-col justify-center h-full">
-                        <!-- Decoración Abstracta -->
-                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                        <div
+                            class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/15 rounded-full blur-3xl pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none">
+                        </div>
 
                         <div class="relative z-10">
                             <h3 class="font-heading text-xl md:text-2xl font-bold text-[var(--text-main)] mb-2">
                                 ¿Buscas potencia?
                             </h3>
-                            <p class="text-[var(--text-sub)] mb-6 text-sm max-w-md">
+                            <p class="text-[var(--text-secondary)] mb-5 text-sm max-w-md">
                                 Suscríbete para recibir alertas de stock y descuentos exclusivos para miembros.
                             </p>
-
-                            <form class="flex flex-col sm:flex-row gap-3">
-                                <input type="email" placeholder="tu@correo.com" class="input-v2 px-4 py-3 text-sm">
-                                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-600/20 whitespace-nowrap text-sm md:text-base min-h-[48px]">
+                            <form class="flex flex-col sm:flex-row gap-2.5">
+                                <input type="email" placeholder="tu@correo.com" class="input-v2 px-4 py-3 text-sm"
+                                    aria-label="Correo electrónico para newsletter">
+                                <button type="submit"
+                                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-600/20 whitespace-nowrap text-sm min-h-[48px]">
                                     Suscribirse
                                 </button>
                             </form>
@@ -1105,33 +991,46 @@
                 </div>
             </div>
 
-            <!-- Separador -->
+            <!-- Divider -->
             <div class="h-px w-full bg-[var(--border-subtle)] mb-6"></div>
 
-            <!-- Parte Inferior: Copyright & Social -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <!-- Logo & Copy -->
-                <div class="flex items-center gap-4">
-                    <div class="w-8 h-8 bg-[var(--text-main)] rounded-lg flex items-center justify-center text-[var(--bg-body)]">
-                        <i class="fa-solid fa-laptop-code text-xs"></i>
-                    </div>
-                    <span class="text-sm text-[var(--text-sub)] text-center md:text-left">
+            <!-- Bottom: Copyright & Social -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-5">
+                <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                    <a href="{{ url_for('public.landing') }}" class="flex items-center gap-3 group"
+                        aria-label="F.I.S.M Technology">
+                        <div class="relative w-9 h-9 transition-transform duration-300 group-hover:scale-105">
+                            <img src="{{ url_for('static', filename='logos/logo_20260125_202221.jpg') }}"
+                                alt="F.I.S.M Logo" class="w-full h-full object-contain rounded-md">
+                        </div>
+                        <div class="flex items-baseline gap-1.5 ml-0.5">
+                            <span
+                                class="font-sans font-bold text-lg tracking-tight text-[var(--text-main)]">F.I.S.M</span>
+                            <span class="font-sans text-base font-bold tracking-tight text-gradient">Technology</span>
+                        </div>
+                    </a>
+                    <span class="hidden md:block w-px h-4 bg-[var(--border-subtle)]"></span>
+                    <span class="text-sm text-[var(--text-tertiary)] text-center md:text-left">
                         © 2026 F.I.S.M Technology SRL. Todos los derechos reservados.
                     </span>
                 </div>
-
-                <!-- Social Icons (Minimalistas) -->
-                <div class="flex items-center gap-6">
-                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                <div class="flex items-center gap-5">
+                    <a href="#" class="text-[var(--text-tertiary)] hover:text-[var(--primary)] transition-colors"
+                        aria-label="Facebook" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-facebook text-lg"></i>
                     </a>
-                    <a href="#" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
+                    <a href="#" class="text-[var(--text-tertiary)] hover:text-[var(--primary)] transition-colors"
+                        aria-label="Twitter" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-twitter text-lg"></i>
                     </a>
-                    <a href="https://www.instagram.com/fismrd" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <a href="https://www.instagram.com/fismrd"
+                        class="text-[var(--text-tertiary)] hover:text-[var(--primary)] transition-colors"
+                        aria-label="Instagram" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-instagram text-lg"></i>
                     </a>
-                    <a href="https://wa.me/1829823340" class="text-[var(--text-sub)] hover:text-[var(--text-main)] transition-colors" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                    <a href="https://wa.me/18298233450"
+                        class="text-[var(--text-tertiary)] hover:text-[var(--primary)] transition-colors"
+                        aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-whatsapp text-lg"></i>
                     </a>
                 </div>
@@ -1139,309 +1038,159 @@
         </div>
     </footer>
 
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
-        <i class="fas fa-chevron-up"></i>
-    </button>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
+    <!-- Toast -->
+    <div class="toast" id="toast" role="alert" aria-live="polite">
         <div class="flex items-start">
             <i class="fas fa-check-circle text-green-400 mt-0.5 mr-3"></i>
             <div>
-                <p class="font-medium" id="toast-title">Producto agregado</p>
-                <p class="text-sm text-gray-300 mt-1" id="toast-message">El producto se ha agregado a tu carrito</p>
+                <p class="font-bold text-sm" id="toast-title">Éxito</p>
+                <p class="text-xs opacity-80 mt-0.5" id="toast-message">Operación completada</p>
             </div>
-            <button class="ml-auto text-gray-400 hover:text-white" id="toast-close" aria-label="Cerrar notificación">
-                <i class="fas fa-times"></i>
+            <button class="ml-auto pl-3 opacity-60 hover:opacity-100 transition-opacity" id="toast-close"
+                aria-label="Cerrar notificación">
+                <i class="fas fa-times text-sm"></i>
             </button>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
     <script>
-        // ============================================
-        // THEME TOGGLE
-        // ============================================
-        const themeIcon = document.getElementById('theme-icon');
+        // State
+        const uiState = { isMobileMenuOpen: false, cartItems: 0, currentSection: 'home' };
 
-        function toggleTheme() {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-
-            // Actualizar icono
-            if(next === 'dark') {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-            } else {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-            }
-        }
-
-        // Init Theme
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        if(savedTheme === 'dark') {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
-
-        // ============================================
-        // UI STATE & DOM ELEMENTS
-        // ============================================
-        const uiState = {
-            lastScroll: 0,
-            scrollDirection: 'down',
-            isMobileMenuOpen: false,
-            isMobileSearchOpen: false,
-            cartItems: 0,
-            currentSection: 'home'
-        };
-
+        // DOM Elements
         const navbar = document.getElementById('navbar');
         const scrollProgress = document.getElementById('scrollProgress');
-        const backToTop = document.getElementById('backToTop');
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileOverlay = document.getElementById('mobile-overlay');
         const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
         const menuIcon = document.getElementById('menu-icon');
+        const cartCount = document.getElementById('cart-count');
         const toast = document.getElementById('toast');
         const toastTitle = document.getElementById('toast-title');
         const toastMessage = document.getElementById('toast-message');
         const toastClose = document.getElementById('toast-close');
-        const cartCount = document.getElementById('cart-count');
         const navLinks = document.querySelectorAll('.nav-link-v2');
 
-        // Mobile search elements
-        const mobileSearchBtn = document.getElementById('mobile-search-btn');
-        const mobileSearchContainer = document.getElementById('mobileSearchContainer');
-        const closeMobileSearchBtn = document.getElementById('close-mobile-search');
 
-        // ============================================
-        // MOBILE SEARCH FUNCTIONALITY
-        // ============================================
-        function toggleMobileSearch() {
-            uiState.isMobileSearchOpen = !uiState.isMobileSearchOpen;
+        // ===========================
+        // THEME MANAGEMENT
+        // ===========================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
 
-            if (uiState.isMobileSearchOpen) {
-                mobileSearchContainer.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                // Focus en el input de búsqueda
-                setTimeout(() => {
-                    mobileSearchContainer.querySelector('input').focus();
-                }, 300);
-            } else {
-                mobileSearchContainer.classList.remove('active');
-                document.body.style.overflow = '';
-            }
+            html.setAttribute('data-theme', next);
+            icon.classList.toggle('fa-sun', next === 'light');
+            icon.classList.toggle('fa-moon', next === 'dark');
+            localStorage.setItem('theme', next);
         }
 
-        mobileSearchBtn.addEventListener('click', toggleMobileSearch);
-        closeMobileSearchBtn.addEventListener('click', toggleMobileSearch);
-
-        // Cerrar búsqueda móvil al presionar Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && uiState.isMobileSearchOpen) {
-                toggleMobileSearch();
+        // Initialize theme
+        (function () {
+            const saved = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', saved);
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.classList.toggle('fa-sun', saved === 'light');
+                icon.classList.toggle('fa-moon', saved === 'dark');
             }
-        });
+        })();
 
-        // ============================================
-        // SCROLL EFFECTS
-        // ============================================
+        // ===========================
+        // SCROLL HANDLING
+        // ===========================
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const scrollY = window.pageYOffset;
+                    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-            // Update scroll direction
-            uiState.scrollDirection = currentScroll > uiState.lastScroll ? 'down' : 'up';
-            uiState.lastScroll = currentScroll;
+                    // Nav style
+                    navbar.classList.toggle('scrolled', scrollY > 60);
 
-            // Navbar scroll effect
-            if (currentScroll > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
+                    // Progress bar
+                    scrollProgress.style.width = docHeight > 0 ? (scrollY / docHeight * 100) + '%' : '0%';
+
+                    ticking = false;
+                });
+                ticking = true;
             }
+        }, { passive: true });
 
-            // Scroll progress
-            const scrollPercent = (currentScroll / (documentHeight - windowHeight)) * 100;
-            scrollProgress.style.width = scrollPercent + '%';
 
-            // Back to top button
-            if (currentScroll > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-
-            // Update active nav
-            updateActiveNav();
-        });
-
-        // Back to top click
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // ============================================
+        // ===========================
         // MOBILE MENU
-        // ============================================
+        // ===========================
         function toggleMobileMenu() {
             uiState.isMobileMenuOpen = !uiState.isMobileMenuOpen;
-
-            if (uiState.isMobileMenuOpen) {
-                mobileMenu.classList.add('active');
-                mobileOverlay.classList.add('active');
-                menuIcon.classList.remove('fa-bars');
-                menuIcon.classList.add('fa-times');
-                document.body.style.overflow = 'hidden';
-            } else {
-                mobileMenu.classList.remove('active');
-                mobileOverlay.classList.remove('active');
-                menuIcon.classList.remove('fa-times');
-                menuIcon.classList.add('fa-bars');
-                document.body.style.overflow = '';
-            }
+            mobileMenu.classList.toggle('active', uiState.isMobileMenuOpen);
+            mobileOverlay.classList.toggle('active', uiState.isMobileMenuOpen);
+            document.body.style.overflow = uiState.isMobileMenuOpen ? 'hidden' : '';
+            mobileMenuBtn.setAttribute('aria-expanded', uiState.isMobileMenuOpen);
+            menuIcon.className = uiState.isMobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
         }
 
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileOverlay.addEventListener('click', toggleMobileMenu);
         closeMobileMenuBtn.addEventListener('click', toggleMobileMenu);
 
-        // Close mobile menu on link click
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                if (uiState.isMobileMenuOpen) {
-                    toggleMobileMenu();
-                }
+                if (uiState.isMobileMenuOpen) toggleMobileMenu();
             });
         });
 
-        // ============================================
-        // TOUCH-OPTIMIZED INTERACTIONS
-        // ============================================
-        // Mejorar feedback táctil para botones
-        document.querySelectorAll('.btn-icon-v2, .btn-primary, .btn-secondary').forEach(button => {
-            button.addEventListener('touchstart', function() {
-                this.style.transform = 'scale(0.95)';
-            }, { passive: true });
+        // ===========================
+        // MOBILE SEARCH
+        // ===========================
 
-            button.addEventListener('touchend', function() {
-                this.style.transform = '';
-            }, { passive: true });
-        });
 
-        // ============================================
-        // TOAST NOTIFICATIONS
-        // ============================================
+        // ===========================
+        // TOAST
+        // ===========================
         function showToast(title, message, type = 'success') {
             toastTitle.textContent = title;
             toastMessage.textContent = message;
-
             const icon = toast.querySelector('i');
             icon.className = type === 'success' ? 'fas fa-check-circle text-green-400 mt-0.5 mr-3' :
-                            type === 'error' ? 'fas fa-exclamation-circle text-red-400 mt-0.5 mr-3' :
-                            'fas fa-info-circle text-blue-400 mt-0.5 mr-3';
-
+                type === 'error' ? 'fas fa-exclamation-circle text-red-400 mt-0.5 mr-3' :
+                    'fas fa-info-circle text-blue-400 mt-0.5 mr-3';
             toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+            setTimeout(() => toast.classList.remove('show'), 4000);
         }
+        toastClose.addEventListener('click', () => toast.classList.remove('show'));
 
-        toastClose.addEventListener('click', () => {
-            toast.classList.remove('show');
-        });
-
-        // ============================================
-        // ACTIVE NAV UPDATE
-        // ============================================
-        function updateActiveNav() {
-            const sections = {
-                home: 0,
-                features: document.getElementById('features')?.offsetTop || 500,
-                contact: document.getElementById('contact')?.offsetTop || 1500
-            };
-
-            const currentScroll = window.pageYOffset + 150;
-
-            let current = 'home';
-            if (currentScroll >= sections.contact) {
-                current = 'contact';
-            } else if (currentScroll >= sections.features) {
-                current = 'features';
-            }
-
-            if (uiState.currentSection !== current) {
-                uiState.currentSection = current;
-
-                navLinks.forEach(link => {
-                    const nav = link.dataset.nav;
-                    if (nav === current) {
-                        link.classList.add('active');
-                    } else {
-                        link.classList.remove('active');
-                    }
-                });
-            }
-        }
-
-        // ============================================
-        // CART FUNCTIONS
-        // ============================================
+        // ===========================
+        // CART
+        // ===========================
         function addToCart() {
             uiState.cartItems++;
             cartCount.textContent = uiState.cartItems;
-            cartCount.classList.add('animate-pulse');
-
-            showToast('Producto agregado', 'El producto se ha agregado a tu carrito', 'success');
-
-            setTimeout(() => {
-                cartCount.classList.remove('animate-pulse');
-            }, 1000);
+            showToast('Producto agregado', 'Se ha agregado a tu carrito', 'success');
         }
 
         function initCart() {
-            const savedCart = localStorage.getItem('luxerard_cart');
-            if (savedCart) {
+            const saved = localStorage.getItem('luxerard_cart');
+            if (saved) {
                 try {
-                    const cart = JSON.parse(savedCart);
-                    if (Array.isArray(cart)) {
-                        uiState.cartItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
-                    } else {
-                        uiState.cartItems = parseInt(savedCart) || 0;
-                    }
+                    const cart = JSON.parse(saved);
+                    uiState.cartItems = Array.isArray(cart) ? cart.reduce((s, i) => s + (i.quantity || 0), 0) : parseInt(saved) || 0;
                     cartCount.textContent = uiState.cartItems;
-                } catch (e) {
-                    uiState.cartItems = 0;
-                }
+                } catch (e) { uiState.cartItems = 0; }
             }
         }
 
-        function saveCart() {
-            localStorage.setItem('luxerard_cart_count', uiState.cartItems.toString());
-        }
-
-        // ============================================
-        // INTERSECTION OBSERVER FOR ANIMATIONS
-        // ============================================
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
+        // ===========================
+        // INTERSECTION OBSERVER
+        // ===========================
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1449,68 +1198,45 @@
                     observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
+        // ===========================
+        // INIT
+        // ===========================
         document.addEventListener('DOMContentLoaded', () => {
             initCart();
-            updateActiveNav();
 
-            // Observe animations
-            document.querySelectorAll('[data-animate]').forEach(el => {
-                observer.observe(el);
-            });
+            // Observe animated elements
+            document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
 
-            // Keyboard navigation
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && uiState.isMobileMenuOpen) {
-                    toggleMobileMenu();
-                }
-                if (e.key === 'Escape' && uiState.isMobileSearchOpen) {
-                    toggleMobileSearch();
+                if (e.key === 'Escape') {
+                    if (uiState.isMobileMenuOpen) toggleMobileMenu();
+
                 }
             });
 
-            // Save cart before unload
-            window.addEventListener('beforeunload', saveCart);
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('luxerard_cart_count', uiState.cartItems.toString());
+            });
 
-            // Mejorar UX en dispositivos táctiles
+            // Touch device enhancements
             if ('ontouchstart' in window) {
                 document.body.classList.add('touch-device');
-
-                // Aumentar el área táctil para enlaces pequeños
-                document.querySelectorAll('a, button').forEach(el => {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.width < 44 || rect.height < 44) {
-                        el.style.minHeight = '44px';
-                        el.style.minWidth = '44px';
-                        el.style.display = 'inline-flex';
-                        el.style.alignItems = 'center';
-                        el.style.justifyContent = 'center';
-                    }
-                });
             }
         });
 
-        // Enhanced smooth scroll for anchor links
+        // Smooth scroll for anchors
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
                 if (href === '#') return;
-
                 e.preventDefault();
                 const target = document.querySelector(href);
                 if (target) {
-                    const navbarHeight = navbar.offsetHeight + 40;
-                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-
+                    const offset = navbar.offsetHeight + 32;
+                    window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - offset, behavior: 'smooth' });
                     history.pushState(null, null, href);
                 }
             });
@@ -1519,4 +1245,5 @@
 
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
